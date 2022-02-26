@@ -915,6 +915,7 @@
     </ClCompile>
     <ClCompile Include="src\win32\romeo\piccolo_gimic.cpp" />
     <ClCompile Include="src\win32\romeo\piccolo_romeo.cpp" />
+    <ClCompile Include="src\win32\romeo\piccolo_scci.cpp" />
     <ClCompile Include="src\win32\screen\drawd3d12.cpp" />
     <ClCompile Include="src\win32\screen\windraw.cpp" />
     <ClCompile Include="src\win32\sound\soundds.cpp" />
@@ -1268,7 +1269,10 @@
     <ClInclude Include="src\win32\romeo\piccolo.h" />
     <ClInclude Include="src\win32\romeo\piccolo_gimic.h" />
     <ClInclude Include="src\win32\romeo\piccolo_romeo.h" />
+    <ClInclude Include="src\win32\romeo\piccolo_scci.h" />
     <ClInclude Include="src\win32\romeo\romeo.h" />
+    <ClInclude Include="src\win32\romeo\scci.h" />
+    <ClInclude Include="src\win32\romeo\SCCIDefines.h" />
     <ClInclude Include="src\win32\screen\drawd3d12.h" />
     <ClInclude Include="src\win32\screen\pixel_shader.h" />
     <ClInclude Include="src\win32\screen\vertex_shader.h" />

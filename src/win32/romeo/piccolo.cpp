@@ -5,9 +5,9 @@
 #include <mmsystem.h>
 #include <process.h>
 #include <winioctl.h>
-
 #include "win32/romeo/piccolo_romeo.h"
 #include "win32/romeo/piccolo_gimic.h"
+#include "win32/romeo/piccolo_scci.h"
 #include "win32/romeo/romeo.h"
 #include "win32/status.h"
 #include "../../piccolo/piioctl.h"
@@ -30,6 +30,10 @@ Piccolo* Piccolo::GetInstance() {
     }
     delete instance;
     instance = new Piccolo_Gimic();
+    if (instance->Init() == PICCOLO_SUCCESS) {
+      return instance;
+    }
+    instance = new Piccolo_Scci();
     if (instance->Init() == PICCOLO_SUCCESS) {
       return instance;
     }
