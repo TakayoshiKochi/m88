@@ -32,29 +32,3 @@ inline unsigned int BCDtoN(unsigned int v) {
   return (v >> 4) * 10 + (v & 15);
 }
 
-template <class T>
-inline T gcd(T x, T y) {
-  T t;
-  while (y) {
-    t = x % y;
-    x = y;
-    y = t;
-  }
-  return x;
-}
-
-template <class T>
-T bessel0(T x) {
-  T p, r, s;
-
-  r = 1.0;
-  s = 1.0;
-  p = (x / 2.0) / s;
-
-  while (p > 1.0E-10) {
-    r += p * p;
-    s += 1.0;
-    p *= (x / 2.0) / s;
-  }
-  return r;
-}
