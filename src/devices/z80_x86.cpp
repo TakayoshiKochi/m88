@@ -244,7 +244,7 @@ static void __declspec(naked) SetPC() {
         mov edx,INST
         shr edx,PAGEBITS - 2
         and edx,PAGEMASK << 2
-        
+
         mov ecx,WAITTBL[edx]
         mov edx,RDPAGES[edx * (1 << (PAGESHIFT-2))].ptr
         mov INSTWAIT,ecx
@@ -259,11 +259,11 @@ static void __declspec(naked) SetPC() {
         //  instlim = ((uint8*) page->read) + (1 << MemoryManager::pagebits);
         //  inst = ((uint8*) page->read) + (newpc & MemoryManager::pagemask);
         mov INSTPAGE, edx
-        
+
         mov ecx, INST
         and ecx, (~PAGEOFFS) & 0ffffh
         sub ecx, edx
-        
+
         and INST, PAGEOFFS
         add INST, edx
         mov INSTBASE, ecx
@@ -271,7 +271,7 @@ static void __declspec(naked) SetPC() {
         add edx, 1 << PAGEBITS
         mov INSTLIM, edx
         ret
-#endif      
+#endif
     indirect:
             // instruction is not on memory
             //  instbase = instlim = 0;
@@ -307,10 +307,10 @@ static void __declspec(naked) Sync() {
     sync_test:
         push edx
         neg ebx  // ebx = clockcount
-        
+
         mov cl,CPU.eshift
         sal ebx,cl
-        
+
         mov edx,CPU.execcount
         add edx,ebx  // ebp
         cmp CPU.delaycount,edx  // (count1-1 - count2 >= 0) ?
@@ -321,7 +321,7 @@ static void __declspec(naked) Sync() {
         pop ecx
         or ebx,ebx
         ret
-    
+
     sync_needed:
         add CPU.execcount, ebx
         xor CLOCKCOUNT, CLOCKCOUNT
@@ -367,7 +367,7 @@ static void __declspec(naked) Reader8() {
         and ecx,PAGEOFFS
         movzx edx,byte ptr [ebx+ecx]
         ret
-        
+
     indirect:
         and ecx,0ffffh
         push eax
@@ -376,7 +376,7 @@ static void __declspec(naked) Reader8() {
         and ebx,not IDBIT
         push edx  // INST
         call ebx
-        mov edx,eax 
+        mov edx,eax
         pop eax
         ret
   }
@@ -403,7 +403,7 @@ static void __declspec(naked) Fetcher8() {
         add INST,INSTBASE  // edi を PC に変換
         call SetPC
         jz func
-        
+
         add CLOCKCOUNT,INSTWAIT
         movzx edx,byte ptr [INST]
         inc INST
@@ -422,7 +422,7 @@ static void __declspec(naked) Fetcher8() {
         inc INST
         push edx  // INST
         call ecx
-        mov edx,eax 
+        mov edx,eax
         pop eax
         ret
   }
@@ -449,7 +449,7 @@ static void __declspec(naked) Fetcher8sx() {
         add INST,INSTBASE  // edi を PC に変換
         call SetPC
         jz func
-        
+
         add CLOCKCOUNT,INSTWAIT
         movsx edx,byte ptr [INST]
         inc INST
@@ -468,7 +468,7 @@ static void __declspec(naked) Fetcher8sx() {
         inc INST
         push edx  // INST
         call ecx
-        movsx edx,al 
+        movsx edx,al
         pop eax
         ret
   }
@@ -491,7 +491,7 @@ static void __declspec(naked) Fetcher16() {
         ja indirect
         movzx edx,word ptr [INST-2]
         ret
-    
+
     indirect:
         sub INST,2
         push ebx
@@ -519,19 +519,19 @@ static void __declspec(naked) Reader16() {
         lea edx,[ecx+1]
         test edx,PAGEOFFS
         jz boundary
-        
+
         shr ecx,PAGEBITS-2
         and ecx,PAGEMASK << 2
         mov ebx,RDPAGES[ecx * (1 << (PAGESHIFT-2))].ptr
         test ebx,IDBIT
         jnz indirect
-        
+
         and edx,PAGEOFFS
         mov ecx,WAITTBL[ecx]
         movzx edx,word ptr [ebx+edx-1]
         lea CLOCKCOUNT,[CLOCKCOUNT+ecx*2]
         ret
-        
+
     indirect:
         and edx,0ffffh
         push eax
@@ -550,7 +550,7 @@ static void __declspec(naked) Reader16() {
         lea edx,[eax+ebx]
         pop eax
         ret
-        
+
     boundary:
         push ecx
         call Reader8
@@ -588,7 +588,7 @@ static void __declspec(naked) Writer8() {
         and ebx,PAGEOFFS
         mov [ecx+ebx],dl
         ret
-    
+
     indirect:
         push eax
         and edx,0ffh
@@ -620,7 +620,7 @@ static void __declspec(naked) Writer16() {
         lea ebx,[ecx+1]
         test ebx,PAGEOFFS
         jz boundary
-        
+
         push edx
         shr ecx,PAGEBITS - 2
         and ecx,PAGEMASK << 2
@@ -636,10 +636,10 @@ static void __declspec(naked) Writer16() {
         pop ecx
         mov [edx+ebx-1],cx
         ret
-    
+
     indirect:
         push eax
-        mov eax,WAITTBL[ecx]    
+        mov eax,WAITTBL[ecx]
         and ebx,0ffffh
         lea CLOCKCOUNT,[CLOCKCOUNT+eax*2]
         mov eax,[esp][4]
@@ -662,7 +662,7 @@ static void __declspec(naked) Writer16() {
         pop eax
         add esp,4
         ret
-    
+
     boundary:
         push edx
         push ecx
@@ -753,7 +753,7 @@ static void __declspec(naked) Bus_Out() {
         push eax
         push esi
         mov CPU.clockcount,CLOCKCOUNT  // ebp
-        
+
         and ecx,0ffh
         and edx,0ffh
         mov ebp,ecx  // ebp = data
@@ -768,7 +768,7 @@ looop:
         push ebx
         push ecx
         call [esi+4]  // OutBank.func
-        
+
         mov esi,[esi+8]  // OutBank.next
         test esi,esi
         jnz looop
@@ -793,7 +793,7 @@ static void __declspec(naked) Bus_In() {
         push eax
         push esi
         mov CPU.clockcount,CLOCKCOUNT
-        
+
         mov ecx,CPU.ins
         lea eax,[edx+edx*2]
         mov ebx,edx  // ebx = port
@@ -4557,7 +4557,7 @@ process:
         PCINC1
     nohalt:
         mov WAITSTATE, 0
-        
+
         add eax,1000000h  // R++
         xor ecx,ecx
         mov IFF1,cl
@@ -4970,7 +4970,7 @@ int __declspec(naked) __stdcall Z80_x86::ExecDual(Z80_x86* first, Z80_x86* secon
         mov INSTLIM,0
         mov ebx, [edi]Z80_x86.execcount
         mov [edi]Z80_x86.startcount,ebx
-        
+
         mov esi, SECOND
         mov INSTLIM,0
         mov CPU.eshift,0
@@ -5018,7 +5018,7 @@ c2:
            // ecx = cbase
         push ecx
         add ecx, CLOCKS[4]
-        
+
         mov edi, SECOND[4]
         mov edx, [edi]Z80_x86.execcount
 
@@ -5035,7 +5035,7 @@ looop:
 x2:
         call Exec0
         mov edx, CPU.execcount
-        
+
         jmp looop
 
 x1:
@@ -5085,7 +5085,7 @@ int __declspec(naked) __stdcall Z80_x86::ExecDual2(Z80_x86* first, Z80_x86* seco
         mov INSTLIM,0
         mov ebx, [edi]Z80_x86.execcount
         mov [edi]Z80_x86.startcount,ebx
-        
+
         mov esi, SECOND
         mov INSTLIM,0
         mov CPU.eshift,1
@@ -5139,7 +5139,7 @@ c2:
            // ecx = cbase
         push ecx
         add ecx, CLOCKS[4]
-        
+
         mov edi, SECOND[4]
         mov edx, [edi]Z80_x86.execcount
 
@@ -5156,7 +5156,7 @@ looop:
 x2:
         call Exec1
         mov edx, CPU.execcount
-        
+
         jmp looop
 
 x1:
@@ -5222,7 +5222,7 @@ int __declspec(naked) __stdcall Z80_x86::ExecSingle(Z80_x86* first, Z80_x86* sec
         call O_INTR
         mov CPU.inst, INST
         mov CPU.reg.r.w.af, eax
-        
+
         mov edx,CPU.execcount
         mov ebx,CLOCKS
         lea ecx,[edx+ebx]
@@ -5234,7 +5234,7 @@ int __declspec(naked) __stdcall Z80_x86::ExecSingle(Z80_x86* first, Z80_x86* sec
         mov eax,CPU.execcount
         mov [edi]Z80_x86.execcount, eax
         sub eax,edx
-        
+
         xor ecx,ecx
         mov currentz80, ecx
 
@@ -5483,9 +5483,9 @@ bool IFCALL Z80_x86::LoadStatus(const uint8* s) {
 const Device::Descriptor Z80_x86::descriptor = {0, outdef};
 
 const Device::OutFuncPtr Z80_x86::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &Reset),
-    STATIC_CAST(Device::OutFuncPtr, &IRQ),
-    STATIC_CAST(Device::OutFuncPtr, &NMI),
+    static_cast<Device::OutFuncPtr>(&Reset),
+    static_cast<Device::OutFuncPtr>(&IRQ),
+    static_cast<Device::OutFuncPtr>(&NMI),
 };
 
 #endif  // USE_Z80_X86

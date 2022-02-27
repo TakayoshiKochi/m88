@@ -657,16 +657,16 @@ bool IFCALL CDIF::LoadStatus(const uint8_t* s) {
 const Device::Descriptor CDIF::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr CDIF::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &SystemReset), STATIC_CAST(Device::OutFuncPtr, &Out90),
-    STATIC_CAST(Device::OutFuncPtr, &Out91),       STATIC_CAST(Device::OutFuncPtr, &Out94),
-    STATIC_CAST(Device::OutFuncPtr, &Out97),       STATIC_CAST(Device::OutFuncPtr, &Out98),
-    STATIC_CAST(Device::OutFuncPtr, &Out99),       STATIC_CAST(Device::OutFuncPtr, &Out9f),
+    static_cast<Device::OutFuncPtr>(&SystemReset), static_cast<Device::OutFuncPtr>(&Out90),
+    static_cast<Device::OutFuncPtr>(&Out91),       static_cast<Device::OutFuncPtr>(&Out94),
+    static_cast<Device::OutFuncPtr>(&Out97),       static_cast<Device::OutFuncPtr>(&Out98),
+    static_cast<Device::OutFuncPtr>(&Out99),       static_cast<Device::OutFuncPtr>(&Out9f),
 };
 
 const Device::InFuncPtr CDIF::indef[] = {
-    STATIC_CAST(Device::InFuncPtr, &In90), STATIC_CAST(Device::InFuncPtr, &In91),
-    STATIC_CAST(Device::InFuncPtr, &In92), STATIC_CAST(Device::InFuncPtr, &In93),
-    STATIC_CAST(Device::InFuncPtr, &In96), STATIC_CAST(Device::InFuncPtr, &In98),
-    STATIC_CAST(Device::InFuncPtr, &In99), STATIC_CAST(Device::InFuncPtr, &In9b),
-    STATIC_CAST(Device::InFuncPtr, &In9d),
+    static_cast<Device::InFuncPtr>(&In90), static_cast<Device::InFuncPtr>(&In91),
+    static_cast<Device::InFuncPtr>(&In92), static_cast<Device::InFuncPtr>(&In93),
+    static_cast<Device::InFuncPtr>(&In96), static_cast<Device::InFuncPtr>(&In98),
+    static_cast<Device::InFuncPtr>(&In99), static_cast<Device::InFuncPtr>(&In9b),
+    static_cast<Device::InFuncPtr>(&In9d),
 };

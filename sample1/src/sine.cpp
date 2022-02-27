@@ -61,7 +61,7 @@ void IFCALL Sine::Mix(int32* dest, int length)
     }
 }
 
-const int Sine::table[] = 
+const int Sine::table[] =
 {
          0,    392,    784,   1173,   1560,   1943,   2322,   2695,
       3061,   3420,   3771,   4112,   4444,   4765,   5075,   5372,
@@ -86,13 +86,13 @@ const int Sine::table[] =
 //
 const Device::Descriptor Sine::descriptor = { indef, outdef };
 
-const Device::OutFuncPtr Sine::outdef[] = 
+const Device::OutFuncPtr Sine::outdef[] =
 {
-    STATIC_CAST(Device::OutFuncPtr, SetVolume),
-    STATIC_CAST(Device::OutFuncPtr, SetPitch),
+	static_cast<Device::OutFuncPtr>(SetVolume),
+	static_cast<Device::OutFuncPtr>(SetPitch),
 };
 
-const Device::InFuncPtr Sine::indef[] = 
+const Device::InFuncPtr Sine::indef[] =
 {
     0,
 };

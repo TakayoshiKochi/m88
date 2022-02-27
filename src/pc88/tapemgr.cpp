@@ -138,7 +138,7 @@ bool TapeManager::Motor(bool s) {
     time = scheduler->GetTime();
     if (timerremain)
       event = scheduler->AddEvent(timercount * 125 / 6, this,
-                                  STATIC_CAST(TimeFunc, &TapeManager::Timer));
+                                  static_cast<TimeFunc>(&TapeManager::Timer));
     motor = true;
   } else {
     if (timercount) {
@@ -263,7 +263,7 @@ void TapeManager::SetTimer(int count) {
     time = scheduler->GetTime();
     if (count)  // 100000/4800
       event =
-          scheduler->AddEvent(count * 125 / 6, this, STATIC_CAST(TimeFunc, &TapeManager::Timer));
+          scheduler->AddEvent(count * 125 / 6, this, static_cast<TimeFunc>(&TapeManager::Timer));
   } else
     timerremain = count;
 }
@@ -281,7 +281,7 @@ inline void TapeManager::Send(uint byte) {
 //
 void TapeManager::RequestData(uint, uint) {
   if (mode == T_DATA) {
-    scheduler->SetEvent(event, 1, this, STATIC_CAST(TimeFunc, &TapeManager::Timer));
+    scheduler->SetEvent(event, 1, this, static_cast<TimeFunc>(&TapeManager::Timer));
   }
 }
 
@@ -369,10 +369,10 @@ bool IFCALL TapeManager::LoadStatus(const uint8_t* s) {
 const Device::Descriptor TapeManager::descriptor = {TapeManager::indef, TapeManager::outdef};
 
 const Device::OutFuncPtr TapeManager::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &RequestData),
-    STATIC_CAST(Device::OutFuncPtr, &Out30),
+    static_cast<Device::OutFuncPtr>(&RequestData),
+    static_cast<Device::OutFuncPtr>(&Out30),
 };
 
 const Device::InFuncPtr TapeManager::indef[] = {
-    STATIC_CAST(Device::InFuncPtr, &In40),
+    static_cast<Device::InFuncPtr>(&In40),
 };

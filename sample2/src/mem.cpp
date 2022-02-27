@@ -117,15 +117,15 @@ void GVRAMReverse::Update()
 //
 const Device::Descriptor GVRAMReverse::descriptor = { /*indef*/ 0, outdef };
 
-const Device::OutFuncPtr GVRAMReverse::outdef[] = 
+const Device::OutFuncPtr GVRAMReverse::outdef[] =
 {
-    STATIC_CAST(Device::OutFuncPtr, Out32),
-    STATIC_CAST(Device::OutFuncPtr, Out35),
-    STATIC_CAST(Device::OutFuncPtr, Out5x),
+	static_cast<Device::OutFuncPtr>(Out32),
+	static_cast<Device::OutFuncPtr>(Out35),
+	static_cast<Device::OutFuncPtr>(Out5x),
 };
 
 /*
-const Device::InFuncPtr GVRAMReverse::indef[] = 
+const Device::InFuncPtr GVRAMReverse::indef[] =
 {
     0,
 };

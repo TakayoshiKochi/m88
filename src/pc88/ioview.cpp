@@ -70,4 +70,4 @@ void IOCALL IOViewer::Out(uint a, uint d) {
 //
 const Device::Descriptor IOViewer::descriptor = {0, outdef};
 
-const Device::OutFuncPtr IOViewer::outdef[] = {STATIC_CAST(Device::OutFuncPtr, &Out)};
+const Device::OutFuncPtr IOViewer::outdef[] = {static_cast<Device::OutFuncPtr>(&Out)};

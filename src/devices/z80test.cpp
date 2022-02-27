@@ -44,10 +44,10 @@ bool Z80Test::Init(Bus* bus_, int iack) {
   bus1.SetFuncs(0, 0x10000, this, S_Read8R, S_Write8R);
   bus2.SetFuncs(0, 0x10000, this, S_Read8T, S_Write8T);
   for (int p = 0; p < 0x120; p++) {
-    bus1.ConnectIn(p, this, STATIC_CAST(InFuncPtr, &Z80Test::InR));
-    bus1.ConnectOut(p, this, STATIC_CAST(OutFuncPtr, &Z80Test::OutR));
-    bus2.ConnectIn(p, this, STATIC_CAST(InFuncPtr, &Z80Test::InT));
-    bus2.ConnectOut(p, this, STATIC_CAST(OutFuncPtr, &Z80Test::OutT));
+    bus1.ConnectIn(p, this, static_cast<InFuncPtr>(&Z80Test::InR));
+    bus1.ConnectOut(p, this, static_cast<OutFuncPtr>(&Z80Test::OutR));
+    bus2.ConnectIn(p, this, static_cast<InFuncPtr>(&Z80Test::InT));
+    bus2.ConnectOut(p, this, static_cast<OutFuncPtr>(&Z80Test::OutT));
   }
 
   execcount = 0;
@@ -345,7 +345,7 @@ void MEMCALL Z80Test::S_Write8T(void* inst, uint a, uint d) {
 const Device::Descriptor Z80Test::descriptor = {0, outdef};
 
 const Device::OutFuncPtr Z80Test::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, Reset),
-    STATIC_CAST(Device::OutFuncPtr, IRQ),
-    STATIC_CAST(Device::OutFuncPtr, NMI),
+    static_cast<Device::OutFuncPtr>(Reset),
+    static_cast<Device::OutFuncPtr>(IRQ),
+    static_cast<Device::OutFuncPtr>(NMI),
 };

@@ -86,10 +86,10 @@ void IOCALL JoyPad::VSync(uint, uint d) {
 const Device::Descriptor JoyPad::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr JoyPad::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &VSync),
+    static_cast<Device::OutFuncPtr>(&VSync),
 };
 
 const Device::InFuncPtr JoyPad::indef[] = {
-    STATIC_CAST(Device::InFuncPtr, &GetDirection),
-    STATIC_CAST(Device::InFuncPtr, &GetButton),
+    static_cast<Device::InFuncPtr>(&GetDirection),
+    static_cast<Device::InFuncPtr>(&GetButton),
 };

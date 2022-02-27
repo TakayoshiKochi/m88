@@ -1007,10 +1007,10 @@ const WinKeyIF::Key WinKeyIF::KeyTable98[16 * 8][8] = {
 const Device::Descriptor WinKeyIF::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr WinKeyIF::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &Reset),
-    STATIC_CAST(Device::OutFuncPtr, &VSync),
+    static_cast<Device::OutFuncPtr>(&Reset),
+    static_cast<Device::OutFuncPtr>(&VSync),
 };
 
 const Device::InFuncPtr WinKeyIF::indef[] = {
-    STATIC_CAST(Device::InFuncPtr, &In),
+    static_cast<Device::InFuncPtr>(&In),
 };

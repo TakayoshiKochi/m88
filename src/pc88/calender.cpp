@@ -242,11 +242,11 @@ bool IFCALL Calender::LoadStatus(const uint8_t* s) {
 const Device::Descriptor Calender::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr Calender::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &Reset),
-    STATIC_CAST(Device::OutFuncPtr, &Out10),
-    STATIC_CAST(Device::OutFuncPtr, &Out40),
+    static_cast<Device::OutFuncPtr>(&Reset),
+    static_cast<Device::OutFuncPtr>(&Out10),
+    static_cast<Device::OutFuncPtr>(&Out40),
 };
 
 const Device::InFuncPtr Calender::indef[] = {
-    STATIC_CAST(Device::InFuncPtr, &In40),
+    static_cast<Device::InFuncPtr>(&In40),
 };

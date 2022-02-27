@@ -68,11 +68,11 @@ uint IOCALL KanjiROM::ReadH(uint) {
 const Device::Descriptor KanjiROM::descriptor = {KanjiROM::indef, KanjiROM::outdef};
 
 const Device::OutFuncPtr KanjiROM::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &SetL),
-    STATIC_CAST(Device::OutFuncPtr, &SetH),
+    static_cast<Device::OutFuncPtr>(&SetL),
+    static_cast<Device::OutFuncPtr>(&SetH),
 };
 
 const Device::InFuncPtr KanjiROM::indef[] = {
-    STATIC_CAST(Device::InFuncPtr, &ReadL),
-    STATIC_CAST(Device::InFuncPtr, &ReadH),
+    static_cast<Device::InFuncPtr>(&ReadL),
+    static_cast<Device::InFuncPtr>(&ReadH),
 };

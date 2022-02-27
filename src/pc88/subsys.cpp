@@ -279,16 +279,16 @@ bool IFCALL SubSystem::LoadStatus(const uint8_t* s) {
 const Device::Descriptor SubSystem::descriptor = {indef, outdef};
 
 const Device::InFuncPtr SubSystem::indef[] = {
-    STATIC_CAST(Device::InFuncPtr, &IntAck),  STATIC_CAST(Device::InFuncPtr, &M_Read0),
-    STATIC_CAST(Device::InFuncPtr, &M_Read1), STATIC_CAST(Device::InFuncPtr, &M_Read2),
-    STATIC_CAST(Device::InFuncPtr, &S_Read0), STATIC_CAST(Device::InFuncPtr, &S_Read1),
-    STATIC_CAST(Device::InFuncPtr, &S_Read2),
+    static_cast<Device::InFuncPtr>(&IntAck),  static_cast<Device::InFuncPtr>(&M_Read0),
+    static_cast<Device::InFuncPtr>(&M_Read1), static_cast<Device::InFuncPtr>(&M_Read2),
+    static_cast<Device::InFuncPtr>(&S_Read0), static_cast<Device::InFuncPtr>(&S_Read1),
+    static_cast<Device::InFuncPtr>(&S_Read2),
 };
 
 const Device::OutFuncPtr SubSystem::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &Reset),   STATIC_CAST(Device::OutFuncPtr, &M_Set0),
-    STATIC_CAST(Device::OutFuncPtr, &M_Set1),  STATIC_CAST(Device::OutFuncPtr, &M_Set2),
-    STATIC_CAST(Device::OutFuncPtr, &M_SetCW), STATIC_CAST(Device::OutFuncPtr, &S_Set0),
-    STATIC_CAST(Device::OutFuncPtr, &S_Set1),  STATIC_CAST(Device::OutFuncPtr, &S_Set2),
-    STATIC_CAST(Device::OutFuncPtr, &S_SetCW),
+    static_cast<Device::OutFuncPtr>(&Reset),   static_cast<Device::OutFuncPtr>(&M_Set0),
+    static_cast<Device::OutFuncPtr>(&M_Set1),  static_cast<Device::OutFuncPtr>(&M_Set2),
+    static_cast<Device::OutFuncPtr>(&M_SetCW), static_cast<Device::OutFuncPtr>(&S_Set0),
+    static_cast<Device::OutFuncPtr>(&S_Set1),  static_cast<Device::OutFuncPtr>(&S_Set2),
+    static_cast<Device::OutFuncPtr>(&S_SetCW),
 };

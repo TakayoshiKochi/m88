@@ -36,7 +36,7 @@ bool Base::Init(PC88* pc88) {
   sw30 = 0xcb;
   sw31 = 0x79;
   sw6e = 0xff;
-  pc->AddEvent(167, this, STATIC_CAST(TimeFunc, &Base::RTC), 0, true);
+  pc->AddEvent(167, this, static_cast<TimeFunc>(&Base::RTC), 0, true);
   return true;
 }
 
@@ -144,13 +144,13 @@ uint IOCALL Base::In6e(uint) {
 const Device::Descriptor Base::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr Base::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &Reset),
-    STATIC_CAST(Device::OutFuncPtr, &VRTC),
+    static_cast<Device::OutFuncPtr>(&Reset),
+    static_cast<Device::OutFuncPtr>(&VRTC),
 };
 
 const Device::InFuncPtr Base::indef[] = {
-    STATIC_CAST(Device::InFuncPtr, &In30),
-    STATIC_CAST(Device::InFuncPtr, &In31),
-    STATIC_CAST(Device::InFuncPtr, &In40),
-    STATIC_CAST(Device::InFuncPtr, &In6e),
+    static_cast<Device::InFuncPtr>(&In30),
+    static_cast<Device::InFuncPtr>(&In31),
+    static_cast<Device::InFuncPtr>(&In40),
+    static_cast<Device::InFuncPtr>(&In6e),
 };
