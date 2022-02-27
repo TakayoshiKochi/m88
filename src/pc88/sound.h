@@ -9,7 +9,6 @@
 #include "common/device.h"
 #include "common/sndbuf2.h"
 #include "common/srcbuf.h"
-#include "common/lpf.h"
 
 // ---------------------------------------------------------------------------
 
