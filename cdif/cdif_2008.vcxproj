@@ -306,7 +306,6 @@
     <ClInclude Include="src\cdrom.h" />
     <ClInclude Include="src\cdromdef.h" />
     <ClInclude Include="src\config.h" />
-    <ClInclude Include="src\headers.h" />
     <ClInclude Include="src\resource.h" />
   </ItemGroup>
   <ItemGroup>

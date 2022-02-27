@@ -17,6 +17,6 @@ void WinVars::Init() {
   var[MinorVer] = vi.dwMinorVersion;
 
   // 構造体とか
-  var[OFNSIZE] = Var(MajorVer) <= 4 ? OFNV4SIZE : sizeof(OPENFILENAME);
-  var[MIISIZE] = Var(MajorVer) <= 4 ? 44 : sizeof(MENUITEMINFO);
+  var[OFNSIZE] = sizeof(OPENFILENAME);
+  var[MIISIZE] = sizeof(MENUITEMINFO);
 }
