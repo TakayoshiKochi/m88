@@ -55,18 +55,18 @@ class OPNIF : public Device, public ISoundSource {
 
   bool IFCALL Connect(ISoundControl* c);
   bool IFCALL SetRate(uint rate);
-  void IFCALL Mix(int32* buffer, int nsamples);
+  void IFCALL Mix(int32_t* buffer, int nsamples);
 
   void SetVolume(const Config* config);
   void SetFMMixMode(bool);
 
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
   void Enable(bool en) { enable = en; }
   void SetOPNMode(bool _opna) { opnamode = _opna; }
-  const uint8* GetRegs() { return regs; }
+  const uint8_t* GetRegs() { return regs; }
   void SetChannelMask(uint ch);
 
   void IOCALL SetIntrMask(uint, uint intrmask);
@@ -112,10 +112,10 @@ class OPNIF : public Device, public ISoundSource {
     ssrev = 3,
   };
   struct Status {
-    uint8 rev;
-    uint8 i0, i1, d0, d1;
-    uint8 is;
-    uint8 regs[0x200];
+    uint8_t rev;
+    uint8_t i0, i1, d0, d1;
+    uint8_t is;
+    uint8_t regs[0x200];
   };
 
  private:
@@ -132,7 +132,7 @@ class OPNIF : public Device, public ISoundSource {
   ISoundControl* soundcontrol;
   IOBus* bus;
   Scheduler* scheduler;
-  int32 nextcount;
+  int32_t nextcount;
   uint imaskport;
   int imaskbit;
   int prevtime;
@@ -140,8 +140,8 @@ class OPNIF : public Device, public ISoundSource {
   uint currentrate;
   bool fmmixmode;
 
-  uint32 basetime;
-  uint32 basetick;
+  uint32_t basetime;
+  uint32_t basetick;
   uint clock;
 
   bool opnamode;
@@ -153,7 +153,7 @@ class OPNIF : public Device, public ISoundSource {
 
   int delay;
 
-  uint8 regs[0x200];
+  uint8_t regs[0x200];
 
   static int prescaler;
 

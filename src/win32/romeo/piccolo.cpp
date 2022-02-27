@@ -102,9 +102,9 @@ uint Piccolo::ThreadMain() {
     int wait = waitdefault;
     {
       CriticalSection::Lock lock(cs);
-      uint32 time = GetCurrentTime();
+      uint32_t time = GetCurrentTime();
       while ((ev = Top()) && !shouldterminate) {
-        int32 d = ev->at - time;
+        int32_t d = ev->at - time;
 
         if (d >= 1000) {
           if (d > maxlatency)
@@ -177,7 +177,7 @@ bool Piccolo::SetMaximumLatency(uint nanosec) {
   return true;
 }
 
-uint32 Piccolo::GetCurrentTime() {
+uint32_t Piccolo::GetCurrentTime() {
   return ::timeGetTime() * 1000;
 }
 
@@ -191,8 +191,8 @@ void Piccolo::DrvReset() {
   evwrite = 0;
 }
 
-bool Piccolo::DrvSetReg(uint32 at, uint addr, uint data) {
-  if (int32(at - GetCurrentTime()) > maxlatency) {
+bool Piccolo::DrvSetReg(uint32_t at, uint addr, uint data) {
+  if (int32_t(at - GetCurrentTime()) > maxlatency) {
     //      statusdisplay.Show(100, 0, "Piccolo: Time %.6d", at - GetCurrentTime());
     return false;
   }

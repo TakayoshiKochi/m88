@@ -64,12 +64,12 @@
 //      ReadStatusEx は拡張ステータスレジスタの読み出し(OPNA)
 //      busy フラグは常に 0
 //
-//  bool Count(uint32 t)
+//  bool Count(uint32_t t)
 //      音源のタイマーを t [μ秒] 進める．
 //      音源の内部状態に変化があった時(timer オーバーフロー)
 //      true を返す
 //
-//  uint32 GetNextEvent()
+//  uint32_t GetNextEvent()
 //      音源のタイマーのどちらかがオーバーフローするまでに必要な
 //      時間[μ秒]を返す
 //      タイマーが停止している場合は ULONG_MAX を返す… と思う
@@ -104,11 +104,11 @@ class OPNBase : public Timer {
   uint status;
   Channel4* csmch;
 
-  static uint32 lfotable[8];
+  static uint32_t lfotable[8];
 
  private:
   void TimerA();
-  uint8 prescale;
+  uint8_t prescale;
 
  protected:
   Chip chip;
@@ -160,23 +160,23 @@ class OPNABase : public OPNBase {
   int DecodeADPCMBSample(uint);
 
   // FM 音源関係
-  uint8 pan[6];
-  uint8 fnum2[9];
+  uint8_t pan[6];
+  uint8_t fnum2[9];
 
-  uint8 reg22;
+  uint8_t reg22;
   uint reg29;  // OPNA only?
 
   uint stmask;
   uint statusnext;
 
-  uint32 lfocount;
-  uint32 lfodcount;
+  uint32_t lfocount;
+  uint32_t lfodcount;
 
   uint fnum[6];
   uint fnum3[3];
 
   // ADPCM 関係
-  uint8* adpcmbuf;   // ADPCM RAM
+  uint8_t* adpcmbuf;   // ADPCM RAM
   uint adpcmmask;    // メモリアドレスに対するビットマスク
   uint adpcmnotice;  // ADPCM 再生終了時にたつビット
   uint startaddr;    // Start address
@@ -198,12 +198,12 @@ class OPNABase : public OPNBase {
 
   uint adpcmreadbuf;  // ADPCM リード用バッファ
   bool adpcmplay;     // ADPCM 再生中
-  int8 granuality;
+  int8_t granuality;
   bool adpcmmask_;
 
-  uint8 control1;     // ADPCM コントロールレジスタ１
-  uint8 control2;     // ADPCM コントロールレジスタ２
-  uint8 adpcmreg[8];  // ADPCM レジスタの一部分
+  uint8_t control1;     // ADPCM コントロールレジスタ１
+  uint8_t control2;     // ADPCM コントロールレジスタ２
+  uint8_t adpcmreg[8];  // ADPCM レジスタの一部分
 
   int rhythmmask_;
 
@@ -212,7 +212,7 @@ class OPNABase : public OPNBase {
   static void BuildLFOTable();
   static int amtable[FM_LFOENTS];
   static int pmtable[FM_LFOENTS];
-  static int32 tltable[FM_TLENTS + FM_TLPOS];
+  static int32_t tltable[FM_TLENTS + FM_TLPOS];
   static bool tablehasmade;
 };
 
@@ -246,7 +246,7 @@ class OPN : public OPNBase {
 
   uint fnum[3];
   uint fnum3[3];
-  uint8 fnum2[6];
+  uint8_t fnum2[6];
 
   Channel4 ch[3];
 };
@@ -271,7 +271,7 @@ class OPNA : public OPNABase {
   void SetVolumeRhythmTotal(int db);
   void SetVolumeRhythm(int index, int db);
 
-  uint8* GetADPCMBuffer() { return adpcmbuf; }
+  uint8_t* GetADPCMBuffer() { return adpcmbuf; }
 
   int dbgGetOpOut(int c, int s) { return ch[c].op[s].dbgopout_; }
   int dbgGetPGOut(int c, int s) { return ch[c].op[s].dbgpgout_; }
@@ -279,10 +279,10 @@ class OPNA : public OPNABase {
 
  private:
   struct Rhythm {
-    uint8 pan;      // ぱん
-    int8 level;     // おんりょう
+    uint8_t pan;      // ぱん
+    int8_t level;     // おんりょう
     int volume;     // おんりょうせってい
-    int16* sample;  // さんぷる
+    int16_t* sample;  // さんぷる
     uint size;      // さいず
     uint pos;       // いち
     uint step;      // すてっぷち
@@ -293,9 +293,9 @@ class OPNA : public OPNABase {
 
   // リズム音源関係
   Rhythm rhythm[6];
-  int8 rhythmtl;  // リズム全体の音量
+  int8_t rhythmtl;  // リズム全体の音量
   int rhythmtvol;
-  uint8 rhythmkey;  // リズムのキー
+  uint8_t rhythmkey;  // リズムのキー
 };
 
 //  YM2610/B(OPNB) ---------------------------------------------------
@@ -307,9 +307,9 @@ class OPNB : public OPNABase {
   bool Init(uint c,
             uint r,
             bool = false,
-            uint8* _adpcma = 0,
+            uint8_t* _adpcma = 0,
             int _adpcma_size = 0,
-            uint8* _adpcmb = 0,
+            uint8_t* _adpcmb = 0,
             int _adpcmb_size = 0);
 
   bool SetRate(uint c, uint r, bool = false);
@@ -328,8 +328,8 @@ class OPNB : public OPNABase {
 
  private:
   struct ADPCMA {
-    uint8 pan;   // ぱん
-    int8 level;  // おんりょう
+    uint8_t pan;   // ぱん
+    int8_t level;  // おんりょう
     int volume;  // おんりょうせってい
     uint pos;    // いち
     uint step;   // すてっぷち
@@ -346,14 +346,14 @@ class OPNB : public OPNABase {
   static void InitADPCMATable();
 
   // ADPCMA 関係
-  uint8* adpcmabuf;  // ADPCMA ROM
+  uint8_t* adpcmabuf;  // ADPCMA ROM
   int adpcmasize;
   ADPCMA adpcma[6];
-  int8 adpcmatl;  // ADPCMA 全体の音量
+  int8_t adpcmatl;  // ADPCMA 全体の音量
   int adpcmatvol;
-  uint8 adpcmakey;  // ADPCMA のキー
+  uint8_t adpcmakey;  // ADPCMA のキー
   int adpcmastep;
-  uint8 adpcmareg[32];
+  uint8_t adpcmareg[32];
 
   static int jedi_table[(48 + 1) * 16];
 
@@ -386,10 +386,10 @@ class OPN2 : public OPNBase {
 
   uint fnum[3];
   uint fnum3[3];
-  uint8 fnum2[6];
+  uint8_t fnum2[6];
 
   // 線形補間用ワーク
-  int32 mixc, mixc1;
+  int32_t mixc, mixc1;
 
   Channel4 ch[3];
 };

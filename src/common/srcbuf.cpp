@@ -119,7 +119,7 @@ void SamplingRateConverter::MakeFilter(ulong out) {
     in = 166400;
     out *= 3;
   }
-  int32 g = gcd(in, out);
+  int32_t g = gcd(in, out);
   ic = out / g;
   oc = in / g;
 

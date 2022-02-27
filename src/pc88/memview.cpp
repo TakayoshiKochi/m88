@@ -43,7 +43,7 @@ bool MemoryViewer::Init(PC88* _pc) {
 //
 //
 void MemoryViewer::SelectBank(Type a0, Type a6, Type a8, Type ac, Type af) {
-  uint8* p;
+  uint8_t* p;
   bank[0] = a0;
   bank[2] = a8;
   bank[3] = ac;

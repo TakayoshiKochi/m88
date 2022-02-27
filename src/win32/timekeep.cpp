@@ -35,11 +35,11 @@ TimeKeeper::~TimeKeeper() {
 // ---------------------------------------------------------------------------
 //  時間を取得
 //
-uint32 TimeKeeper::GetTime() {
+uint32_t TimeKeeper::GetTime() {
   if (freq) {
     LARGE_INTEGER li;
     QueryPerformanceCounter(&li);
-    uint32 dc = li.LowPart - base;
+    uint32_t dc = li.LowPart - base;
     time += dc / freq;
     base = li.LowPart - dc % freq;
     return time;

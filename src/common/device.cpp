@@ -112,7 +112,7 @@ bool IOBus::Init(uint nbanks, DeviceList* dl) {
   banksize = 0;
   ins = new InBank[nbanks];
   outs = new OutBank[nbanks];
-  flags = new uint8[nbanks];
+  flags = new uint8_t[nbanks];
   if (!ins || !outs || !flags)
     return false;
   banksize = nbanks;
@@ -379,7 +379,7 @@ uint DeviceList::GetStatusSize() {
 //  状態保存を行う
 //  data にはあらかじめ GetStatusSize() で取得したサイズのバッファが必要
 //
-bool DeviceList::SaveStatus(uint8* data) {
+bool DeviceList::SaveStatus(uint8_t* data) {
   for (Node* n = node; n; n = n->next) {
     int s = n->entry->GetStatusSize();
     if (s) {
@@ -398,7 +398,7 @@ bool DeviceList::SaveStatus(uint8* data) {
 // ---------------------------------------------------------------------------
 //  SaveStatus で保存した状態から復帰する．
 //
-bool DeviceList::LoadStatus(const uint8* data) {
+bool DeviceList::LoadStatus(const uint8_t* data) {
   if (!CheckStatus(data))
     return false;
   while (1) {
@@ -421,7 +421,7 @@ bool DeviceList::LoadStatus(const uint8* data) {
 //  状態データが現在の構成で適応可能か調べる
 //  具体的にはサイズチェックだけ．
 //
-bool DeviceList::CheckStatus(const uint8* data) {
+bool DeviceList::CheckStatus(const uint8_t* data) {
   while (1) {
     const Header* hdr = (const Header*)data;
     data += sizeof(Header);

@@ -33,7 +33,7 @@ using namespace PC8801;
 #define GVRAMM_ODD 0x40
 #define GVRAMM_EVEN 0x80
 
-const int16 Screen::RegionTable[64] = {
+const int16_t Screen::RegionTable[64] = {
     640, -1,  0, 128, 128, 256, 0, 256, 256, 384, 0, 384, 128, 384, 0, 384,
     384, 512, 0, 512, 128, 512, 0, 512, 256, 512, 0, 512, 128, 512, 0, 512,
 
@@ -49,7 +49,7 @@ const Draw::Palette Screen::palcolor[8] = {
     {0, 255, 0}, {0, 255, 255}, {255, 255, 0}, {255, 255, 255},
 };
 
-const uint8 Screen::palextable[2][8] = {
+const uint8_t Screen::palextable[2][8] = {
     {0, 36, 73, 109, 146, 182, 219, 255},
     {0, 255, 255, 255, 255, 255, 255, 255},
 };
@@ -273,7 +273,7 @@ bool Screen::UpdatePalette(Draw* draw) {
 //  画面イメージの更新
 //  arg:    region      更新領域
 //
-void Screen::UpdateScreen(uint8* image, int bpl, Draw::Region& region, bool refresh) {
+void Screen::UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool refresh) {
   // 53 53 53 GR TX  80 V2 32 CL  53 53 53 L4 (b4〜b6の配置は変えないこと)
   int gmode = line400 ? 1 : 0;
   gmode |= color ? 0x10 : (port53 & 0x0e);
@@ -352,18 +352,18 @@ void Screen::UpdateScreen(uint8* image, int bpl, Draw::Region& region, bool refr
       BETable2[(a >> 16) & 15]
 
 #define WRITEC0F(o, a)                                                                  \
-  *((packed*)(((uint8*)(d + o)) + bpl)) = d[o] =                                        \
+  *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] =                                        \
       (d[o] & ~PACK(GVRAMC_BIT)) | BETable0[(a >> 4) & 15] | BETable1[(a >> 12) & 15] | \
       BETable2[(a >> 20) & 15]
 
 #define WRITEC1F(o, a)                                                                           \
-  *((packed*)(((uint8*)(d + o)) + bpl)) = d[o] = (d[o] & ~PACK(GVRAMC_BIT)) | BETable0[a & 15] | \
+  *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = (d[o] & ~PACK(GVRAMC_BIT)) | BETable0[a & 15] | \
                                                  BETable1[(a >> 8) & 15] |                       \
                                                  BETable2[(a >> 16) & 15]
 
 // 640x200, 3 plane color
-void Screen::UpdateScreen200c(uint8* image, int bpl, Draw::Region& region) {
-  uint8* dirty = memory->GetDirtyFlag();
+void Screen::UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region) {
+  uint8_t* dirty = memory->GetDirtyFlag();
   int y;
   for (y = 0; y < 1000; y += sizeof(packed)) {
     if (*(packed*)(&dirty[y]))
@@ -446,16 +446,16 @@ void Screen::UpdateScreen200c(uint8* image, int bpl, Draw::Region& region) {
 #define WRITEB1(d, a) d = (d & ~PACK(GVRAMM_BIT)) | BETable1[(a | (a >> 8) | (a >> 16)) & 15]
 
 #define WRITEB0F(o, a)                           \
-  *((packed*)(((uint8*)(d + o)) + bpl)) = d[o] = \
+  *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = \
       (d[o] & ~PACK(GVRAMM_BIT)) | BETable1[((a >> 4) | (a >> 12) | (a >> 20)) & 15]
 
 #define WRITEB1F(o, a)                           \
-  *((packed*)(((uint8*)(d + o)) + bpl)) = d[o] = \
+  *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = \
       (d[o] & ~PACK(GVRAMM_BIT)) | BETable1[(a | (a >> 8) | (a >> 16)) & 15]
 
 // 640x200, b/w
-void Screen::UpdateScreen200b(uint8* image, int bpl, Draw::Region& region) {
-  uint8* dirty = memory->GetDirtyFlag();
+void Screen::UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region) {
+  uint8_t* dirty = memory->GetDirtyFlag();
   int y;
   for (y = 0; y < 1000; y += sizeof(packed)) {
     if (*(packed*)(&dirty[y]))
@@ -491,7 +491,7 @@ void Screen::UpdateScreen200b(uint8* image, int bpl, Draw::Region& region) {
             Memory::quadbyte* s = src;
             packed* d = (packed*)dest;
             for (int j = 0; j < 4; j++) {
-              uint32 x;
+              uint32_t x;
               x = s[0].pack & mask.pack;
               WRITEB0(d[0], x);
               WRITEB1(d[1], x);
@@ -522,7 +522,7 @@ void Screen::UpdateScreen200b(uint8* image, int bpl, Draw::Region& region) {
             Memory::quadbyte* s = src;
             packed* d = (packed*)dest;
             for (int j = 0; j < 4; j++) {
-              uint32 x;
+              uint32_t x;
               x = s[0].pack & mask.pack;
               WRITEB0F(0, x);
               WRITEB1F(1, x);
@@ -552,8 +552,8 @@ void Screen::UpdateScreen200b(uint8* image, int bpl, Draw::Region& region) {
   (d)[0] = ((d)[0] & ~PACK(GVRAMM_BIT)) | BETable1[(a >> 4) & 15], \
   (d)[1] = ((d)[1] & ~PACK(GVRAMM_BIT)) | BETable1[(a >> 0) & 15]
 
-void Screen::UpdateScreen400b(uint8* image, int bpl, Draw::Region& region) {
-  uint8* dirty = memory->GetDirtyFlag();
+void Screen::UpdateScreen400b(uint8_t* image, int bpl, Draw::Region& region) {
+  uint8_t* dirty = memory->GetDirtyFlag();
   int y;
   for (y = 0; y < 1000; y += sizeof(packed)) {
     if (*(packed*)(&dirty[y]))
@@ -577,8 +577,8 @@ void Screen::UpdateScreen400b(uint8* image, int bpl, Draw::Region& region) {
 
     int dm = 0;
     for (; y < 200; y++, image += bpl) {
-      uint8* dest0 = image;
-      uint8* dest1 = image + 200 * bpl;
+      uint8_t* dest0 = image;
+      uint8_t* dest1 = image + 200 * bpl;
 
       for (int x = 0; x < 5; x++, dirty++, src += 16, dest0 += 128, dest1 += 128) {
         if (*dirty) {
@@ -615,14 +615,14 @@ void Screen::UpdateScreen400b(uint8* image, int bpl, Draw::Region& region) {
 #define WRITE80C1(d, a) d = (d & ~PACK(GVRAMC_BIT)) | E80Table[a & 15]
 
 #define WRITE80C0F(o, a)                         \
-  *((packed*)(((uint8*)(d + o)) + bpl)) = d[o] = \
+  *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = \
       (d[o] & ~PACK(GVRAMC_BIT)) | E80Table[(a >> 4) & 15]
 #define WRITE80C1F(o, a) \
-  *((packed*)(((uint8*)(d + o)) + bpl)) = d[o] = (d[o] & ~PACK(GVRAMC_BIT)) | E80Table[a & 15]
+  *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = (d[o] & ~PACK(GVRAMC_BIT)) | E80Table[a & 15]
 
 // 320x200, color?
-void Screen::UpdateScreen80c(uint8* image, int bpl, Draw::Region& region) {
-  uint8* dirty = memory->GetDirtyFlag();
+void Screen::UpdateScreen80c(uint8_t* image, int bpl, Draw::Region& region) {
+  uint8_t* dirty = memory->GetDirtyFlag();
   int y;
   for (y = 0; y < 1000; y += sizeof(packed)) {
     if (*(packed*)(&dirty[y]))
@@ -704,14 +704,14 @@ void Screen::UpdateScreen80c(uint8* image, int bpl, Draw::Region& region) {
 #define WRITE80B1(d, a) d = (d & ~PACK(GVRAMM_BIT)) | BETable1[(a)&15]
 
 #define WRITE80B0F(o, a)                         \
-  *((packed*)(((uint8*)(d + o)) + bpl)) = d[o] = \
+  *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = \
       (d[o] & ~PACK(GVRAMM_BIT)) | BETable1[(a >> 4) & 15]
 
 #define WRITE80B1F(o, a) \
-  *((packed*)(((uint8*)(d + o)) + bpl)) = d[o] = (d[o] & ~PACK(GVRAMM_BIT)) | BETable1[(a)&15]
+  *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = (d[o] & ~PACK(GVRAMM_BIT)) | BETable1[(a)&15]
 
-void Screen::UpdateScreen80b(uint8* image, int bpl, Draw::Region& region) {
-  uint8* dirty = memory->GetDirtyFlag();
+void Screen::UpdateScreen80b(uint8_t* image, int bpl, Draw::Region& region) {
+  uint8_t* dirty = memory->GetDirtyFlag();
   int y;
   for (y = 0; y < 1000; y += sizeof(packed)) {
     if (*(packed*)(&dirty[y]))
@@ -807,13 +807,13 @@ void Screen::UpdateScreen80b(uint8* image, int bpl, Draw::Region& region) {
       (E80SRTable[(bp2 & 0x03) | (rp2 & 0x0c) | (gp2 & 0x30)] & ~m);
 #define WRITEC320F(o)                                                \
   m = E80SRMask[(bp1 | rp1 >> 2 | gp1 >> 4) & 3];                    \
-  *((packed*)(((uint8*)(dest + o)) + bpl)) = dest[o] =               \
+  *((packed*)(((uint8_t*)(dest + o)) + bpl)) = dest[o] =               \
       (dest[o] & ~PACK(GVRAMC_BIT)) |                                \
       (E80SRTable[(bp1 & 0x03) | (rp1 & 0x0c) | (gp1 & 0x30)] & m) | \
       (E80SRTable[(bp2 & 0x03) | (rp2 & 0x0c) | (gp2 & 0x30)] & ~m);
-void Screen::UpdateScreen320c(uint8* image, int bpl, Draw::Region& region) {
-  uint8* dirty1 = memory->GetDirtyFlag();
-  uint8* dirty2 = dirty1 + 0x200;
+void Screen::UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region) {
+  uint8_t* dirty1 = memory->GetDirtyFlag();
+  uint8_t* dirty2 = dirty1 + 0x200;
   int y;
   for (y = 0; y < 500; y += sizeof(packed)) {
     if (*(packed*)(&dirty1[y]) || *(packed*)(&dirty2[y]))
@@ -976,12 +976,12 @@ void Screen::UpdateScreen320c(uint8* image, int bpl, Draw::Region& region) {
 #define WRITEB320(d, a) d = (d & ~PACK(GVRAMM_BIT)) | BE80Table[a & 3]
 
 #define WRITEB320F(o, a)                               \
-  *((packed*)(((uint8*)(dest + o)) + bpl)) = dest[o] = \
+  *((packed*)(((uint8_t*)(dest + o)) + bpl)) = dest[o] = \
       (dest[o] & ~PACK(GVRAMM_BIT)) | BE80Table[a & 3]
 
-void Screen::UpdateScreen320b(uint8* image, int bpl, Draw::Region& region) {
-  uint8* dirty1 = memory->GetDirtyFlag();
-  uint8* dirty2 = dirty1 + 0x200;
+void Screen::UpdateScreen320b(uint8_t* image, int bpl, Draw::Region& region) {
+  uint8_t* dirty1 = memory->GetDirtyFlag();
+  uint8_t* dirty2 = dirty1 + 0x200;
   int y;
   for (y = 0; y < 500; y += sizeof(packed)) {
     if (*(packed*)(&dirty1[y]) || *(packed*)(&dirty2[y]))
@@ -1022,7 +1022,7 @@ void Screen::UpdateScreen320b(uint8* image, int bpl, Draw::Region& region) {
             dm |= tmp[x];
 
             for (int j = 0; j < 8; j++) {
-              uint32 s;
+              uint32_t s;
               s = (src[0].pack & mask1.pack) | (src[0x2000].pack & mask2.pack);
               s = (s | (s >> 8) | (s >> 16));
               WRITEB320(dest[3], s);
@@ -1065,7 +1065,7 @@ void Screen::UpdateScreen320b(uint8* image, int bpl, Draw::Region& region) {
             dm |= tmp[x];
 
             for (int j = 0; j < 8; j++) {
-              uint32 s;
+              uint32_t s;
               s = (src[0].pack & mask1.pack) | (src[0x2000].pack & mask2.pack);
               s = (s | (s >> 8) | (s >> 16));
               WRITEB320F(3, s);
@@ -1339,7 +1339,7 @@ void IOCALL Screen::Out55to5b(uint port, uint data) {
 // ---------------------------------------------------------------------------
 //  画面消去
 //
-void Screen::ClearScreen(uint8* image, int bpl) {
+void Screen::ClearScreen(uint8_t* image, int bpl) {
   // COLOR
 
   if (color) {
@@ -1470,7 +1470,7 @@ uint IFCALL Screen::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL Screen::SaveStatus(uint8* s) {
+bool IFCALL Screen::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
   st->p30 = port30;
@@ -1484,7 +1484,7 @@ bool IFCALL Screen::SaveStatus(uint8* s) {
   return true;
 }
 
-bool IFCALL Screen::LoadStatus(const uint8* s) {
+bool IFCALL Screen::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

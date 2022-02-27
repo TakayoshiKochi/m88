@@ -264,7 +264,7 @@ void WinDrawDDW::SetPalette(PALETTEENTRY* pe, int i, int n) {
 // ---------------------------------------------------------------------------
 //  画面イメージの使用要求
 //
-bool WinDrawDDW::Lock(uint8** pimage, int* pbpl) {
+bool WinDrawDDW::Lock(uint8_t** pimage, int* pbpl) {
   if (!locked) {
     locked = true;
 
@@ -280,7 +280,7 @@ bool WinDrawDDW::Lock(uint8** pimage, int* pbpl) {
     if (hr != DD_OK)
       return false;
 
-    *pimage = (uint8*)ddsd.lpSurface;
+    *pimage = (uint8_t*)ddsd.lpSurface;
     *pbpl = ddsd.lPitch;
 
     return true;

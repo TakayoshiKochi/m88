@@ -91,8 +91,8 @@ class FDC : public Device {
   uint IOCALL GetData(uint);                    // データ取得
 
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
@@ -112,24 +112,24 @@ class FDC : public Device {
   struct Drive {
     uint cyrinder;
     uint result;
-    uint8 hd;
-    uint8 dd;
+    uint8_t hd;
+    uint8_t dd;
   };
 
   enum {
     ssrev = 1,
   };
   struct Snapshot {
-    uint8 rev;
-    uint8 hdu;  // HD US1 US0
-    uint8 hdue;
-    uint8 dtl;
-    uint8 eot;
-    uint8 seekstate;
-    uint8 result;
-    uint8 status;        // ステータスレジスタ
-    uint8 command;       // 現在処理中のコマンド
-    uint8 data;          // データレジスタ
+    uint8_t rev;
+    uint8_t hdu;  // HD US1 US0
+    uint8_t hdue;
+    uint8_t dtl;
+    uint8_t eot;
+    uint8_t seekstate;
+    uint8_t result;
+    uint8_t status;        // ステータスレジスタ
+    uint8_t command;       // 現在処理中のコマンド
+    uint8_t data;          // データレジスタ
     bool int_requested;  // SENCEINTSTATUS の呼び出しを要求した
     bool accepttc;
 
@@ -147,7 +147,7 @@ class FDC : public Device {
 
     WIDDESC wid;
     Drive dr[num_drives];
-    uint8 buf[0x4000];
+    uint8_t buf[0x4000];
   };
 
   typedef void (FDC::*CommandFunc)();
@@ -172,7 +172,7 @@ class FDC : public Device {
   void ShiftToIdlePhase();
   void ShiftToCommandPhase(int);
   void ShiftToExecutePhase();
-  void ShiftToExecReadPhase(int, uint8* data = 0);
+  void ShiftToExecReadPhase(int, uint8_t* data = 0);
   void ShiftToExecWritePhase(int);
   void ShiftToExecScanPhase(int);
   void ShiftToResultPhase(int);
@@ -189,8 +189,8 @@ class FDC : public Device {
   uint seektime;
 
   uint status;  // ステータスレジスタ
-  uint8* buffer;
-  uint8* bufptr;
+  uint8_t* buffer;
+  uint8_t* bufptr;
   int count;     // Exec*Phase での転送残りバイト
   uint command;  // 現在処理中のコマンド
   uint data;     // データレジスタ
@@ -210,8 +210,8 @@ class FDC : public Device {
   uint seekstate;
   uint result;
 
-  uint8* readdiagptr;
-  uint8* readdiaglim;
+  uint8_t* readdiagptr;
+  uint8_t* readdiaglim;
   uint xbyte;
   uint readdiagcount;
 

@@ -23,7 +23,7 @@ class FloppyDisk {
   };
   enum DiskType { MD2D = 0, MD2DD, MD2HD };
   struct IDR {
-    uint8 c, h, r, n;
+    uint8_t c, h, r, n;
 
     bool operator==(const IDR& i) { return ((c == i.c) && (h == i.h) && (r == i.r) && (n == i.n)); }
   };
@@ -31,7 +31,7 @@ class FloppyDisk {
   struct Sector {
     IDR id;
     uint flags;
-    uint8* image;
+    uint8_t* image;
     uint size;
     Sector* next;
   };

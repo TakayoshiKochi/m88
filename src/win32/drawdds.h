@@ -23,7 +23,7 @@ class WinDrawDDS : public WinDrawSub {
   void SetPalette(PALETTEENTRY* pal, int index, int nentries);
   void QueryNewPalette();
   void DrawScreen(const RECT& rect, bool refresh);
-  bool Lock(uint8** pimage, int* pbpl);
+  bool Lock(uint8_t** pimage, int* pbpl);
   bool Unlock();
   void SetGUIMode(bool guimode);
   void Flip();
@@ -51,7 +51,7 @@ class WinDrawDDS : public WinDrawSub {
   uint height;
   POINT ltc;
 
-  uint8* image;
+  uint8_t* image;
 
   bool palchanged;
   bool guimode;

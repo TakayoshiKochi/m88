@@ -85,7 +85,7 @@ uint DiskIO::GetData(uint) {
 // ---------------------------------------------------------------------------
 //
 //
-void DiskIO::SendPhase(uint8* p, int l) {
+void DiskIO::SendPhase(uint8_t* p, int l) {
   ptr = p, len = l;
   phase = sendphase;
   status |= 2 | 4;
@@ -99,7 +99,7 @@ void DiskIO::ArgPhase(int l) {
 // ---------------------------------------------------------------------------
 //
 //
-void DiskIO::RecvPhase(uint8* p, int l) {
+void DiskIO::RecvPhase(uint8_t* p, int l) {
   ptr = p, len = l;
   phase = recvphase;
   status |= 2;

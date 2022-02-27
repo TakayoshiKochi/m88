@@ -30,7 +30,7 @@ KanjiROM::~KanjiROM() {
 //
 bool KanjiROM::Init(const char* filename) {
   if (!image)
-    image = new uint8[0x20000];
+    image = new uint8_t[0x20000];
   if (!image)
     return false;
   memset(image, 0xff, 0x20000);

@@ -15,7 +15,7 @@
 //
 class SoundBuffer {
  public:
-  typedef int16 Sample;
+  typedef int16_t Sample;
 
  public:
   SoundBuffer();

@@ -29,8 +29,8 @@ class PIO {
   uint Port(uint num) { return port[num]; }
 
  private:
-  uint8 port[4];
-  uint8 readmask[4];
+  uint8_t port[4];
+  uint8_t readmask[4];
   PIO* partner;
 };
 

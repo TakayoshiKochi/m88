@@ -20,8 +20,8 @@ class Device : public IDevice {
   const ID& IFCALL GetID() const { return id; }
   const Descriptor* IFCALL GetDesc() const { return 0; }
   uint IFCALL GetStatusSize() { return 0; }
-  bool IFCALL LoadStatus(const uint8* status) { return false; }
-  bool IFCALL SaveStatus(uint8* status) { return false; }
+  bool IFCALL LoadStatus(const uint8_t* status) { return false; }
+  bool IFCALL SaveStatus(uint8_t* status) { return false; }
 
  protected:
   void SetID(const ID& i) { id = i; }
@@ -77,14 +77,14 @@ class MemoryBus : public IMemoryAccess {
   void SetMemory(uint addr, void* ptr);
   void SetFunc(uint addr, void* inst, ReadFuncPtr rd, WriteFuncPtr wr);
 
-  void SetWriteMemorys(uint addr, uint length, uint8* ptr);
-  void SetReadMemorys(uint addr, uint length, uint8* ptr);
-  void SetMemorys(uint addr, uint length, uint8* ptr);
+  void SetWriteMemorys(uint addr, uint length, uint8_t* ptr);
+  void SetReadMemorys(uint addr, uint length, uint8_t* ptr);
+  void SetMemorys(uint addr, uint length, uint8_t* ptr);
   void SetFuncs(uint addr, uint length, void* inst, ReadFuncPtr rd, WriteFuncPtr wr);
 
-  void SetWriteMemorys2(uint addr, uint length, uint8* ptr, void* inst);
-  void SetReadMemorys2(uint addr, uint length, uint8* ptr, void* inst);
-  void SetMemorys2(uint addr, uint length, uint8* ptr, void* inst);
+  void SetWriteMemorys2(uint addr, uint length, uint8_t* ptr, void* inst);
+  void SetReadMemorys2(uint addr, uint length, uint8_t* ptr, void* inst);
+  void SetMemorys2(uint addr, uint length, uint8_t* ptr, void* inst);
   void SetFuncs2(uint addr, uint length, void* inst, ReadFuncPtr rd, WriteFuncPtr wr);
 
   void SetReadOwner(uint addr, uint length, void* inst);
@@ -135,13 +135,13 @@ class DeviceList {
   bool Del(const ID id);
   IDevice* Find(const ID id);
 
-  bool LoadStatus(const uint8*);
-  bool SaveStatus(uint8*);
+  bool LoadStatus(const uint8_t*);
+  bool SaveStatus(uint8_t*);
   uint GetStatusSize();
 
  private:
   Node* FindNode(const ID id);
-  bool CheckStatus(const uint8*);
+  bool CheckStatus(const uint8_t*);
 
   Node* node;
 };
@@ -181,7 +181,7 @@ class IOBus : public IIOAccess, public IIOBus {
 
   InBank* GetIns() { return ins; }
   OutBank* GetOuts() { return outs; }
-  uint8* GetFlags() { return flags; }
+  uint8_t* GetFlags() { return flags; }
 
   bool IsSyncPort(uint port);
 
@@ -204,13 +204,13 @@ class IOBus : public IIOAccess, public IIOBus {
   };
   struct StatusTag {
     Device::ID id;
-    uint32 size;
+    uint32_t size;
   };
 
  private:
   InBank* ins;
   OutBank* outs;
-  uint8* flags;
+  uint8_t* flags;
   DeviceList* devlist;
 
   uint banksize;

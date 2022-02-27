@@ -372,7 +372,7 @@ LRESULT CALLBACK WinUI::WinProcGate(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM 
 //  WinUI::M88SendKeyState
 //
 inline LRESULT WinUI::M88SendKeyState(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  uint8* dest = reinterpret_cast<uint8*>(wparam);
+  uint8_t* dest = reinterpret_cast<uint8_t*>(wparam);
   GetKeyboardState(dest);
   SetEvent((HANDLE)lparam);
   return 0;
@@ -382,7 +382,7 @@ inline LRESULT WinUI::WmKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   if ((uint)wparam == VK_F12 && !(config.flags & Config::disablef12reset))
     ;
   else
-    keyif.KeyDown((uint)wparam, (uint32)lparam);
+    keyif.KeyDown((uint)wparam, (uint32_t)lparam);
 
   return 0;
 }
@@ -391,14 +391,14 @@ inline LRESULT WinUI::WmKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   if ((uint)wparam == VK_F12 && !(config.flags & Config::disablef12reset))
     Reset();
   else
-    keyif.KeyUp((uint)wparam, (uint32)lparam);
+    keyif.KeyUp((uint)wparam, (uint32_t)lparam);
 
   return 0;
 }
 
 inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   if (config.flags & Config::suppressmenu) {
-    keyif.KeyDown((uint)wparam, (uint32)lparam);
+    keyif.KeyDown((uint)wparam, (uint32_t)lparam);
     return 0;
   }
   return DefWindowProc(hwnd, WM_SYSKEYDOWN, wparam, lparam);
@@ -406,7 +406,7 @@ inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 
 inline LRESULT WinUI::WmSysKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   if (config.flags & Config::suppressmenu) {
-    keyif.KeyUp((uint)wparam, (uint32)lparam);
+    keyif.KeyUp((uint)wparam, (uint32_t)lparam);
     return 0;
   }
   return DefWindowProc(hwnd, WM_SYSKEYUP, wparam, lparam);
@@ -1468,7 +1468,7 @@ LRESULT WinUI::WmDropFiles(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //
 void WinUI::CaptureScreen() {
   int bmpsize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFO) + 15 * sizeof(RGBQUAD) + 320 * 400;
-  uint8* bmp = new uint8[bmpsize];
+  uint8_t* bmp = new uint8_t[bmpsize];
   if (!bmp)
     return;
 
@@ -1822,7 +1822,7 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
       cmdline += 2;
       switch (cmdline[-1]) {
         char* endptr;
-        int32 newflags, activate;
+        int32_t newflags, activate;
 
         // BASIC モードを設定  -bモード番号
         case 'b':

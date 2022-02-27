@@ -36,20 +36,20 @@
 //  Table/etc
 //
 namespace FM {
-const uint8 Operator::notetable[128] = {
+const uint8_t Operator::notetable[128] = {
     // clang-format off
-         0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  3,  3,  3,  3,  3,  3, 
-         4,  4,  4,  4,  4,  4,  4,  5,  6,  7,  7,  7,  7,  7,  7,  7, 
-         8,  8,  8,  8,  8,  8,  8,  9, 10, 11, 11, 11, 11, 11, 11, 11, 
-        12, 12, 12, 12, 12, 12, 12, 13, 14, 15, 15, 15, 15, 15, 15, 15, 
-        16, 16, 16, 16, 16, 16, 16, 17, 18, 19, 19, 19, 19, 19, 19, 19, 
-        20, 20, 20, 20, 20, 20, 20, 21, 22, 23, 23, 23, 23, 23, 23, 23, 
-        24, 24, 24, 24, 24, 24, 24, 25, 26, 27, 27, 27, 27, 27, 27, 27, 
+         0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  3,  3,  3,  3,  3,  3,
+         4,  4,  4,  4,  4,  4,  4,  5,  6,  7,  7,  7,  7,  7,  7,  7,
+         8,  8,  8,  8,  8,  8,  8,  9, 10, 11, 11, 11, 11, 11, 11, 11,
+        12, 12, 12, 12, 12, 12, 12, 13, 14, 15, 15, 15, 15, 15, 15, 15,
+        16, 16, 16, 16, 16, 16, 16, 17, 18, 19, 19, 19, 19, 19, 19, 19,
+        20, 20, 20, 20, 20, 20, 20, 21, 22, 23, 23, 23, 23, 23, 23, 23,
+        24, 24, 24, 24, 24, 24, 24, 25, 26, 27, 27, 27, 27, 27, 27, 27,
         28, 28, 28, 28, 28, 28, 28, 29, 30, 31, 31, 31, 31, 31, 31, 31,
     // clang-format on
 };
 
-const int8 Operator::dttable[256] = {
+const int8_t Operator::dttable[256] = {
     // clang-format off
           0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
           0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -70,7 +70,7 @@ const int8 Operator::dttable[256] = {
     // clang-format on
 };
 
-const int8 Operator::decaytable1[64][8] = {
+const int8_t Operator::decaytable1[64][8] = {
     // clang-format off
         0, 0, 0, 0, 0, 0, 0, 0,     0, 0, 0, 0, 0, 0, 0, 0,
         1, 1, 1, 1, 1, 1, 1, 1,     1, 1, 1, 1, 1, 1, 1, 1,
@@ -98,9 +98,9 @@ const int8 Operator::decaytable1[64][8] = {
         1, 1, 1, 0, 1, 1, 1, 0,     1, 1, 1, 1, 1, 1, 1, 0,
         1, 1, 1, 1, 1, 1, 1, 1,     2, 1, 1, 1, 2, 1, 1, 1,
         2, 1, 2, 1, 2, 1, 2, 1,     2, 2, 2, 1, 2, 2, 2, 1,
-        2, 2, 2, 2, 2, 2, 2, 2,     4, 2, 2, 2, 4, 2, 2, 2, 
+        2, 2, 2, 2, 2, 2, 2, 2,     4, 2, 2, 2, 4, 2, 2, 2,
         4, 2, 4, 2, 4, 2, 4, 2,     4, 4, 4, 2, 4, 4, 4, 2,
-        4, 4, 4, 4, 4, 4, 4, 4,     8, 4, 4, 4, 8, 4, 4, 4, 
+        4, 4, 4, 4, 4, 4, 4, 4,     8, 4, 4, 4, 8, 4, 4, 4,
         8, 4, 8, 4, 8, 4, 8, 4,     8, 8, 8, 4, 8, 8, 8, 4,
         16,16,16,16,16,16,16,16,    16,16,16,16,16,16,16,16,
         16,16,16,16,16,16,16,16,    16,16,16,16,16,16,16,16,
@@ -113,7 +113,7 @@ const int Operator::decaytable2[16] = {
     // clang-format on
 };
 
-const int8 Operator::attacktable[64][8] = {
+const int8_t Operator::attacktable[64][8] = {
     // clang-format off
         -1,-1,-1,-1,-1,-1,-1,-1,    -1,-1,-1,-1,-1,-1,-1,-1,
          4, 4, 4, 4, 4, 4, 4, 4,     4, 4, 4, 4, 4, 4, 4, 4,
@@ -182,11 +182,9 @@ void MakeLFOTable() {
   //  1.000963
   //  lfofref[level * max * wave];
   //  pre = lfofref[level][pms * wave >> 8];
-  static const uint8 amt[2][4] = {
-      // clang-format off
-        { 31, 6, 4, 3 }, // OPNA
-        { 31, 2, 1, 0 }, // OPM
-      // clang-format on
+  static const uint8_t amt[2][4] = {
+      {31, 6, 4, 3},  // OPNA
+      {31, 2, 1, 0},  // OPM
   };
 
   for (int type = 0; type < 2; type++) {
@@ -246,7 +244,7 @@ void Chip::MakeTable() {
 //
 bool FM::Operator::tablehasmade = false;
 uint FM::Operator::sinetable[1024];
-int32 FM::Operator::cltable[FM_CLENTS];
+int32_t FM::Operator::cltable[FM_CLENTS];
 
 //  構築
 FM::Operator::Operator() : chip_(0) {
@@ -339,7 +337,7 @@ void Operator::Prepare() {
     param_changed_ = false;
 
     // Check for PG overflow
-    int32 pgc = int32(dp_) + dttable[detune_ + bn_];
+    int32_t pgc = int32_t(dp_) + dttable[detune_ + bn_];
     if (pgc < 0) {
       pgc = 0x3ff80;  // 2047 << 7
     }
@@ -419,7 +417,7 @@ void Operator::ShiftPhase(EGPhase nextphase) {
           if (ssg_type_ & 0x10) {
             eg_level_ = 1023 - eg_level_;
           }
-          ssg_type_ &= uint8(~0x10);
+          ssg_type_ &= uint8_t(~0x10);
         }
 
         eg_level_on_next_phase_ = 0x400;
@@ -442,7 +440,7 @@ void Operator::ShiftPhase(EGPhase nextphase) {
         }
         if (ssg_type_ & 2) {
           //  alternate
-          ssg_type_ ^= uint8(0x10);
+          ssg_type_ ^= uint8_t(0x10);
           if (!(ssg_type_ & 1)) {
             eg_level_ = eg_level_on_next_phase_ = 0;
           }
@@ -558,15 +556,15 @@ inline void FM::Operator::EGStep() {
 
 //  PG 計算
 //  ret:2^(20+PGBITS) / cycle
-inline uint32 FM::Operator::PGCalc() {
-  uint32 ret = pg_count_;
+inline uint32_t FM::Operator::PGCalc() {
+  uint32_t ret = pg_count_;
   pg_count_ += pg_diff_;
   dbgpgout_ = ret;
   return ret;
 }
 
-inline uint32 FM::Operator::PGCalcL() {
-  uint32 ret = pg_count_;
+inline uint32_t FM::Operator::PGCalcL() {
+  uint32_t ret = pg_count_;
   pg_count_ += pg_diff_ + ((pg_diff_lfo_ * chip_->GetPMV()) >> 5);  // & -(1 << (2+IS2EC_SHIFT)));
   dbgpgout_ = ret;
   return ret /* + pmv * pg_diff_;*/;
@@ -650,7 +648,7 @@ inline FM::ISample FM::Operator::CalcFBL(uint fb) {
 // ---------------------------------------------------------------------------
 //  4-op Channel
 //
-const uint8 Channel4::fbtable[8] = {31, 7, 6, 5, 4, 3, 2, 1};
+const uint8_t Channel4::fbtable[8] = {31, 7, 6, 5, 4, 3, 2, 1};
 int Channel4::kftable[64];
 
 bool Channel4::tablehasmade = false;
@@ -701,7 +699,7 @@ void Channel4::SetFNum(uint f) {
 void Channel4::SetKCKF(uint kc, uint kf) {
   const static uint kctable[16] = {
       // clang-format off
-        5197, 5506, 5833, 6180, 6180, 6547, 6937, 7349, 
+        5197, 5506, 5833, 6180, 6180, 6547, 6937, 7349,
         7349, 7786, 8249, 8740, 8740, 9259, 9810, 10394,
       // clang-format on
   };
@@ -771,7 +769,7 @@ void Channel4::KeyOffCsm(uint key) {
 
 //  アルゴリズムを設定
 void Channel4::SetAlgorithm(uint algo) {
-  static const uint8 table1[8][6] = {
+  static const uint8_t table1[8][6] = {
       // clang-format off
         { 0, 1, 1, 2, 2, 3 },   { 1, 0, 0, 1, 1, 2 },
         { 1, 1, 1, 0, 0, 2 },   { 0, 1, 2, 1, 1, 2 },

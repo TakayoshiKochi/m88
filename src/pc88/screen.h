@@ -41,7 +41,7 @@ class Screen : public Device {
   bool Init(IOBus* bus, Memory* memory, CRTC* crtc);
   void IOCALL Reset(uint = 0, uint = 0);
   bool UpdatePalette(Draw* draw);
-  void UpdateScreen(uint8* image, int bpl, Draw::Region& region, bool refresh);
+  void UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool refresh);
   void ApplyConfig(const Config* config);
 
   void IOCALL Out30(uint port, uint data);
@@ -56,12 +56,12 @@ class Screen : public Device {
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
  private:
   struct Pal {
-    uint8 red, blue, green, _pad;
+    uint8_t red, blue, green, _pad;
   };
   enum {
     ssrev = 1,
@@ -69,20 +69,20 @@ class Screen : public Device {
   struct Status {
     uint rev;
     Pal pal[8], bgpal;
-    uint8 p30, p31, p32, p33, p53;
+    uint8_t p30, p31, p32, p33, p53;
   };
 
   void CreateTable();
 
-  void ClearScreen(uint8* image, int bpl);
-  void UpdateScreen200c(uint8* image, int bpl, Draw::Region& region);
-  void UpdateScreen200b(uint8* image, int bpl, Draw::Region& region);
-  void UpdateScreen400b(uint8* image, int bpl, Draw::Region& region);
+  void ClearScreen(uint8_t* image, int bpl);
+  void UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region);
+  void UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region);
+  void UpdateScreen400b(uint8_t* image, int bpl, Draw::Region& region);
 
-  void UpdateScreen80c(uint8* image, int bpl, Draw::Region& region);
-  void UpdateScreen80b(uint8* image, int bpl, Draw::Region& region);
-  void UpdateScreen320c(uint8* image, int bpl, Draw::Region& region);
-  void UpdateScreen320b(uint8* image, int bpl, Draw::Region& region);
+  void UpdateScreen80c(uint8_t* image, int bpl, Draw::Region& region);
+  void UpdateScreen80b(uint8_t* image, int bpl, Draw::Region& region);
+  void UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region);
+  void UpdateScreen320b(uint8_t* image, int bpl, Draw::Region& region);
 
   IOBus* bus;
   Memory* memory;
@@ -95,19 +95,19 @@ class Screen : public Device {
 
   static const Draw::Palette palcolor[8];
 
-  const uint8* pex;
+  const uint8_t* pex;
 
-  uint8 port30;
-  uint8 port31;
-  uint8 port32;
-  uint8 port33;
-  uint8 port53;
+  uint8_t port30;
+  uint8_t port31;
+  uint8_t port32;
+  uint8_t port33;
+  uint8_t port53;
 
   bool fullline;
   bool fv15k;
   bool line400;
   bool line320;  // 320x200 mode
-  uint8 displayplane;
+  uint8_t displayplane;
   bool displaytext;
   bool palettechanged;
   bool modechanged;
@@ -117,7 +117,7 @@ class Screen : public Device {
   bool n80mode;
   bool textpriority;
   bool grphpriority;
-  uint8 gmask;
+  uint8_t gmask;
   Config::BASICMode newmode;
 
   static packed BETable0[1 << sizeof(packed)];
@@ -127,13 +127,13 @@ class Screen : public Device {
   static packed E80SRTable[64];
   static packed E80SRMask[4];
   static packed BE80Table[4];
-  static const uint8 palextable[2][8];
+  static const uint8_t palextable[2][8];
 
  private:
   static const Descriptor descriptor;
   //  static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];
-  static const int16 RegionTable[];
+  static const int16_t RegionTable[];
 };
 
 }  // namespace PC8801

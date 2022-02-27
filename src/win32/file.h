@@ -39,19 +39,19 @@ class FileIO {
   void Close();
   Error GetError() { return error; }
 
-  int32 Read(void* dest, int32 len);
-  int32 Write(const void* src, int32 len);
-  bool Seek(int32 fpos, SeekMethod method);
-  int32 Tellp();
+  int32_t Read(void* dest, int32_t len);
+  int32_t Write(const void* src, int32_t len);
+  bool Seek(int32_t fpos, SeekMethod method);
+  int32_t Tellp();
   bool SetEndOfFile();
 
   uint GetFlags() { return flags; }
-  void SetLogicalOrigin(int32 origin) { lorigin = origin; }
+  void SetLogicalOrigin(int32_t origin) { lorigin = origin; }
 
  private:
   HANDLE hfile;
   uint flags;
-  uint32 lorigin;
+  uint32_t lorigin;
   Error error;
   char path[MAX_PATH];
 

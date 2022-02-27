@@ -7,14 +7,14 @@
 #include "win32/headers.h"
 #include "common/lz77d.h"
 
-#define GetBit() (r = (bit >> bc) & 1, bc-- || (bit = *(uint32*)src, src += 4, bc = 31), r)
+#define GetBit() (r = (bit >> bc) & 1, bc-- || (bit = *(uint32_t*)src, src += 4, bc = 31), r)
 
-bool LZ77Dec::Decode(uint8* dest, int destsize, const uint8* src) {
+bool LZ77Dec::Decode(uint8_t* dest, int destsize, const uint8_t* src) {
   uint r;
 
-  uint8* dtop = dest + destsize;
+  uint8_t* dtop = dest + destsize;
 
-  uint bit = *(uint32*)src;
+  uint bit = *(uint32_t*)src;
   uint bc = 31;
   src += 4;
 

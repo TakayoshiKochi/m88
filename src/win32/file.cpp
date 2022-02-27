@@ -123,7 +123,7 @@ void FileIO::Close() {
 //  ファイル殻の読み出し
 // ---------------------------------------------------------------------------
 
-int32 FileIO::Read(void* dest, int32 size) {
+int32_t FileIO::Read(void* dest, int32_t size) {
   if (!(GetFlags() & open))
     return -1;
 
@@ -137,7 +137,7 @@ int32 FileIO::Read(void* dest, int32 size) {
 //  ファイルへの書き出し
 // ---------------------------------------------------------------------------
 
-int32 FileIO::Write(const void* dest, int32 size) {
+int32_t FileIO::Write(const void* dest, int32_t size) {
   if (!(GetFlags() & open) || (GetFlags() & readonly))
     return -1;
 
@@ -151,7 +151,7 @@ int32 FileIO::Write(const void* dest, int32 size) {
 //  ファイルをシーク
 // ---------------------------------------------------------------------------
 
-bool FileIO::Seek(int32 pos, SeekMethod method) {
+bool FileIO::Seek(int32_t pos, SeekMethod method) {
   if (!(GetFlags() & open))
     return false;
 
@@ -178,7 +178,7 @@ bool FileIO::Seek(int32 pos, SeekMethod method) {
 //  ファイルの位置を得る
 // ---------------------------------------------------------------------------
 
-int32 FileIO::Tellp() {
+int32_t FileIO::Tellp() {
   if (!(GetFlags() & open))
     return 0;
 

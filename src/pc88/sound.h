@@ -65,11 +65,11 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
 
   PC88* pc;
 
-  int32* mixingbuf;
+  int32_t* mixingbuf;
   int buffersize;
 
-  uint32 prevtime;
-  uint32 cfgflg;
+  uint32_t prevtime;
+  uint32_t cfgflg;
   int tdiff;
   uint mixthreshold;
 

@@ -34,13 +34,13 @@ class ASPI {
                          uint datalen = 0);
 
  private:
-  uint32 SendCommand(void*);
-  uint32 SendCommandAndWait(void*);
+  uint32_t SendCommand(void*);
+  uint32_t SendCommandAndWait(void*);
   bool ConnectAPI();
   void AbortService(uint, void*);
 
-  uint32(__cdecl* psac)(void*);
-  uint32(__cdecl* pgasi)();
+  uint32_t(__cdecl* psac)(void*);
+  uint32_t(__cdecl* pgasi)();
   uint nhostadapters;
   HANDLE hevent;
   HMODULE hmod;
@@ -49,13 +49,13 @@ class ASPI {
 struct LONGBE {
   uchar image[4];
   LONGBE() {}
-  LONGBE(uint32 a) {
+  LONGBE(uint32_t a) {
     image[0] = uchar(a >> 24);
     image[1] = uchar(a >> 16);
     image[2] = uchar(a >> 8);
     image[3] = uchar(a);
   }
-  operator uint32() {
+  operator uint32_t() {
     return image[3] + image[2] * 0x100ul + image[1] * 0x10000ul + image[0] * 0x1000000ul;
   }
 };

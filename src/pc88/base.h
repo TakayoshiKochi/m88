@@ -50,8 +50,8 @@ class Base : public Device {
   int clock;
   int bmode;
 
-  uint8 port40;
-  uint8 sw30, sw31, sw6e;
+  uint8_t port40;
+  uint8_t sw30, sw31, sw6e;
   bool autoboot;
   bool fv15k;
 

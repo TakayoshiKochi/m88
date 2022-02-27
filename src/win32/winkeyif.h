@@ -36,8 +36,8 @@ class WinKeyIF : public Device {
 
   void Activate(bool);
   void Disable(bool);
-  void KeyDown(uint, uint32);
-  void KeyUp(uint, uint32);
+  void KeyDown(uint, uint32_t);
+  void KeyUp(uint, uint32_t);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
@@ -60,7 +60,7 @@ class WinKeyIF : public Device {
     pc80key,
   };
   struct Key {
-    uint8 k, f;
+    uint8_t k, f;
   };
 
   uint GetKey(const Key* key);
@@ -79,8 +79,8 @@ class WinKeyIF : public Device {
   HANDLE hevent;
   uint basicmode;
   int keyport[16];
-  uint8 keyboard[256];
-  uint8 keystate[512];
+  uint8_t keyboard[256];
+  uint8_t keystate[512];
 
  private:
   static const Descriptor descriptor;

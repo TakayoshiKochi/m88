@@ -53,7 +53,7 @@ class ChipIF : public PiccoloChip {
     pic->DrvReset();
     pic->Reset();
   }
-  bool SetReg(uint32 at, uint addr, uint data) { return pic->DrvSetReg(at, addr, data); }
+  bool SetReg(uint32_t at, uint addr, uint data) { return pic->DrvSetReg(at, addr, data); }
   void SetChannelMask(uint mask) {}
   void SetVolume(int ch, int value) {}
 
@@ -122,7 +122,7 @@ int Piccolo_Romeo::Init() {
     // ROMEO の存在確認
     // デバイスを探す
     Log("FindDevice\n");
-    uint32 id;
+    uint32_t id;
     id = pcidrv.finddev(0x6809, 0x8121, 0);
     if (id & 0xff)
       id = pcidrv.finddev(0x6809, 0x2151, 0);

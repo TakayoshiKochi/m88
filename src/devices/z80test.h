@@ -60,9 +60,9 @@ class Z80Test : public Device {
   int clockcount;
 
   uint pc;
-  uint8 code[4];
+  uint8_t code[4];
   uint readptr[8], writeptr[8], inptr, outptr;
-  uint8 readdat[8], writedat[8], indat, outdat;
+  uint8_t readdat[8], writedat[8], indat, outdat;
   uint readcount, writecount;
   uint readcountt, writecountt;
   int intr;

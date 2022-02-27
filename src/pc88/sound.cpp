@@ -70,7 +70,7 @@ bool Sound::SetRate(uint rate, int bufsize) {
     if (!soundbuf.Init(this, bufsize, rate))
       return false;
 
-    mixingbuf = new int32[2 * bufsize];
+    mixingbuf = new int32_t[2 * bufsize];
     if (!mixingbuf)
       return false;
 
@@ -107,13 +107,13 @@ int Sound::Get(Sample* dest, int nsamples) {
   if (mixsamples > 0) {
     // 合成
     {
-      memset(mixingbuf, 0, mixsamples * 2 * sizeof(int32));
+      memset(mixingbuf, 0, mixsamples * 2 * sizeof(int32_t));
       CriticalSection::Lock lock(cs_ss);
       for (SSNode* s = sslist; s; s = s->next)
         s->ss->Mix(mixingbuf, mixsamples);
     }
 
-    int32* src = mixingbuf;
+    int32_t* src = mixingbuf;
     for (int n = mixsamples; n > 0; n--) {
       *dest++ = Limit(*src++, 32767, -32768);
       *dest++ = Limit(*src++, 32767, -32768);
@@ -127,7 +127,7 @@ int Sound::Get(Sample* dest, int nsamples) {
 //
 int Sound::Get(SampleL* dest, int nsamples) {
   // 合成
-  memset(dest, 0, nsamples * 2 * sizeof(int32));
+  memset(dest, 0, nsamples * 2 * sizeof(int32_t));
   CriticalSection::Lock lock(cs_ss);
   for (SSNode* s = sslist; s; s = s->next)
     s->ss->Mix(dest, nsamples);
@@ -199,9 +199,9 @@ bool Sound::Disconnect(ISoundSource* ss) {
 //  arg:    src     更新する音源を指定(今の実装では無視されます)
 //
 bool Sound::Update(ISoundSource* /*src*/) {
-  uint32 currenttime = pc->GetCPUTick();
+  uint32_t currenttime = pc->GetCPUTick();
 
-  uint32 time = currenttime - prevtime;
+  uint32_t time = currenttime - prevtime;
   if (enabled && time > mixthreshold) {
     prevtime = currenttime;
     // nsamples = 経過時間(s) * サンプリングレート

@@ -40,8 +40,8 @@ class DiskIO : public Device {
 
   void ProcCommand();
   void ArgPhase(int l);
-  void SendPhase(uint8* p, int l);
-  void RecvPhase(uint8* p, int l);
+  void SendPhase(uint8_t* p, int l);
+  void RecvPhase(uint8_t* p, int l);
   void IdlePhase();
 
   void CmdSetFileName();
@@ -50,7 +50,7 @@ class DiskIO : public Device {
   void CmdGetError();
   void CmdWriteFlush();
 
-  uint8* ptr;
+  uint8_t* ptr;
   int len;
 
   FileIO file;
@@ -59,12 +59,12 @@ class DiskIO : public Device {
 
   Phase phase;
   bool writebuffer;
-  uint8 status;
-  uint8 cmd;
-  uint8 err;
-  uint8 arg[5];
-  uint8 filename[MAX_PATH];
-  uint8 buf[1024];
+  uint8_t status;
+  uint8_t cmd;
+  uint8_t err;
+  uint8_t arg[5];
+  uint8_t filename[MAX_PATH];
+  uint8_t buf[1024];
 
   static const Descriptor descriptor;
   static const InFuncPtr indef[];

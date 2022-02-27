@@ -107,7 +107,7 @@ uint FDU::Seek(uint cy) {
 //  id      読み込むセクタのセクタ ID
 //  data    データの転送先
 //
-uint FDU::ReadSector(uint flags, IDR id, uint8* data) {
+uint FDU::ReadSector(uint flags, IDR id, uint8_t* data) {
   if (!disk)
     return FDC::ST0_AT | FDC::ST1_MA;
   SetHead(flags);
@@ -149,7 +149,7 @@ uint FDU::ReadSector(uint flags, IDR id, uint8* data) {
 //  FDU::WriteSector
 //  セクタに書く
 //
-uint FDU::WriteSector(uint flags, IDR id, const uint8* data, bool deleted) {
+uint FDU::WriteSector(uint flags, IDR id, const uint8_t* data, bool deleted) {
   if (!disk)
     return FDC::ST0_AT | FDC::ST1_MA;
   SetHead(flags);
@@ -276,7 +276,7 @@ uint FDU::FindID(uint flags, IDR id) {
 // ---------------------------------------------------------------------------
 //  ReadDiag 用のデータ作成
 //
-uint FDU::MakeDiagData(uint flags, uint8* data, uint* size) {
+uint FDU::MakeDiagData(uint flags, uint8_t* data, uint* size) {
   if (!disk)
     return FDC::ST0_AT | FDC::ST1_MA;
   SetHead(flags);
@@ -291,8 +291,8 @@ uint FDU::MakeDiagData(uint flags, uint8* data, uint* size) {
   if ((flags & 0x40) == 0)
     capacity >>= 1;
 
-  uint8* dest = data;
-  uint8* limit = data + capacity;
+  uint8_t* dest = data;
+  uint8_t* limit = data + capacity;
   DiagInfo* diaginfo = (DiagInfo*)(data + 0x3800);
 
   // プリアンプル
@@ -383,8 +383,8 @@ uint FDU::MakeDiagData(uint flags, uint8* data, uint* size) {
 // ---------------------------------------------------------------------------
 //  ReadDiag 本体
 //
-uint FDU::ReadDiag(uint8* data, uint8** cursor, IDR idr) {
-  uint8* dest = *cursor;
+uint FDU::ReadDiag(uint8_t* data, uint8_t** cursor, IDR idr) {
+  uint8_t* dest = *cursor;
   DiagInfo* diaginfo = (DiagInfo*)(data + 0x3800);
 
   while (diaginfo->data && dest > diaginfo->data)

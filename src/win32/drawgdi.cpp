@@ -137,7 +137,7 @@ void WinDrawGDI::DrawScreen(const RECT& _rect, bool refresh) {
 // ---------------------------------------------------------------------------
 //  画面イメージの使用要求
 //
-bool WinDrawGDI::Lock(uint8** pimage, int* pbpl) {
+bool WinDrawGDI::Lock(uint8_t** pimage, int* pbpl) {
   *pimage = image;
   *pbpl = bpl;
   return image != 0;

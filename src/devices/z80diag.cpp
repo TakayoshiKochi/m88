@@ -72,7 +72,7 @@ char* Z80Diag::Expand(char* dest, const char* src) {
           break;
 
         case 'r':
-          i = int8(Read8(pc++));
+          i = int8_t(Read8(pc++));
           SetHex(dest, pc + i);
           break;
 
@@ -86,7 +86,7 @@ char* Z80Diag::Expand(char* dest, const char* src) {
           *dest++ = text[xmode + 0];
           *dest++ = text[xmode + 1];
           if (xmode != usehl) {
-            i = int8(Read8(pc++));
+            i = int8_t(Read8(pc++));
             if (i) {
               if (i > 0)
                 *dest++ = '+';
@@ -114,7 +114,7 @@ char* Z80Diag::Expand(char* dest, const char* src) {
         {
           int y;
           if (xmode != usehl)
-            y = int8(Read8(pc++));
+            y = int8_t(Read8(pc++));
           i = Read8(pc++);
 
           for (const char* s = InstCB[i >> 3]; *s;)
@@ -330,7 +330,7 @@ const char* Z80Diag::InstCB[32] = {
     // clang-format on
 };
 
-const int8 Z80Diag::SizeTable[256] = {
+const int8_t Z80Diag::SizeTable[256] = {
     // clang-format off
      1, 3, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1,
      2, 3, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1,
@@ -351,7 +351,7 @@ const int8 Z80Diag::SizeTable[256] = {
     // clang-format on
 };
 
-const int8 Z80Diag::SizeTableED[128] = {
+const int8_t Z80Diag::SizeTableED[128] = {
     // clang-format off
     2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2,
     2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2,

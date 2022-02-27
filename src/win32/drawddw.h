@@ -25,7 +25,7 @@ class WinDrawDDW : public WinDrawSub {
   void SetPalette(PALETTEENTRY* pal, int index, int nentries);
   void QueryNewPalette();
   void DrawScreen(const RECT& rect, bool refresh);
-  bool Lock(uint8** pimage, int* pbpl);
+  bool Lock(uint8_t** pimage, int* pbpl);
   bool Unlock();
 
  private:
@@ -36,7 +36,7 @@ class WinDrawDDW : public WinDrawSub {
   bool RestoreSurface();
   HWND hwnd;
 
-  static void Convert8bpp(void* dest, const uint8* src, RECT* rect, int pitch);
+  static void Convert8bpp(void* dest, const uint8_t* src, RECT* rect, int pitch);
 
   LPDIRECTDRAW2 ddraw;
   LPDIRECTDRAWPALETTE ddpal;
@@ -47,12 +47,12 @@ class WinDrawDDW : public WinDrawSub {
 
   LPDIRECTDRAWSURFACE ddswork;
 
-  uint32 redmask;
-  uint32 greenmask;
-  uint32 bluemask;
-  uint8 redshift;
-  uint8 greenshift;
-  uint8 blueshift;
+  uint32_t redmask;
+  uint32_t greenmask;
+  uint32_t bluemask;
+  uint8_t redshift;
+  uint8_t greenshift;
+  uint8_t blueshift;
   bool scrnhaspal;
   bool palchanged;
   bool locked;

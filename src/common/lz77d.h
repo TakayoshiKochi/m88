@@ -10,5 +10,5 @@
 
 class LZ77Dec {
  public:
-  bool Decode(uint8* dest, int destsize, const uint8* src);
+  bool Decode(uint8_t* dest, int destsize, const uint8_t* src);
 };

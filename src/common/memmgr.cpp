@@ -50,7 +50,7 @@ bool MemoryManagerBase::Init(uint sas, Page* expages) {
   }
 
   // priority list
-  priority = new uint8[npages * ndevices];
+  priority = new uint8_t[npages * ndevices];
   if (!priority)
     return false;
   memset(priority, ndevices - 1, npages * ndevices);
@@ -148,12 +148,12 @@ uint ReadMemManager::Read8P(uint pid, uint addr) {
 
 #ifdef PTR_IDBIT
   if (!(ls.pages[page].ptr & idbit))
-    return ((uint8*)ls.pages[page].ptr)[addr & pagemask];
+    return ((uint8_t*)ls.pages[page].ptr)[addr & pagemask];
   else
     return (*RdFunc(ls.pages[page].ptr & ~idbit))(ls.inst, addr);
 #else
   if (!ls.pages[page].func)
-    return ((uint8*)ls.pages[page].ptr)[addr & pagemask];
+    return ((uint8_t*)ls.pages[page].ptr)[addr & pagemask];
   else
     return (*RdFunc(ls.pages[page].ptr))(ls.inst, addr);
 #endif
@@ -197,12 +197,12 @@ void WriteMemManager::Write8P(uint pid, uint addr, uint data) {
 
 #ifdef PTR_IDBIT
   if (!(ls.pages[page].ptr & idbit))
-    ((uint8*)ls.pages[page].ptr)[addr & pagemask] = data;
+    ((uint8_t*)ls.pages[page].ptr)[addr & pagemask] = data;
   else
     (*WrFunc(ls.pages[page].ptr & ~idbit))(ls.inst, addr, data);
 #else
   if (!ls.pages[page].func)
-    ((uint8*)ls.pages[page].ptr)[addr & pagemask] = data;
+    ((uint8_t*)ls.pages[page].ptr)[addr & pagemask] = data;
   else
     (*WrFunc(ls.pages[page].ptr))(ls.inst, addr, data);
 #endif

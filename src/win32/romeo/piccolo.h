@@ -14,7 +14,7 @@ class PiccoloChip {
   virtual ~PiccoloChip(){};
   virtual int Init(uint c) = 0;
   virtual void Reset(bool) = 0;
-  virtual bool SetReg(uint32 at, uint addr, uint data) = 0;
+  virtual bool SetReg(uint32_t at, uint addr, uint data) = 0;
   virtual void SetChannelMask(uint mask) = 0;
   virtual void SetVolume(int ch, int value) = 0;
 };
@@ -48,7 +48,7 @@ class Piccolo {
   bool SetMaximumLatency(uint nanosec);
 
   // メソッド呼び出し時点での時間を渡す(単位は nanosec)
-  uint32 GetCurrentTime();
+  uint32_t GetCurrentTime();
 
   //
   virtual int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc) = 0;
@@ -57,7 +57,7 @@ class Piccolo {
   int IsDriverBased() { return avail; }
 
  public:
-  bool DrvSetReg(uint32 at, uint addr, uint data);
+  bool DrvSetReg(uint32_t at, uint addr, uint data);
   void DrvReset();
   void DrvRelease();
 
@@ -90,8 +90,8 @@ class Piccolo {
 
   int maxlatency;
 
-  uint32 addr;
-  uint32 irq;
+  uint32_t addr;
+  uint32_t irq;
 
   volatile bool shouldterminate;
   volatile bool active;

@@ -24,7 +24,7 @@ class WinDrawD2D : public WinDrawSub {
   void SetPalette(PALETTEENTRY* pal, int index, int nentries);
   void SetGUIMode(bool guimode);
   void DrawScreen(const RECT& rect, bool refresh);
-  bool Lock(uint8** pimage, int* pbpl);
+  bool Lock(uint8_t** pimage, int* pbpl);
   bool Unlock();
 
  private:

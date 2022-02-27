@@ -14,7 +14,7 @@
 class Draw {
  public:
   struct Palette {
-    uint8 red, green, blue, rsvd;
+    uint8_t red, green, blue, rsvd;
   };
 
   struct Region {
@@ -46,7 +46,7 @@ class Draw {
   virtual bool Init(uint width, uint height, uint bpp) = 0;
   virtual bool Cleanup() = 0;
 
-  virtual bool Lock(uint8** pimage, int* pbpl) = 0;
+  virtual bool Lock(uint8_t** pimage, int* pbpl) = 0;
   virtual bool Unlock() = 0;
 
   virtual uint GetStatus() = 0;

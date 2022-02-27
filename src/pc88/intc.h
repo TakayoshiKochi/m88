@@ -30,8 +30,8 @@ class INTC : public Device {
   uint IOCALL IntAck(uint);
 
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 

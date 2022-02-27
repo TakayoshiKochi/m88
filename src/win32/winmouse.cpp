@@ -91,7 +91,7 @@ uint WinMouseUI::GetButton() {
 bool WinMouseUI::GetMovement(POINT* move) {
   move->x = move->y = 0;
 
-  if (enable && (!activetime || (int32(GetTickCount()) - activetime > 0))) {
+  if (enable && (!activetime || (int32_t(GetTickCount()) - activetime > 0))) {
     activetime = 0;
     POINT point;
     if (GetCursorPos(&point)) {

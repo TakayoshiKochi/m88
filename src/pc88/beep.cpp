@@ -64,7 +64,7 @@ bool Beep::SetRate(uint rate) {
 //  10 - 14     0011
 //  15 - 19     0001
 //
-void IFCALL Beep::Mix(int32* dest, int nsamples) {
+void IFCALL Beep::Mix(int32_t* dest, int nsamples) {
   int i;
   int p = port40 & 0x80 ? 0 : 0x10000;
   int b = port40 & 0x20 ? 0 : 0x10000;
@@ -129,14 +129,14 @@ uint IFCALL Beep::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL Beep::SaveStatus(uint8* s) {
+bool IFCALL Beep::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
   st->port40 = port40;
   return true;
 }
 
-bool IFCALL Beep::LoadStatus(const uint8* s) {
+bool IFCALL Beep::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

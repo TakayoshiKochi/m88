@@ -57,7 +57,7 @@ bool FDC::Init(DiskManager* dm, Scheduler* s, IOBus* b, int ip, int sp) {
   diskwait = true;
 
   if (!buffer)
-    buffer = new uint8[0x4000];
+    buffer = new uint8_t[0x4000];
   if (!buffer)
     return false;
   memset(buffer, 0, 0x4000);
@@ -310,7 +310,7 @@ void FDC::ShiftToExecutePhase() {
 // ---------------------------------------------------------------------------
 //  E-PHASE (FDC->CPU)
 //
-void FDC::ShiftToExecReadPhase(int nbytes, uint8* data) {
+void FDC::ShiftToExecReadPhase(int nbytes, uint8_t* data) {
   phase = execreadphase;
   status = S_RQM | S_DIO | S_NDM | S_CB;
   accepttc = true;
@@ -362,8 +362,8 @@ void FDC::ShiftToResultPhase(int nbytes) {
 
 void FDC::ShiftToResultPhase7() {
   buffer[0] = (result & 0xf8) | (hdue & 7);
-  buffer[1] = uint8(result >> 8);
-  buffer[2] = uint8(result >> 16);
+  buffer[1] = uint8_t(result >> 8);
+  buffer[2] = uint8_t(result >> 16);
   buffer[3] = idr.c;
   buffer[4] = idr.h;
   buffer[5] = idr.r;
@@ -697,7 +697,7 @@ void FDC::CmdSpecify() {
 //
 void FDC::CmdInvalid() {
   LOG0("Invalid\n");
-  buffer[0] = uint8(ST0_IC);
+  buffer[0] = uint8_t(ST0_IC);
   ShiftToResultPhase(1);
 }
 
@@ -712,8 +712,8 @@ void FDC::CmdSenceIntStatus() {
     int i;
     for (i = 0; i < 4; i++) {
       if (drive[i].result) {
-        buffer[0] = uint8(drive[i].result);
-        buffer[1] = uint8(drive[i].cyrinder >> drive[i].dd);
+        buffer[0] = uint8_t(drive[i].result);
+        buffer[1] = uint8_t(drive[i].cyrinder >> drive[i].dd);
         drive[i].result = 0;
         ShiftToResultPhase(2);
         break;
@@ -725,7 +725,7 @@ void FDC::CmdSenceIntStatus() {
     }
   } else {
     LOG0("Invalid(SenceIntStatus)\n");
-    buffer[0] = uint8(ST0_IC);
+    buffer[0] = uint8_t(ST0_IC);
     ShiftToResultPhase(1);
   }
 }
@@ -1111,7 +1111,7 @@ uint IFCALL FDC::GetStatusSize() {
   return sizeof(Snapshot);
 }
 
-bool IFCALL FDC::SaveStatus(uint8* s) {
+bool IFCALL FDC::SaveStatus(uint8_t* s) {
   Snapshot* st = (Snapshot*)s;
 
   st->rev = ssrev;
@@ -1145,7 +1145,7 @@ bool IFCALL FDC::SaveStatus(uint8* s) {
   return true;
 }
 
-bool IFCALL FDC::LoadStatus(const uint8* s) {
+bool IFCALL FDC::LoadStatus(const uint8_t* s) {
   const Snapshot* st = (const Snapshot*)s;
   if (st->rev != ssrev)
     return false;

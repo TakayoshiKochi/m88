@@ -135,7 +135,7 @@ void OPNIF::SetFMMixMode(bool mm) {
 // ---------------------------------------------------------------------------
 //  合成
 //
-void IFCALL OPNIF::Mix(int32* dest, int nsamples) {
+void IFCALL OPNIF::Mix(int32_t* dest, int nsamples) {
   if (enable)
     opn.Mix(dest, nsamples);
 }
@@ -381,7 +381,7 @@ uint IFCALL OPNIF::GetStatusSize() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-bool IFCALL OPNIF::SaveStatus(uint8* s) {
+bool IFCALL OPNIF::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
   st->i0 = index0;
@@ -400,7 +400,7 @@ bool IFCALL OPNIF::SaveStatus(uint8* s) {
 // ---------------------------------------------------------------------------
 //  状態復帰
 //
-bool IFCALL OPNIF::LoadStatus(const uint8* s) {
+bool IFCALL OPNIF::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

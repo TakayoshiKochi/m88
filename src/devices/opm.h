@@ -51,12 +51,12 @@
 //      音源のステータスレジスタを読み出す
 //      busy フラグは常に 0
 //
-//  bool Count(uint32 t)
+//  bool Count(uint32_t t)
 //      音源のタイマーを t [10^(-6) 秒] 進める．
 //      音源の内部状態に変化があった時(timer オーバーフロー)
 //      true を返す
 //
-//  uint32 GetNextEvent()
+//  uint32_t GetNextEvent()
 //      音源のタイマーのどちらかがオーバーフローするまでに必要な
 //      時間[μ秒]を返す
 //      タイマーが停止している場合は 0 を返す．
@@ -129,17 +129,17 @@ class OPM : public Timer {
   uint lfowaveform;
   uint rateratio;
   uint noise;
-  int32 noisecount;
-  uint32 noisedelta;
+  int32_t noisecount;
+  uint32_t noisedelta;
 
   bool interpolation;
-  uint8 lfofreq;
-  uint8 status;
-  uint8 reg01;
+  uint8_t lfofreq;
+  uint8_t status;
+  uint8_t reg01;
 
-  uint8 kc[8];
-  uint8 kf[8];
-  uint8 pan[8];
+  uint8_t kc[8];
+  uint8_t kf[8];
+  uint8_t pan[8];
 
   Channel4 ch[8];
   Chip chip;

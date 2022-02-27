@@ -81,7 +81,7 @@ void WinKeyIF::ApplyConfig(const Config* config) {
 // ---------------------------------------------------------------------------
 //  WM_KEYDOWN
 //
-void WinKeyIF::KeyDown(uint vkcode, uint32 keydata) {
+void WinKeyIF::KeyDown(uint vkcode, uint32_t keydata) {
   if (keytable == KeyTable106[0]) {
     // 半角・全角キー対策
     if (vkcode == 0xf3 || vkcode == 0xf4) {
@@ -97,7 +97,7 @@ void WinKeyIF::KeyDown(uint vkcode, uint32 keydata) {
 // ---------------------------------------------------------------------------
 //  WM_KEYUP
 //
-void WinKeyIF::KeyUp(uint vkcode, uint32 keydata) {
+void WinKeyIF::KeyUp(uint vkcode, uint32_t keydata) {
   uint keyindex = (vkcode & 0xff) | (keydata & (1 << 24) ? 0x100 : 0);
   keystate[keyindex] = 0;
   LOG2("KeyUp   = %.2x %.3x\n", vkcode, keyindex);
@@ -266,7 +266,7 @@ uint IOCALL WinKeyIF::In(uint port) {
         LOG3("In(13)   = %.2x %.2x %.2x\n", r, keystate[0xf4], keystate[0x1f4]);
       }
     }
-    return uint8(r);
+    return uint8_t(r);
   } else
     return 0xff;
 }
