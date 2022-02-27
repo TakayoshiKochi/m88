@@ -4,7 +4,6 @@
 // ---------------------------------------------------------------------------
 //  $Id: soundbuf.cpp,v 1.5 1999/11/26 10:13:25 cisc Exp $
 
-#include "win32/headers.h"
 #include "common/soundbuf.h"
 #include "common/misc.h"
 

@@ -4,6 +4,8 @@
 // ---------------------------------------------------------------------------
 //  $Id: sequence.cpp,v 1.3 2003/05/12 22:26:35 cisc Exp $
 
+#include <process.h>
+
 #include "win32/headers.h"
 #include "win32/sequence.h"
 #include "pc88/pc88.h"

@@ -6,6 +6,8 @@
 // ---------------------------------------------------------------------------
 //  $Id: windraw.cpp,v 1.34 2003/04/22 13:16:36 cisc Exp $
 
+#include <assert.h>
+
 #include "win32/headers.h"
 #include "common/misc.h"
 #include "win32/windraw.h"

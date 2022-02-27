@@ -6,8 +6,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: CritSect.h,v 1.3 1999/08/01 14:19:13 cisc Exp $
 
-#ifndef Win32_CriticalSection_h
-#define Win32_CriticalSection_h
+#pragma once
+
+#include <windows.h>
 
 class CriticalSection {
  public:
@@ -28,5 +29,3 @@ class CriticalSection {
  private:
   CRITICAL_SECTION css;
 };
-
-#endif  // Win32_CriticalSection_h

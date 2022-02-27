@@ -1,6 +1,9 @@
 //  $Id: srcbuf.cpp,v 1.2 2003/05/12 22:26:34 cisc Exp $
 
-#include "win32/headers.h"
+#include <assert.h>
+#include <math.h>
+#include <string.h>
+
 #include "common/srcbuf.h"
 #include "common/misc.h"
 

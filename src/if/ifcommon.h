@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <commdlg.h>
+
 #include "win32/types.h"
 
 #ifndef IFCALL

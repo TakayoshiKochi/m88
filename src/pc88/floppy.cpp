@@ -4,6 +4,8 @@
 // ---------------------------------------------------------------------------
 //  $Id: floppy.cpp,v 1.4 1999/07/29 14:35:31 cisc Exp $
 
+#include <assert.h>
+
 #include "win32/headers.h"
 #include "pc88/floppy.h"
 

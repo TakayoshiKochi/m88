@@ -7,6 +7,7 @@
 //  $Id: ui.cpp,v 1.62 2003/09/28 14:35:35 cisc Exp $
 
 #include "win32/headers.h"
+#include <commdlg.h>
 #include <shellapi.h>
 #include <mbstring.h>
 #include "win32/resource.h"

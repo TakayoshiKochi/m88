@@ -43,7 +43,7 @@ class WinConfig : public IConfigPropBase {
   static WinConfig* instance;
 
   PPNode* pplist;
-  typedef vector<IConfigPropSheet*> PropSheets;
+  typedef std::vector<IConfigPropSheet*> PropSheets;
   PropSheets propsheets;
 
   HWND hwndparent;

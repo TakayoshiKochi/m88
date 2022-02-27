@@ -9,6 +9,7 @@
 
 #define STRICT
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 
 // #define DIRECTSOUND_VERSION 0x500  // for pre-DirectX7 environment
 
@@ -21,23 +22,3 @@
 #include <ddraw.h>
 #include <dsound.h>
 #include <commctrl.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <math.h>
-#include <string.h>
-#include <process.h>
-#include <assert.h>
-#include <time.h>
-
-#include "win32/types.h"
-
-using namespace std;
-
-// --- STL 関係
-
-#ifdef _MSC_VER
-#undef max
-#define max _MAX
-#undef min
-#define min _MIN
-#endif

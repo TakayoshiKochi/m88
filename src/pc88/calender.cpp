@@ -7,6 +7,8 @@
 //  $Id: calender.cpp,v 1.4 1999/10/10 01:47:04 cisc Exp $
 //  ・TP, 1Hz 機能が未実装
 
+#include <time.h>
+
 #include "win32/headers.h"
 #include "pc88/calender.h"
 #include "common/misc.h"
