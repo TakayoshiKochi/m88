@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "device.h"
+#include "common/device.h"
 #include "pc88/pcinfo.h"
 #include "pc88/sound.h"
 

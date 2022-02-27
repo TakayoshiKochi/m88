@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "types.h"
+#include "win32/types.h"
 
 #ifndef IFCALL
 #define IFCALL __stdcall

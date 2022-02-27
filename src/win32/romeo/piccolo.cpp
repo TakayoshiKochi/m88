@@ -1,17 +1,17 @@
 //  $Id: piccolo.cpp,v 1.3 2003/04/22 13:16:36 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 #include <winioctl.h>
-#include "piccolo.h"
-#include "piccolo_romeo.h"
-#include "piccolo_gimic.h"
-#include "romeo.h"
-#include "misc.h"
-#include "status.h"
+#include "win32/romeo/piccolo.h"
+#include "win32/romeo/piccolo_romeo.h"
+#include "win32/romeo/piccolo_gimic.h"
+#include "win32/romeo/romeo.h"
+#include "common/misc.h"
+#include "win32/status.h"
 #include "../../piccolo/piioctl.h"
 
 #define LOGNAME "piccolo"
-#include "diag.h"
+#include "win32/diag.h"
 
 Piccolo* Piccolo::instance = NULL;
 

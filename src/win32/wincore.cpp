@@ -4,29 +4,29 @@
 // ---------------------------------------------------------------------------
 //  $Id: wincore.cpp,v 1.42 2003/05/15 13:15:35 cisc Exp $
 
-#include "headers.h"
-#include "wincore.h"
-#include "WinKeyIF.h"
-#include "misc.h"
+#include "win32/headers.h"
+#include "win32/wincore.h"
+#include "win32/winkeyif.h"
+#include "common/misc.h"
 #include "pc88/config.h"
-#include "status.h"
-#include "device.h"
-#include "version.h"
-#include "file.h"
+#include "win32/status.h"
+#include "common/device.h"
+#include "win32/version.h"
+#include "win32/file.h"
 #include "pc88/diskmgr.h"
 #include "pc88/opnif.h"
 #include "pc88/beep.h"
-#include "extdev.h"
+#include "win32/extdev.h"
 #include "if/ifpc88.h"
 #include "if/ifguid.h"
 #include "pc88/pd8257.h"
 #include "pc88/joypad.h"
-#include "module.h"
-#include "ui.h"
+#include "win32/module.h"
+#include "win32/ui.h"
 #include "zlib/zlib.h"
 
 #define LOGNAME "wincore"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

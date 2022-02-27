@@ -4,10 +4,10 @@
 // ---------------------------------------------------------------------------
 //  $Id: opm.cpp,v 1.26 2003/08/25 13:53:08 cisc Exp $
 
-#include "headers.h"
-#include "misc.h"
-#include "opm.h"
-#include "fmgeninl.h"
+#include "win32/headers.h"
+#include "common/misc.h"
+#include "devices/opm.h"
+#include "devices/fmgeninl.h"
 
 // #define LOGNAME "opm"
 

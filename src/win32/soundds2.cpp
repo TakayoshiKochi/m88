@@ -6,11 +6,11 @@
 // ---------------------------------------------------------------------------
 //  $Id: soundds2.cpp,v 1.5 2002/05/31 09:45:21 cisc Exp $
 
-#include "headers.h"
-#include "soundds2.h"
+#include "win32/headers.h"
+#include "win32/soundds2.h"
 
 #define LOGNAME "soundds2"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace WinSoundDriver;
 

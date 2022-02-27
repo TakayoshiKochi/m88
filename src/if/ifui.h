@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "ifcommon.h"
-#include "types.h"
+#include "win32/types.h"
+#include "if/ifcommon.h"
 
 #ifndef IFCALL
 #define IFCALL __stdcall

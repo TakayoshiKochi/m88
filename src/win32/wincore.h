@@ -8,13 +8,13 @@
 
 // ---------------------------------------------------------------------------
 
-#include "types.h"
-#include "critsect.h"
+#include "win32/types.h"
+#include "win32/critsect.h"
 #include "pc88/pc88.h"
 #include "pc88/config.h"
-#include "winsound.h"
-#include "sequence.h"
-#include "winjoy.h"
+#include "win32/winsound.h"
+#include "win32/sequence.h"
+#include "win32/winjoy.h"
 
 namespace PC8801 {
 class WinKeyIF;

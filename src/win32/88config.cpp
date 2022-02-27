@@ -4,9 +4,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: 88config.cpp,v 1.28 2003/09/28 14:35:35 cisc Exp $
 
-#include "headers.h"
-#include "88config.h"
-#include "misc.h"
+#include "win32/headers.h"
+#include "win32/88config.h"
+#include "common/misc.h"
 
 static const char* AppName = "M88p2 for Windows";
 

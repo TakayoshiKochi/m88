@@ -6,11 +6,11 @@
 
 #pragma once
 
-#include "device.h"
-#include "opna.h"
-#include "psg.h"
-#include "soundbuf.h"
-#include "schedule.h"
+#include "common/device.h"
+#include "devices/opna.h"
+#include "devices/psg.h"
+#include "common/soundbuf.h"
+#include "common/schedule.h"
 
 // ---------------------------------------------------------------------------
 //

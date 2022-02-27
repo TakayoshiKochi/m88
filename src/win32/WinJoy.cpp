@@ -6,10 +6,10 @@
 
 // #define  DIRECTINPUT_VERSION     0x0300
 
-#include "headers.h"
-#include "WinJoy.h"
+#include "win32/headers.h"
+#include "win32/winjoy.h"
 #include "pc88/config.h"
-#include "status.h"
+#include "win32/status.h"
 
 using namespace PC8801;
 

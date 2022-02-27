@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "device.h"
-#include "file.h"
+#include "common/device.h"
+#include "win32/file.h"
 
 namespace PC8801 {
 

@@ -4,18 +4,18 @@
 // ---------------------------------------------------------------------------
 //  $Id: memmon.cpp,v 1.15 2003/05/19 02:33:56 cisc Exp $
 
-#include "headers.h"
-#include "resource.h"
+#include "win32/headers.h"
+#include "win32/resource.h"
 #include "pc88/pc88.h"
-#include "memmon.h"
-#include "misc.h"
-#include "device_i.h"
-#include "file.h"
-#include "winvars.h"
+#include "win32/memmon.h"
+#include "common/misc.h"
+#include "common/device_i.h"
+#include "win32/file.h"
+#include "win32/winvars.h"
 #include "if/ifguid.h"
 
 #define LOGNAME "memmon"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

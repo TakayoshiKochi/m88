@@ -4,11 +4,11 @@
 // ---------------------------------------------------------------------------
 //  $Id: z80diag.cpp,v 1.6 2001/02/21 11:57:16 cisc Exp $
 
-#include "headers.h"
-#include "Z80diag.h"
-#include "device_i.h"
+#include "win32/headers.h"
+#include "devices/Z80diag.h"
+#include "common/device_i.h"
 
-#include "diag.h"
+#include "win32/diag.h"
 
 // ---------------------------------------------------------------------------
 //  構築

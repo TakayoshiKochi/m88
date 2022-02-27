@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "critsect.h"
+#include "win32/types.h"
+#include "win32/critsect.h"
 #include "if/ifcommon.h"
-#include "types.h"
 
 // ---------------------------------------------------------------------------
 //  SoundBuffer

@@ -6,9 +6,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: newdisk.cpp,v 1.5 1999/12/28 10:34:52 cisc Exp $
 
-#include "headers.h"
-#include "resource.h"
-#include "newdisk.h"
+#include "win32/headers.h"
+#include "win32/resource.h"
+#include "win32/newdisk.h"
 
 // ---------------------------------------------------------------------------
 //  構築/消滅

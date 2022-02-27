@@ -100,12 +100,12 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;..\src;..\src\win32;..\src\common;..\src\if;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CDIF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeaderFile>headers.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>win32/headers.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\Release/cdif.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
       <ObjectFileName>.\Release/</ObjectFileName>
@@ -146,12 +146,12 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;..\src;..\src\win32;..\src\common;..\src\if;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CDIF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeaderFile>headers.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>win32/headers.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\x64/Release/cdif.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\x64/Release/</AssemblerListingLocation>
       <ObjectFileName>.\x64/Release/</ObjectFileName>
@@ -191,12 +191,12 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..\src;..\src\win32;..\src\common;.\src\if;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CDIF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeaderFile>headers.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>win32/headers.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\Debug/cdif.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
       <ObjectFileName>.\Debug/</ObjectFileName>
@@ -237,12 +237,12 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..\src;..\src\win32;..\src\common;.\src\if;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CDIF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeaderFile>headers.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>win32/headers.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\x64/Debug/cdif.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\x64/Debug/</AssemblerListingLocation>
       <ObjectFileName>.\x64/Debug/</ObjectFileName>

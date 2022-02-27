@@ -7,7 +7,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: pio.cpp,v 1.2 1999/03/24 23:27:13 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 #include "pc88/pio.h"
 
 using namespace PC8801;

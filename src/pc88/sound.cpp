@@ -4,15 +4,15 @@
 // ---------------------------------------------------------------------------
 //  $Id: sound.cpp,v 1.32 2003/05/19 01:10:32 cisc Exp $
 
-#include "headers.h"
-#include "types.h"
-#include "misc.h"
+#include "win32/headers.h"
+#include "win32/types.h"
+#include "common/misc.h"
 #include "pc88/sound.h"
 #include "pc88/pc88.h"
 #include "pc88/config.h"
 
 // #define LOGNAME "sound"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

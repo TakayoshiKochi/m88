@@ -6,21 +6,21 @@
 // ---------------------------------------------------------------------------
 //  $Id: windraw.cpp,v 1.34 2003/04/22 13:16:36 cisc Exp $
 
-#include "headers.h"
-#include "misc.h"
-#include "windraw.h"
-#include "drawgdi.h"
-#include "drawdds.h"
-#include "drawddw.h"
-#include "drawd2d.h"
-#include "messages.h"
-#include "error.h"
-#include "status.h"
-#include "loadmon.h"
-#include "winexapi.h"
+#include "win32/headers.h"
+#include "common/misc.h"
+#include "win32/windraw.h"
+#include "win32/drawgdi.h"
+#include "win32/drawdds.h"
+#include "win32/drawddw.h"
+#include "win32/drawd2d.h"
+#include "win32/messages.h"
+#include "common/error.h"
+#include "win32/status.h"
+#include "win32/loadmon.h"
+#include "win32/winexapi.h"
 
 #define LOGNAME "windraw"
-#include "diag.h"
+#include "win32/diag.h"
 // #define DRAW_THREAD
 
 // ---------------------------------------------------------------------------

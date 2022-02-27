@@ -7,14 +7,14 @@
 // ---------------------------------------------------------------------------
 //  $Id: mouse.cpp,v 1.1 2002/04/07 05:40:10 cisc Exp $
 
-#include "headers.h"
-#include "config.h"
-#include "pc88.h"
-#include "mouse.h"
+#include "win32/headers.h"
+#include "pc88/config.h"
+#include "pc88/pc88.h"
+#include "pc88/mouse.h"
 #include "if/ifguid.h"
 
 // #define LOGNAME "mouse"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

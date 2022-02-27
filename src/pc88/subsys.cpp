@@ -4,16 +4,16 @@
 // ---------------------------------------------------------------------------
 //  $Id: subsys.cpp,v 1.13 2000/02/29 12:29:52 cisc Exp $
 
-#include "headers.h"
-#include "device.h"
-#include "device_i.h"
-#include "subsys.h"
-#include "file.h"
-#include "status.h"
-#include "memmgr.h"
+#include "win32/headers.h"
+#include "common/device.h"
+#include "common/device_i.h"
+#include "pc88/subsys.h"
+#include "win32/file.h"
+#include "win32/status.h"
+#include "common/memmgr.h"
 
 // #define LOGNAME "subsys"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

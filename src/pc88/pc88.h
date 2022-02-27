@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "schedule.h"
-#include "device.h"
-#include "draw.h"
+#include "common/schedule.h"
+#include "common/device.h"
+#include "common/draw.h"
 
 // ---------------------------------------------------------------------------
 //  使用する Z80 エンジンの種類を決める
@@ -22,17 +22,17 @@
 // #define   CPU_DEBUG           // Z80 エンジンテスト用
 
 #ifdef CPU_Z80X86
-#include "Z80_x86.h"
+#include "devices/Z80_x86.h"
 #else
-#include "Z80C.h"
+#include "devices/Z80C.h"
 #endif
 
 #ifdef CPU_TEST
-#include "Z80Test.h"
+#include "devices/Z80Test.h"
 #endif
 
 #ifdef CPU_DEBUG
-#include "Z80Debug.h"
+#include "devices/Z80Debug.h"
 #endif
 
 // ---------------------------------------------------------------------------

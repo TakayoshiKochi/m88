@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Device.h"
+#include "common/device.h"
 #include "if/ifui.h"
 
 class WinUI;

@@ -4,8 +4,8 @@
 // ---------------------------------------------------------------------------
 //  $Id: module.cpp,v 1.1 1999/10/10 01:47:21 cisc Exp $
 
-#include "headers.h"
-#include "module.h"
+#include "win32/headers.h"
+#include "win32/module.h"
 
 using namespace PC8801;
 

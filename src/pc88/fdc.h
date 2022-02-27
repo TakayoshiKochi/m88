@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "device.h"
-#include "schedule.h"
-#include "floppy.h"
-#include "fdu.h"
+#include "common/device.h"
+#include "common/schedule.h"
+#include "pc88/floppy.h"
+#include "pc88/fdu.h"
 
 class DiskManager;
 

@@ -8,7 +8,7 @@
 
 #include "if/ifcommon.h"
 #include "pc88/config.h"
-#include "cfgpage.h"
+#include "win32/cfgpage.h"
 
 namespace PC8801 {
 

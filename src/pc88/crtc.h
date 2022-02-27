@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include "device.h"
-#include "draw.h"
-#include "schedule.h"
+#include "common/device.h"
+#include "common/draw.h"
+#include "common/schedule.h"
 
 class Scheduler;
 

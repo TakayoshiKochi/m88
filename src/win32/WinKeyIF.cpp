@@ -6,14 +6,14 @@
 // ---------------------------------------------------------------------------
 //  $Id: WinKeyIF.cpp,v 1.8 2000/02/04 01:50:00 cisc Exp $
 
-#include "headers.h"
-#include "WinKeyIF.h"
-#include "messages.h"
+#include "win32/headers.h"
+#include "win32/winkeyif.h"
+#include "win32/messages.h"
 #include "pc88/config.h"
-#include "misc.h"
+#include "common/misc.h"
 
 // #define LOGNAME "keyif"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

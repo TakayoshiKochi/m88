@@ -4,12 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: mvmon.cpp,v 1.3 2001/02/21 11:58:55 cisc Exp $
 
-#include "headers.h"
-#include "resource.h"
+#include "win32/headers.h"
+#include "win32/resource.h"
 #include "pc88/pc88.h"
-#include "memmon.h"
-#include "misc.h"
-#include "device_i.h"
+#include "win32/memmon.h"
+#include "common/misc.h"
+#include "common/device_i.h"
 
 using namespace PC8801;
 

@@ -4,11 +4,11 @@
 // ---------------------------------------------------------------------------
 //  $Id: status.cpp,v 1.8 2002/04/07 05:40:10 cisc Exp $
 
-#include "headers.h"
-#include "status.h"
+#include "win32/headers.h"
+#include "win32/status.h"
 
 // #define LOGNAME "status"
-#include "diag.h"
+#include "win32/diag.h"
 
 StatusDisplay statusdisplay;
 

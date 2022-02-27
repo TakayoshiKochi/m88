@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "winmon.h"
-#include "device.h"
+#include "win32/winmon.h"
+#include "common/device.h"
 #include "pc88/memview.h"
 
 // ---------------------------------------------------------------------------

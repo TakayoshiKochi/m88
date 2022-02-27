@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "device.h"
+#include "common/device.h"
 #include "if/ifui.h"
 
 namespace PC8801 {

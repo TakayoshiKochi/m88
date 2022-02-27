@@ -7,11 +7,11 @@
 #ifndef Z80C_h
 #define Z80C_h
 
-#include "types.h"
-#include "device.h"
-#include "memmgr.h"
-#include "Z80.h"
-#include "Z80diag.h"
+#include "win32/types.h"
+#include "common/device.h"
+#include "common/memmgr.h"
+#include "devices/Z80.h"
+#include "devices/Z80diag.h"
 
 class IOBus;
 

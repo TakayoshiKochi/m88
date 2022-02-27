@@ -8,10 +8,10 @@
 #ifndef Z80Test_h
 #define Z80Test_h
 
-#include "device.h"
-#include "Z80.h"
-#include "Z80C.h"
-#include "Z80_x86.h"
+#include "win32/device.h"
+#include "devices/Z80.h"
+#include "devices/Z80C.h"
+#include "devices/Z80_x86.h"
 
 // ----------------------------------------------------------------------------
 

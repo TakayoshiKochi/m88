@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "critsect.h"
-#include "soundsrc.h"
+#include "win32/critsect.h"
+#include "common/soundsrc.h"
 
 // ---------------------------------------------------------------------------
 //  SamplingRateConverter

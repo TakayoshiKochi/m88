@@ -7,13 +7,13 @@
 // ---------------------------------------------------------------------------
 //  $Id: drawddw.cpp,v 1.11 2002/04/07 05:40:10 cisc Exp $
 
-#include "headers.h"
-#include "drawddw.h"
-#include "misc.h"
+#include "win32/headers.h"
+#include "win32/drawddw.h"
+#include "common/misc.h"
 
 #define LOGNAME "drawddw"
-#include "diag.h"
-#include "dderr.h"
+#include "win32/diag.h"
+#include "win32/dderr.h"
 
 #define RELCOM(x)        \
   if (x)                 \

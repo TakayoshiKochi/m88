@@ -4,11 +4,11 @@
 // ----------------------------------------------------------------------------
 //  $Id: ioview.cpp,v 1.1 2001/02/21 11:57:57 cisc Exp $
 
-#include "headers.h"
-#include "device.h"
-#include "device_i.h"
-#include "ioview.h"
-#include "status.h"
+#include "win32/headers.h"
+#include "common/device.h"
+#include "common/device_i.h"
+#include "pc88/ioview.h"
+#include "win32/status.h"
 
 using namespace PC8801;
 

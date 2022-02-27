@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: cdrom.cpp,v 1.2 1999/11/26 10:12:47 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 #include <stddef.h>
 #include <winioctl.h>
 #include <ntddscsi.h>
@@ -26,7 +26,7 @@ typedef struct {
 } SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER;
 
 #define LOGNAME "cdrom"
-#include "diag.h"
+#include "win32/diag.h"
 
 #define SHIFT
 

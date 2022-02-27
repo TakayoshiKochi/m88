@@ -11,7 +11,7 @@
 
 // ---------------------------------------------------------------------------
 
-#include "windraw.h"
+#include "win32/windraw.h"
 
 class WinDrawGDI : public WinDrawSub {
  public:

@@ -4,9 +4,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: extdev.cpp,v 1.7 1999/12/30 14:53:13 cisc Exp $
 
-#include "headers.h"
-#include "extdev.h"
-#include "device_i.h"
+#include "win32/headers.h"
+#include "win32/extdev.h"
+#include "common/device_i.h"
 #include "pc88/pc88.h"
 #include "pc88/pd8257.h"
 #include "pc88/memory.h"

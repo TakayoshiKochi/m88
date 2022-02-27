@@ -7,9 +7,9 @@
 #ifndef FM_OPM_H
 #define FM_OPM_H
 
-#include "fmgen.h"
-#include "fmtimer.h"
-#include "psg.h"
+#include "devices/fmgen.h"
+#include "devices/fmtimer.h"
+#include "devices/psg.h"
 
 // ---------------------------------------------------------------------------
 //  class OPM

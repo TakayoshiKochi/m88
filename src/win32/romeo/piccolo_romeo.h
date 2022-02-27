@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "piccolo.h"
+#include "win32/romeo/piccolo.h"
 
 class Piccolo_Romeo : public Piccolo
 {

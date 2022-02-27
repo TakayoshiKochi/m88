@@ -7,9 +7,9 @@
 #ifndef FM_OPNA_H
 #define FM_OPNA_H
 
-#include "fmgen.h"
-#include "fmtimer.h"
-#include "psg.h"
+#include "devices/fmgen.h"
+#include "devices/fmtimer.h"
+#include "devices/psg.h"
 
 // ---------------------------------------------------------------------------
 //  class OPN/OPNA

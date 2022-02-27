@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "device.h"
-#include "CritSect.h"
+#include "common/device.h"
+#include "win32/critsect.h"
 
 // ---------------------------------------------------------------------------
 namespace PC8801 {

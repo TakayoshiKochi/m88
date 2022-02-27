@@ -6,20 +6,20 @@
 // ---------------------------------------------------------------------------
 //  $Id: crtc.cpp,v 1.34 2004/02/05 11:57:49 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 #include "pc88/crtc.h"
 #include "pc88/pd8257.h"
 #include "pc88/config.h"
 #include "pc88/pc88.h"
-#include "schedule.h"
-#include "draw.h"
-#include "misc.h"
-#include "file.h"
-#include "error.h"
-#include "status.h"
+#include "common/schedule.h"
+#include "common/draw.h"
+#include "common/misc.h"
+#include "win32/file.h"
+#include "common/error.h"
+#include "win32/status.h"
 
 // #define LOGNAME "crtc"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 
