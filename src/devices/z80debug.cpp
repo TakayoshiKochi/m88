@@ -108,11 +108,11 @@ void Z80Debug::NMI(uint, uint) {
 
 // ----------------------------------------------------------------------------
 
-uint MEMCALL Z80Debug::S_Read8(void* inst, uint a) {
+uint Z80Debug::S_Read8(void* inst, uint a) {
   return ((Z80Debug*)(inst))->Read8(a);
 }
 
-void MEMCALL Z80Debug::S_Write8(void* inst, uint a, uint d) {
+void Z80Debug::S_Write8(void* inst, uint a, uint d) {
   ((Z80Debug*)(inst))->Write8(a, d);
 }
 

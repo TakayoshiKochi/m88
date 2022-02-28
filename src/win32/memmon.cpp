@@ -111,7 +111,7 @@ void MemoryMonitor::SetBank() {
   MemViewMonitor::SetBank();
 }
 
-uint MEMCALL MemoryMonitor::MemRead(void* p, uint a) {
+uint MemoryMonitor::MemRead(void* p, uint a) {
   MemoryMonitor* m = reinterpret_cast<MemoryMonitor*>(p);
 
   // 領域が見たいメモリを指し示しているなら更新
@@ -122,7 +122,7 @@ uint MEMCALL MemoryMonitor::MemRead(void* p, uint a) {
   return m->mm->Read8P(m->mid, a);  // 本来のメモリ空間へとアクセス
 }
 
-void MEMCALL MemoryMonitor::MemWrite(void* p, uint a, uint d) {
+void MemoryMonitor::MemWrite(void* p, uint a, uint d) {
   MemoryMonitor* m = reinterpret_cast<MemoryMonitor*>(p);
 
   // 領域が見たいメモリを指し示しているなら更新

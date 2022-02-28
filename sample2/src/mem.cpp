@@ -50,7 +50,7 @@ void IFCALL GVRAMReverse::Out5x(uint a, uint)
 // ---------------------------------------------------------------------------
 //  GVRAM が選択されている時にかけられるフック関数
 
-uint MEMCALL GVRAMReverse::MRead(void* p, uint a)
+uint GVRAMReverse::MRead(void* p, uint a)
 {
     GVRAMReverse* mp = reinterpret_cast<GVRAMReverse*>(p);
     if (a < 0xfe80)                 // 表示領域内なら
@@ -63,7 +63,7 @@ uint MEMCALL GVRAMReverse::MRead(void* p, uint a)
     return mp->mm->Read8P(mp->mid, a);  // 本来のメモリ空間へとアクセス
 }
 
-void MEMCALL GVRAMReverse::MWrite(void* p, uint a, uint d)
+void GVRAMReverse::MWrite(void* p, uint a, uint d)
 {
     GVRAMReverse* mp = reinterpret_cast<GVRAMReverse*>(p);
     if (a < 0xfe80)

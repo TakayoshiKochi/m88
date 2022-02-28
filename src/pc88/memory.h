@@ -205,21 +205,21 @@ class Memory : public Device, public IGetMemoryBank {
 
   static const WaitDesc waittable[48];
 
-  static void MEMCALL WrWindow(void* inst, uint addr, uint data);
-  static uint MEMCALL RdWindow(void* inst, uint addr);
+  static void WrWindow(void* inst, uint addr, uint data);
+  static uint RdWindow(void* inst, uint addr);
 
-  static void MEMCALL WrGVRAM0(void* inst, uint addr, uint data);
-  static void MEMCALL WrGVRAM1(void* inst, uint addr, uint data);
-  static void MEMCALL WrGVRAM2(void* inst, uint addr, uint data);
-  static uint MEMCALL RdGVRAM0(void* inst, uint addr);
-  static uint MEMCALL RdGVRAM1(void* inst, uint addr);
-  static uint MEMCALL RdGVRAM2(void* inst, uint addr);
+  static void WrGVRAM0(void* inst, uint addr, uint data);
+  static void WrGVRAM1(void* inst, uint addr, uint data);
+  static void WrGVRAM2(void* inst, uint addr, uint data);
+  static uint RdGVRAM0(void* inst, uint addr);
+  static uint RdGVRAM1(void* inst, uint addr);
+  static uint RdGVRAM2(void* inst, uint addr);
 
-  static void MEMCALL WrALUSet(void* inst, uint addr, uint data);
-  static void MEMCALL WrALURGB(void* inst, uint addr, uint data);
-  static void MEMCALL WrALUR(void* inst, uint addr, uint data);
-  static void MEMCALL WrALUB(void* inst, uint addr, uint data);
-  static uint MEMCALL RdALU(void* inst, uint addr);
+  static void WrALUSet(void* inst, uint addr, uint data);
+  static void WrALURGB(void* inst, uint addr, uint data);
+  static void WrALUR(void* inst, uint addr, uint data);
+  static void WrALUB(void* inst, uint addr, uint data);
+  static uint RdALU(void* inst, uint addr);
 
   static const Descriptor descriptor;
   static const InFuncPtr indef[];

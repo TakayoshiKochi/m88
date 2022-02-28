@@ -65,7 +65,7 @@ class MemoryManagerBase {
 
 class ReadMemManager : public MemoryManagerBase {
  public:
-  typedef uint(MEMCALL* RdFunc)(void* inst, uint addr);
+  typedef uint(*RdFunc)(void* inst, uint addr);
 
   bool Init(uint sas, Page* pages = 0);
   bool AllocR(uint pid, uint addr, uint length, uint8_t* ptr);
@@ -75,14 +75,14 @@ class ReadMemManager : public MemoryManagerBase {
   uint Read8P(uint pid, uint addr);
 
  private:
-  static uint MEMCALL UndefinedRead(void*, uint);
+  static uint UndefinedRead(void*, uint);
 };
 
 // ---------------------------------------------------------------------------
 
 class WriteMemManager : public MemoryManagerBase {
  public:
-  typedef void(MEMCALL* WrFunc)(void* inst, uint addr, uint data);
+  typedef void(*WrFunc)(void* inst, uint addr, uint data);
 
  public:
   bool Init(uint sas, Page* pages = 0);
@@ -93,7 +93,7 @@ class WriteMemManager : public MemoryManagerBase {
   void Write8P(uint pid, uint addr, uint data);
 
  private:
-  static void MEMCALL UndefinedWrite(void*, uint, uint);
+  static void UndefinedWrite(void*, uint, uint);
 };
 
 // ---------------------------------------------------------------------------

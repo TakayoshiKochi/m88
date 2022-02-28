@@ -64,8 +64,8 @@ class Z80Debug : public Device {
   int execcount;
   int clockcount;
 
-  static uint MEMCALL S_Read8(void*, uint);
-  static void MEMCALL S_Write8(void*, uint, uint);
+  static uint S_Read8(void*, uint);
+  static void S_Write8(void*, uint, uint);
 
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];

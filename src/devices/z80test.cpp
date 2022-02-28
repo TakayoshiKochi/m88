@@ -323,19 +323,19 @@ void Z80Test::NMI(uint, uint d) {}
 
 // ----------------------------------------------------------------------------
 
-uint MEMCALL Z80Test::S_Read8R(void* inst, uint a) {
+uint Z80Test::S_Read8R(void* inst, uint a) {
   return ((Z80Test*)(inst))->Read8R(a);
 }
 
-uint MEMCALL Z80Test::S_Read8T(void* inst, uint a) {
+uint Z80Test::S_Read8T(void* inst, uint a) {
   return ((Z80Test*)(inst))->Read8T(a);
 }
 
-void MEMCALL Z80Test::S_Write8R(void* inst, uint a, uint d) {
+void Z80Test::S_Write8R(void* inst, uint a, uint d) {
   ((Z80Test*)(inst))->Write8R(a, d);
 }
 
-void MEMCALL Z80Test::S_Write8T(void* inst, uint a, uint d) {
+void Z80Test::S_Write8T(void* inst, uint a, uint d) {
   ((Z80Test*)(inst))->Write8T(a, d);
 }
 

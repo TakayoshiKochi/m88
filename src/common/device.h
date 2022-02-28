@@ -42,8 +42,8 @@ class Device : public IDevice {
 //
 class MemoryBus : public IMemoryAccess {
  public:
-  typedef uint(MEMCALL* ReadFuncPtr)(void* inst, uint addr);
-  typedef void(MEMCALL* WriteFuncPtr)(void* inst, uint addr, uint data);
+  typedef uint(*ReadFuncPtr)(void* inst, uint addr);
+  typedef void(*WriteFuncPtr)(void* inst, uint addr, uint data);
 
   struct Page {
     void* read;
@@ -96,8 +96,8 @@ class MemoryBus : public IMemoryAccess {
   const Page* GetPageTable();
 
  private:
-  static void MEMCALL wrdummy(void*, uint, uint);
-  static uint MEMCALL rddummy(void*, uint);
+  static void wrdummy(void*, uint, uint);
+  static uint rddummy(void*, uint);
 
   Page* pages;
   Owner* owners;

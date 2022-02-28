@@ -19,20 +19,20 @@ public:
 public:
     GVRAMReverse();
     ~GVRAMReverse();
-    
+
     bool Init(IMemoryManager* mm);
-    void Cleanup(); 
-            
+    void Cleanup();
+
     // IDevice Method
     const Descriptor* IFCALL GetDesc() const { return &descriptor; }
-    
+
     // I/O port functions
     void IOCALL Out32(uint, uint data);
     void IOCALL Out35(uint, uint data);
     void IOCALL Out5x(uint, uint data);
 
-    static uint MEMCALL MRead(void*, uint);
-    static void MEMCALL MWrite(void*, uint, uint);
+	static uint MRead(void*, uint);
+	static void MWrite(void*, uint, uint);
 
 private:
     void Update();

@@ -29,8 +29,8 @@ class MemoryMonitor : public MemViewMonitor {
   BOOL EDlgProc(HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK EDlgProcGate(HWND, UINT, WPARAM, LPARAM);
 
-  static uint MEMCALL MemRead(void* p, uint a);
-  static void MEMCALL MemWrite(void* p, uint a, uint d);
+  static uint MemRead(void* p, uint a);
+  static void MemWrite(void* p, uint a, uint d);
 
   void Start();
   void Stop();

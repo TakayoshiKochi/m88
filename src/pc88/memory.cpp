@@ -648,12 +648,12 @@ void Memory::Update80() {
 // ----------------------------------------------------------------------------
 //  テキストウィンドウ(ラップアラウンド)のアクセス
 //
-void MEMCALL Memory::WrWindow(void* inst, uint addr, uint data) {
+void Memory::WrWindow(void* inst, uint addr, uint data) {
   Memory* m = static_cast<Memory*>(inst);
   m->ram[(m->txtwnd + (addr & 0x3ff)) & 0xffff] = data;
 }
 
-uint MEMCALL Memory::RdWindow(void* inst, uint addr) {
+uint Memory::RdWindow(void* inst, uint addr) {
   Memory* m = static_cast<Memory*>(inst);
   return m->ram[(m->txtwnd + (addr & 0x3ff)) & 0xffff];
 }
@@ -787,35 +787,35 @@ void Memory::SelectGVRAM(uint gvtop) {
   else                     \
     m->dirty[addr >> 4] = 1;
 
-void MEMCALL Memory::WrGVRAM0(void* inst, uint addr, uint data) {
+void Memory::WrGVRAM0(void* inst, uint addr, uint data) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff].byte[0] = data;
   SETDIRTY(addr);
 }
 
-void MEMCALL Memory::WrGVRAM1(void* inst, uint addr, uint data) {
+void Memory::WrGVRAM1(void* inst, uint addr, uint data) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff].byte[1] = data;
   SETDIRTY(addr);
 }
 
-void MEMCALL Memory::WrGVRAM2(void* inst, uint addr, uint data) {
+void Memory::WrGVRAM2(void* inst, uint addr, uint data) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff].byte[2] = data;
   SETDIRTY(addr);
 }
 
-uint MEMCALL Memory::RdGVRAM0(void* inst, uint addr) {
+uint Memory::RdGVRAM0(void* inst, uint addr) {
   Memory* m = static_cast<Memory*>(inst);
   return m->gvram[addr & 0x3fff].byte[0];
 }
 
-uint MEMCALL Memory::RdGVRAM1(void* inst, uint addr) {
+uint Memory::RdGVRAM1(void* inst, uint addr) {
   Memory* m = static_cast<Memory*>(inst);
   return m->gvram[addr & 0x3fff].byte[1];
 }
 
-uint MEMCALL Memory::RdGVRAM2(void* inst, uint addr) {
+uint Memory::RdGVRAM2(void* inst, uint addr) {
   Memory* m = static_cast<Memory*>(inst);
   return m->gvram[addr & 0x3fff].byte[2];
 }
@@ -839,7 +839,7 @@ void Memory::SelectALU(uint gvtop) {
 // ----------------------------------------------------------------------------
 //  GVRAM R/W thru ALU
 //
-uint MEMCALL Memory::RdALU(void* inst, uint addr) {
+uint Memory::RdALU(void* inst, uint addr) {
   Memory* m = static_cast<Memory*>(inst);
   quadbyte q;
   m->alureg = m->gvram[addr & 0x3fff];
@@ -847,7 +847,7 @@ uint MEMCALL Memory::RdALU(void* inst, uint addr) {
   return ~(q.byte[0] | q.byte[1] | q.byte[2]) & 0xff;
 }
 
-void MEMCALL Memory::WrALUSet(void* inst, uint addr, uint data) {
+void Memory::WrALUSet(void* inst, uint addr, uint data) {
   Memory* m = static_cast<Memory*>(inst);
 
   quadbyte q;
@@ -860,19 +860,19 @@ void MEMCALL Memory::WrALUSet(void* inst, uint addr, uint data) {
   SETDIRTY(addr);
 }
 
-void MEMCALL Memory::WrALURGB(void* inst, uint addr, uint) {
+void Memory::WrALURGB(void* inst, uint addr, uint) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff] = m->alureg;
   SETDIRTY(addr);
 }
 
-void MEMCALL Memory::WrALUR(void* inst, uint addr, uint) {
+void Memory::WrALUR(void* inst, uint addr, uint) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff].byte[1] = m->alureg.byte[0];
   SETDIRTY(addr);
 }
 
-void MEMCALL Memory::WrALUB(void* inst, uint addr, uint) {
+void Memory::WrALUB(void* inst, uint addr, uint) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff].byte[0] = m->alureg.byte[1];
   SETDIRTY(addr);

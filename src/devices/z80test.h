@@ -80,10 +80,10 @@ class Z80Test : public Device {
   uint InR(uint), InT(uint);
   void OutR(uint, uint), OutT(uint, uint);
 
-  static uint MEMCALL S_Read8R(void*, uint);
-  static uint MEMCALL S_Read8T(void*, uint);
-  static void MEMCALL S_Write8R(void*, uint, uint);
-  static void MEMCALL S_Write8T(void*, uint, uint);
+  static uint S_Read8R(void*, uint);
+  static uint S_Read8T(void*, uint);
+  static void S_Write8R(void*, uint, uint);
+  static void S_Write8T(void*, uint, uint);
 
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];

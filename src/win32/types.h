@@ -17,5 +17,3 @@ using ulong = unsigned long;
 // 8 bit 数値をまとめて処理するときに使う型
 typedef uint32_t packed;
 #define PACK(p) ((p) | ((p) << 8) | ((p) << 16) | ((p) << 24))
-
-#define MEMCALL
