@@ -232,11 +232,8 @@ public:
 */
 // ---------------------------------------------------------------------------
 
-#ifdef ENDIAN_IS_SMALL
+// Assumes little endian
 #define DEV_ID(a, b, c, d) (Device::ID(a + (ulong(b) << 8) + (ulong(c) << 16) + (ulong(d) << 24)))
-#else
-#define DEV_ID(a, b, c, d) (Device::ID(d + (ulong(c) << 8) + (ulong(b) << 16) + (ulong(a) << 24)))
-#endif
 
 // ---------------------------------------------------------------------------
 

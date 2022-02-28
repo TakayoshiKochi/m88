@@ -6,8 +6,6 @@
 
 #pragma once
 
-#define ENDIAN_IS_SMALL
-
 #include <windows.h>
 
 #include <stdint.h>
