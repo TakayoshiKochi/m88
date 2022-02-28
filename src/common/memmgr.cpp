@@ -127,10 +127,10 @@ bool ReadMemManager::Init(uint sas, Page* _pages) {
 
   for (uint i = 0; i < npages; i++) {
 #ifdef PTR_IDBIT
-    pages[i].ptr = (intpointer(UndefinedRead) | idbit);
+    pages[i].ptr = (intptr_t(UndefinedRead) | idbit);
     pages[i].inst = 0;
 #else
-    pages[i].ptr = intpointer(UndefinedRead);
+    pages[i].ptr = intptr_t(UndefinedRead);
     pages[i].func = true;
 #endif
   }
@@ -176,10 +176,10 @@ bool WriteMemManager::Init(uint sas, Page* _pages) {
 
   for (uint i = 0; i < npages; i++) {
 #ifdef PTR_IDBIT
-    pages[i].ptr = (intpointer(UndefinedWrite) | idbit);
+    pages[i].ptr = (intptr_t(UndefinedWrite) | idbit);
     pages[i].inst = 0;
 #else
-    pages[i].ptr = intpointer(UndefinedWrite);
+    pages[i].ptr = intptr_t(UndefinedWrite);
     pages[i].func = true;
 #endif
   }

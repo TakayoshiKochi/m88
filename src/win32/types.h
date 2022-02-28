@@ -18,8 +18,5 @@ using ulong = unsigned long;
 typedef uint32_t packed;
 #define PACK(p) ((p) | ((p) << 8) | ((p) << 16) | ((p) << 24))
 
-// ポインタ値を表現できる整数型
-typedef LONG_PTR intpointer;
-
 #undef PTR_IDBIT
 #define MEMCALL

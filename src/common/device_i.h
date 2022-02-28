@@ -42,10 +42,10 @@ inline void MemoryBus::SetMemory(uint addr, void* ptr) {
 //
 inline void MemoryBus::SetFunc(uint addr, void* inst, ReadFuncPtr rd, WriteFuncPtr wr) {
   assert((addr & pagemask) == 0);
-  assert((intpointer(rd) & idbit) == 0 && (intpointer(wr) & idbit) == 0);
+  assert((intptr_t(rd) & idbit) == 0 && (intptr_t(wr) & idbit) == 0);
   Page* page = &pages[addr >> pagebits];
-  page->read = (void*)(intpointer(rd) | idbit);
-  page->write = (void*)(intpointer(wr) | idbit);
+  page->read = (void*)(intptr_t(rd) | idbit);
+  page->write = (void*)(intptr_t(wr) | idbit);
   page->inst = inst;
 }
 
@@ -222,10 +222,10 @@ inline void MemoryBus::SetFuncs(uint addr,
                                 ReadFuncPtr rd,
                                 WriteFuncPtr wr) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
-  assert((intpointer(rd) & idbit) == 0 && (intpointer(wr) & idbit) == 0);
+  assert((intptr_t(rd) & idbit) == 0 && (intptr_t(wr) & idbit) == 0);
 
-  void* r = (void*)(intpointer(rd) | idbit);
-  void* w = (void*)(intpointer(wr) | idbit);
+  void* r = (void*)(intptr_t(rd) | idbit);
+  void* w = (void*)(intptr_t(wr) | idbit);
 
   Page* page = pages + (addr >> pagebits);
   uint npages = length >> pagebits;
@@ -271,10 +271,10 @@ inline void MemoryBus::SetFuncs2(uint addr,
                                  ReadFuncPtr rd,
                                  WriteFuncPtr wr) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
-  assert((intpointer(rd) & idbit) == 0 && (intpointer(wr) & idbit) == 0);
+  assert((intptr_t(rd) & idbit) == 0 && (intptr_t(wr) & idbit) == 0);
 
-  void* r = (void*)(intpointer(rd) | idbit);
-  void* w = (void*)(intpointer(wr) | idbit);
+  void* r = (void*)(intptr_t(rd) | idbit);
+  void* w = (void*)(intptr_t(wr) | idbit);
 
   Page* page = pages + (addr >> pagebits);
   Owner* owner = owners + (addr >> pagebits);
@@ -375,10 +375,10 @@ inline void MemoryBus::SetOwner(uint addr, uint length, void* inst) {
 //
 inline void MemoryBus::Write8(uint addr, uint data) {
   Page* page = &pages[addr >> pagebits];
-  if (!(intpointer(page->write) & idbit))
+  if (!(intptr_t(page->write) & idbit))
     ((uint8_t*)page->write)[addr & pagemask] = data;
   else
-    (*WriteFuncPtr(intpointer(page->write) & ~idbit))(page->inst, addr, data);
+    (*WriteFuncPtr(intptr_t(page->write) & ~idbit))(page->inst, addr, data);
 }
 
 // ---------------------------------------------------------------------------
@@ -386,10 +386,10 @@ inline void MemoryBus::Write8(uint addr, uint data) {
 //
 inline uint MemoryBus::Read8(uint addr) {
   Page* page = &pages[addr >> pagebits];
-  if (!(intpointer(page->read) & idbit))
+  if (!(intptr_t(page->read) & idbit))
     return ((uint8_t*)page->read)[addr & pagemask];
   else
-    return (*ReadFuncPtr(intpointer(page->read) & ~idbit))(page->inst, addr);
+    return (*ReadFuncPtr(intptr_t(page->read) & ~idbit))(page->inst, addr);
 }
 
 // ---------------------------------------------------------------------------
