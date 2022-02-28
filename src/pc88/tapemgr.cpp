@@ -73,7 +73,7 @@ bool TapeManager::Open(const char* file) {
     TagHdr hdr;
     fio.Read(&hdr, 4);
 
-    Tag* tag = (Tag*)new uchar[sizeof(Tag) - 1 + hdr.length];
+    Tag* tag = (Tag*)new uint8_t[sizeof(Tag) - 1 + hdr.length];
     if (!tag) {
       Close();
       return false;

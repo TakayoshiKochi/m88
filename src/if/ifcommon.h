@@ -8,7 +8,9 @@
 
 #pragma once
 
+#include <Windows.h>
 #include <commdlg.h>
+#include <stdint.h>
 
 #include "win32/types.h"
 
@@ -121,7 +123,7 @@ struct IIOBus {
     sync = 4,
   };
   struct Connector {
-    ushort bank;
+    uint16_t bank;
     uint8_t rule;
     uint8_t id;
   };

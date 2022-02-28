@@ -13,10 +13,8 @@
 #include <stdint.h>
 
 //  固定長型とか
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
+using uint = unsigned int;
+using ulong = unsigned long;
 
 // 8 bit 数値をまとめて処理するときに使う型
 typedef uint32_t packed;
