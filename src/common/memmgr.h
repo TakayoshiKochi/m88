@@ -16,9 +16,7 @@
 struct MemoryPage {
   intptr_t ptr;
   void* inst;
-#ifndef PTR_IDBIT
   bool func;
-#endif
 };
 
 class MemoryManagerBase {
@@ -28,11 +26,7 @@ class MemoryManagerBase {
     ndevices = 8,
     pagebits = 10,
     pagemask = (1 << pagebits) - 1,
-#ifdef PTR_IDBIT
-    idbit = PTR_IDBIT,
-#else
     idbit = 0,
-#endif
   };
 
  public:
@@ -52,9 +46,7 @@ class MemoryManagerBase {
   struct DPage {
     DPage() : ptr(0) {}
     intptr_t ptr;
-#ifndef PTR_IDBIT
     bool func;
-#endif
   };
   struct LocalSpace {
     void* inst;
@@ -195,15 +187,11 @@ inline bool MemoryManagerBase::Alloc(uint pid,
       // 自分がページの優先権を持つなら Page の書き換え
       pages[page].inst = ls.inst;
       pages[page].ptr = ptr;
-#ifndef PTR_IDBIT
       pages[page].func = func;
-#endif
     }
     // ローカルページの属性を更新
     ls.pages[page].ptr = ptr;
-#ifndef PTR_IDBIT
     ls.pages[page].func = func;
-#endif
     ptr += incr;
   }
   return true;
@@ -297,17 +285,10 @@ inline bool WriteMemManager::ReleaseW(uint pid, uint addr, uint length) {
 //
 inline uint ReadMemManager::Read8(uint addr) {
   Page& page = pages[addr >> pagebits];
-#ifdef PTR_IDBIT
-  if (!(page.ptr & idbit))
-    return ((uint8_t*)page.ptr)[addr & pagemask];
-  else
-    return (*RdFunc(page.ptr & ~idbit))(page.inst, addr);
-#else
   if (!page.func)
     return ((uint8_t*)page.ptr)[addr & pagemask];
   else
     return (*RdFunc(page.ptr))(page.inst, addr);
-#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -315,15 +296,8 @@ inline uint ReadMemManager::Read8(uint addr) {
 //
 inline void WriteMemManager::Write8(uint addr, uint data) {
   Page& page = pages[addr >> pagebits];
-#ifdef PTR_IDBIT
-  if (!(page.ptr & idbit))
-    ((uint8_t*)page.ptr)[addr & pagemask] = data;
-  else
-    (*WrFunc(page.ptr & ~idbit))(page.inst, addr, data);
-#else
   if (!page.func)
     ((uint8_t*)page.ptr)[addr & pagemask] = data;
   else
     (*WrFunc(page.ptr))(page.inst, addr, data);
-#endif
 }

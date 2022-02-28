@@ -18,5 +18,4 @@ using ulong = unsigned long;
 typedef uint32_t packed;
 #define PACK(p) ((p) | ((p) << 8) | ((p) << 16) | ((p) << 24))
 
-#undef PTR_IDBIT
 #define MEMCALL

@@ -59,11 +59,7 @@ class MemoryBus : public IMemoryAccess {
   enum {
     pagebits = 10,
     pagemask = (1 << pagebits) - 1,
-#ifdef PTR_IDBIT
-    idbit = PTR_IDBIT,
-#else
     idbit = 0,
-#endif
   };
 
  public:
