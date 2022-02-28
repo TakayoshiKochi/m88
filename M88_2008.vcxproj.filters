@@ -60,9 +60,6 @@
     <ClCompile Include="src\devices\psg.cpp">
       <Filter>devices</Filter>
     </ClCompile>
-    <ClCompile Include="src\devices\z80_x86.cpp">
-      <Filter>devices</Filter>
-    </ClCompile>
     <ClCompile Include="src\devices\z80c.cpp">
       <Filter>devices</Filter>
     </ClCompile>
@@ -369,9 +366,6 @@
       <Filter>devices</Filter>
     </ClInclude>
     <ClInclude Include="src\devices\z80.h">
-      <Filter>devices</Filter>
-    </ClInclude>
-    <ClInclude Include="src\devices\z80_x86.h">
       <Filter>devices</Filter>
     </ClInclude>
     <ClInclude Include="src\devices\z80c.h">
