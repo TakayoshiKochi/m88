@@ -1384,6 +1384,7 @@
     <ClInclude Include="src\common\soundbuf.h" />
     <ClInclude Include="src\common\soundsrc.h" />
     <ClInclude Include="src\common\srcbuf.h" />
+    <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\devices\fmgen.h" />
     <ClInclude Include="src\devices\fmgeninl.h" />
     <ClInclude Include="src\devices\fmtimer.h" />
@@ -1464,7 +1465,6 @@
     <ClInclude Include="src\win32\soundwo.h" />
     <ClInclude Include="src\win32\status.h" />
     <ClInclude Include="src\win32\timekeep.h" />
-    <ClInclude Include="src\win32\types.h" />
     <ClInclude Include="src\win32\ui.h" />
     <ClInclude Include="src\win32\version.h" />
     <ClInclude Include="src\win32\wincfg.h" />

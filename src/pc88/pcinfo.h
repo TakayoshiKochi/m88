@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "win32/types.h"
+#include "common/types.h"
 
 struct DeviceInfo {
   enum {

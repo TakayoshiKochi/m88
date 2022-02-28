@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "win32/types.h"
+#include "common/types.h"
 #include "win32/critsect.h"
 #include "pc88/pc88.h"
 #include "pc88/config.h"

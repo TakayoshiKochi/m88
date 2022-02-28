@@ -8,7 +8,7 @@
 
 // ---------------------------------------------------------------------------
 
-#include "win32/types.h"
+#include "common/types.h"
 #include "win32/critsect.h"
 #include "win32/timekeep.h"
 

@@ -3,7 +3,7 @@
 #ifndef incl_romeo_piccolo_h
 #define incl_romeo_piccolo_h
 
-#include "win32/types.h"
+#include "common/types.h"
 #include "win32/timekeep.h"
 #include "win32/critsect.h"
 

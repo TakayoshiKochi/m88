@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-#include "win32/types.h"
+#include "common/types.h"
 
 #define PSG_SAMPLETYPE int32_t  // int32 or int16
 

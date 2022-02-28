@@ -9,7 +9,7 @@
 #ifndef Z80_H
 #define Z80_H
 
-#include "win32/types.h"
+#include "common/types.h"
 
 #define Z80_WORDREG_IN_INT
 

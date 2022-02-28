@@ -560,10 +560,7 @@
     <ClInclude Include="src\win32\timekeep.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\types.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\ui.h">
+    <ClInclude Include="src\Win32\ui.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\version.h">
@@ -649,6 +646,9 @@
     </ClInclude>
     <ClInclude Include="src\zlib\zutil.h">
       <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\types.h">
+      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

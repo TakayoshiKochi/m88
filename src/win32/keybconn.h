@@ -8,7 +8,7 @@
 
 // ---------------------------------------------------------------------------
 
-#include "win32/types.h"
+#include "common/types.h"
 #include "common/device.h"
 
 namespace PC8801 {

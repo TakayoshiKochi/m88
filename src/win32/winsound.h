@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "win32/types.h"
+#include "common/types.h"
 #include "pc88/sound.h"
 #include "win32/sounddrv.h"
 #include "win32/critsect.h"

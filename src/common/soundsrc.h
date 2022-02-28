@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "win32/types.h"
+#include "common/types.h"
 
 typedef int16_t Sample;
 

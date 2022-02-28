@@ -12,7 +12,7 @@
 #include <commdlg.h>
 #include <stdint.h>
 
-#include "win32/types.h"
+#include "common/types.h"
 
 #ifndef IFCALL
 #define IFCALL __stdcall
