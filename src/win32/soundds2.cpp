@@ -12,7 +12,7 @@
 #include "win32/soundds2.h"
 
 #define LOGNAME "soundds2"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 using namespace WinSoundDriver;
 

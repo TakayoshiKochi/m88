@@ -13,7 +13,7 @@
 #include "common/memmgr.h"
 
 // #define LOGNAME "subsys"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 using namespace PC8801;
 

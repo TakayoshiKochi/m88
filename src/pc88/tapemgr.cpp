@@ -11,7 +11,7 @@
 #include "common/misc.h"
 
 #define LOGNAME "tape"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 #define T88ID "PC-8801 Tape Image(T88)"
 

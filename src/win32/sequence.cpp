@@ -12,7 +12,7 @@
 #include "common/misc.h"
 
 #define LOGNAME "sequence"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 // ---------------------------------------------------------------------------
 //  構築/消滅

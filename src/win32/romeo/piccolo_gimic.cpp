@@ -13,7 +13,7 @@
 #include "win32/status.h"
 
 #define LOGNAME "piccolo"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 HMODULE g_mod = 0;
 IRealChipBase* g_chipbase = 0;

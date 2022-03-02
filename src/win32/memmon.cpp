@@ -15,7 +15,7 @@
 #include "if/ifguid.h"
 
 #define LOGNAME "memmon"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 using namespace PC8801;
 

@@ -12,7 +12,7 @@
 #include "common/misc.h"
 
 #define LOGNAME "drawddw"
-#include "win32/diag.h"
+#include "common/diag.h"
 #include "win32/dderr.h"
 
 #define RELCOM(x)        \

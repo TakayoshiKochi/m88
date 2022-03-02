@@ -8,7 +8,7 @@
 #include "devices/z80diag.h"
 #include "common/device_i.h"
 
-#include "win32/diag.h"
+#include "common/diag.h"
 
 // ---------------------------------------------------------------------------
 //  構築

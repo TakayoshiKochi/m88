@@ -11,7 +11,7 @@
 #include "pc88/sio.h"
 
 #define LOGNAME "sio"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 using namespace PC8801;
 

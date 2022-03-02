@@ -12,7 +12,7 @@
 #include "win32/status.h"
 
 // #define LOGNAME "status"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 StatusDisplay statusdisplay;
 

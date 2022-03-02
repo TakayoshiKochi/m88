@@ -6,7 +6,7 @@
 
 #include "win32/headers.h"
 #include "common/memmgr.h"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 // ---------------------------------------------------------------------------
 //  構築・破棄

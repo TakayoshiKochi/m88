@@ -8,7 +8,7 @@
 #include "common/device_i.h"
 
 // #define LOGNAME "membus"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 // ---------------------------------------------------------------------------
 //  Memory Bus

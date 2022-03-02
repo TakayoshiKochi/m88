@@ -288,7 +288,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\win32\diag.cpp" />
+    <ClCompile Include="..\src\common\diag.cpp" />
     <ClCompile Include="src\aspi.cpp" />
     <ClCompile Include="src\cdctrl.cpp" />
     <ClCompile Include="src\cdif.cpp" />
@@ -298,7 +298,7 @@
     <ClCompile Include="src\moduleif.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\win32\diag.h" />
+    <ClInclude Include="..\src\common\diag.h" />
     <ClInclude Include="src\aspi.h" />
     <ClInclude Include="src\aspidef.h" />
     <ClInclude Include="src\cdctrl.h" />
