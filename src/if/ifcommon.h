@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <Windows.h>
+#include <windows.h>
 #include <commdlg.h>
 
 #include <stdint.h>
@@ -27,7 +27,7 @@
 // ----------------------------------------------------------------------------
 //
 //
-interface IUnk {
+struct IUnk {
   virtual long IFCALL QueryInterface(REFIID, void**) = 0;
   virtual uint32_t IFCALL AddRef() = 0;
   virtual uint32_t IFCALL Release() = 0;

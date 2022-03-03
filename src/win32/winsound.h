@@ -8,6 +8,10 @@
 
 #pragma once
 
+#include <windows.h>
+#include <commctrl.h>
+#include <commdlg.h>
+#include <mmsystem.h>
 #include <dsound.h>
 
 #include <string>
