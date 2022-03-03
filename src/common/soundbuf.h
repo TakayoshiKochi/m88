@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "common/types.h"
+#include <stdint.h>
 #include "win32/critsect.h"
 #include "if/ifcommon.h"
 

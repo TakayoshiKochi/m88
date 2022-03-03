@@ -1,10 +1,7 @@
 //  $Id: writetag.cpp,v 1.1 2000/02/18 02:11:56 cisc Exp $
 
 #include <stdio.h>
-
-typedef unsigned char uint8;
-typedef unsigned int uint32;
-typedef unsigned int uint;
+#include <stdint.h>
 
 int main(int ac, char** av) {
   if (ac == 2) {
@@ -16,13 +13,13 @@ int main(int ac, char** av) {
       len = ftell(fp);
       fseek(fp, 0, SEEK_SET);
 
-      uint8* mod = new uint8[len];
+      uint8_t* mod = new uint8_t[len];
       if (mod) {
         fread(mod, 1, len, fp);
 
         const int tagpos = 0x7c;
-        uint32 crc = 0xffffffff;
-        *(uint32*)(mod + tagpos) = 0;
+        uint32_t crc = 0xffffffff;
+        *(uint32_t*)(mod + tagpos) = 0;
 
         uint32_t crctable[256];
         uint32_t i;

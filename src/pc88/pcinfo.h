@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "common/types.h"
+#include <stdint.h>
 
 struct DeviceInfo {
   enum {

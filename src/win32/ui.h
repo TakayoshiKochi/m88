@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "common/types.h"
+#include <stdint.h>
 #include "win32/wincore.h"
 #include "win32/windraw.h"
 #include "win32/winkeyif.h"

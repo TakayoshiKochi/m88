@@ -9,8 +9,6 @@
 
 #include <stdint.h>
 
-#include "common/types.h"
-
 // ---------------------------------------------------------------------------
 
 namespace FM {

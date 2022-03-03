@@ -10,9 +10,8 @@
 
 #include <Windows.h>
 #include <commdlg.h>
-#include <stdint.h>
 
-#include "common/types.h"
+#include <stdint.h>
 
 #ifndef IFCALL
 #define IFCALL __stdcall

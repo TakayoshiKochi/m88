@@ -8,7 +8,7 @@
 
 // ---------------------------------------------------------------------------
 
-#include "common/types.h"
+#include <stdint.h>
 #include "common/device.h"
 
 namespace PC8801 {

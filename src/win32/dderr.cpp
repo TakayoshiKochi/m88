@@ -1,7 +1,7 @@
 // $Id: dderr.cpp,v 1.1 2000/02/09 10:47:38 cisc Exp $
 
 #include "win32/headers.h"
-#include "common/types.h"
+#include <stdint.h>
 #include "win32/dderr.h"
 
 #ifdef _DEBUG

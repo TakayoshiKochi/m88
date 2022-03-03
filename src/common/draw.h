@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "common/types.h"
+#include <stdint.h>
 #include "common/misc.h"
 
 // 8 bit 数値をまとめて処理するときに使う型

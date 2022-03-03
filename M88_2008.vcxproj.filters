@@ -647,7 +647,7 @@
     <ClInclude Include="src\zlib\zutil.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\types.h">
+    <ClInclude Include="src\common\diag.h">
       <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,8 +9,6 @@
 
 #include <stdint.h>
 
-#include "common/types.h"
-
 #define PSG_SAMPLETYPE int32_t  // int32 or int16
 
 // ---------------------------------------------------------------------------

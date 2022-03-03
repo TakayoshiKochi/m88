@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/types.h"
+#include <stdint.h>
 #include "if/ifcommon.h"
 
 #ifndef IFCALL
