@@ -43,9 +43,9 @@ class Z80Debug : public Device {
 
   static int GetCCount() { return 0; }
 
-  void Reset(uint = 0, uint = 0);
-  void IRQ(uint, uint d);
-  void NMI(uint, uint);
+  void Reset(uint32_t = 0, uint32_t = 0);
+  void IRQ(uint32_t, uint32_t d);
+  void NMI(uint32_t, uint32_t);
   void Wait(bool);
   const Descriptor* GetDesc() const { return &descriptor; }
 
@@ -56,16 +56,16 @@ class Z80Debug : public Device {
   Bus* bus;
   Bus bus1;
 
-  uint Read8(uint);
-  void Write8(uint, uint);
-  uint In(uint);
-  void Out(uint, uint);
+  uint32_t Read8(uint32_t);
+  void Write8(uint32_t, uint32_t);
+  uint32_t In(uint32_t);
+  void Out(uint32_t, uint32_t);
 
   int execcount;
   int clockcount;
 
-  static uint S_Read8(void*, uint);
-  static void S_Write8(void*, uint, uint);
+  static uint32_t S_Read8(void*, uint32_t);
+  static void S_Write8(void*, uint32_t, uint32_t);
 
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];

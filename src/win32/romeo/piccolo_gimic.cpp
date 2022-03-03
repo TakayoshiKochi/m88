@@ -34,7 +34,7 @@ class GimicIf : public PiccoloChip {
     Log("YMF288::Reset()\n");
     Mute();
   }
-  int Init(uint param) {
+  int Init(uint32_t param) {
     gmcdrv.chip->reset();
     return true;
   }
@@ -43,14 +43,14 @@ class GimicIf : public PiccoloChip {
     gmcdrv.chip->reset();
     gmcdrv.gimic->setSSGVolume(opna ? 63 : 68);  // FM/PSG比 50%/55%
   }
-  bool SetReg(uint32_t at, uint addr, uint data) {
+  bool SetReg(uint32_t at, uint32_t addr, uint32_t data) {
     if (gmcdrv.chip) {
       gmcdrv.chip->out(addr, data);
     }
     //      pic->DrvSetReg( at, addr, data );
     return true;
   }
-  void SetChannelMask(uint mask){};
+  void SetChannelMask(uint32_t mask){};
   void SetVolume(int ch, int value){};
 
  private:
@@ -60,7 +60,7 @@ class GimicIf : public PiccoloChip {
   void Mute() {
     Log("YMF288::Mute()\n");
     gmcdrv.chip->out(0x07, 0x3f);
-    for (uint r = 0x40; r < 0x4f; r++) {
+    for (uint32_t r = 0x40; r < 0x4f; r++) {
       if (~r & 3) {
         gmcdrv.chip->out(0x000 + r, 0x7f);
         gmcdrv.chip->out(0x100 + r, 0x7f);
@@ -189,7 +189,7 @@ int Piccolo_Gimic::GetChip(PICCOLO_CHIPTYPE _type, PiccoloChip** _pc) {
   return PICCOLO_SUCCESS;
 }
 
-void Piccolo_Gimic::SetReg(uint addr, uint data) {
+void Piccolo_Gimic::SetReg(uint32_t addr, uint32_t data) {
   if (avail) {
     gmcdrv.chip->out(addr, data);
   }

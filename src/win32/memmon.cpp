@@ -60,7 +60,7 @@ bool MemoryMonitor::Init(WinCore* pc88) {
   return true;
 }
 
-void MemoryMonitor::SetWatch(uint addr, uint range) {
+void MemoryMonitor::SetWatch(uint32_t addr, uint32_t range) {
   core->Lock();
   if (mid >= 0) {
     Log("SetWatch: %p %.4x - %.4x\n", mm, addr, range);
@@ -111,7 +111,7 @@ void MemoryMonitor::SetBank() {
   MemViewMonitor::SetBank();
 }
 
-uint MemoryMonitor::MemRead(void* p, uint a) {
+uint32_t MemoryMonitor::MemRead(void* p, uint32_t a) {
   MemoryMonitor* m = reinterpret_cast<MemoryMonitor*>(p);
 
   // 領域が見たいメモリを指し示しているなら更新
@@ -122,7 +122,7 @@ uint MemoryMonitor::MemRead(void* p, uint a) {
   return m->mm->Read8P(m->mid, a);  // 本来のメモリ空間へとアクセス
 }
 
-void MemoryMonitor::MemWrite(void* p, uint a, uint d) {
+void MemoryMonitor::MemWrite(void* p, uint32_t a, uint32_t d) {
   MemoryMonitor* m = reinterpret_cast<MemoryMonitor*>(p);
 
   // 領域が見たいメモリを指し示しているなら更新
@@ -159,7 +159,7 @@ void MemoryMonitor::UpdateText() {
         int d = GetBus()->Read8(a);
 
         if (watchflag) {
-          uint t = 0xff;
+          uint32_t t = 0xff;
           if (access[a]) {
             t = time - access[a];
             t = t < 0xfe ? t : 0xfe;
@@ -285,7 +285,7 @@ void MemoryMonitor::ExecCommand() {
   line[0] = 0;
 }
 
-void MemoryMonitor::Search(uint key, int bytes) {
+void MemoryMonitor::Search(uint32_t key, int bytes) {
   int match = 0;
   int mask = 0xffffffff >> (8 * (4 - bytes));
   int end = 0x10000 - bytes;

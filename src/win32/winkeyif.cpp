@@ -51,7 +51,7 @@ bool WinKeyIF::Init(HWND hwndmsg) {
 // ---------------------------------------------------------------------------
 //  リセット（というか、BASIC モードの変更）
 //
-void IOCALL WinKeyIF::Reset(uint, uint) {
+void IOCALL WinKeyIF::Reset(uint32_t, uint32_t) {
   pc80mode = (basicmode & 2) != 0;
 }
 
@@ -81,7 +81,7 @@ void WinKeyIF::ApplyConfig(const Config* config) {
 // ---------------------------------------------------------------------------
 //  WM_KEYDOWN
 //
-void WinKeyIF::KeyDown(uint vkcode, uint32_t keydata) {
+void WinKeyIF::KeyDown(uint32_t vkcode, uint32_t keydata) {
   if (keytable == KeyTable106[0]) {
     // 半角・全角キー対策
     if (vkcode == 0xf3 || vkcode == 0xf4) {
@@ -89,7 +89,7 @@ void WinKeyIF::KeyDown(uint vkcode, uint32_t keydata) {
       return;
     }
   }
-  uint keyindex = (vkcode & 0xff) | ((keydata & (1 << 24)) ? 0x100 : 0);
+  uint32_t keyindex = (vkcode & 0xff) | ((keydata & (1 << 24)) ? 0x100 : 0);
   LOG2("KeyDown  = %.2x %.3x\n", vkcode, keyindex);
   keystate[keyindex] = 1;
 }
@@ -97,8 +97,8 @@ void WinKeyIF::KeyDown(uint vkcode, uint32_t keydata) {
 // ---------------------------------------------------------------------------
 //  WM_KEYUP
 //
-void WinKeyIF::KeyUp(uint vkcode, uint32_t keydata) {
-  uint keyindex = (vkcode & 0xff) | (keydata & (1 << 24) ? 0x100 : 0);
+void WinKeyIF::KeyUp(uint32_t vkcode, uint32_t keydata) {
+  uint32_t keyindex = (vkcode & 0xff) | (keydata & (1 << 24) ? 0x100 : 0);
   keystate[keyindex] = 0;
   LOG2("KeyUp   = %.2x %.3x\n", vkcode, keyindex);
 
@@ -154,8 +154,8 @@ void WinKeyIF::KeyUp(uint vkcode, uint32_t keydata) {
 //  Key
 //  keyboard によるキーチェックは反応が鈍いかも知れず
 //
-uint WinKeyIF::GetKey(const Key* key) {
-  uint i;
+uint32_t WinKeyIF::GetKey(const Key* key) {
+  uint32_t i;
 
   for (i = 0; i < 8 && key->k; i++, key++) {
     switch (key->f) {
@@ -216,7 +216,7 @@ uint WinKeyIF::GetKey(const Key* key) {
 // ---------------------------------------------------------------------------
 //  VSync 処理
 //
-void IOCALL WinKeyIF::VSync(uint, uint d) {
+void IOCALL WinKeyIF::VSync(uint32_t, uint32_t d) {
   if (d && active) {
     if (hwnd) {
       PostMessage(hwnd, WM_M88_SENDKEYSTATE, reinterpret_cast<DWORD>(keyboard), (DWORD)hevent);
@@ -249,7 +249,7 @@ void WinKeyIF::Disable(bool yes) {
 // ---------------------------------------------------------------------------
 //  キー入力
 //
-uint IOCALL WinKeyIF::In(uint port) {
+uint32_t IOCALL WinKeyIF::In(uint32_t port) {
   port &= 0x0f;
 
   if (active) {

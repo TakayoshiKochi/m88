@@ -18,7 +18,7 @@
 //  PSG に良く似た音を生成する音源ユニット
 //
 //  interface:
-//  bool SetClock(uint clock, uint rate)
+//  bool SetClock(uint32_t clock, uint32_t rate)
 //      初期化．このクラスを使用する前にかならず呼んでおくこと．
 //      PSG のクロックや PCM レートを設定する
 //
@@ -33,10 +33,10 @@
 //  void Reset()
 //      リセットする
 //
-//  void SetReg(uint reg, uint8_t data)
+//  void SetReg(uint32_t reg, uint8_t data)
 //      レジスタ reg に data を書き込む
 //
-//  uint GetReg(uint reg)
+//  uint32_t GetReg(uint32_t reg)
 //      レジスタ reg の内容を読み出す
 //
 //  void SetVolume(int db)
@@ -66,8 +66,8 @@ class PSG {
   void SetChannelMask(int c);
 
   void Reset();
-  void SetReg(uint regnum, uint8_t data);
-  uint GetReg(uint regnum) { return reg[regnum & 0x0f]; }
+  void SetReg(uint32_t regnum, uint8_t data);
+  uint32_t GetReg(uint32_t regnum) { return reg[regnum & 0x0f]; }
 
  protected:
   void MakeNoiseTable();
@@ -76,8 +76,8 @@ class PSG {
 
   uint8_t reg[16];
 
-  const uint* envelop;
-  uint olevel[3];
+  const uint32_t* envelop;
+  uint32_t olevel[3];
   uint32_t scount[3], speriod[3];
   uint32_t ecount, eperiod;
   uint32_t ncount, nperiod;
@@ -86,8 +86,8 @@ class PSG {
   uint32_t nperiodbase;
   int mask;
 
-  static uint enveloptable[16][64];
-  static uint noisetable[noisetablesize];
+  static uint32_t enveloptable[16][64];
+  static uint32_t noisetable[noisetablesize];
   static int EmitTable[32];
 };
 

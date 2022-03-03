@@ -33,7 +33,7 @@ class ExternalDevice : public Device, public ISoundSource {
             IMemoryManager* mm);
   bool Cleanup();
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
@@ -45,11 +45,11 @@ class ExternalDevice : public Device, public ISoundSource {
   bool InitPCInfo();
   bool LoadDLL(const char* dllname);
 
-  void IOCALL EventProc(uint arg);
-  uint IOCALL In(uint port);
-  void IOCALL Out(uint port, uint data);
+  void IOCALL EventProc(uint32_t arg);
+  uint32_t IOCALL In(uint32_t port);
+  void IOCALL Out(uint32_t port, uint32_t data);
 
-  bool IFCALL SetRate(uint r);
+  bool IFCALL SetRate(uint32_t r);
   void IFCALL Mix(int32_t* s, int len);
   bool IFCALL Connect(ISoundControl* sound) { return false; }
 
@@ -70,13 +70,13 @@ class ExternalDevice : public Device, public ISoundSource {
   static PCInfo pcinfo;
 
  private:
-  static int S_DMARead(void*, uint bank, uint8_t* data, uint nbytes);
-  static int S_DMAWrite(void*, uint bank, uint8_t* data, uint nbytes);
-  static bool S_MemAcquire(void*, uint page, uint npages, void* read, void* write, uint flags);
-  static bool S_MemRelease(void*, uint page, uint npages, uint flags);
-  static void* S_AddEvent(void*, uint count, uint arg);
+  static int S_DMARead(void*, uint32_t bank, uint8_t* data, uint32_t nbytes);
+  static int S_DMAWrite(void*, uint32_t bank, uint8_t* data, uint32_t nbytes);
+  static bool S_MemAcquire(void*, uint32_t page, uint32_t npages, void* read, void* write, uint32_t flags);
+  static bool S_MemRelease(void*, uint32_t page, uint32_t npages, uint32_t flags);
+  static void* S_AddEvent(void*, uint32_t count, uint32_t arg);
   static bool S_DelEvent(void*, void*);
-  static uint S_GetTime(void*);
+  static uint32_t S_GetTime(void*);
   static void S_SoundUpdate(void*);
 };
 

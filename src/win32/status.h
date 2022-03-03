@@ -21,7 +21,7 @@ class StatusDisplay {
   bool Disable();
   int GetHeight() { return height; }
   void DrawItem(DRAWITEMSTRUCT* dis);
-  void FDAccess(uint dr, bool hd, bool active);
+  void FDAccess(uint32_t dr, bool hd, bool active);
   void UpdateDisplay();
   void WaitSubSys() { litstat[2] = 9; }
 

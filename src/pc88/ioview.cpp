@@ -61,7 +61,7 @@ void IOViewer::Dim() {
 //  Out
 //  出力データを記録
 //
-void IOCALL IOViewer::Out(uint a, uint d) {
+void IOCALL IOViewer::Out(uint32_t a, uint32_t d) {
   buf[a] = d & 0xff;
 }
 

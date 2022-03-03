@@ -50,11 +50,11 @@ class DiskImageHolder {
 
   const char* GetTitle(int index);
   FileIO* GetDisk(int index);
-  uint GetNumDisks() { return ndisks; }
+  uint32_t GetNumDisks() { return ndisks; }
   bool SetDiskSize(int index, int newsize);
   bool IsReadOnly() { return readonly; }
-  uint IsOpen() { return ref > 0; }
-  bool AddDisk(const char* title, uint type);
+  uint32_t IsOpen() { return ref > 0; }
+  bool AddDisk(const char* title, uint32_t type);
 
  private:
   struct DiskInfo {
@@ -87,14 +87,14 @@ class DiskManager {
   ~DiskManager();
   bool Init();
 
-  bool Mount(uint drive, const char* diskname, bool readonly, int index, bool create);
-  bool Unmount(uint drive);
-  const char* GetImageTitle(uint dr, uint index);
-  uint GetNumDisks(uint dr);
-  int GetCurrentDisk(uint dr);
-  bool AddDisk(uint dr, const char* title, uint type);
+  bool Mount(uint32_t drive, const char* diskname, bool readonly, int index, bool create);
+  bool Unmount(uint32_t drive);
+  const char* GetImageTitle(uint32_t dr, uint32_t index);
+  uint32_t GetNumDisks(uint32_t dr);
+  int GetCurrentDisk(uint32_t dr);
+  bool AddDisk(uint32_t dr, const char* title, uint32_t type);
   bool IsImageOpen(const char* filename);
-  bool FormatDisk(uint dr);
+  bool FormatDisk(uint32_t dr);
 
   void Update();
 
@@ -120,7 +120,7 @@ class DiskManager {
   bool ReadDiskImageRaw(FileIO* fio, Drive* drive);
   bool WriteDiskImage(FileIO* fio, Drive* drive);
   bool WriteTrackImage(FileIO* fio, Drive* drive, int track);
-  uint GetDiskImageSize(Drive* drive);
+  uint32_t GetDiskImageSize(Drive* drive);
   void UpdateDrive(Drive* drive);
 
   DiskImageHolder holder[max_drives];

@@ -42,17 +42,17 @@ class CDControl {
   ~CDControl();
 
   bool Init(CDROM* cd, Device* dev, DONEFUNC func);
-  bool SendCommand(uint cmd, uint arg1 = 0, uint arg2 = 0);
-  uint GetTime();
+  bool SendCommand(uint32_t cmd, uint32_t arg1 = 0, uint32_t arg2 = 0);
+  uint32_t GetTime();
 
  private:
-  void ExecCommand(uint cmd, uint arg1, uint arg2);
+  void ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2);
   void Cleanup();
-  uint ThreadMain();
-  static uint __stdcall ThreadEntry(LPVOID arg);
+  uint32_t ThreadMain();
+  static uint32_t __stdcall ThreadEntry(LPVOID arg);
 
   HANDLE hthread;
-  uint idthread;
+  uint32_t idthread;
   int vel;
   bool diskpresent;
   bool shouldterminate;

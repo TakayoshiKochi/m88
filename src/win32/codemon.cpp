@@ -93,7 +93,7 @@ int CodeMonitor::VerticalScroll(int msg) {
   return Limit(addr, 0xffff, 0);
 }
 
-static inline void ToHex(char** p, uint d) {
+static inline void ToHex(char** p, uint32_t d) {
   static const char hex[] = "0123456789abcdef";
 
   *(*p)++ = hex[d >> 4];

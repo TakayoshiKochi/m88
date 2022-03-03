@@ -19,7 +19,7 @@ class Device : public IDevice {
 
   const ID& IFCALL GetID() const { return id; }
   const Descriptor* IFCALL GetDesc() const { return 0; }
-  uint IFCALL GetStatusSize() { return 0; }
+  uint32_t IFCALL GetStatusSize() { return 0; }
   bool IFCALL LoadStatus(const uint8_t* status) { return false; }
   bool IFCALL SaveStatus(uint8_t* status) { return false; }
 
@@ -42,8 +42,8 @@ class Device : public IDevice {
 //
 class MemoryBus : public IMemoryAccess {
  public:
-  typedef uint(*ReadFuncPtr)(void* inst, uint addr);
-  typedef void(*WriteFuncPtr)(void* inst, uint addr, uint data);
+  typedef uint32_t(*ReadFuncPtr)(void* inst, uint32_t addr);
+  typedef void(*WriteFuncPtr)(void* inst, uint32_t addr, uint32_t data);
 
   struct Page {
     void* read;
@@ -66,38 +66,38 @@ class MemoryBus : public IMemoryAccess {
   MemoryBus();
   ~MemoryBus();
 
-  bool Init(uint npages, Page* pages = 0);
+  bool Init(uint32_t npages, Page* pages = 0);
 
-  void SetWriteMemory(uint addr, void* ptr);
-  void SetReadMemory(uint addr, void* ptr);
-  void SetMemory(uint addr, void* ptr);
-  void SetFunc(uint addr, void* inst, ReadFuncPtr rd, WriteFuncPtr wr);
+  void SetWriteMemory(uint32_t addr, void* ptr);
+  void SetReadMemory(uint32_t addr, void* ptr);
+  void SetMemory(uint32_t addr, void* ptr);
+  void SetFunc(uint32_t addr, void* inst, ReadFuncPtr rd, WriteFuncPtr wr);
 
-  void SetWriteMemorys(uint addr, uint length, uint8_t* ptr);
-  void SetReadMemorys(uint addr, uint length, uint8_t* ptr);
-  void SetMemorys(uint addr, uint length, uint8_t* ptr);
-  void SetFuncs(uint addr, uint length, void* inst, ReadFuncPtr rd, WriteFuncPtr wr);
+  void SetWriteMemorys(uint32_t addr, uint32_t length, uint8_t* ptr);
+  void SetReadMemorys(uint32_t addr, uint32_t length, uint8_t* ptr);
+  void SetMemorys(uint32_t addr, uint32_t length, uint8_t* ptr);
+  void SetFuncs(uint32_t addr, uint32_t length, void* inst, ReadFuncPtr rd, WriteFuncPtr wr);
 
-  void SetWriteMemorys2(uint addr, uint length, uint8_t* ptr, void* inst);
-  void SetReadMemorys2(uint addr, uint length, uint8_t* ptr, void* inst);
-  void SetMemorys2(uint addr, uint length, uint8_t* ptr, void* inst);
-  void SetFuncs2(uint addr, uint length, void* inst, ReadFuncPtr rd, WriteFuncPtr wr);
+  void SetWriteMemorys2(uint32_t addr, uint32_t length, uint8_t* ptr, void* inst);
+  void SetReadMemorys2(uint32_t addr, uint32_t length, uint8_t* ptr, void* inst);
+  void SetMemorys2(uint32_t addr, uint32_t length, uint8_t* ptr, void* inst);
+  void SetFuncs2(uint32_t addr, uint32_t length, void* inst, ReadFuncPtr rd, WriteFuncPtr wr);
 
-  void SetReadOwner(uint addr, uint length, void* inst);
-  void SetWriteOwner(uint addr, uint length, void* inst);
-  void SetOwner(uint addr, uint length, void* inst);
+  void SetReadOwner(uint32_t addr, uint32_t length, void* inst);
+  void SetWriteOwner(uint32_t addr, uint32_t length, void* inst);
+  void SetOwner(uint32_t addr, uint32_t length, void* inst);
 
-  void SetWait(uint addr, uint wait);
-  void SetWaits(uint addr, uint length, uint wait);
+  void SetWait(uint32_t addr, uint32_t wait);
+  void SetWaits(uint32_t addr, uint32_t length, uint32_t wait);
 
-  uint IFCALL Read8(uint addr);
-  void IFCALL Write8(uint addr, uint data);
+  uint32_t IFCALL Read8(uint32_t addr);
+  void IFCALL Write8(uint32_t addr, uint32_t data);
 
   const Page* GetPageTable();
 
  private:
-  static void wrdummy(void*, uint, uint);
-  static uint rddummy(void*, uint);
+  static void wrdummy(void*, uint32_t, uint32_t);
+  static uint32_t rddummy(void*, uint32_t);
 
   Page* pages;
   Owner* owners;
@@ -118,7 +118,7 @@ class DeviceList {
   };
   struct Header {
     ID id;
-    uint size;
+    uint32_t size;
   };
 
  public:
@@ -133,7 +133,7 @@ class DeviceList {
 
   bool LoadStatus(const uint8_t*);
   bool SaveStatus(uint8_t*);
-  uint GetStatusSize();
+  uint32_t GetStatusSize();
 
  private:
   Node* FindNode(const ID id);
@@ -170,24 +170,24 @@ class IOBus : public IIOAccess, public IIOBus {
   IOBus();
   ~IOBus();
 
-  bool Init(uint nports, DeviceList* devlist = 0);
+  bool Init(uint32_t nports, DeviceList* devlist = 0);
 
-  bool ConnectIn(uint bank, IDevice* device, InFuncPtr func);
-  bool ConnectOut(uint bank, IDevice* device, OutFuncPtr func);
+  bool ConnectIn(uint32_t bank, IDevice* device, InFuncPtr func);
+  bool ConnectOut(uint32_t bank, IDevice* device, OutFuncPtr func);
 
   InBank* GetIns() { return ins; }
   OutBank* GetOuts() { return outs; }
   uint8_t* GetFlags() { return flags; }
 
-  bool IsSyncPort(uint port);
+  bool IsSyncPort(uint32_t port);
 
   bool IFCALL Connect(IDevice* device, const Connector* connector);
   bool IFCALL Disconnect(IDevice* device);
-  uint IFCALL In(uint port);
-  void IFCALL Out(uint port, uint data);
+  uint32_t IFCALL In(uint32_t port);
+  void IFCALL Out(uint32_t port, uint32_t data);
 
   // inactive line is high
-  static uint Active(uint data, uint bits) { return data | ~bits; }
+  static uint32_t Active(uint32_t data, uint32_t bits) { return data | ~bits; }
 
  private:
   class DummyIO : public Device {
@@ -195,8 +195,8 @@ class IOBus : public IIOAccess, public IIOBus {
     DummyIO() : Device(0) {}
     ~DummyIO() {}
 
-    uint IOCALL dummyin(uint);
-    void IOCALL dummyout(uint, uint);
+    uint32_t IOCALL dummyin(uint32_t);
+    void IOCALL dummyout(uint32_t, uint32_t);
   };
   struct StatusTag {
     Device::ID id;
@@ -209,7 +209,7 @@ class IOBus : public IIOAccess, public IIOBus {
   uint8_t* flags;
   DeviceList* devlist;
 
-  uint banksize;
+  uint32_t banksize;
   static DummyIO dummyio;
 };
 
@@ -223,7 +223,7 @@ public:
     Bus() {}
     ~Bus() {}
 
-    bool Init(uint nports, uint npages, Page* pages = 0);
+    bool Init(uint32_t nports, uint32_t npages, Page* pages = 0);
 };
 */
 // ---------------------------------------------------------------------------
@@ -233,6 +233,6 @@ public:
 
 // ---------------------------------------------------------------------------
 
-inline bool IOBus::IsSyncPort(uint port) {
+inline bool IOBus::IsSyncPort(uint32_t port) {
   return (flags[port >> iobankbits] & 1) != 0;
 }

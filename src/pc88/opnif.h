@@ -51,35 +51,35 @@ class OPNIF : public Device, public ISoundSource {
   ~OPNIF();
 
   bool Init(IOBus* bus, int intrport, int io, Scheduler* s);
-  void SetIMask(uint port, uint bit);
+  void SetIMask(uint32_t port, uint32_t bit);
 
   bool IFCALL Connect(ISoundControl* c);
-  bool IFCALL SetRate(uint rate);
+  bool IFCALL SetRate(uint32_t rate);
   void IFCALL Mix(int32_t* buffer, int nsamples);
 
   void SetVolume(const Config* config);
   void SetFMMixMode(bool);
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
   void Enable(bool en) { enable = en; }
   void SetOPNMode(bool _opna) { opnamode = _opna; }
   const uint8_t* GetRegs() { return regs; }
-  void SetChannelMask(uint ch);
+  void SetChannelMask(uint32_t ch);
 
-  void IOCALL SetIntrMask(uint, uint intrmask);
-  void IOCALL Reset(uint = 0, uint = 0);
-  void IOCALL SetIndex0(uint, uint data);
-  void IOCALL SetIndex1(uint, uint data);
-  void IOCALL WriteData0(uint, uint data);
-  void IOCALL WriteData1(uint, uint data);
-  uint IOCALL ReadData0(uint);
-  uint IOCALL ReadData1(uint);
-  uint IOCALL ReadStatus(uint);
-  uint IOCALL ReadStatusEx(uint);
-  void IOCALL Sync(uint, uint);
+  void IOCALL SetIntrMask(uint32_t, uint32_t intrmask);
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
+  void IOCALL SetIndex0(uint32_t, uint32_t data);
+  void IOCALL SetIndex1(uint32_t, uint32_t data);
+  void IOCALL WriteData0(uint32_t, uint32_t data);
+  void IOCALL WriteData1(uint32_t, uint32_t data);
+  uint32_t IOCALL ReadData0(uint32_t);
+  uint32_t IOCALL ReadData1(uint32_t);
+  uint32_t IOCALL ReadStatus(uint32_t);
+  uint32_t IOCALL ReadStatusEx(uint32_t);
+  void IOCALL Sync(uint32_t, uint32_t);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
@@ -97,7 +97,7 @@ class OPNIF : public Device, public ISoundSource {
     void Intr(bool f);
     void SetIntr(IOBus* b, int p) { bus = b, pintr = p; }
     void SetIntrMask(bool e);
-    uint IntrStat() { return (intrenabled ? 1 : 0) | (intrpending ? 2 : 0); }
+    uint32_t IntrStat() { return (intrenabled ? 1 : 0) | (intrpending ? 2 : 0); }
 
    private:
     IOBus* bus;
@@ -120,8 +120,8 @@ class OPNIF : public Device, public ISoundSource {
 
  private:
   void UpdateTimer();
-  void IOCALL TimeEvent(uint);
-  uint ChipTime();
+  void IOCALL TimeEvent(uint32_t);
+  uint32_t ChipTime();
 #if 0
     bool ROMEOInit();
     bool ROMEOEnabled() { return romeo_user == this; }
@@ -133,23 +133,23 @@ class OPNIF : public Device, public ISoundSource {
   IOBus* bus;
   Scheduler* scheduler;
   int32_t nextcount;
-  uint imaskport;
+  uint32_t imaskport;
   int imaskbit;
   int prevtime;
   int portio;
-  uint currentrate;
+  uint32_t currentrate;
   bool fmmixmode;
 
   uint32_t basetime;
   uint32_t basetick;
-  uint clock;
+  uint32_t clock;
 
   bool opnamode;
   bool enable;
 
-  uint index0;
-  uint index1;
-  uint data1;
+  uint32_t index0;
+  uint32_t index1;
+  uint32_t data1;
 
   int delay;
 
@@ -164,7 +164,7 @@ class OPNIF : public Device, public ISoundSource {
   static const OutFuncPtr outdef[];
 };
 
-inline void OPNIF::SetChannelMask(uint ch) {
+inline void OPNIF::SetChannelMask(uint32_t ch) {
   opn.SetChannelMask(ch);
 }
 

@@ -20,19 +20,19 @@ class DriverWO : public Driver {
   DriverWO();
   ~DriverWO();
 
-  bool Init(SoundSource* sb, HWND hwnd, uint rate, uint ch, uint buflen);
+  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen);
   bool Cleanup();
 
  private:
   bool SendBlock(WAVEHDR*);
   void BlockDone(WAVEHDR*);
-  static uint __stdcall ThreadEntry(LPVOID arg);
-  static void CALLBACK WOProc(HWAVEOUT hwo, uint umsg, DWORD inst, DWORD p1, DWORD p2);
+  static uint32_t __stdcall ThreadEntry(LPVOID arg);
+  static void CALLBACK WOProc(HWAVEOUT hwo, uint32_t umsg, DWORD inst, DWORD p1, DWORD p2);
   void DeleteBuffers();
 
   HWAVEOUT hwo;
   HANDLE hthread;
-  uint idthread;
+  uint32_t idthread;
   int numblocks;     // WAVEHDR(PCM ブロック)の数
   WAVEHDR* wavehdr;  // WAVEHDR の配列
   bool dontmix;      // WAVE を送る際に音声の合成をしない

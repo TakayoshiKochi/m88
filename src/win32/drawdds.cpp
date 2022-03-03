@@ -47,7 +47,7 @@ WinDrawDDS::~WinDrawDDS() {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool WinDrawDDS::Init(HWND hwindow, uint w, uint h, GUID* drv) {
+bool WinDrawDDS::Init(HWND hwindow, uint32_t w, uint32_t h, GUID* drv) {
   HRESULT hr;
   hwnd = hwindow;
 
@@ -389,7 +389,7 @@ void WinDrawDDS::SetGUIMode(bool newguimode) {
 // ---------------------------------------------------------------------------
 //  表示領域を設定する
 //
-bool WinDrawDDS::Resize(uint w, uint h) {
+bool WinDrawDDS::Resize(uint32_t w, uint32_t h) {
   height = h;
   return true;
 }

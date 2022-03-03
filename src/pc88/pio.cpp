@@ -20,7 +20,7 @@ void PIO::Reset() {
   SetCW(0);
 }
 
-void PIO::SetCW(uint data) {
+void PIO::SetCW(uint32_t data) {
   // Control Word
   if (!(data & 0x80)) {
     if (data & 0x01)

@@ -45,7 +45,7 @@ class ChipIF : public PiccoloChip {
  public:
   ChipIF(Piccolo_Romeo *p) { pic = p; }
   ~ChipIF() { Mute(); }
-  int Init(uint param) {
+  int Init(uint32_t param) {
     pic->Reset();
     return true;
   }
@@ -53,8 +53,8 @@ class ChipIF : public PiccoloChip {
     pic->DrvReset();
     pic->Reset();
   }
-  bool SetReg(uint32_t at, uint addr, uint data) { return pic->DrvSetReg(at, addr, data); }
-  void SetChannelMask(uint mask) {}
+  bool SetReg(uint32_t at, uint32_t addr, uint32_t data) { return pic->DrvSetReg(at, addr, data); }
+  void SetChannelMask(uint32_t mask) {}
   void SetVolume(int ch, int value) {}
 
  private:
@@ -63,7 +63,7 @@ class ChipIF : public PiccoloChip {
   void Mute() {
     Log("YMF288::Mute()\n");
     pic->SetReg(0x07, 0x3f);
-    for (uint r = 0x40; r < 0x4f; r++) {
+    for (uint32_t r = 0x40; r < 0x4f; r++) {
       if (~r & 3) {
         pic->SetReg(0x000 + r, 0x7f);
         pic->SetReg(0x100 + r, 0x7f);
@@ -186,7 +186,7 @@ bool Piccolo_Romeo::IsBusy() {
 void Piccolo_Romeo::Mute() {
   Log("YMF288::Mute()\n");
   SetReg(0x007, 0x3f);
-  for (uint r = 0x40; r < 0x4f; r++) {
+  for (uint32_t r = 0x40; r < 0x4f; r++) {
     if (~r & 3) {
       SetReg(0x000 + r, 0x7f);
       SetReg(0x100 + r, 0x7f);
@@ -194,7 +194,7 @@ void Piccolo_Romeo::Mute() {
   }
 }
 
-void Piccolo_Romeo::SetReg(uint a, uint d) {
+void Piccolo_Romeo::SetReg(uint32_t a, uint32_t d) {
   if (avail) {
     while (IsBusy())
       Sleep(0);

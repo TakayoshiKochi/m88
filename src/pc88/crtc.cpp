@@ -136,22 +136,22 @@ bool CRTC::Init(IOBus* b, Scheduler* s, PD8257* d, Draw* _draw) {
 // ---------------------------------------------------------------------------
 //  IO
 //
-void IOCALL CRTC::Out(uint port, uint data) {
+void IOCALL CRTC::Out(uint32_t port, uint32_t data) {
   Command((port & 1) != 0, data);
 }
 
-uint IOCALL CRTC::In(uint) {
+uint32_t IOCALL CRTC::In(uint32_t) {
   return Command(false, 0);
 }
 
-uint IOCALL CRTC::GetStatus(uint) {
+uint32_t IOCALL CRTC::GetStatus(uint32_t) {
   return status;
 }
 
 // ---------------------------------------------------------------------------
 //  Reset
 //
-void IOCALL CRTC::Reset(uint, uint) {
+void IOCALL CRTC::Reset(uint32_t, uint32_t) {
   line200 = (bus->In(0x40) & 2) != 0;
   memcpy(pcgram, fontrom + 0x400, 0x400);
   kanamode = 0;
@@ -208,8 +208,8 @@ void CRTC::SetTextSize(bool wide) {
 // ---------------------------------------------------------------------------
 //  コマンド処理
 //
-uint CRTC::Command(bool a0, uint data) {
-  static const uint modetbl[8] = {
+uint32_t CRTC::Command(bool a0, uint32_t data) {
+  static const uint32_t modetbl[8] = {
       enable | control | attribute,          // transparent b/w
       enable,                                // no attribute
       enable | color | control | attribute,  // transparent color
@@ -220,7 +220,7 @@ uint CRTC::Command(bool a0, uint data) {
       0,                                     // invalid
   };
 
-  uint result = 0xff;
+  uint32_t result = 0xff;
 
   LOG1(a0 ? "\ncmd:%.2x " : "%.2x ", data);
 
@@ -412,7 +412,7 @@ void CRTC::CreateTFont(const uint8_t* src, int idx, int num) {
 
   for (int i = 0; i < num * 8; i++) {
     uint8_t d = *src++;
-    for (uint j = 0; j < 8; j++, d *= 2) {
+    for (uint32_t j = 0; j < 8; j++, d *= 2) {
       uint8_t b = d & 0x80 ? TEXT_SET : TEXT_RES;
       *dest++ = b;
       *destw++ = b;
@@ -421,11 +421,11 @@ void CRTC::CreateTFont(const uint8_t* src, int idx, int num) {
   }
 }
 
-void CRTC::ModifyFont(uint off, uint d) {
+void CRTC::ModifyFont(uint32_t off, uint32_t d) {
   uint8_t* dest = font + 8 * off;
   uint8_t* destw = font + 0x8000 + 16 * off;
 
-  for (uint j = 0; j < 8; j++, d *= 2) {
+  for (uint32_t j = 0; j < 8; j++, d *= 2) {
     uint8_t b = d & 0x80 ? TEXT_SET : TEXT_RES;
     *dest++ = b;
     *destw++ = b;
@@ -443,7 +443,7 @@ void CRTC::CreateGFont() {
   const uint8_t order[8] = {0x01, 0x10, 0x02, 0x20, 0x04, 0x40, 0x08, 0x80};
 
   for (int i = 0; i < 256; i++) {
-    for (uint j = 0; j < 8; j += 2) {
+    for (uint32_t j = 0; j < 8; j += 2) {
       dest[0] = dest[1] = dest[2] = dest[3] = dest[8] = dest[9] = dest[10] = dest[11] = destw[0] =
           destw[1] = destw[2] = destw[3] = destw[4] = destw[5] = destw[6] = destw[7] = destw[16] =
               destw[17] = destw[18] = destw[19] = destw[20] = destw[21] = destw[22] = destw[23] =
@@ -463,7 +463,7 @@ void CRTC::CreateGFont() {
 // ---------------------------------------------------------------------------
 //  画面表示開始のタイミング処理
 //
-void IOCALL CRTC::StartDisplay(uint) {
+void IOCALL CRTC::StartDisplay(uint32_t) {
   sev = 0;
   column = 0;
   mode &= ~suppressdisplay;
@@ -477,7 +477,7 @@ void IOCALL CRTC::StartDisplay(uint) {
 // ---------------------------------------------------------------------------
 //  １行分取得
 //
-void IOCALL CRTC::ExpandLine(uint) {
+void IOCALL CRTC::ExpandLine(uint32_t) {
   int e = ExpandLineSub();
   if (e) {
     event = e + 1;
@@ -541,7 +541,7 @@ int CRTC::ExpandLineSub() {
   return 0;
 }
 
-inline void IOCALL CRTC::ExpandLineEnd(uint) {
+inline void IOCALL CRTC::ExpandLineEnd(uint32_t) {
   //  LOG0("Vertical Retrace\n");
   bus->Out(PC88::vrtc, 1);
   event = -1;
@@ -608,14 +608,14 @@ void CRTC::UpdateScreen(uint8_t* image, int _bpl, Draw::Region& region, bool ref
 //  テキスト画面消去
 //
 void CRTC::ClearText(uint8_t* dest) {
-  uint y;
+  uint32_t y;
 
   //  screenheight = 300;
   for (y = 0; y < screenheight; y++) {
     packed* d = reinterpret_cast<packed*>(dest);
     packed mask = pat_mask;
 
-    for (uint x = 640 / sizeof(packed) / 4; x > 0; x--) {
+    for (uint32_t x = 640 / sizeof(packed) / 4; x > 0; x--) {
       d[0] = (d[0] & mask) | TEXT_RESP;
       d[1] = (d[1] & mask) | TEXT_RESP;
       d[2] = (d[2] & mask) | TEXT_RESP;
@@ -630,7 +630,7 @@ void CRTC::ClearText(uint8_t* dest) {
     packed* d = reinterpret_cast<packed*>(dest);
     packed mask = pat_mask;
 
-    for (uint x = 640 / sizeof(packed) / 4; x > 0; x--) {
+    for (uint32_t x = 640 / sizeof(packed) / 4; x > 0; x--) {
       d[0] = (d[0] & mask) | pat0;
       d[1] = (d[1] & mask) | pat0;
       d[2] = (d[2] & mask) | pat0;
@@ -665,7 +665,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
   uint8_t* cache = vram[bank ^= 1];  // + y * linesize;
   uint8_t* cache_attr = attrcache;   // + y * width;
 
-  uint left = 999;
+  uint32_t left = 999;
   int right = -1;
 
   for (int y = 0; y <= yy; y++, image += linestep) {
@@ -675,7 +675,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
 
       int rightl = -1;
       if (widefont) {
-        for (uint x = 0; x < width; x += 2) {
+        for (uint32_t x = 0; x < width; x += 2) {
           uint8_t a = attrflag[x];
           if ((src[x] ^ cache[x]) | (a ^ cache_attr[x])) {
             pat_col = colorpattern[(a >> 5) & 7];
@@ -687,7 +687,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
           }
         }
       } else {
-        for (uint x = 0; x < width; x++) {
+        for (uint32_t x = 0; x < width; x++) {
           uint8_t a = attrflag[x];
           //                  LOG1("%.2x ", a);
           if ((src[x] ^ cache[x]) | (a ^ cache_attr[x])) {
@@ -721,7 +721,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
 // ---------------------------------------------------------------------------
 //  アトリビュート情報を展開
 //
-void CRTC::ExpandAttributes(uint8_t* dest, const uint8_t* src, uint y) {
+void CRTC::ExpandAttributes(uint8_t* dest, const uint8_t* src, uint32_t y) {
   int i;
 
   if (attrperline == 0) {
@@ -731,7 +731,7 @@ void CRTC::ExpandAttributes(uint8_t* dest, const uint8_t* src, uint y) {
 
   // コントロールコード有効時にはアトリビュートが1組減るという
   // 記述がどこかにあったけど、嘘ですか？
-  uint nattrs = attrperline;  // - (mode & control ? 1 : 0);
+  uint32_t nattrs = attrperline;  // - (mode & control ? 1 : 0);
 
   // アトリビュート展開
   //  文献では 2 byte で一組となっているが、実は桁と属性は独立している模様
@@ -776,14 +776,14 @@ void CRTC::ChangeAttr(uint8_t code) {
 // ---------------------------------------------------------------------------
 //  フォントのアドレスを取得
 //
-inline const uint8_t* CRTC::GetFont(uint c) {
+inline const uint8_t* CRTC::GetFont(uint32_t c) {
   return font + c * 64;
 }
 
 // ---------------------------------------------------------------------------
 //  フォント(40文字)のアドレスを取得
 //
-inline const uint8_t* CRTC::GetFontW(uint c) {
+inline const uint8_t* CRTC::GetFontW(uint32_t c) {
   return font + 0x8000 + c * 128;
 }
 
@@ -806,7 +806,7 @@ inline void CRTC::PutChar(packed* dest, uint8_t ch, uint8_t attr) {
 //  普通のテキスト文字
 //
 void CRTC::PutNormal(packed* dest, const packed* src) {
-  uint h;
+  uint32_t h;
 
   for (h = 0; h < linecharlimit; h += 2) {
     packed x = *src++ | pat_col;
@@ -830,7 +830,7 @@ void CRTC::PutNormal(packed* dest, const packed* src) {
 //  テキスト反転表示
 //
 void CRTC::PutReversed(packed* dest, const packed* src) {
-  uint h;
+  uint32_t h;
 
   for (h = 0; h < linecharlimit; h += 2) {
     packed x = (*src++ ^ pat_rev) | pat_col;
@@ -897,7 +897,7 @@ inline void CRTC::PutCharW(packed* dest, uint8_t ch, uint8_t attr) {
 //  普通のテキスト文字
 //
 void CRTC::PutNormalW(packed* dest, const packed* src) {
-  uint h;
+  uint32_t h;
   packed x, y;
 
   for (h = 0; h < linecharlimit; h += 2) {
@@ -930,7 +930,7 @@ void CRTC::PutNormalW(packed* dest, const packed* src) {
 //  テキスト反転表示
 //
 void CRTC::PutReversedW(packed* dest, const packed* src) {
-  uint h;
+  uint32_t h;
   packed x, y;
 
   for (h = 0; h < linecharlimit; h += 2) {
@@ -1002,7 +1002,7 @@ void CRTC::PutLineReversedW(packed* dest, uint8_t attr) {
 // ---------------------------------------------------------------------------
 //  OUT
 //
-void IOCALL CRTC::PCGOut(uint p, uint d) {
+void IOCALL CRTC::PCGOut(uint32_t p, uint32_t d) {
   switch (p) {
     case 0:
       pcgdat = d;
@@ -1016,7 +1016,7 @@ void IOCALL CRTC::PCGOut(uint p, uint d) {
   }
 
   if (pcgadr & 0x1000) {
-    uint tmp = (pcgadr & 0x2000) ? fontrom[0x400 + (pcgadr & 0x3ff)] : pcgdat;
+    uint32_t tmp = (pcgadr & 0x2000) ? fontrom[0x400 + (pcgadr & 0x3ff)] : pcgdat;
     LOG2("PCG: %.4x <- %.2x\n", pcgadr, tmp);
     pcgram[pcgadr & 0x3ff] = tmp;
     if (pcgenable)
@@ -1042,7 +1042,7 @@ void CRTC::EnablePCG(bool enable) {
 //  OUT 33H (80SR)
 //  bit4 = ひらがな(1)・カタカナ(0)選択
 //
-void IOCALL CRTC::SetKanaMode(uint, uint data) {
+void IOCALL CRTC::SetKanaMode(uint32_t, uint32_t data) {
   if (kanaenable) {
     // ROMに3つフォントが用意されているが1以外は切り替わらない。
     data &= 0x10;
@@ -1074,7 +1074,7 @@ const packed CRTC::colorpattern[8] = {PACK(0), PACK(1), PACK(2), PACK(3),
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint IFCALL CRTC::GetStatusSize() {
+uint32_t IFCALL CRTC::GetStatusSize() {
   return sizeof(Status);
 }
 

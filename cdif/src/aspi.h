@@ -20,28 +20,28 @@ class ASPI {
   ASPI();
   ~ASPI();
 
-  uint GetNHostAdapters() { return nhostadapters; }
-  bool PrintHAInquiry(uint ha);
-  bool InquiryAdapter(uint ha, uint* maxid, uint* maxxfer);
-  int GetDeviceType(uint ha, uint id, uint lun);
-  int ExecuteSCSICommand(uint ha,
-                         uint id,
-                         uint lun,
+  uint32_t GetNHostAdapters() { return nhostadapters; }
+  bool PrintHAInquiry(uint32_t ha);
+  bool InquiryAdapter(uint32_t ha, uint32_t* maxid, uint32_t* maxxfer);
+  int GetDeviceType(uint32_t ha, uint32_t id, uint32_t lun);
+  int ExecuteSCSICommand(uint32_t ha,
+                         uint32_t id,
+                         uint32_t lun,
                          void* cdb,
-                         uint cdblen,
-                         uint dir = 0,
+                         uint32_t cdblen,
+                         uint32_t dir = 0,
                          void* data = 0,
-                         uint datalen = 0);
+                         uint32_t datalen = 0);
 
  private:
   uint32_t SendCommand(void*);
   uint32_t SendCommandAndWait(void*);
   bool ConnectAPI();
-  void AbortService(uint, void*);
+  void AbortService(uint32_t, void*);
 
   uint32_t(__cdecl* psac)(void*);
   uint32_t(__cdecl* pgasi)();
-  uint nhostadapters;
+  uint32_t nhostadapters;
   HANDLE hevent;
   HMODULE hmod;
 };
@@ -63,20 +63,20 @@ struct LONGBE {
 struct TRIBE {
   uint8_t image[3];
   TRIBE() {}
-  TRIBE(uint a) {
+  TRIBE(uint32_t a) {
     image[0] = uint8_t(a >> 16);
     image[1] = uint8_t(a >> 8);
     image[2] = uint8_t(a);
   }
-  operator uint() { return image[2] + image[1] * 0x100 + image[0] * 0x10000; }
+  operator uint32_t() { return image[2] + image[1] * 0x100 + image[0] * 0x10000; }
 };
 
 struct WORDBE {
   uint8_t image[2];
   WORDBE() {}
-  WORDBE(uint a) {
+  WORDBE(uint32_t a) {
     image[0] = uint8_t(a >> 8);
     image[1] = uint8_t(a);
   }
-  operator uint() { return image[1] + image[0] * 0x100; }
+  operator uint32_t() { return image[1] + image[0] * 0x100; }
 };

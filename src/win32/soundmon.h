@@ -23,7 +23,7 @@ class OPNMonitor : public WinMonitor, public ISoundSource {
 
   bool Init(PC8801::OPNIF* opn, ISoundControl* soundcontrol);
 
-  bool IFCALL SetRate(uint rate) { return true; }
+  bool IFCALL SetRate(uint32_t rate) { return true; }
   void IFCALL Mix(int32_t* s, int length);
 
  private:
@@ -45,9 +45,9 @@ class OPNMonitor : public WinMonitor, public ISoundSource {
   void Start();
   void Stop();
 
-  uint mask;
-  uint read;
-  uint write;
+  uint32_t mask;
+  uint32_t read;
+  uint32_t write;
   int dim;
   int dimvector;
   int width;

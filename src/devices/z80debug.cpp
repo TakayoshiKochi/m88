@@ -73,46 +73,46 @@ int Z80Debug::Exec(int clocks) {
 
 // ----------------------------------------------------------------------------
 
-inline uint Z80Debug::Read8(uint a) {
+inline uint32_t Z80Debug::Read8(uint32_t a) {
   return bus->Read8(a);
 }
 
-inline void Z80Debug::Write8(uint a, uint d) {
+inline void Z80Debug::Write8(uint32_t a, uint32_t d) {
   bus->Write8(a, d);
 }
 
 // ----------------------------------------------------------------------------
 
-uint Z80Debug::In(uint a) {
-  uint data = bus->In(a);
+uint32_t Z80Debug::In(uint32_t a) {
+  uint32_t data = bus->In(a);
   return data;
 }
 
-void Z80Debug::Out(uint a, uint d) {
+void Z80Debug::Out(uint32_t a, uint32_t d) {
   bus->Out(a, d);
 }
 
 // ----------------------------------------------------------------------------
 
-void Z80Debug::Reset(uint, uint) {
+void Z80Debug::Reset(uint32_t, uint32_t) {
   cpu.Reset();
 }
 
-void Z80Debug::IRQ(uint, uint d) {
+void Z80Debug::IRQ(uint32_t, uint32_t d) {
   cpu.IRQ(0, d);
 }
 
-void Z80Debug::NMI(uint, uint) {
+void Z80Debug::NMI(uint32_t, uint32_t) {
   cpu.NMI();
 }
 
 // ----------------------------------------------------------------------------
 
-uint Z80Debug::S_Read8(void* inst, uint a) {
+uint32_t Z80Debug::S_Read8(void* inst, uint32_t a) {
   return ((Z80Debug*)(inst))->Read8(a);
 }
 
-void Z80Debug::S_Write8(void* inst, uint a, uint d) {
+void Z80Debug::S_Write8(void* inst, uint32_t a, uint32_t d) {
   ((Z80Debug*)(inst))->Write8(a, d);
 }
 

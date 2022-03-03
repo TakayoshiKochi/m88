@@ -29,8 +29,8 @@ class MemoryMonitor : public MemViewMonitor {
   BOOL EDlgProc(HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK EDlgProcGate(HWND, UINT, WPARAM, LPARAM);
 
-  static uint MemRead(void* p, uint a);
-  static void MemWrite(void* p, uint a, uint d);
+  static uint32_t MemRead(void* p, uint32_t a);
+  static void MemWrite(void* p, uint32_t a, uint32_t d);
 
   void Start();
   void Stop();
@@ -38,10 +38,10 @@ class MemoryMonitor : public MemViewMonitor {
   void UpdateText();
   bool SaveImage();
 
-  void SetWatch(uint, uint);
+  void SetWatch(uint32_t, uint32_t);
 
   void ExecCommand();
-  void Search(uint key, int bytes);
+  void Search(uint32_t key, int bytes);
 
   void SetBank();
 
@@ -49,7 +49,7 @@ class MemoryMonitor : public MemViewMonitor {
   IMemoryManager* mm;
   IGetMemoryBank* gmb;
   int mid;
-  uint time;
+  uint32_t time;
 
   int prevaddr, prevlines;
 
@@ -61,7 +61,7 @@ class MemoryMonitor : public MemViewMonitor {
 
   char line[0x100];
   uint8_t stat[0x10000];
-  uint access[0x10000];
+  uint32_t access[0x10000];
 
   static COLORREF col[0x100];
 };

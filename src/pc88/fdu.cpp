@@ -58,7 +58,7 @@ bool FDU::Unmount() {
 //  FDU::SetHead
 //  ヘッドの指定
 //
-inline void FDU::SetHead(uint hd) {
+inline void FDU::SetHead(uint32_t hd) {
   head = hd & 1;
   track = (cyrinder << 1) + (hd & 1);
   disk->Seek(track);
@@ -68,7 +68,7 @@ inline void FDU::SetHead(uint hd) {
 //  FDU::ReadID
 //  セクタを一個とってくる
 //
-uint FDU::ReadID(uint flags, IDR* id) {
+uint32_t FDU::ReadID(uint32_t flags, IDR* id) {
   if (disk) {
     SetHead(flags);
 
@@ -94,7 +94,7 @@ uint FDU::ReadID(uint flags, IDR* id) {
 //
 //  cyrinder シーク先
 //
-uint FDU::Seek(uint cy) {
+uint32_t FDU::Seek(uint32_t cy) {
   cyrinder = cy;
   return 0;
 }
@@ -107,7 +107,7 @@ uint FDU::Seek(uint cy) {
 //  id      読み込むセクタのセクタ ID
 //  data    データの転送先
 //
-uint FDU::ReadSector(uint flags, IDR id, uint8_t* data) {
+uint32_t FDU::ReadSector(uint32_t flags, IDR id, uint8_t* data) {
   if (!disk)
     return FDC::ST0_AT | FDC::ST1_MA;
   SetHead(flags);
@@ -149,7 +149,7 @@ uint FDU::ReadSector(uint flags, IDR id, uint8_t* data) {
 //  FDU::WriteSector
 //  セクタに書く
 //
-uint FDU::WriteSector(uint flags, IDR id, const uint8_t* data, bool deleted) {
+uint32_t FDU::WriteSector(uint32_t flags, IDR id, const uint8_t* data, bool deleted) {
   if (!disk)
     return FDC::ST0_AT | FDC::ST1_MA;
   SetHead(flags);
@@ -169,7 +169,7 @@ uint FDU::WriteSector(uint flags, IDR id, const uint8_t* data, bool deleted) {
     cy = rid.c;
 
     if (rid == id) {
-      uint writesize = 0x80 << Min(8, id.n);
+      uint32_t writesize = 0x80 << Min(8, id.n);
 
       if (writesize > sector->size) {
         if (!disk->Resize(sector, writesize))
@@ -197,8 +197,8 @@ uint FDU::WriteSector(uint flags, IDR id, const uint8_t* data, bool deleted) {
 //  FDU::SenceDeviceStatus
 //  デバイス・スタータスを得る
 //
-uint FDU::SenceDeviceStatus() {
-  uint result = 0x20 | (cyrinder ? 0 : 0x10) | (head ? 4 : 0);
+uint32_t FDU::SenceDeviceStatus() {
+  uint32_t result = 0x20 | (cyrinder ? 0 : 0x10) | (head ? 4 : 0);
   if (disk)
     result |= disk->IsReadOnly() ? 0x48 : 8;
   return result;
@@ -207,7 +207,7 @@ uint FDU::SenceDeviceStatus() {
 // ---------------------------------------------------------------------------
 //  FDU::WriteID
 //
-uint FDU::WriteID(uint flags, WIDDESC* wid) {
+uint32_t FDU::WriteID(uint32_t flags, WIDDESC* wid) {
   int i;
 
   if (!disk)
@@ -218,8 +218,8 @@ uint FDU::WriteID(uint flags, WIDDESC* wid) {
   SetHead(flags);
 
   // トラックサイズ計算
-  uint sot = 0;
-  uint sos = 0x80 << Min(8, wid->n);
+  uint32_t sot = 0;
+  uint32_t sos = 0x80 << Min(8, wid->n);
 
   for (i = wid->sc; i > 0; i--) {
     if (sot + sos + 0x40 > disk->GetTrackCapacity())
@@ -253,7 +253,7 @@ uint FDU::WriteID(uint flags, WIDDESC* wid) {
 // ---------------------------------------------------------------------------
 //  FindID
 //
-uint FDU::FindID(uint flags, IDR id) {
+uint32_t FDU::FindID(uint32_t flags, IDR id) {
   if (!disk)
     return FDC::ST0_AT | FDC::ST1_MA;
 
@@ -276,7 +276,7 @@ uint FDU::FindID(uint flags, IDR id) {
 // ---------------------------------------------------------------------------
 //  ReadDiag 用のデータ作成
 //
-uint FDU::MakeDiagData(uint flags, uint8_t* data, uint* size) {
+uint32_t FDU::MakeDiagData(uint32_t flags, uint8_t* data, uint32_t* size) {
   if (!disk)
     return FDC::ST0_AT | FDC::ST1_MA;
   SetHead(flags);
@@ -383,7 +383,7 @@ uint FDU::MakeDiagData(uint flags, uint8_t* data, uint* size) {
 // ---------------------------------------------------------------------------
 //  ReadDiag 本体
 //
-uint FDU::ReadDiag(uint8_t* data, uint8_t** cursor, IDR idr) {
+uint32_t FDU::ReadDiag(uint8_t* data, uint8_t** cursor, IDR idr) {
   uint8_t* dest = *cursor;
   DiagInfo* diaginfo = (DiagInfo*)(data + 0x3800);
 

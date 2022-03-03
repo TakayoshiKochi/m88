@@ -30,12 +30,12 @@ class FileIO {
 
  public:
   FileIO();
-  FileIO(const char* filename, uint flg = 0);
+  FileIO(const char* filename, uint32_t flg = 0);
   virtual ~FileIO();
 
-  bool Open(const char* filename, uint flg = 0);
+  bool Open(const char* filename, uint32_t flg = 0);
   bool CreateNew(const char* filename);
-  bool Reopen(uint flg = 0);
+  bool Reopen(uint32_t flg = 0);
   void Close();
   Error GetError() { return error; }
 
@@ -45,12 +45,12 @@ class FileIO {
   int32_t Tellp();
   bool SetEndOfFile();
 
-  uint GetFlags() { return flags; }
+  uint32_t GetFlags() { return flags; }
   void SetLogicalOrigin(int32_t origin) { lorigin = origin; }
 
  private:
   HANDLE hfile;
-  uint flags;
+  uint32_t flags;
   uint32_t lorigin;
   Error error;
   char path[MAX_PATH];

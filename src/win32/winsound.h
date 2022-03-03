@@ -61,8 +61,8 @@ class WinSound : public Sound {
   WinSound();
   ~WinSound();
 
-  bool Init(PC88* pc, HWND hwnd, uint rate, uint buflen);
-  bool ChangeRate(uint rate, uint buflen, bool wo);
+  bool Init(PC88* pc, HWND hwnd, uint32_t rate, uint32_t buflen);
+  bool ChangeRate(uint32_t rate, uint32_t buflen, bool wo);
 
   void ApplyConfig(const Config* config);
 
@@ -73,16 +73,16 @@ class WinSound : public Sound {
   void SetSoundMonitor(OPNMonitor* mon) { soundmon = mon; }
 
  private:
-  bool InitSoundBuffer(LPDIRECTSOUND lpds, uint rate);
+  bool InitSoundBuffer(LPDIRECTSOUND lpds, uint32_t rate);
   void Cleanup();
   //  int Get(Sample* dest, int samples);
 
   WinSoundDriver::Driver* driver;
 
   HWND hwnd;
-  uint currentrate;
-  uint currentbuflen;
-  uint samprate;
+  uint32_t currentrate;
+  uint32_t currentbuflen;
+  uint32_t samprate;
 
   OPNMonitor* soundmon;
   bool wodrv;

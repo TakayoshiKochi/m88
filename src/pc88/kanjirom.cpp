@@ -46,19 +46,19 @@ bool KanjiROM::Init(const char* filename) {
 // ---------------------------------------------------------------------------
 //  I/O
 //
-void IOCALL KanjiROM::SetL(uint, uint d) {
+void IOCALL KanjiROM::SetL(uint32_t, uint32_t d) {
   adr = (adr & ~0xff) | d;
 }
 
-void IOCALL KanjiROM::SetH(uint, uint d) {
+void IOCALL KanjiROM::SetH(uint32_t, uint32_t d) {
   adr = (adr & 0xff) | (d * 0x100);
 }
 
-uint IOCALL KanjiROM::ReadL(uint) {
+uint32_t IOCALL KanjiROM::ReadL(uint32_t) {
   return image[adr * 2 + 1];
 }
 
-uint IOCALL KanjiROM::ReadH(uint) {
+uint32_t IOCALL KanjiROM::ReadH(uint32_t) {
   return image[adr * 2];
 }
 

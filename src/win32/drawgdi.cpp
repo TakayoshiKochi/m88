@@ -23,7 +23,7 @@ WinDrawGDI::~WinDrawGDI() {
 // ---------------------------------------------------------------------------
 //  初期化処理
 //
-bool WinDrawGDI::Init(HWND hwindow, uint w, uint h, GUID*) {
+bool WinDrawGDI::Init(HWND hwindow, uint32_t w, uint32_t h, GUID*) {
   hwnd = hwindow;
 
   if (!Resize(w, h))
@@ -34,7 +34,7 @@ bool WinDrawGDI::Init(HWND hwindow, uint w, uint h, GUID*) {
 // ---------------------------------------------------------------------------
 //  画面有効範囲を変更
 //
-bool WinDrawGDI::Resize(uint w, uint h) {
+bool WinDrawGDI::Resize(uint32_t w, uint32_t h) {
   width = w;
   height = h;
 

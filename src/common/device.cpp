@@ -28,7 +28,7 @@ MemoryBus::~MemoryBus() {
 //          _pages  Page 構造体の array (外部で用意する場合)
 //                  省略時は MemoryBus で用意
 //
-bool MemoryBus::Init(uint npages, Page* _pages) {
+bool MemoryBus::Init(uint32_t npages, Page* _pages) {
   if (pages && ownpages)
     delete[] pages;
 
@@ -62,12 +62,12 @@ bool MemoryBus::Init(uint npages, Page* _pages) {
 // ---------------------------------------------------------------------------
 //  ダミー入出力関数
 //
-uint MemoryBus::rddummy(void*, uint addr) {
+uint32_t MemoryBus::rddummy(void*, uint32_t addr) {
   LOG2("bus: Read on undefined memory page 0x%x. (addr:0x%.4x)\n", addr >> pagebits, addr);
   return 0xff;
 }
 
-void MemoryBus::wrdummy(void*, uint addr, uint data) {
+void MemoryBus::wrdummy(void*, uint32_t addr, uint32_t data) {
   LOG3("bus: Write on undefined memory page 0x%x, (addr:0x%.4x data:0x%.2x)\n", addr >> pagebits,
        addr, data);
 }
@@ -80,7 +80,7 @@ IOBus::DummyIO IOBus::dummyio;
 IOBus::IOBus() : ins(0), outs(0), flags(0), banksize(0) {}
 
 IOBus::~IOBus() {
-  for (uint i = 0; i < banksize; i++) {
+  for (uint32_t i = 0; i < banksize; i++) {
     for (InBank* ib = ins[i].next; ib;) {
       InBank* nxt = ib->next;
       delete ib;
@@ -99,7 +99,7 @@ IOBus::~IOBus() {
 }
 
 //  初期化
-bool IOBus::Init(uint nbanks, DeviceList* dl) {
+bool IOBus::Init(uint32_t nbanks, DeviceList* dl) {
   devlist = dl;
 
   delete[] ins;
@@ -116,7 +116,7 @@ bool IOBus::Init(uint nbanks, DeviceList* dl) {
 
   memset(flags, 0, nbanks);
 
-  for (uint i = 0; i < nbanks; i++) {
+  for (uint32_t i = 0; i < nbanks; i++) {
     ins[i].device = &dummyio;
     ins[i].func = static_cast<InFuncPtr>(&DummyIO::dummyin);
     ins[i].next = 0;
@@ -153,7 +153,7 @@ bool IOBus::Connect(IDevice* device, const Connector* connector) {
   return true;
 }
 
-bool IOBus::ConnectIn(uint bank, IDevice* device, InFuncPtr func) {
+bool IOBus::ConnectIn(uint32_t bank, IDevice* device, InFuncPtr func) {
   InBank* i = &ins[bank];
   if (i->func == &DummyIO::dummyin) {
     // 最初の接続
@@ -172,7 +172,7 @@ bool IOBus::ConnectIn(uint bank, IDevice* device, InFuncPtr func) {
   return true;
 }
 
-bool IOBus::ConnectOut(uint bank, IDevice* device, OutFuncPtr func) {
+bool IOBus::ConnectOut(uint32_t bank, IDevice* device, OutFuncPtr func) {
   OutBank* i = &outs[bank];
   if (i->func == &DummyIO::dummyout) {
     // 最初の接続
@@ -195,7 +195,7 @@ bool IOBus::Disconnect(IDevice* device) {
   if (devlist)
     devlist->Del(device);
 
-  uint i;
+  uint32_t i;
   for (i = 0; i < banksize; i++) {
     InBank* current = &ins[i];
     InBank* referer = 0;
@@ -252,10 +252,10 @@ bool IOBus::Disconnect(IDevice* device) {
   return true;
 }
 
-uint IOBus::In(uint port) {
+uint32_t IOBus::In(uint32_t port) {
   InBank* list = &ins[port >> iobankbits];
 
-  uint data = 0xff;
+  uint32_t data = 0xff;
   do {
     data &= (list->device->*list->func)(port);
     list = list->next;
@@ -263,7 +263,7 @@ uint IOBus::In(uint port) {
   return data;
 }
 
-void IOBus::Out(uint port, uint data) {
+void IOBus::Out(uint32_t port, uint32_t data) {
   OutBank* list = &outs[port >> iobankbits];
   do {
     (list->device->*list->func)(port, data);
@@ -271,11 +271,11 @@ void IOBus::Out(uint port, uint data) {
   } while (list);
 }
 
-uint IOCALL IOBus::DummyIO::dummyin(uint) {
+uint32_t IOCALL IOBus::DummyIO::dummyin(uint32_t) {
   return IOBus::Active(0xff, 0xff);
 }
 
-void IOCALL IOBus::DummyIO::dummyout(uint, uint) {
+void IOCALL IOBus::DummyIO::dummyout(uint32_t, uint32_t) {
   return;
 }
 
@@ -362,8 +362,8 @@ DeviceList::Node* DeviceList::FindNode(const ID id) {
 // ---------------------------------------------------------------------------
 //  状態保存に必要なデータサイズを求める
 //
-uint DeviceList::GetStatusSize() {
-  uint size = sizeof(Header);
+uint32_t DeviceList::GetStatusSize() {
+  uint32_t size = sizeof(Header);
   for (Node* n = node; n; n = n->next) {
     int ds = n->entry->GetStatusSize();
     if (ds)

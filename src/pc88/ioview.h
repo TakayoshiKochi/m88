@@ -41,13 +41,13 @@ class IOViewer : public Device {
   }
   void Dim();
 
-  void IOCALL Out(uint = 0, uint = 0);
+  void IOCALL Out(uint32_t = 0, uint32_t = 0);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
  private:
   IIOBus* bus;
-  uint buf[0x100];
+  uint32_t buf[0x100];
 
  private:
   static const Descriptor descriptor;

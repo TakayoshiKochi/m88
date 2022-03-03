@@ -82,15 +82,15 @@ class FDC : public Device {
 
   bool IsBusy() { return phase != idlephase; }
 
-  void IOCALL Reset(uint = 0, uint = 0);
-  void IOCALL DriveControl(uint, uint data);    // 2HD/2DD 切り替えとか
-  void IOCALL MotorControl(uint, uint data) {}  // モーター制御
-  void IOCALL SetData(uint, uint data);         // データセット
-  uint IOCALL TC(uint);                         // TC
-  uint IOCALL Status(uint);                     // ステータス入力
-  uint IOCALL GetData(uint);                    // データ取得
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
+  void IOCALL DriveControl(uint32_t, uint32_t data);    // 2HD/2DD 切り替えとか
+  void IOCALL MotorControl(uint32_t, uint32_t data) {}  // モーター制御
+  void IOCALL SetData(uint32_t, uint32_t data);         // データセット
+  uint32_t IOCALL TC(uint32_t);                         // TC
+  uint32_t IOCALL Status(uint32_t);                     // ステータス入力
+  uint32_t IOCALL GetData(uint32_t);                    // データ取得
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
@@ -110,8 +110,8 @@ class FDC : public Device {
   };
 
   struct Drive {
-    uint cyrinder;
-    uint result;
+    uint32_t cyrinder;
+    uint32_t result;
     uint8_t hd;
     uint8_t dd;
   };
@@ -133,17 +133,17 @@ class FDC : public Device {
     bool int_requested;  // SENCEINTSTATUS の呼び出しを要求した
     bool accepttc;
 
-    uint bufptr;
-    uint count;  // Exec*Phase での転送残りバイト
+    uint32_t bufptr;
+    uint32_t count;  // Exec*Phase での転送残りバイト
     Phase phase, prevphase;
     Phase t_phase;
 
     IDR idr;
 
-    uint readdiagptr;
-    uint readdiaglim;
-    uint xbyte;
-    uint readdiagcount;
+    uint32_t readdiagptr;
+    uint32_t readdiaglim;
+    uint32_t xbyte;
+    uint32_t readdiagcount;
 
     WIDDESC wid;
     Drive dr[num_drives];
@@ -152,8 +152,8 @@ class FDC : public Device {
 
   typedef void (FDC::*CommandFunc)();
 
-  void Seek(uint dr, uint cy);
-  void IOCALL SeekEvent(uint dr);
+  void Seek(uint32_t dr, uint32_t cy);
+  void IOCALL SeekEvent(uint32_t dr);
   void ReadID();
   void ReadData(bool deleted, bool scan);
   void ReadDiagnostic();
@@ -162,12 +162,12 @@ class FDC : public Device {
 
   void SetTimer(Phase phase, int ticks);
   void DelTimer();
-  void IOCALL PhaseTimer(uint p);
+  void IOCALL PhaseTimer(uint32_t p);
   void Intr(bool i);
 
   bool IDIncrement();
   void GetSectorParameters();
-  uint CheckCondition(bool write);
+  uint32_t CheckCondition(bool write);
 
   void ShiftToIdlePhase();
   void ShiftToCommandPhase(int);
@@ -178,7 +178,7 @@ class FDC : public Device {
   void ShiftToResultPhase(int);
   void ShiftToResultPhase7();
 
-  uint GetDeviceStatus(uint dr);
+  uint32_t GetDeviceStatus(uint32_t dr);
 
   DiskManager* diskmgr;
   IOBus* bus;
@@ -186,14 +186,14 @@ class FDC : public Device {
   Scheduler* scheduler;
 
   Scheduler::Event* timerhandle;
-  uint seektime;
+  uint32_t seektime;
 
-  uint status;  // ステータスレジスタ
+  uint32_t status;  // ステータスレジスタ
   uint8_t* buffer;
   uint8_t* bufptr;
   int count;     // Exec*Phase での転送残りバイト
-  uint command;  // 現在処理中のコマンド
-  uint data;     // データレジスタ
+  uint32_t command;  // 現在処理中のコマンド
+  uint32_t data;     // データレジスタ
   Phase phase, prevphase;
   Phase t_phase;
   bool int_requested;  // SENCEINTSTATUS の呼び出しを要求した
@@ -203,21 +203,21 @@ class FDC : public Device {
   bool diskwait;
 
   IDR idr;
-  uint hdu;  // HD US1 US0
-  uint hdue;
-  uint dtl;
-  uint eot;
-  uint seekstate;
-  uint result;
+  uint32_t hdu;  // HD US1 US0
+  uint32_t hdue;
+  uint32_t dtl;
+  uint32_t eot;
+  uint32_t seekstate;
+  uint32_t result;
 
   uint8_t* readdiagptr;
   uint8_t* readdiaglim;
-  uint xbyte;
-  uint readdiagcount;
+  uint32_t xbyte;
+  uint32_t readdiagcount;
 
-  uint litdrive;
-  uint fdstat;
-  uint pfdstat;
+  uint32_t litdrive;
+  uint32_t fdstat;
+  uint32_t pfdstat;
 
   WIDDESC wid;
   Drive drive[4];

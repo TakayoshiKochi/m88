@@ -73,7 +73,7 @@ void CDControl::Cleanup() {
 // ---------------------------------------------------------------------------
 //  コマンドを実行
 //
-void CDControl::ExecCommand(uint cmd, uint arg1, uint arg2) {
+void CDControl::ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
   int ret = 0;
   switch (cmd) {
     case readtoc:
@@ -144,7 +144,7 @@ void CDControl::ExecCommand(uint cmd, uint arg1, uint arg2) {
 // ---------------------------------------------------------------------------
 //  現在の時間を求める
 //
-uint CDControl::GetTime() {
+uint32_t CDControl::GetTime() {
   if (diskpresent) {
     SubcodeQ sub;
     cdrom->ReadSubCh((uint8_t*)&sub, false);
@@ -157,14 +157,14 @@ uint CDControl::GetTime() {
 // ---------------------------------------------------------------------------
 //  コマンドを送る
 //
-bool CDControl::SendCommand(uint cmd, uint arg1, uint arg2) {
+bool CDControl::SendCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
   return !!PostThreadMessage(idthread, UM_CDCONTROL + cmd, arg1, arg2);
 }
 
 // ---------------------------------------------------------------------------
 //  スレッド
 //
-uint CDControl::ThreadMain() {
+uint32_t CDControl::ThreadMain() {
   MSG msg;
   while (GetMessage(&msg, 0, 0, 0) && !shouldterminate) {
     if (UM_CDCONTROL <= msg.message && msg.message < UM_CDCONTROL + ncmds)
@@ -173,7 +173,7 @@ uint CDControl::ThreadMain() {
   return 0;
 }
 
-uint __stdcall CDControl::ThreadEntry(LPVOID arg) {
+uint32_t __stdcall CDControl::ThreadEntry(LPVOID arg) {
   if (arg)
     return reinterpret_cast<CDControl*>(arg)->ThreadMain();
   else

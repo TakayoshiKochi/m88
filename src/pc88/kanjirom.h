@@ -24,25 +24,25 @@ class KanjiROM : public Device {
 
   bool Init(const char* filename);
 
-  void IOCALL SetL(uint p, uint d);
-  void IOCALL SetH(uint p, uint d);
-  uint IOCALL ReadL(uint p);
-  uint IOCALL ReadH(uint p);
+  void IOCALL SetL(uint32_t p, uint32_t d);
+  void IOCALL SetH(uint32_t p, uint32_t d);
+  uint32_t IOCALL ReadL(uint32_t p);
+  uint32_t IOCALL ReadH(uint32_t p);
 
-  uint IFCALL GetStatusSize() { return sizeof(uint); }
+  uint32_t IFCALL GetStatusSize() { return sizeof(uint32_t); }
   bool IFCALL SaveStatus(uint8_t* status) {
-    *(uint*)status = adr;
+    *(uint32_t*)status = adr;
     return true;
   }
   bool IFCALL LoadStatus(const uint8_t* status) {
-    adr = *(const uint*)status;
+    adr = *(const uint32_t*)status;
     return true;
   }
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
  private:
-  uint adr;
+  uint32_t adr;
   uint8_t* image;
 
   static const Descriptor descriptor;

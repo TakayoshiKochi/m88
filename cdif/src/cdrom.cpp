@@ -212,7 +212,7 @@ bool CDROM::PlayTrack(int t, bool one) {
 // --------------------------------------------------------------------------
 //  トラックの再生
 //
-bool CDROM::PlayAudio(uint begin, uint stop) {
+bool CDROM::PlayAudio(uint32_t begin, uint32_t stop) {
   if (stop < begin)
     return false;
 
@@ -288,7 +288,7 @@ bool CDROM::Stop() {
 // --------------------------------------------------------------------------
 //  CD 上のセクタを読み出す
 //
-bool CDROM::Read(uint sector, uint8_t* dest, int length) {
+bool CDROM::Read(uint32_t sector, uint8_t* dest, int length) {
   CDB_Read cdb;
 
   cdb.id = 0x28;
@@ -312,7 +312,7 @@ bool CDROM::Read(uint sector, uint8_t* dest, int length) {
 // --------------------------------------------------------------------------
 //  2340 バイト読む
 //
-bool CDROM::Read2(uint sector, uint8_t* dest, int length) {
+bool CDROM::Read2(uint32_t sector, uint8_t* dest, int length) {
   CDB_ReadCD cdb;
   memset(&cdb, 0, sizeof(cdb));
 
@@ -336,7 +336,7 @@ bool CDROM::Read2(uint sector, uint8_t* dest, int length) {
 // --------------------------------------------------------------------------
 //  CD-DA セクタの読み込み
 //
-bool CDROM::ReadCDDA(uint sector, uint8_t* dest, int length) {
+bool CDROM::ReadCDDA(uint32_t sector, uint8_t* dest, int length) {
   CDB_ReadCD cdb;
   memset(&cdb, 0, sizeof(cdb));
 
@@ -375,10 +375,10 @@ bool CDROM::CheckMedia() {
 // SCSIコマンド発行
 int CDROM::ExecuteSCSICommand(HANDLE _hdev,
                               void* _cdb,
-                              uint _cdblen,
-                              uint direction,
+                              uint32_t _cdblen,
+                              uint32_t direction,
                               void* _data,
-                              uint _datalen) {
+                              uint32_t _datalen) {
   SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER swb;
   ULONG length = sizeof(SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER);  // 構造体のサイズ
   ::memset(&swb, 0, sizeof(SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER));

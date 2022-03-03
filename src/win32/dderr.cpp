@@ -13,7 +13,7 @@
 
 const char* GetDDERR(HRESULT hr) {
   const char* err = 0;
-  switch ((uint)hr) {
+  switch ((uint32_t)hr) {
     ERR(DDERR_ALREADYINITIALIZED);
     ERR(DDERR_CANNOTATTACHSURFACE);
     ERR(DDERR_CANNOTDETACHSURFACE);

@@ -42,7 +42,7 @@ WinDrawDDW::~WinDrawDDW() {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool WinDrawDDW::Init(HWND hwindow, uint w, uint h, GUID*) {
+bool WinDrawDDW::Init(HWND hwindow, uint32_t w, uint32_t h, GUID*) {
   hwnd = hwindow;
 
   width = w;
@@ -63,7 +63,7 @@ bool WinDrawDDW::Init(HWND hwindow, uint w, uint h, GUID*) {
   return true;
 }
 
-bool WinDrawDDW::Resize(uint w, uint h) {
+bool WinDrawDDW::Resize(uint32_t w, uint32_t h) {
   width = w;
   height = h;
 

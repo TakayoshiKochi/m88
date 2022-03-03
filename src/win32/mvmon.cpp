@@ -167,7 +167,7 @@ void MemViewMonitor::SetBank() {
   Update();
 }
 
-uint MemViewMonitor::StatExec(uint a) {
+uint32_t MemViewMonitor::StatExec(uint32_t a) {
   int ex = mv.StatExec(a);
   if (!ex)
     return 0;
@@ -176,7 +176,7 @@ uint MemViewMonitor::StatExec(uint a) {
 
 void MemViewMonitor::StatClear() {
   //  mv.StatClear();
-  uint* st = mv.StatExecBuf();
+  uint32_t* st = mv.StatExecBuf();
   if (st) {
     for (int i = 0; i < 0x10000; i++) {
       *st = (*st + 1) / 2;

@@ -22,7 +22,7 @@ MemoryManagerBase::~MemoryManagerBase() {
 // ---------------------------------------------------------------------------
 //  下準備
 //
-bool MemoryManagerBase::Init(uint sas, Page* expages) {
+bool MemoryManagerBase::Init(uint32_t sas, Page* expages) {
   Cleanup();
 
   // pages
@@ -89,7 +89,7 @@ int MemoryManagerBase::Connect(void* inst, bool high) {
     // 空の lsp を探す
     if (!ls.inst) {
       ls.inst = inst;
-      for (uint i = 0; i < npages; i++) {
+      for (uint32_t i = 0; i < npages; i++) {
         ls.pages[i].ptr = 0;
       }
       return pid;
@@ -101,7 +101,7 @@ int MemoryManagerBase::Connect(void* inst, bool high) {
 // ---------------------------------------------------------------------------
 //  デバイスを取り外す
 //
-bool MemoryManagerBase::Disconnect(uint pid) {
+bool MemoryManagerBase::Disconnect(uint32_t pid) {
   Release(pid, 0, npages);
   lsp[pid].inst = 0;
   return true;
@@ -121,11 +121,11 @@ bool MemoryManagerBase::Disconnect(void* inst) {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool ReadMemManager::Init(uint sas, Page* _pages) {
+bool ReadMemManager::Init(uint32_t sas, Page* _pages) {
   if (!MemoryManagerBase::Init(sas, _pages))
     return false;
 
-  for (uint i = 0; i < npages; i++) {
+  for (uint32_t i = 0; i < npages; i++) {
     pages[i].ptr = intptr_t(UndefinedRead);
     pages[i].func = true;
   }
@@ -135,7 +135,7 @@ bool ReadMemManager::Init(uint sas, Page* _pages) {
 // ---------------------------------------------------------------------------
 //  指定された pid の直後のメモリ空間の読み込み
 //
-uint ReadMemManager::Read8P(uint pid, uint addr) {
+uint32_t ReadMemManager::Read8P(uint32_t pid, uint32_t addr) {
   assert(pid < ndevices - 1);
 
   int page = addr >> pagebits;
@@ -150,7 +150,7 @@ uint ReadMemManager::Read8P(uint pid, uint addr) {
 // ---------------------------------------------------------------------------
 //  えらー
 //
-uint ReadMemManager::UndefinedRead(void*, uint addr) {
+uint32_t ReadMemManager::UndefinedRead(void*, uint32_t addr) {
   LOG2("bus: Read on undefined memory page 0x%x. (addr:0x%.4x)\n", addr >> pagebits, addr);
   return 0xff;
 }
@@ -158,11 +158,11 @@ uint ReadMemManager::UndefinedRead(void*, uint addr) {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool WriteMemManager::Init(uint sas, Page* _pages) {
+bool WriteMemManager::Init(uint32_t sas, Page* _pages) {
   if (!MemoryManagerBase::Init(sas, _pages))
     return false;
 
-  for (uint i = 0; i < npages; i++) {
+  for (uint32_t i = 0; i < npages; i++) {
     pages[i].ptr = intptr_t(UndefinedWrite);
     pages[i].func = true;
   }
@@ -172,7 +172,7 @@ bool WriteMemManager::Init(uint sas, Page* _pages) {
 // ---------------------------------------------------------------------------
 //  指定された pid の直後のメモリ空間に対する書込み
 //
-void WriteMemManager::Write8P(uint pid, uint addr, uint data) {
+void WriteMemManager::Write8P(uint32_t pid, uint32_t addr, uint32_t data) {
   assert(pid < ndevices - 1);
 
   int page = addr >> pagebits;
@@ -187,6 +187,6 @@ void WriteMemManager::Write8P(uint pid, uint addr, uint data) {
 // ---------------------------------------------------------------------------
 //  えらー
 //
-void WriteMemManager::UndefinedWrite(void*, uint addr, uint) {
+void WriteMemManager::UndefinedWrite(void*, uint32_t addr, uint32_t) {
   LOG2("bus: Write on undefined memory page 0x%x. (addr:0x%.4x)\n", addr >> pagebits, addr);
 }

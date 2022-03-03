@@ -30,17 +30,17 @@ class Base : public Device {
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
   void SetSwitch(const Config* cfg);
-  uint GetBasicMode() { return bmode; }
-  void IOCALL Reset(uint = 0, uint = 0);
+  uint32_t GetBasicMode() { return bmode; }
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
   void SetFDBoot(bool autoboot_) { autoboot = autoboot_; }
 
-  void IOCALL RTC(uint = 0);
-  void IOCALL VRTC(uint, uint en);
+  void IOCALL RTC(uint32_t = 0);
+  void IOCALL VRTC(uint32_t, uint32_t en);
 
-  uint IOCALL In30(uint);
-  uint IOCALL In31(uint);
-  uint IOCALL In40(uint);
-  uint IOCALL In6e(uint);
+  uint32_t IOCALL In30(uint32_t);
+  uint32_t IOCALL In31(uint32_t);
+  uint32_t IOCALL In40(uint32_t);
+  uint32_t IOCALL In6e(uint32_t);
 
  private:
   PC88* pc;

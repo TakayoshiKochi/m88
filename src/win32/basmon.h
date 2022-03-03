@@ -35,11 +35,11 @@ class BasicMonitor : public WinMonitor {
   MemoryViewer mv;
   MemoryBus* bus;
 
-  uint Read8(uint adr);
-  uint Read16(uint adr);
-  uint Read32(uint adr);
+  uint32_t Read8(uint32_t adr);
+  uint32_t Read16(uint32_t adr);
+  uint32_t Read32(uint32_t adr);
 
-  uint prvs;
+  uint32_t prvs;
 
   static const char* rsvdword[];
 };

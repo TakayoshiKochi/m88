@@ -80,16 +80,16 @@ class Memory : public Device, public IGetMemoryBank {
 
   void ApplyConfig(const Config* cfg);
   uint8_t* GetRAM() { return ram; }
-  uint8_t* GetERAM(uint bank) { return ((bank < erambanks) ? &eram[bank * 0x8000] : ram); }
+  uint8_t* GetERAM(uint32_t bank) { return ((bank < erambanks) ? &eram[bank * 0x8000] : ram); }
   uint8_t* GetTVRAM() { return tvram; }
   quadbyte* GetGVRAM() { return gvram; }
   uint8_t* GetROM() { return rom; }
   uint8_t* GetDirtyFlag() { return dirty; }
 
-  uint IFCALL GetRdBank(uint addr);
-  uint IFCALL GetWrBank(uint addr);
+  uint32_t IFCALL GetRdBank(uint32_t addr);
+  uint32_t IFCALL GetWrBank(uint32_t addr);
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL LoadStatus(const uint8_t* status);
   bool IFCALL SaveStatus(uint8_t* status);
   bool IsN80Ready() { return !!n80rom; }
@@ -97,34 +97,34 @@ class Memory : public Device, public IGetMemoryBank {
   bool IsCDBIOSReady() { return !!cdbios; }
 
   bool Init(MemoryManager* mgr, IOBus* bus, CRTC* crtc, int* waittbl);
-  void IOCALL Reset(uint, uint);
-  void IOCALL Out31(uint, uint data);
-  void IOCALL Out32(uint, uint data);
-  void IOCALL Out33(uint, uint data);
-  void IOCALL Out34(uint, uint data);
-  void IOCALL Out35(uint, uint data);
-  void IOCALL Out40(uint, uint data);
-  void IOCALL Out5x(uint port, uint);
-  void IOCALL Out70(uint, uint data);
-  void IOCALL Out71(uint, uint data);
-  void IOCALL Out78(uint, uint data);
-  void IOCALL Out99(uint, uint data);
-  void IOCALL Oute2(uint, uint data);
-  void IOCALL Oute3(uint, uint data);
-  void IOCALL Outf0(uint, uint data);
-  void IOCALL Outf1(uint, uint data);
-  uint IOCALL In32(uint);
-  uint IOCALL In33(uint);
-  uint IOCALL In5c(uint);
-  uint IOCALL In70(uint);
-  uint IOCALL In71(uint);
-  uint IOCALL Ine2(uint);
-  uint IOCALL Ine3(uint);
-  void IOCALL VRTC(uint, uint data);
+  void IOCALL Reset(uint32_t, uint32_t);
+  void IOCALL Out31(uint32_t, uint32_t data);
+  void IOCALL Out32(uint32_t, uint32_t data);
+  void IOCALL Out33(uint32_t, uint32_t data);
+  void IOCALL Out34(uint32_t, uint32_t data);
+  void IOCALL Out35(uint32_t, uint32_t data);
+  void IOCALL Out40(uint32_t, uint32_t data);
+  void IOCALL Out5x(uint32_t port, uint32_t);
+  void IOCALL Out70(uint32_t, uint32_t data);
+  void IOCALL Out71(uint32_t, uint32_t data);
+  void IOCALL Out78(uint32_t, uint32_t data);
+  void IOCALL Out99(uint32_t, uint32_t data);
+  void IOCALL Oute2(uint32_t, uint32_t data);
+  void IOCALL Oute3(uint32_t, uint32_t data);
+  void IOCALL Outf0(uint32_t, uint32_t data);
+  void IOCALL Outf1(uint32_t, uint32_t data);
+  uint32_t IOCALL In32(uint32_t);
+  uint32_t IOCALL In33(uint32_t);
+  uint32_t IOCALL In5c(uint32_t);
+  uint32_t IOCALL In70(uint32_t);
+  uint32_t IOCALL In71(uint32_t);
+  uint32_t IOCALL Ine2(uint32_t);
+  uint32_t IOCALL Ine3(uint32_t);
+  void IOCALL VRTC(uint32_t, uint32_t data);
 
  private:
   struct WaitDesc {
-    uint b0, bc, bf;
+    uint32_t b0, bc, bf;
   };
 
   enum {
@@ -147,7 +147,7 @@ class Memory : public Device, public IGetMemoryBank {
   bool LoadROMImage(uint8_t* at, const char* file, int length);
   bool LoadOptROM(const char* file, uint8_t*& rom, int length);
   void SetWait();
-  void SetWaits(uint, uint, uint);
+  void SetWaits(uint32_t, uint32_t, uint32_t);
   void SelectJisyo();
 
   void Update00R();
@@ -159,11 +159,11 @@ class Memory : public Device, public IGetMemoryBank {
   void UpdateN80W();
   void UpdateN80R();
   void UpdateN80G();
-  void SelectGVRAM(uint top);
-  void SelectALU(uint top);
-  void SetRAMPattern(uint8_t* ram, uint length);
+  void SelectGVRAM(uint32_t top);
+  void SelectALU(uint32_t top);
+  void SetRAMPattern(uint8_t* ram, uint32_t length);
 
-  uint GetHiBank(uint addr);
+  uint32_t GetHiBank(uint32_t addr);
 
   MemoryManager* mm;
   int mid;
@@ -180,19 +180,19 @@ class Memory : public Device, public IGetMemoryBank {
   uint8_t* n80v2rom;     // N80SR
   uint8_t* erom[8 + 1];  // 拡張 ROM
 
-  uint port31, port32, port33, port34, port35, port40, port5x;
-  uint port99, txtwnd, port71, porte2, porte3, portf0;
-  uint sw31;
-  uint erommask;
-  uint waitmode;
-  uint waittype;  // b0 = disp/vrtc,
+  uint32_t port31, port32, port33, port34, port35, port40, port5x;
+  uint32_t port99, txtwnd, port71, porte2, porte3, portf0;
+  uint32_t sw31;
+  uint32_t erommask;
+  uint32_t waitmode;
+  uint32_t waittype;  // b0 = disp/vrtc,
   bool selgvram;
   bool seldic;
   bool enablewait;
   bool n80mode;
   bool n80srmode;
-  uint erambanks;
-  uint neweram;
+  uint32_t erambanks;
+  uint32_t neweram;
   uint8_t* r00;
   uint8_t* r60;
   uint8_t* w00;
@@ -205,21 +205,21 @@ class Memory : public Device, public IGetMemoryBank {
 
   static const WaitDesc waittable[48];
 
-  static void WrWindow(void* inst, uint addr, uint data);
-  static uint RdWindow(void* inst, uint addr);
+  static void WrWindow(void* inst, uint32_t addr, uint32_t data);
+  static uint32_t RdWindow(void* inst, uint32_t addr);
 
-  static void WrGVRAM0(void* inst, uint addr, uint data);
-  static void WrGVRAM1(void* inst, uint addr, uint data);
-  static void WrGVRAM2(void* inst, uint addr, uint data);
-  static uint RdGVRAM0(void* inst, uint addr);
-  static uint RdGVRAM1(void* inst, uint addr);
-  static uint RdGVRAM2(void* inst, uint addr);
+  static void WrGVRAM0(void* inst, uint32_t addr, uint32_t data);
+  static void WrGVRAM1(void* inst, uint32_t addr, uint32_t data);
+  static void WrGVRAM2(void* inst, uint32_t addr, uint32_t data);
+  static uint32_t RdGVRAM0(void* inst, uint32_t addr);
+  static uint32_t RdGVRAM1(void* inst, uint32_t addr);
+  static uint32_t RdGVRAM2(void* inst, uint32_t addr);
 
-  static void WrALUSet(void* inst, uint addr, uint data);
-  static void WrALURGB(void* inst, uint addr, uint data);
-  static void WrALUR(void* inst, uint addr, uint data);
-  static void WrALUB(void* inst, uint addr, uint data);
-  static uint RdALU(void* inst, uint addr);
+  static void WrALUSet(void* inst, uint32_t addr, uint32_t data);
+  static void WrALURGB(void* inst, uint32_t addr, uint32_t data);
+  static void WrALUR(void* inst, uint32_t addr, uint32_t data);
+  static void WrALUB(void* inst, uint32_t addr, uint32_t data);
+  static uint32_t RdALU(void* inst, uint32_t addr);
 
   static const Descriptor descriptor;
   static const InFuncPtr indef[];

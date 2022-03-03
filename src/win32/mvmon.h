@@ -28,7 +28,7 @@ class MemViewMonitor : public WinMonitor {
   BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
 
   void StatClear();
-  uint StatExec(uint a);
+  uint32_t StatExec(uint32_t a);
   virtual void SetBank();
 
   MemoryViewer mv;

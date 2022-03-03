@@ -107,7 +107,7 @@ void PSG::MakeEnvelopTable() {
   static uint8_t table2[4] = {0, 0, 31, 31};
   static uint8_t table3[4] = {0, 1, -1, 0};
 
-  uint* ptr = enveloptable[0];
+  uint32_t* ptr = enveloptable[0];
 
   for (int i = 0; i < 16 * 2; i++) {
     uint8_t v = table2[table1[i]];
@@ -124,7 +124,7 @@ void PSG::MakeEnvelopTable() {
 //  regnum      レジスタの番号 (0 - 15)
 //  data        セットする値
 //
-void PSG::SetReg(uint regnum, uint8_t data) {
+void PSG::SetReg(uint32_t regnum, uint8_t data) {
   if (regnum < 0x10) {
     reg[regnum] = data;
     switch (regnum) {
@@ -207,10 +207,10 @@ void PSG::Mix(Sample* dest, int nsamples) {
     nenable[2] = (r7 >> 5) & 1;
 
     int noise, sample;
-    uint env;
-    uint* p1 = ((mask & 1) && (reg[8] & 0x10)) ? &env : &olevel[0];
-    uint* p2 = ((mask & 2) && (reg[9] & 0x10)) ? &env : &olevel[1];
-    uint* p3 = ((mask & 4) && (reg[10] & 0x10)) ? &env : &olevel[2];
+    uint32_t env;
+    uint32_t* p1 = ((mask & 1) && (reg[8] & 0x10)) ? &env : &olevel[0];
+    uint32_t* p2 = ((mask & 2) && (reg[9] & 0x10)) ? &env : &olevel[1];
+    uint32_t* p3 = ((mask & 4) && (reg[10] & 0x10)) ? &env : &olevel[2];
 
 #define SCOUNT(ch) (scount[ch] >> (toneshift + oversampling))
 
@@ -323,12 +323,12 @@ void PSG::Mix(Sample* dest, int nsamples) {
 // ---------------------------------------------------------------------------
 //  テーブル
 //
-uint PSG::noisetable[noisetablesize] = {
+uint32_t PSG::noisetable[noisetablesize] = {
     0,
 };
 int PSG::EmitTable[0x20] = {
     -1,
 };
-uint PSG::enveloptable[16][64] = {
+uint32_t PSG::enveloptable[16][64] = {
     0,
 };

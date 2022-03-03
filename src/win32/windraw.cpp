@@ -78,7 +78,7 @@ bool WinDraw::Init0(HWND hwindow) {
   return true;
 }
 
-bool WinDraw::Init(uint w, uint h, uint /*bpp*/) {
+bool WinDraw::Init(uint32_t w, uint32_t h, uint32_t /*bpp*/) {
   width = w;
   height = h;
   shouldterminate = false;
@@ -115,7 +115,7 @@ bool WinDraw::Cleanup() {
 // ---------------------------------------------------------------------------
 //  画面描画用スレッド
 //
-uint WinDraw::ThreadMain() {
+uint32_t WinDraw::ThreadMain() {
   drawing = false;
   while (!shouldterminate) {
     PaintWindow();
@@ -124,7 +124,7 @@ uint WinDraw::ThreadMain() {
   return 0;
 }
 
-uint __stdcall WinDraw::ThreadEntry(LPVOID arg) {
+uint32_t __stdcall WinDraw::ThreadEntry(LPVOID arg) {
   if (arg)
     return reinterpret_cast<WinDraw*>(arg)->ThreadMain();
   else
@@ -216,7 +216,7 @@ void WinDraw::PaintWindow() {
 // ---------------------------------------------------------------------------
 //  パレットをセット
 //
-void WinDraw::SetPalette(uint index, uint nents, const Palette* pal) {
+void WinDraw::SetPalette(uint32_t index, uint32_t nents, const Palette* pal) {
   assert(0 <= index && index <= 0xff);
   assert(index + nents <= 0x100);
   assert(pal);
@@ -265,7 +265,7 @@ bool WinDraw::Unlock() {
 // ---------------------------------------------------------------------------
 //  画面サイズを変える
 //
-void WinDraw::Resize(uint w, uint h) {
+void WinDraw::Resize(uint32_t w, uint32_t h) {
   //  statusdisplay.Show(50, 2500, "Resize (%d, %d)", width, height);
   width = w;
   height = h;
@@ -376,7 +376,7 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
 // ---------------------------------------------------------------------------
 //  現在の状態を得る
 //
-uint WinDraw::GetStatus() {
+uint32_t WinDraw::GetStatus() {
   if (draw) {
     if (refresh)
       refresh = 1;

@@ -18,8 +18,8 @@ class WinDrawGDI : public WinDrawSub {
   WinDrawGDI();
   ~WinDrawGDI();
 
-  bool Init(HWND hwnd, uint w, uint h, GUID*);
-  bool Resize(uint width, uint height);
+  bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID*);
+  bool Resize(uint32_t width, uint32_t height);
   bool Cleanup();
   void SetPalette(PALETTEENTRY* pal, int index, int nentries);
   void DrawScreen(const RECT& rect, bool refresh);
@@ -41,8 +41,8 @@ class WinDrawGDI : public WinDrawSub {
   HWND hwnd;
   uint8_t* image;
   int bpl;
-  uint width;
-  uint height;
+  uint32_t width;
+  uint32_t height;
   bool updatepal;
   BI256 binfo;
 };

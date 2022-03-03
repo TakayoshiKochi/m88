@@ -102,7 +102,7 @@ Z80C::~Z80C() {
 // ---------------------------------------------------------------------------
 //  PC 読み書き
 //
-void Z80C::SetPC(uint newpc) {
+void Z80C::SetPC(uint32_t newpc) {
   MemoryPage& page = rdpages[(newpc >> pagebits) & PAGESMASK];
 
   if (!page.func) {
@@ -123,18 +123,18 @@ void Z80C::SetPC(uint newpc) {
 }
 
 /*
-inline uint Z80C::GetPC()
+inline uint32_t Z80C::GetPC()
 {
     DEBUGCOUNT(6);
     return inst - instbase;
 }
 */
 
-inline void Z80C::PCInc(uint inc) {
+inline void Z80C::PCInc(uint32_t inc) {
   inst += inc;
 }
 
-inline void Z80C::PCDec(uint dec) {
+inline void Z80C::PCDec(uint32_t dec) {
   inst -= dec;
   if (inst >= instpage) {
     DEBUGCOUNT(7);
@@ -145,7 +145,7 @@ inline void Z80C::PCDec(uint dec) {
   return;
 }
 
-inline void Z80C::Jump(uint dest) {
+inline void Z80C::Jump(uint32_t dest) {
   inst = instbase + dest;
   if (inst >= instpage) {
     DEBUGCOUNT(9);
@@ -172,7 +172,7 @@ inline void Z80C::JumpR() {
 // ---------------------------------------------------------------------------
 //  インストラクション読み込み
 //
-inline uint Z80C::Fetch8() {
+inline uint32_t Z80C::Fetch8() {
   DEBUGCOUNT(0);
   if (inst < instlim)
     return *inst++;
@@ -180,11 +180,11 @@ inline uint Z80C::Fetch8() {
     return Fetch8B();
 }
 
-inline uint Z80C::Fetch16() {
+inline uint32_t Z80C::Fetch16() {
   DEBUGCOUNT(3);
 #ifdef ALLOWBOUNDARYACCESS
   if (inst + 1 < instlim) {
-    uint r = *(uint16_t*)inst;
+    uint32_t r = *(uint16_t*)inst;
     inst += 2;
     return r;
   } else
@@ -192,7 +192,7 @@ inline uint Z80C::Fetch16() {
     return Fetch16B();
 }
 
-uint Z80C::Fetch8B() {
+uint32_t Z80C::Fetch8B() {
   DEBUGCOUNT(1);
   if (instlim) {
     SetPC(GetPC());
@@ -203,8 +203,8 @@ uint Z80C::Fetch8B() {
   return Read8(inst++ - instbase);
 }
 
-uint Z80C::Fetch16B() {
-  uint r = Fetch8();
+uint32_t Z80C::Fetch16B() {
+  uint32_t r = Fetch8();
   return r | (Fetch8() << 8);
 }
 
@@ -426,7 +426,7 @@ inline void Z80C::SingleStep() {
 // ---------------------------------------------------------------------------
 //  I/O 処理の定義 -----------------------------------------------------------
 
-inline uint Z80C::Read8(uint addr) {
+inline uint32_t Z80C::Read8(uint32_t addr) {
   addr &= 0xffff;
   MemoryPage& page = rdpages[addr >> pagebits];
   if (!page.func) {
@@ -438,7 +438,7 @@ inline uint Z80C::Read8(uint addr) {
   }
 }
 
-inline void Z80C::Write8(uint addr, uint data) {
+inline void Z80C::Write8(uint32_t addr, uint32_t data) {
   addr &= 0xffff;
   MemoryPage& page = wrpages[addr >> pagebits];
   if (!page.func) {
@@ -450,13 +450,13 @@ inline void Z80C::Write8(uint addr, uint data) {
   }
 }
 
-inline uint Z80C::Read16(uint addr) {
+inline uint32_t Z80C::Read16(uint32_t addr) {
 #ifdef ALLOWBOUNDARYACCESS  // ワード境界を越えるアクセスを許す場合
   addr &= 0xffff;
   MemoryPage& page = rdpages[addr >> pagebits];
   if (!page.func) {
     DEBUGCOUNT(13);
-    uint a = addr & pagemask;
+    uint32_t a = addr & pagemask;
     if (a < pagemask)
       return *(uint16_t*)((uint8_t*)page.ptr + a);
   }
@@ -464,13 +464,13 @@ inline uint Z80C::Read16(uint addr) {
   return Read8(addr) + Read8(addr + 1) * 256;
 }
 
-inline void Z80C::Write16(uint addr, uint data) {
+inline void Z80C::Write16(uint32_t addr, uint32_t data) {
   DEBUGCOUNT(15);
 #ifdef ALLOWBOUNDARYACCESS  // ワード境界を越えるアクセスを許す場合
   addr &= 0xffff;
   MemoryPage& page = wrpages[addr >> pagebits];
   if (!page.func) {
-    uint a = addr & pagemask;
+    uint32_t a = addr & pagemask;
     if (a < pagemask) {
       *(uint16_t*)((uint8_t*)page.ptr + a) = data;
       return;
@@ -481,11 +481,11 @@ inline void Z80C::Write16(uint addr, uint data) {
   Write8(addr + 1, data >> 8);
 }
 
-inline uint Z80C::Inp(uint port) {
+inline uint32_t Z80C::Inp(uint32_t port) {
   return bus->In(port & 0xff);
 }
 
-inline void Z80C::Outp(uint port, uint data) {
+inline void Z80C::Outp(uint32_t port, uint32_t data) {
   bus->Out(port & 0xff, data);
   SetPC(GetPC());
   DEBUGCOUNT(11);
@@ -540,7 +540,7 @@ inline void Z80C::Outp(uint port, uint data) {
 // ---------------------------------------------------------------------------
 //  リセット
 //
-void IOCALL Z80C::Reset(uint, uint) {
+void IOCALL Z80C::Reset(uint32_t, uint32_t) {
   memset(&reg, 0, sizeof(reg));
 
   reg.iff1 = false;
@@ -565,7 +565,7 @@ void IOCALL Z80C::Reset(uint, uint) {
 // ---------------------------------------------------------------------------
 //  強制割り込み
 //
-void IOCALL Z80C::NMI(uint, uint) {
+void IOCALL Z80C::NMI(uint32_t, uint32_t) {
   reg.iff2 = reg.iff1;
   reg.iff1 = false;
   Push(GetPC());
@@ -612,7 +612,7 @@ void Z80C::TestIntr() {
 //  分岐関数 -----------------------------------------------------------------
 
 inline void Z80C::Call() {
-  uint d = Fetch16();
+  uint32_t d = Fetch16();
   Push(GetPC());
   Jump(d);
   CLK(7);
@@ -621,7 +621,7 @@ inline void Z80C::Call() {
 // ---------------------------------------------------------------------------
 //  アクセス補助関数 ---------------------------------------------------------
 
-void Z80C::SetM(uint n) {
+void Z80C::SetM(uint32_t n) {
   if (index_mode == USEHL)
     Write8(RegHL, n);
   else {
@@ -640,14 +640,14 @@ uint8_t Z80C::GetM() {
   }
 }
 
-uint Z80C::GetAF() {
+uint32_t Z80C::GetAF() {
   RegF = (RegF & 0xd7) | (xf & 0x28);
   if (uf & (CF | ZF | SF | HF | PF))
     GetCF(), GetZF(), GetSF(), GetHF(), GetPF();
   return RegAF;
 }
 
-inline void Z80C::SetAF(uint n) {
+inline void Z80C::SetAF(uint32_t n) {
   RegAF = n;
   uf = 0;
 }
@@ -655,13 +655,13 @@ inline void Z80C::SetAF(uint n) {
 // ---------------------------------------------------------------------------
 //  スタック関数 -------------------------------------------------------------
 
-inline void Z80C::Push(uint n) {
+inline void Z80C::Push(uint32_t n) {
   RegSP -= 2;
   Write16(RegSP, n);
 }
 
-inline uint Z80C::Pop() {
-  uint a = Read16(RegSP);
+inline uint32_t Z80C::Pop() {
+  uint32_t a = Read16(RegSP);
   RegSP += 2;
   return a;
 }
@@ -670,8 +670,8 @@ inline uint Z80C::Pop() {
 //  算術演算関数 -------------------------------------------------------------
 
 void Z80C::ADDA(uint8_t n) {
-  fx = uint(RegA) * 2;
-  fy = uint(n) * 2;
+  fx = uint32_t(RegA) * 2;
+  fy = uint32_t(n) * 2;
   uf = SF | ZF | HF | PF | CF;
   nfa = 0;
   RegF &= ~NF;
@@ -686,8 +686,8 @@ void Z80C::ADCA(uint8_t n) {
   RegA = a + n + cy;
   SetXF(RegA);
 
-  fx = uint(a) * 2 + 1;
-  fy = uint(n) * 2 + cy;
+  fx = uint32_t(a) * 2 + 1;
+  fy = uint32_t(n) * 2 + cy;
   uf = SF | ZF | HF | PF | CF;
   nfa = 0;
   RegF &= ~NF;
@@ -766,7 +766,7 @@ uint8_t Z80C::Dec8(uint8_t y) {
   return y;
 }
 
-uint Z80C::ADD16(uint x, uint y) {
+uint32_t Z80C::ADD16(uint32_t x, uint32_t y) {
   fx32 = (x & 0xffff) * 2;
   fy32 = (y & 0xffff) * 2;
   uf = CF | HF | WF;
@@ -775,9 +775,9 @@ uint Z80C::ADD16(uint x, uint y) {
   return x + y;
 }
 
-void Z80C::ADCHL(uint y) {
-  uint cy = GetCF();
-  uint x = RegHL;
+void Z80C::ADCHL(uint32_t y) {
+  uint32_t cy = GetCF();
+  uint32_t x = RegHL;
 
   fx32 = (uint32_t)(x & 0xffff) * 2 + 1;
   fy32 = (uint32_t)(y & 0xffff) * 2 + cy;
@@ -788,8 +788,8 @@ void Z80C::ADCHL(uint y) {
   SetXF(RegH);
 }
 
-void Z80C::SBCHL(uint y) {
-  uint cy = GetCF();
+void Z80C::SBCHL(uint32_t y) {
+  uint32_t cy = GetCF();
 
   fx32 = (uint32_t)(RegHL & 0xffff) * 2;
   fy32 = (uint32_t)(y & 0xffff) * 2 + cy;
@@ -902,12 +902,12 @@ static const uint8_t ZSPTable[256] = {
 // ---------------------------------------------------------------------------
 //  １命令実行
 //
-void Z80C::SingleStep(uint m) {
+void Z80C::SingleStep(uint32_t m) {
   reg.rreg++;
 
   switch (m) {
     uint8_t b;
-    uint w;
+    uint32_t w;
 
       // ローテートシフト系
 
@@ -993,7 +993,7 @@ void Z80C::SingleStep(uint m) {
       //  I/O access
 
     case 0xdb:  // IN A,(n)
-      w = /*(uint(RegA) << 8) +*/ Fetch8();
+      w = /*(uint32_t(RegA) << 8) +*/ Fetch8();
       if (bus->IsSyncPort(w) && !Sync()) {
         PCDec(2);
         break;
@@ -1003,7 +1003,7 @@ void Z80C::SingleStep(uint m) {
       break;
 
     case 0xd3:  // OUT (n),A
-      w = /*(uint(RegA) << 8) + */ Fetch8();
+      w = /*(uint32_t(RegA) << 8) + */ Fetch8();
       if (bus->IsSyncPort(w) && !Sync()) {
         PCDec(2);
         break;
@@ -2741,8 +2741,8 @@ void Z80C::CodeCB() {
 
   int8_t ref = (index_mode == USEHL) ? 0 : int8_t(Fetch8());
   uint8_t fn = Fetch8();
-  uint rg = fn & 7;
-  uint bit = (fn >> 3) & 7;
+  uint32_t rg = fn & 7;
+  uint32_t bit = (fn >> 3) & 7;
 
   if (rg != 6) {
     uint8_t* p = ref_byte[rg]; /* 操作対象へのポインタ */
@@ -2762,7 +2762,7 @@ void Z80C::CodeCB() {
     }
     CLK(8);
   } else {
-    uint b = *ref_hl[index_mode] + ref;
+    uint32_t b = *ref_hl[index_mode] + ref;
     uint8_t d = Read8(b);
     switch ((fn >> 6) & 3) {
       case 0:
@@ -2909,7 +2909,7 @@ void Z80C::SetZSP(uint8_t a) {
 
 void Z80C::OutTestIntr() {
   if (reg.iff1 && intr) {
-    uint w = Fetch8();
+    uint32_t w = Fetch8();
     if (w == 0xed) {
       w = Fetch8();
       if (((w & 0xc7) == 0x41) || ((w & 0xe7) == 0xa3)) {
@@ -2928,7 +2928,7 @@ void Z80C::OutTestIntr() {
   }
 }
 
-static inline void ToHex(char** p, uint d) {
+static inline void ToHex(char** p, uint32_t d) {
   static const char hex[] = "0123456789abcdef";
   *(*p)++ = hex[(d >> 12) & 15];
   *(*p)++ = hex[(d >> 8) & 15];
@@ -2949,7 +2949,7 @@ void Z80C::DumpLog() {
 
   // pc
   char* ptr = buf;
-  uint pc = GetPC();
+  uint32_t pc = GetPC();
   ToHex(&ptr, pc);
   buf[4] = ':';
 
@@ -2992,7 +2992,7 @@ bool Z80C::EnableDump(bool dump) {
   if (dump) {
     if (!dumplog) {
       char buf[12];
-      *(uint*)buf = GetID();
+      *(uint32_t*)buf = GetID();
       strcpy(buf + 4, ".dmp");
       dumplog = fopen(buf, "w");
     }
@@ -3008,7 +3008,7 @@ bool Z80C::EnableDump(bool dump) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint IFCALL Z80C::GetStatusSize() {
+uint32_t IFCALL Z80C::GetStatusSize() {
   return sizeof(Status);
 }
 

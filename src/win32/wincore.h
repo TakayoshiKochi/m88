@@ -73,8 +73,8 @@ class WinCore : public PC88, public ISystem, public ILockCore {
     uint16_t erambanks;
     uint16_t cpumode;
     uint16_t mainsubratio;
-    uint flags;
-    uint flag2;
+    uint32_t flags;
+    uint32_t flag2;
   };
 
   class LockObj {

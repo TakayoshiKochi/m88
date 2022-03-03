@@ -30,9 +30,9 @@ class FloppyDisk {
 
   struct Sector {
     IDR id;
-    uint flags;
+    uint32_t flags;
     uint8_t* image;
-    uint size;
+    uint32_t size;
     Sector* next;
   };
 
@@ -60,17 +60,17 @@ class FloppyDisk {
   bool IsReadOnly() { return readonly; }
   DiskType GetType() { return type; }
 
-  void Seek(uint tr);
+  void Seek(uint32_t tr);
   Sector* GetSector();
-  bool FindID(IDR idr, uint density);
-  uint GetNumSectors();
-  uint GetTrackCapacity();
-  uint GetTrackSize();
-  uint GetNumTracks() { return ntracks; }
-  bool Resize(Sector* sector, uint newsize);
+  bool FindID(IDR idr, uint32_t density);
+  uint32_t GetNumSectors();
+  uint32_t GetTrackCapacity();
+  uint32_t GetTrackSize();
+  uint32_t GetNumTracks() { return ntracks; }
+  bool Resize(Sector* sector, uint32_t newsize);
   bool FormatTrack(int nsec, int secsize);
   Sector* AddSector(int secsize);
-  Sector* GetFirstSector(uint track);
+  Sector* GetFirstSector(uint32_t track);
   void IndexHole() { cursector = 0; }
 
  private:
@@ -81,5 +81,5 @@ class FloppyDisk {
 
   Track* curtrack;
   Sector* cursector;
-  uint curtracknum;
+  uint32_t curtracknum;
 };

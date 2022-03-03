@@ -10,7 +10,7 @@ class Piccolo_Gimic : public Piccolo {
   virtual ~Piccolo_Gimic();
   int Init();
   int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc);
-  void SetReg(uint addr, uint data);
+  void SetReg(uint32_t addr, uint32_t data);
 
  private:
 };

@@ -16,8 +16,8 @@ using namespace WinSoundDriver;
 
 // ---------------------------------------------------------------------------
 
-const uint DriverDS::num_blocks = 5;
-const uint DriverDS::timer_resolution = 20;
+const uint32_t DriverDS::num_blocks = 5;
+const uint32_t DriverDS::timer_resolution = 20;
 
 // ---------------------------------------------------------------------------
 //  構築・破棄 ---------------------------------------------------------------
@@ -39,7 +39,7 @@ DriverDS::~DriverDS() {
 // ---------------------------------------------------------------------------
 //  初期化 -------------------------------------------------------------------
 
-bool DriverDS::Init(SoundSource* s, HWND hwnd, uint rate, uint ch, uint buflen) {
+bool DriverDS::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) {
   if (playing)
     return false;
 

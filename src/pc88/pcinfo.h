@@ -21,11 +21,11 @@ struct DeviceInfo {
   const int* inporttable;
 
   void (*soundmix)(void*, int32_t* s, int len);
-  bool (*setrate)(void*, uint rate);
-  void (*outport)(void*, uint port, uint data);
-  uint (*inport)(void*, uint port);
-  void (*eventproc)(void*, uint arg);
-  uint (*snapshot)(void*, uint8_t* data, bool save);
+  bool (*setrate)(void*, uint32_t rate);
+  void (*outport)(void*, uint32_t port, uint32_t data);
+  uint32_t (*inport)(void*, uint32_t port);
+  void (*eventproc)(void*, uint32_t arg);
+  uint32_t (*snapshot)(void*, uint8_t* data, bool save);
 };
 
 struct PCInfo {
@@ -33,17 +33,17 @@ struct PCInfo {
 
   int size;
   // DMA
-  int (*DMARead)(void*, uint bank, uint8_t* data, uint nbytes);
-  int (*DMAWrite)(void*, uint bank, uint8_t* data, uint nbytes);
+  int (*DMARead)(void*, uint32_t bank, uint8_t* data, uint32_t nbytes);
+  int (*DMAWrite)(void*, uint32_t bank, uint8_t* data, uint32_t nbytes);
 
   // Page
-  bool (*MemAcquire)(void*, uint page, uint npages, void* read, void* write, uint flags);
-  bool (*MemRelease)(void*, uint page, uint npages, uint flags);
+  bool (*MemAcquire)(void*, uint32_t page, uint32_t npages, void* read, void* write, uint32_t flags);
+  bool (*MemRelease)(void*, uint32_t page, uint32_t npages, uint32_t flags);
 
   // Timer
-  void* (*AddEvent)(void*, uint count, uint arg);
+  void* (*AddEvent)(void*, uint32_t count, uint32_t arg);
   bool (*DelEvent)(void*, void*);
-  uint (*GetTime)(void*);
+  uint32_t (*GetTime)(void*);
 
   // Sound
   void (*SoundUpdate)(void*);

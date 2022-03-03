@@ -28,7 +28,7 @@ bool DiskIO::Init() {
   return true;
 }
 
-void DiskIO::Reset(uint, uint) {
+void DiskIO::Reset(uint32_t, uint32_t) {
   writebuffer = false;
   filename[0] = 0;
   IdlePhase();
@@ -37,7 +37,7 @@ void DiskIO::Reset(uint, uint) {
 // ---------------------------------------------------------------------------
 //  コマンド
 //
-void DiskIO::SetCommand(uint, uint d) {
+void DiskIO::SetCommand(uint32_t, uint32_t d) {
   if (d != 0x84 || !writebuffer)
     file.Close();
   phase = idlephase;
@@ -50,14 +50,14 @@ void DiskIO::SetCommand(uint, uint d) {
 // ---------------------------------------------------------------------------
 //  ステータス
 //
-uint DiskIO::GetStatus(uint) {
+uint32_t DiskIO::GetStatus(uint32_t) {
   return status;
 }
 
 // ---------------------------------------------------------------------------
 //  データセット
 //
-void DiskIO::SetData(uint, uint d) {
+void DiskIO::SetData(uint32_t, uint32_t d) {
   if (phase == recvphase || phase == argphase) {
     *ptr++ = d;
     if (--len <= 0) {
@@ -70,8 +70,8 @@ void DiskIO::SetData(uint, uint d) {
 // ---------------------------------------------------------------------------
 //  データげっと
 //
-uint DiskIO::GetData(uint) {
-  uint r = 0xff;
+uint32_t DiskIO::GetData(uint32_t) {
+  uint32_t r = 0xff;
   if (phase == sendphase) {
     r = *ptr++;
     if (--len <= 0) {

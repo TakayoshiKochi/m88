@@ -16,24 +16,24 @@ class Z80Diag {
  public:
   Z80Diag();
   bool Init(IMemoryAccess* bus);
-  uint Disassemble(uint pc, char* dest);
-  uint DisassembleS(uint pc, char* dest);
-  uint InstInc(uint ad);
-  uint InstDec(uint ad);
+  uint32_t Disassemble(uint32_t pc, char* dest);
+  uint32_t DisassembleS(uint32_t pc, char* dest);
+  uint32_t InstInc(uint32_t ad);
+  uint32_t InstDec(uint32_t ad);
 
  private:
   enum XMode { usehl = 0, useix = 2, useiy = 4 };
 
   char* Expand(char* dest, const char* src);
-  uint8_t Read8(uint addr) { return mem->Read8(addr & 0xffff); }
+  uint8_t Read8(uint32_t addr) { return mem->Read8(addr & 0xffff); }
 
-  static void SetHex(char*& dest, uint n);
-  int GetInstSize(uint ad);
-  uint InstCheck(uint ad);
-  uint InstDecSub(uint ad, int depth);
+  static void SetHex(char*& dest, uint32_t n);
+  int GetInstSize(uint32_t ad);
+  uint32_t InstCheck(uint32_t ad);
+  uint32_t InstDecSub(uint32_t ad, int depth);
 
   IMemoryAccess* mem;
-  uint pc;
+  uint32_t pc;
   XMode xmode;
 
   static const char* Inst[0x100];

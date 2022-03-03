@@ -163,7 +163,7 @@ void Z80Test::Error(const char* errtxt) {
       return;
     if (code[0] == 0xed && code[1] == 0xa2)
       return;
-    uint i;
+    uint32_t i;
     fprintf(fp, "PC: %.4x   ", pc);
     for (i = 0; i < 4; i++) {
       fprintf(fp, (i > codesize ? "   " : "%.2x "), code[i]);
@@ -206,15 +206,15 @@ void Z80Test::Error(const char* errtxt) {
 
 // ----------------------------------------------------------------------------
 
-inline uint Z80Test::Read8R(uint a) {
-  uint fcount = a - pc;
+inline uint32_t Z80Test::Read8R(uint32_t a) {
+  uint32_t fcount = a - pc;
   if (fcount < 4) {
     codesize = (fcount > codesize) ? fcount : codesize;
     return code[fcount] = bus->Read8(a);
   }
 
   if (readcount < 8) {
-    uint data = bus->Read8(a);
+    uint32_t data = bus->Read8(a);
     readptr[readcount] = a;
     readdat[readcount] = data;
     readcount++;
@@ -227,13 +227,13 @@ inline uint Z80Test::Read8R(uint a) {
 
 // ----------------------------------------------------------------------------
 
-inline uint Z80Test::Read8T(uint a) {
-  uint fcount = a - pc;
+inline uint32_t Z80Test::Read8T(uint32_t a) {
+  uint32_t fcount = a - pc;
   if (fcount < 4)
     return code[fcount];
 
   readcountt++;
-  for (uint i = 0; i < readcount; i++) {
+  for (uint32_t i = 0; i < readcount; i++) {
     if (((readptr[i] ^ a) & 0xffff) == 0)
       return readdat[i];
   }
@@ -246,7 +246,7 @@ inline uint Z80Test::Read8T(uint a) {
 
 // ----------------------------------------------------------------------------
 
-inline void Z80Test::Write8R(uint a, uint d) {
+inline void Z80Test::Write8R(uint32_t a, uint32_t d) {
   d &= 0xff;
   if (writecount < 8) {
     writeptr[writecount] = a;
@@ -258,10 +258,10 @@ inline void Z80Test::Write8R(uint a, uint d) {
   Error("１命令中に８バイトを超えるデータの書き込み");
 }
 
-inline void Z80Test::Write8T(uint a, uint d) {
+inline void Z80Test::Write8T(uint32_t a, uint32_t d) {
   d &= 0xff;
   writecountt++;
-  for (uint i = 0; i < writecount; i++) {
+  for (uint32_t i = 0; i < writecount; i++) {
     if (((writeptr[i] ^ a) & 0xffff) == 0) {
       if (writedat[i] != d) {
         char buf[128];
@@ -278,13 +278,13 @@ inline void Z80Test::Write8T(uint a, uint d) {
 
 // ----------------------------------------------------------------------------
 
-uint Z80Test::InR(uint a) {
-  uint data = bus->In(a);
+uint32_t Z80Test::InR(uint32_t a) {
+  uint32_t data = bus->In(a);
   inptr = a, indat = data;
   return data;
 }
 
-uint Z80Test::InT(uint a) {
+uint32_t Z80Test::InT(uint32_t a) {
   if (inptr == a)
     return indat;
   Error("入力ポートの不一致");
@@ -293,12 +293,12 @@ uint Z80Test::InT(uint a) {
 
 // ----------------------------------------------------------------------------
 
-void Z80Test::OutR(uint a, uint d) {
+void Z80Test::OutR(uint32_t a, uint32_t d) {
   outptr = a, outdat = d;
   bus->Out(a, d);
 }
 
-void Z80Test::OutT(uint a, uint d) {
+void Z80Test::OutT(uint32_t a, uint32_t d) {
   if (outptr == a) {
     if (outdat != d)
       Error("出力データの不一致");
@@ -309,33 +309,33 @@ void Z80Test::OutT(uint a, uint d) {
 
 // ----------------------------------------------------------------------------
 
-void Z80Test::Reset(uint, uint) {
+void Z80Test::Reset(uint32_t, uint32_t) {
   cpu1.Reset();
   cpu2.Reset();
 }
 
-void Z80Test::IRQ(uint, uint d) {
+void Z80Test::IRQ(uint32_t, uint32_t d) {
   cpu1.IRQ(0, d);
   cpu2.IRQ(0, d);
 }
 
-void Z80Test::NMI(uint, uint d) {}
+void Z80Test::NMI(uint32_t, uint32_t d) {}
 
 // ----------------------------------------------------------------------------
 
-uint Z80Test::S_Read8R(void* inst, uint a) {
+uint32_t Z80Test::S_Read8R(void* inst, uint32_t a) {
   return ((Z80Test*)(inst))->Read8R(a);
 }
 
-uint Z80Test::S_Read8T(void* inst, uint a) {
+uint32_t Z80Test::S_Read8T(void* inst, uint32_t a) {
   return ((Z80Test*)(inst))->Read8T(a);
 }
 
-void Z80Test::S_Write8R(void* inst, uint a, uint d) {
+void Z80Test::S_Write8R(void* inst, uint32_t a, uint32_t d) {
   ((Z80Test*)(inst))->Write8R(a, d);
 }
 
-void Z80Test::S_Write8T(void* inst, uint a, uint d) {
+void Z80Test::S_Write8T(void* inst, uint32_t a, uint32_t d) {
   ((Z80Test*)(inst))->Write8T(a, d);
 }
 

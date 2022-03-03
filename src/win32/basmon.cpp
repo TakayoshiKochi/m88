@@ -70,15 +70,15 @@ void BasicMonitor::UpdateText() {
 // ---------------------------------------------------------------------------
 //  メモリから読み込み
 //
-inline uint BasicMonitor::Read8(uint addr) {
+inline uint32_t BasicMonitor::Read8(uint32_t addr) {
   return bus->Read8(addr);
 }
 
-inline uint BasicMonitor::Read16(uint addr) {
+inline uint32_t BasicMonitor::Read16(uint32_t addr) {
   return bus->Read8(addr) + bus->Read8(addr + 1) * 0x100;
 }
 
-inline uint BasicMonitor::Read32(uint addr) {
+inline uint32_t BasicMonitor::Read32(uint32_t addr) {
   return Read16(addr) + Read16(addr + 2) * 0x10000;
 }
 
@@ -86,15 +86,15 @@ inline uint BasicMonitor::Read32(uint addr) {
 //  N88-BASIC 中間コードからテキストに変換
 //
 void BasicMonitor::Decode(bool always) {
-  uint src = Read16(0xe658);
-  uint end = Read16(0xeb18);
+  uint32_t src = Read16(0xe658);
+  uint32_t end = Read16(0xeb18);
 
   if (!always && end - src == prvs)
     return;
 
   prvs = end - src;
 
-  uint link;
+  uint32_t link;
   char* text = basictext;
   int ln = 0;
 
@@ -105,11 +105,11 @@ void BasicMonitor::Decode(bool always) {
     if (link < src || (link - src) > 0x102)
       break;
 
-    uint l = Read16(src + 2);
+    uint32_t l = Read16(src + 2);
     text += sprintf(text, "%u ", l);
     src += 4;
 
-    uint c;
+    uint32_t c;
     while (c = Read8(src++)) {
       switch (c) {
         case 0x0b:
@@ -148,7 +148,7 @@ void BasicMonitor::Decode(bool always) {
           break;
 
         case 0x1d: {
-          uint f = Read32(src);
+          uint32_t f = Read32(src);
           int ma = (f & 0xffffff) | 0x800000;
           if (f & 0x800000)
             ma = -ma;
@@ -159,8 +159,8 @@ void BasicMonitor::Decode(bool always) {
         } break;
 
         case 0x1f: {
-          uint ma1 = Read32(src);
-          uint f = Read32(src + 4);
+          uint32_t ma1 = Read32(src);
+          uint32_t f = Read32(src + 4);
           int ma2 = (f & 0xffffff) | 0x800000;
           double ma = (ma2 + ma1 / (65536. * 65536.)) / 0x800000;
           if (f & 0x800000)

@@ -21,15 +21,15 @@ class INTC : public Device {
  public:
   INTC(const ID& id);
   ~INTC();
-  bool Init(IOBus* bus, uint irqport, uint ipbase);
+  bool Init(IOBus* bus, uint32_t irqport, uint32_t ipbase);
 
-  void IOCALL Reset(uint = 0, uint = 0);
-  void IOCALL Request(uint port, uint en);
-  void IOCALL SetMask(uint, uint data);
-  void IOCALL SetRegister(uint, uint data);
-  uint IOCALL IntAck(uint);
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
+  void IOCALL Request(uint32_t port, uint32_t en);
+  void IOCALL SetMask(uint32_t, uint32_t data);
+  void IOCALL SetRegister(uint32_t, uint32_t data);
+  uint32_t IOCALL IntAck(uint32_t);
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
@@ -37,16 +37,16 @@ class INTC : public Device {
 
  private:
   struct Status {
-    uint mask;
-    uint mask2;
-    uint irq;
+    uint32_t mask;
+    uint32_t mask2;
+    uint32_t irq;
   };
   void IRQ(bool);
 
   IOBus* bus;
   Status stat;
-  uint irqport;
-  uint iportbase;
+  uint32_t irqport;
+  uint32_t iportbase;
 
   static const Descriptor descriptor;
   static const InFuncPtr indef[];

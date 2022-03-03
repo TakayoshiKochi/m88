@@ -81,7 +81,7 @@ bool WinMouseUI::Enable(bool en) {
   return true;
 }
 
-uint WinMouseUI::GetButton() {
+uint32_t WinMouseUI::GetButton() {
   return ui->GetMouseButton();
 }
 

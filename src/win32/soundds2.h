@@ -24,11 +24,11 @@ class DriverDS2 : public Driver {
   DriverDS2();
   ~DriverDS2();
 
-  bool Init(SoundSource* sb, HWND hwnd, uint rate, uint ch, uint buflen);
+  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen);
   bool Cleanup();
 
  private:
-  static uint WINAPI ThreadEntry(LPVOID arg);
+  static uint32_t WINAPI ThreadEntry(LPVOID arg);
   void Send();
 
   LPDIRECTSOUND lpds;
@@ -36,11 +36,11 @@ class DriverDS2 : public Driver {
   LPDIRECTSOUNDBUFFER lpdsb;
   LPDIRECTSOUNDNOTIFY lpnotify;
 
-  uint buffer_length;
+  uint32_t buffer_length;
   HANDLE hthread;
-  uint idthread;
+  uint32_t idthread;
   HANDLE hevent;
-  uint nextwrite;
+  uint32_t nextwrite;
 };
 
 }  // namespace WinSoundDriver

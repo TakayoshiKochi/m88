@@ -9,6 +9,10 @@
 #include "common/types.h"
 #include "common/misc.h"
 
+// 8 bit 数値をまとめて処理するときに使う型
+using packed = uint32_t;
+#define PACK(p) ((p) | ((p) << 8) | ((p) << 16) | ((p) << 24))
+
 // ---------------------------------------------------------------------------
 
 class Draw {
@@ -43,16 +47,16 @@ class Draw {
   Draw() {}
   virtual ~Draw() {}
 
-  virtual bool Init(uint width, uint height, uint bpp) = 0;
+  virtual bool Init(uint32_t width, uint32_t height, uint32_t bpp) = 0;
   virtual bool Cleanup() = 0;
 
   virtual bool Lock(uint8_t** pimage, int* pbpl) = 0;
   virtual bool Unlock() = 0;
 
-  virtual uint GetStatus() = 0;
-  virtual void Resize(uint width, uint height) = 0;
+  virtual uint32_t GetStatus() = 0;
+  virtual void Resize(uint32_t width, uint32_t height) = 0;
   virtual void DrawScreen(const Region& region) = 0;
-  virtual void SetPalette(uint index, uint nents, const Palette* pal) = 0;
+  virtual void SetPalette(uint32_t index, uint32_t nents, const Palette* pal) = 0;
   virtual void Flip() {}
   virtual bool SetFlipMode(bool) = 0;
 };

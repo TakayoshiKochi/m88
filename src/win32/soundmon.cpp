@@ -152,7 +152,7 @@ BOOL OPNMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 // ---------------------------------------------------------------------------
 //  １バイトの数値を16進記述に変換
 //
-static inline void ToHex(char** p, uint d) {
+static inline void ToHex(char** p, uint32_t d) {
   static const char hex[] = "0123456789abcdef";
 
   *(*p)++ = hex[d >> 4];
@@ -162,14 +162,14 @@ static inline void ToHex(char** p, uint d) {
 // ---------------------------------------------------------------------------
 //  FN/BLK を F-number に変換
 //
-static inline uint ToFnum(uint f) {
+static inline uint32_t ToFnum(uint32_t f) {
   return (f & 2047) << ((f >> 11) & 7);
 }
 
 // ---------------------------------------------------------------------------
 //  $bx 系の値を変換
 //
-static inline uint ToFB(uint f) {
+static inline uint32_t ToFB(uint32_t f) {
   return (f & 0xff00) | ((f & 0x38) << 1) | (f & 7);
 }
 
@@ -187,7 +187,7 @@ void OPNMonitor::UpdateText() {
 
       SetTxCol(0x040f04 * (4 + dim));
       for (int x = 0; x < 16; x++) {
-        uint d = regs[a & 0x1ff];
+        uint32_t d = regs[a & 0x1ff];
         Putf("%.2x ", d & 0xff);
         a++;
       }

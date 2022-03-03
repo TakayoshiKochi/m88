@@ -171,7 +171,7 @@ bool WinCore::SaveShapshot(const char* filename) {
 
   bool docomp = !!(config.flag2 & Config::compresssnapshot);
 
-  uint size = devlist.GetStatusSize();
+  uint32_t size = devlist.GetStatusSize();
   uint8_t* buf = new uint8_t[docomp ? size * 129 / 64 + 20 : size];
   if (!buf)
     return false;
@@ -201,7 +201,7 @@ bool WinCore::SaveShapshot(const char* filename) {
     ssh.mainsubratio = int16_t(config.mainsubratio);
     ssh.flags = config.flags | (esize < size ? 0x80000000 : 0);
     ssh.flag2 = config.flag2;
-    for (uint i = 0; i < 2; i++)
+    for (uint32_t i = 0; i < 2; i++)
       ssh.disk[i] = (int8_t)diskmgr->GetCurrentDisk(i);
 
     FileIO file;
@@ -236,11 +236,11 @@ bool WinCore::LoadShapshot(const char* filename, const char* diskname) {
     return false;
 
   // applyconfig
-  const uint fl1a = Config::subcpucontrol | Config::fullspeed | Config::enableopna |
+  const uint32_t fl1a = Config::subcpucontrol | Config::fullspeed | Config::enableopna |
                     Config::enablepcg | Config::fv15k | Config::cpuburst | Config::cpuclockmode |
                     Config::digitalpalette | Config::opnona8 | Config::opnaona8 |
                     Config::enablewait;
-  const uint fl2a = Config::disableopn44;
+  const uint32_t fl2a = Config::disableopn44;
 
   config.flags = (config.flags & ~fl1a) | (ssh.flags & fl1a);
   config.flag2 = (config.flag2 & ~fl2a) | (ssh.flag2 & fl2a);
@@ -283,7 +283,7 @@ bool WinCore::LoadShapshot(const char* filename, const char* diskname) {
     if (read) {
       r = devlist.LoadStatus(buf);
       if (r && diskname) {
-        for (uint i = 0; i < 2; i++) {
+        for (uint32_t i = 0; i < 2; i++) {
           diskmgr->Unmount(i);
           diskmgr->Mount(i, diskname, false, ssh.disk[i], false);
         }

@@ -19,8 +19,8 @@ class WinDrawSub {
   WinDrawSub() : status(0) {}
   virtual ~WinDrawSub() {}
 
-  virtual bool Init(HWND hwnd, uint w, uint h, GUID* display) = 0;
-  virtual bool Resize(uint width, uint height) { return false; }
+  virtual bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID* display) = 0;
+  virtual bool Resize(uint32_t width, uint32_t height) { return false; }
   virtual bool Cleanup() = 0;
   virtual void SetPalette(PALETTEENTRY* pal, int index, int nentries) {}
   virtual void QueryNewPalette() {}
@@ -30,13 +30,13 @@ class WinDrawSub {
   virtual bool Unlock() { return true; }
 
   virtual void SetGUIMode(bool gui) {}
-  virtual uint GetStatus() { return status; }
+  virtual uint32_t GetStatus() { return status; }
   virtual void Flip() {}
   virtual bool SetFlipMode(bool flip) { return false; }
   virtual void WindowMoved(int cx, int cy) { return; }
 
  protected:
-  uint status;
+  uint32_t status;
 };
 
 // ---------------------------------------------------------------------------
@@ -48,17 +48,17 @@ class WinDraw : public Draw {
   bool Init0(HWND hwindow);
 
   // - Draw Common Interface
-  bool Init(uint w, uint h, uint bpp);
+  bool Init(uint32_t w, uint32_t h, uint32_t bpp);
   bool Cleanup();
 
   bool Lock(uint8_t** pimage, int* pbpl);
   bool Unlock();
 
-  void Resize(uint width, uint height);
-  void SetPalette(uint index, uint nents, const Palette* pal);
+  void Resize(uint32_t width, uint32_t height);
+  void SetPalette(uint32_t index, uint32_t nents, const Palette* pal);
   void DrawScreen(const Region& region);
 
-  uint GetStatus();
+  uint32_t GetStatus();
   void Flip();
   bool SetFlipMode(bool f);
 
@@ -87,10 +87,10 @@ class WinDraw : public Draw {
   static BOOL WINAPI
   DDEnumCallback(GUID FAR* guid, LPSTR desc, LPSTR name, LPVOID context, HMONITOR hm);
 
-  uint ThreadMain();
-  static uint __stdcall ThreadEntry(LPVOID arg);
+  uint32_t ThreadMain();
+  static uint32_t __stdcall ThreadEntry(LPVOID arg);
 
-  uint idthread;
+  uint32_t idthread;
   HANDLE hthread;
   volatile bool shouldterminate;  // スレッド終了要求
 

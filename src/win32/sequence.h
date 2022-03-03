@@ -36,14 +36,14 @@ class Sequencer {
 
   void SetClock(int clk);
   void SetSpeed(int spd);
-  void SetRefreshTiming(uint rti);
+  void SetRefreshTiming(uint32_t rti);
 
  private:
   void Execute(long clock, long length, long ec);
   void ExecuteAsynchronus();
 
-  uint ThreadMain();
-  static uint CALLBACK ThreadEntry(LPVOID arg);
+  uint32_t ThreadMain();
+  static uint32_t CALLBACK ThreadEntry(LPVOID arg);
 
   PC88* vm;
 
@@ -51,7 +51,7 @@ class Sequencer {
 
   CriticalSection cs;
   HANDLE hthread;
-  uint idthread;
+  uint32_t idthread;
 
   int clock;  // 1秒は何tick?
   int speed;  //
@@ -59,9 +59,9 @@ class Sequencer {
   int effclock;
   int time;
 
-  uint skippedframe;
-  uint refreshcount;
-  uint refreshtiming;
+  uint32_t skippedframe;
+  uint32_t refreshcount;
+  uint32_t refreshtiming;
   bool drawnextframe;
 
   volatile bool shouldterminate;
@@ -76,6 +76,6 @@ inline void Sequencer::SetSpeed(int spd) {
   speed = spd;
 }
 
-inline void Sequencer::SetRefreshTiming(uint rti) {
+inline void Sequencer::SetRefreshTiming(uint32_t rti) {
   refreshtiming = rti;
 }

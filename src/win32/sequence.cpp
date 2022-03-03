@@ -65,7 +65,7 @@ bool Sequencer::Cleanup() {
 // ---------------------------------------------------------------------------
 //  Core Thread
 //
-uint Sequencer::ThreadMain() {
+uint32_t Sequencer::ThreadMain() {
   time = keeper.GetTime();
   effclock = 100;
 
@@ -83,7 +83,7 @@ uint Sequencer::ThreadMain() {
 // ---------------------------------------------------------------------------
 //  サブスレッド開始点
 //
-uint CALLBACK Sequencer::ThreadEntry(void* arg) {
+uint32_t CALLBACK Sequencer::ThreadEntry(void* arg) {
   return reinterpret_cast<Sequencer*>(arg)->ThreadMain();
 }
 

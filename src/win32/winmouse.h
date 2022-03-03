@@ -24,7 +24,7 @@ class WinMouseUI : public IMouseUI {
 
   bool IFCALL Enable(bool en);
   bool IFCALL GetMovement(POINT*);
-  uint IFCALL GetButton();
+  uint32_t IFCALL GetButton();
 
  private:
   POINT GetWindowCenter();

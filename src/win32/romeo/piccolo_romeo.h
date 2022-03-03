@@ -10,7 +10,7 @@ class Piccolo_Romeo : public Piccolo {
   virtual ~Piccolo_Romeo();
   int Init();
   int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc);
-  void SetReg(uint addr, uint data);
+  void SetReg(uint32_t addr, uint32_t data);
 
   void Reset();
   void Mute();

@@ -33,15 +33,15 @@ class MemoryManagerBase {
   MemoryManagerBase();
   ~MemoryManagerBase();
 
-  bool Init(uint sas, Page* pages = 0);
+  bool Init(uint32_t sas, Page* pages = 0);
   void Cleanup();
   int Connect(void* inst, bool high = false);
-  bool Disconnect(uint pid);
+  bool Disconnect(uint32_t pid);
   bool Disconnect(void* inst);
-  bool Release(uint pid, uint page, uint top);
+  bool Release(uint32_t pid, uint32_t page, uint32_t top);
 
  protected:
-  bool Alloc(uint pid, uint page, uint top, intptr_t ptr, int incr, bool func);
+  bool Alloc(uint32_t pid, uint32_t page, uint32_t top, intptr_t ptr, int incr, bool func);
 
   struct DPage {
     DPage() : ptr(0) {}
@@ -54,7 +54,7 @@ class MemoryManagerBase {
   };
 
   Page* pages;
-  uint npages;
+  uint32_t npages;
   bool ownpages;
 
   uint8_t* priority;
@@ -65,35 +65,35 @@ class MemoryManagerBase {
 
 class ReadMemManager : public MemoryManagerBase {
  public:
-  typedef uint(*RdFunc)(void* inst, uint addr);
+  typedef uint32_t(*RdFunc)(void* inst, uint32_t addr);
 
-  bool Init(uint sas, Page* pages = 0);
-  bool AllocR(uint pid, uint addr, uint length, uint8_t* ptr);
-  bool AllocR(uint pid, uint addr, uint length, RdFunc ptr);
-  bool ReleaseR(uint pid, uint addr, uint length);
-  uint Read8(uint addr);
-  uint Read8P(uint pid, uint addr);
+  bool Init(uint32_t sas, Page* pages = 0);
+  bool AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr);
+  bool AllocR(uint32_t pid, uint32_t addr, uint32_t length, RdFunc ptr);
+  bool ReleaseR(uint32_t pid, uint32_t addr, uint32_t length);
+  uint32_t Read8(uint32_t addr);
+  uint32_t Read8P(uint32_t pid, uint32_t addr);
 
  private:
-  static uint UndefinedRead(void*, uint);
+  static uint32_t UndefinedRead(void*, uint32_t);
 };
 
 // ---------------------------------------------------------------------------
 
 class WriteMemManager : public MemoryManagerBase {
  public:
-  typedef void(*WrFunc)(void* inst, uint addr, uint data);
+  typedef void(*WrFunc)(void* inst, uint32_t addr, uint32_t data);
 
  public:
-  bool Init(uint sas, Page* pages = 0);
-  bool AllocW(uint pid, uint addr, uint length, uint8_t* ptr);
-  bool AllocW(uint pid, uint addr, uint length, WrFunc ptr);
-  bool ReleaseW(uint pid, uint addr, uint length);
-  void Write8(uint addr, uint data);
-  void Write8P(uint pid, uint addr, uint data);
+  bool Init(uint32_t sas, Page* pages = 0);
+  bool AllocW(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr);
+  bool AllocW(uint32_t pid, uint32_t addr, uint32_t length, WrFunc ptr);
+  bool ReleaseW(uint32_t pid, uint32_t addr, uint32_t length);
+  void Write8(uint32_t addr, uint32_t data);
+  void Write8P(uint32_t pid, uint32_t addr, uint32_t data);
 
  private:
-  static void UndefinedWrite(void*, uint, uint);
+  static void UndefinedWrite(void*, uint32_t, uint32_t);
 };
 
 // ---------------------------------------------------------------------------
@@ -111,38 +111,38 @@ class MemoryManager : public IMemoryManager,
   typedef ReadMemManager::RdFunc RdFunc;
   typedef WriteMemManager::WrFunc WrFunc;
 
-  bool Init(uint sas, Page* read = 0, Page* write = 0);
+  bool Init(uint32_t sas, Page* read = 0, Page* write = 0);
   int IFCALL Connect(void* inst, bool highpriority = false);
-  bool IFCALL Disconnect(uint pid);
+  bool IFCALL Disconnect(uint32_t pid);
   bool Disconnect(void* inst);
 
-  bool IFCALL AllocR(uint pid, uint addr, uint length, uint8_t* ptr) {
+  bool IFCALL AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) {
     return ReadMemManager::AllocR(pid, addr, length, ptr);
   }
-  bool IFCALL AllocR(uint pid, uint addr, uint length, RdFunc ptr) {
+  bool IFCALL AllocR(uint32_t pid, uint32_t addr, uint32_t length, RdFunc ptr) {
     return ReadMemManager::AllocR(pid, addr, length, ptr);
   }
-  bool IFCALL ReleaseR(uint pid, uint addr, uint length) {
+  bool IFCALL ReleaseR(uint32_t pid, uint32_t addr, uint32_t length) {
     return ReadMemManager::ReleaseR(pid, addr, length);
   }
-  uint IFCALL Read8(uint addr) { return ReadMemManager::Read8(addr); }
-  uint IFCALL Read8P(uint pid, uint addr) { return ReadMemManager::Read8P(pid, addr); }
-  bool IFCALL AllocW(uint pid, uint addr, uint length, uint8_t* ptr) {
+  uint32_t IFCALL Read8(uint32_t addr) { return ReadMemManager::Read8(addr); }
+  uint32_t IFCALL Read8P(uint32_t pid, uint32_t addr) { return ReadMemManager::Read8P(pid, addr); }
+  bool IFCALL AllocW(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) {
     return WriteMemManager::AllocW(pid, addr, length, ptr);
   }
-  bool IFCALL AllocW(uint pid, uint addr, uint length, WrFunc ptr) {
+  bool IFCALL AllocW(uint32_t pid, uint32_t addr, uint32_t length, WrFunc ptr) {
     return WriteMemManager::AllocW(pid, addr, length, ptr);
   }
-  bool IFCALL ReleaseW(uint pid, uint addr, uint length) {
+  bool IFCALL ReleaseW(uint32_t pid, uint32_t addr, uint32_t length) {
     return WriteMemManager::ReleaseW(pid, addr, length);
   }
-  void IFCALL Write8(uint addr, uint data) { WriteMemManager::Write8(addr, data); }
-  void IFCALL Write8P(uint pid, uint addr, uint data) { WriteMemManager::Write8P(pid, addr, data); }
+  void IFCALL Write8(uint32_t addr, uint32_t data) { WriteMemManager::Write8(addr, data); }
+  void IFCALL Write8P(uint32_t pid, uint32_t addr, uint32_t data) { WriteMemManager::Write8P(pid, addr, data); }
 };
 
 // ---------------------------------------------------------------------------
 
-inline bool MemoryManager::Init(uint sas, Page* read, Page* write) {
+inline bool MemoryManager::Init(uint32_t sas, Page* read, Page* write) {
   if (!read ^ !write)
     return false;
   return ReadMemManager::Init(sas, read) && WriteMemManager::Init(sas, write);
@@ -155,7 +155,7 @@ inline int IFCALL MemoryManager::Connect(void* inst, bool high) {
   return r;
 }
 
-inline bool IFCALL MemoryManager::Disconnect(uint pid) {
+inline bool IFCALL MemoryManager::Disconnect(uint32_t pid) {
   return ReadMemManager::Disconnect(pid) & WriteMemManager::Disconnect(pid);
 }
 
@@ -166,9 +166,9 @@ inline bool MemoryManager::Disconnect(void* inst) {
 // ---------------------------------------------------------------------------
 //  メモリ空間の取得
 //
-inline bool MemoryManagerBase::Alloc(uint pid,
-                                     uint page,
-                                     uint top,
+inline bool MemoryManagerBase::Alloc(uint32_t pid,
+                                     uint32_t page,
+                                     uint32_t top,
                                      intptr_t ptr,
                                      int incr,
                                      bool func) {
@@ -200,7 +200,7 @@ inline bool MemoryManagerBase::Alloc(uint pid,
 // ---------------------------------------------------------------------------
 //  メモリ空間の開放
 //
-inline bool MemoryManagerBase::Release(uint pid, uint page, uint top) {
+inline bool MemoryManagerBase::Release(uint32_t pid, uint32_t page, uint32_t top) {
   if (pid < ndevices - 1)  // 最下位のデバイスは Release できない
   {
     LocalSpace& ls = lsp[pid];
@@ -229,61 +229,61 @@ inline bool MemoryManagerBase::Release(uint pid, uint page, uint top) {
 
 // ---------------------------------------------------------------------------
 
-inline bool ReadMemManager::AllocR(uint pid, uint addr, uint length, uint8_t* ptr) {
+inline bool ReadMemManager::AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) {
   assert((intptr_t(ptr) & idbit) == 0);
-  uint page = addr >> pagebits;
-  uint top = (addr + length + pagemask) >> pagebits;
+  uint32_t page = addr >> pagebits;
+  uint32_t top = (addr + length + pagemask) >> pagebits;
   return Alloc(pid, page, top, intptr_t(ptr), 1 << pagebits, false);
 }
 
 // ---------------------------------------------------------------------------
 
-inline bool ReadMemManager::AllocR(uint pid, uint addr, uint length, RdFunc ptr) {
+inline bool ReadMemManager::AllocR(uint32_t pid, uint32_t addr, uint32_t length, RdFunc ptr) {
   assert((intptr_t(ptr) & idbit) == 0);
-  uint page = addr >> pagebits;
-  uint top = (addr + length + pagemask) >> pagebits;
+  uint32_t page = addr >> pagebits;
+  uint32_t top = (addr + length + pagemask) >> pagebits;
 
   return Alloc(pid, page, top, intptr_t(ptr) | idbit, 0, true);
 }
 
 // ---------------------------------------------------------------------------
 
-inline bool ReadMemManager::ReleaseR(uint pid, uint addr, uint length) {
-  uint page = addr >> pagebits;
-  uint top = (addr + length + pagemask) >> pagebits;
+inline bool ReadMemManager::ReleaseR(uint32_t pid, uint32_t addr, uint32_t length) {
+  uint32_t page = addr >> pagebits;
+  uint32_t top = (addr + length + pagemask) >> pagebits;
   return Release(pid, page, top);
 }
 
 // ---------------------------------------------------------------------------
 
-inline bool WriteMemManager::AllocW(uint pid, uint addr, uint length, uint8_t* ptr) {
+inline bool WriteMemManager::AllocW(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) {
   assert((intptr_t(ptr) & idbit) == 0);
-  uint page = addr >> pagebits;
-  uint top = (addr + length + pagemask) >> pagebits;
+  uint32_t page = addr >> pagebits;
+  uint32_t top = (addr + length + pagemask) >> pagebits;
   return Alloc(pid, page, top, intptr_t(ptr), 1 << pagebits, false);
 }
 
 // ---------------------------------------------------------------------------
 
-inline bool WriteMemManager::AllocW(uint pid, uint addr, uint length, WrFunc ptr) {
+inline bool WriteMemManager::AllocW(uint32_t pid, uint32_t addr, uint32_t length, WrFunc ptr) {
   assert((intptr_t(ptr) & idbit) == 0);
-  uint page = addr >> pagebits;
-  uint top = (addr + length + pagemask) >> pagebits;
+  uint32_t page = addr >> pagebits;
+  uint32_t top = (addr + length + pagemask) >> pagebits;
   return MemoryManagerBase::Alloc(pid, page, top, intptr_t(ptr) | idbit, 0, true);
 }
 
 // ---------------------------------------------------------------------------
 
-inline bool WriteMemManager::ReleaseW(uint pid, uint addr, uint length) {
-  uint page = addr >> pagebits;
-  uint top = (addr + length + pagemask) >> pagebits;
+inline bool WriteMemManager::ReleaseW(uint32_t pid, uint32_t addr, uint32_t length) {
+  uint32_t page = addr >> pagebits;
+  uint32_t top = (addr + length + pagemask) >> pagebits;
   return Release(pid, page, top);
 }
 
 // ---------------------------------------------------------------------------
 //  メモリからの読み込み
 //
-inline uint ReadMemManager::Read8(uint addr) {
+inline uint32_t ReadMemManager::Read8(uint32_t addr) {
   Page& page = pages[addr >> pagebits];
   if (!page.func)
     return ((uint8_t*)page.ptr)[addr & pagemask];
@@ -294,7 +294,7 @@ inline uint ReadMemManager::Read8(uint addr) {
 // ---------------------------------------------------------------------------
 //  メモリへの書込み
 //
-inline void WriteMemManager::Write8(uint addr, uint data) {
+inline void WriteMemManager::Write8(uint32_t addr, uint32_t data) {
   Page& page = pages[addr >> pagebits];
   if (!page.func)
     ((uint8_t*)page.ptr)[addr & pagemask] = data;

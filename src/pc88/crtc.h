@@ -40,17 +40,17 @@ class CRTC : public Device {
   void ApplyConfig(const Config* config);
   int GetFramePeriod();
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
   // CRTC Control
-  void IOCALL Reset(uint = 0, uint = 0);
-  void IOCALL Out(uint, uint data);
-  uint IOCALL In(uint = 0);
-  uint IOCALL GetStatus(uint = 0);
-  void IOCALL PCGOut(uint, uint);
-  void IOCALL SetKanaMode(uint, uint);
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
+  void IOCALL Out(uint32_t, uint32_t data);
+  uint32_t IOCALL In(uint32_t = 0);
+  uint32_t IOCALL GetStatus(uint32_t = 0);
+  void IOCALL PCGOut(uint32_t, uint32_t);
+  void IOCALL SetKanaMode(uint32_t, uint32_t);
 
   void SetTextMode(bool color);
   void SetTextSize(bool wide);
@@ -110,21 +110,21 @@ class CRTC : public Device {
   void CreateTFont(const uint8_t*, int, int);
   void CreateKanaFont();
   void CreateGFont();
-  uint Command(bool a0, uint data);
+  uint32_t Command(bool a0, uint32_t data);
 
-  void IOCALL StartDisplay(uint = 0);
-  void IOCALL ExpandLine(uint = 0);
-  void IOCALL ExpandLineEnd(uint = 0);
+  void IOCALL StartDisplay(uint32_t = 0);
+  void IOCALL ExpandLine(uint32_t = 0);
+  void IOCALL ExpandLineEnd(uint32_t = 0);
   int ExpandLineSub();
 
   void ClearText(uint8_t* image);
   void ExpandImage(uint8_t* image, Draw::Region& region);
-  void ExpandAttributes(uint8_t* dest, const uint8_t* src, uint y);
+  void ExpandAttributes(uint8_t* dest, const uint8_t* src, uint32_t y);
   void ChangeAttr(uint8_t code);
 
-  const uint8_t* GetFont(uint c);
-  const uint8_t* GetFontW(uint c);
-  void ModifyFont(uint off, uint d);
+  const uint8_t* GetFont(uint32_t c);
+  const uint8_t* GetFontW(uint32_t c);
+  void ModifyFont(uint32_t off, uint32_t d);
   void EnablePCG(bool);
 
   void PutChar(packed* dest, uint8_t c, uint8_t a);
@@ -146,18 +146,18 @@ class CRTC : public Device {
   Draw* draw;
 
   int cmdm, cmdc;
-  uint cursormode;
-  uint linesize;
+  uint32_t cursormode;
+  uint32_t linesize;
   bool line200;  // 15KHz モード
   uint8_t attr;
   uint8_t attr_cursor;
   uint8_t attr_blink;
-  uint status;
-  uint column;
+  uint32_t status;
+  uint32_t column;
   int linetime;
-  uint frametime;
-  uint pcgadr;
-  uint pcgdat;
+  uint32_t frametime;
+  uint32_t pcgadr;
+  uint32_t pcgdat;
 
   int bpl;
   packed pat_col;
@@ -172,22 +172,22 @@ class CRTC : public Device {
   uint8_t* vram[2];
   uint8_t* attrcache;
 
-  uint bank;          // VRAM Cache のバンク
-                      //  uint tvramsize;         // 1画面のテキストサイズ
-                      //  uint screenwidth;       // 画面の幅
-  uint screenheight;  // 画面の高さ
+  uint32_t bank;          // VRAM Cache のバンク
+                      //  uint32_t tvramsize;         // 1画面のテキストサイズ
+                      //  uint32_t screenwidth;       // 画面の幅
+  uint32_t screenheight;  // 画面の高さ
 
-  uint cursor_x;  // カーソル位置
-  uint cursor_y;
-  uint attrperline;    // 1行あたりのアトリビュート数
-  uint linecharlimit;  // 1行あたりのテキスト高さ
-  uint linesperchar;   // 1行のドット数
-  uint width;          // テキスト画面の幅
-  uint height;         // テキスト画面の高さ
-  uint blinkrate;      // ブリンクの速度
+  uint32_t cursor_x;  // カーソル位置
+  uint32_t cursor_y;
+  uint32_t attrperline;    // 1行あたりのアトリビュート数
+  uint32_t linecharlimit;  // 1行あたりのテキスト高さ
+  uint32_t linesperchar;   // 1行のドット数
+  uint32_t width;          // テキスト画面の幅
+  uint32_t height;         // テキスト画面の高さ
+  uint32_t blinkrate;      // ブリンクの速度
   int cursor_type;     // b0:blink, b1:underline (-1=none)
-  uint vretrace;       //
-  uint mode;
+  uint32_t vretrace;       //
+  uint32_t mode;
   bool widefont;
   bool pcgenable;
   bool kanaenable;   // ひらカナ選択有効

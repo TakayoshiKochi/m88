@@ -28,7 +28,7 @@ Sound::~Sound() {
 // ---------------------------------------------------------------------------
 //  初期化とか
 //
-bool Sound::Init(PC88* pc88, uint rate, int bufsize) {
+bool Sound::Init(PC88* pc88, uint32_t rate, int bufsize) {
   pc = pc88;
   prevtime = pc->GetCPUTick();
   enabled = false;
@@ -47,7 +47,7 @@ bool Sound::Init(PC88* pc88, uint rate, int bufsize) {
 //  clock:      OPN に与えるクロック
 //  bufsize:    バッファ長 (サンプル単位?)
 //
-bool Sound::SetRate(uint rate, int bufsize) {
+bool Sound::SetRate(uint32_t rate, int bufsize) {
   mixrate = 55467;
 
   // 各音源のレート設定を変更
@@ -230,7 +230,7 @@ int IFCALL Sound::GetSubsampleTime(ISoundSource* /*src*/) {
 // ---------------------------------------------------------------------------
 //  定期的に内部カウンタを更新
 //
-void IOCALL Sound::UpdateCounter(uint) {
+void IOCALL Sound::UpdateCounter(uint32_t) {
   if ((pc->GetCPUTick() - prevtime) > 40000) {
     Log("Update Counter\n");
     Update(0);

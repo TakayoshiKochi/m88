@@ -26,10 +26,10 @@ bool Z80Diag::Init(IMemoryAccess* b) {
 // ---------------------------------------------------------------------------
 //  1命令逆アセンブルする
 //
-uint Z80Diag::Disassemble(uint _pc, char* dest) {
+uint32_t Z80Diag::Disassemble(uint32_t _pc, char* dest) {
   pc = _pc;
   xmode = usehl;
-  uint data = Read8(pc++);
+  uint32_t data = Read8(pc++);
   Expand(dest, Inst[data]);
   return pc;
 }
@@ -37,10 +37,10 @@ uint Z80Diag::Disassemble(uint _pc, char* dest) {
 // ---------------------------------------------------------------------------
 //  1命令逆アセンブルする
 //
-uint Z80Diag::DisassembleS(uint _pc, char* dest) {
+uint32_t Z80Diag::DisassembleS(uint32_t _pc, char* dest) {
   pc = _pc;
   xmode = usehl;
-  uint data = Read8(pc++);
+  uint32_t data = Read8(pc++);
   Expand(dest, Inst[data])[-1] = ' ';
   return pc;
 }
@@ -184,7 +184,7 @@ char* Z80Diag::Expand(char* dest, const char* src) {
   return dest;
 }
 
-void Z80Diag::SetHex(char*& dest, uint n) {
+void Z80Diag::SetHex(char*& dest, uint32_t n) {
   const char* table = "0123456789ABCDEF";
   if (n < 10) {
     *dest++ = '0' + n;
@@ -205,17 +205,17 @@ void Z80Diag::SetHex(char*& dest, uint n) {
 // ---------------------------------------------------------------------------
 //  １命令後のアドレスを求める
 //
-uint Z80Diag::InstInc(uint ad) {
+uint32_t Z80Diag::InstInc(uint32_t ad) {
   return ad + GetInstSize(ad);
 }
 
 // ---------------------------------------------------------------------------
 //  １命令前のアドレスを求める
 //
-uint Z80Diag::InstDec(uint ad) {
+uint32_t Z80Diag::InstDec(uint32_t ad) {
   const int scandepth = 8;
 
-  uint r = InstDecSub(ad, scandepth);
+  uint32_t r = InstDecSub(ad, scandepth);
   if (r)
     return ad - r;
   for (int i = 1; i <= 4; i++) {
@@ -225,7 +225,7 @@ uint Z80Diag::InstDec(uint ad) {
   return ad - 1;
 }
 
-uint Z80Diag::InstDecSub(uint ad, int depth) {
+uint32_t Z80Diag::InstDecSub(uint32_t ad, int depth) {
   for (int i = 1; i <= 4; i++) {
     if (GetInstSize(ad - i) == i) {
       if (!depth || InstDecSub(ad - i, depth - 1))
@@ -235,8 +235,8 @@ uint Z80Diag::InstDecSub(uint ad, int depth) {
   return 0;
 }
 
-int Z80Diag::GetInstSize(uint ad) {
-  uint c;
+int Z80Diag::GetInstSize(uint32_t ad) {
+  uint32_t c;
   int size;
   c = Read8(ad);
   size = SizeTable[c];

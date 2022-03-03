@@ -91,7 +91,7 @@ bool Screen::Init(IOBus* _bus, Memory* mem, CRTC* _crtc) {
   return true;
 }
 
-void IOCALL Screen::Reset(uint, uint) {
+void IOCALL Screen::Reset(uint32_t, uint32_t) {
   n80mode = (newmode & 2) != 0;
   palettechanged = true;
   displaygraphics = false;
@@ -830,7 +830,7 @@ void Screen::UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region) {
 
     Memory::quadbyte* src1;
     Memory::quadbyte* src2;
-    uint dspoff;
+    uint32_t dspoff;
     if (!grphpriority) {
       src1 = memory->GetGVRAM() + y * 80;
       src2 = memory->GetGVRAM() + y * 80 + 0x2000;
@@ -842,7 +842,7 @@ void Screen::UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region) {
     }
     int dm = 0;
 
-    uint bp1, rp1, gp1, bp2, rp2, gp2;
+    uint32_t bp1, rp1, gp1, bp2, rp2, gp2;
     bp1 = rp1 = gp1 = bp2 = rp2 = gp2 = 0;
 
     if (!fullline) {
@@ -1105,8 +1105,8 @@ void Screen::UpdateScreen320b(uint8_t* image, int bpl, Draw::Region& region) {
 //  Out 30
 //  b1  CRT モードコントロール
 //
-void IOCALL Screen::Out30(uint, uint data) {
-  //  uint i = port30 ^ data;
+void IOCALL Screen::Out30(uint32_t, uint32_t data) {
+  //  uint32_t i = port30 ^ data;
   port30 = data;
   crtc->SetTextSize(!(data & 0x01));
 }
@@ -1117,7 +1117,7 @@ void IOCALL Screen::Out30(uint, uint data) {
 //  b3  show graphic plane
 //  b0  200line / ~400line
 //
-void IOCALL Screen::Out31(uint, uint data) {
+void IOCALL Screen::Out31(uint32_t, uint32_t data) {
   int i = port31 ^ data;
 
   if (!n80mode) {
@@ -1154,7 +1154,7 @@ void IOCALL Screen::Out31(uint, uint data) {
             bgpal = col;
           }
           if (color) {
-            uint mask53 = (line320 ? 6 : 2);
+            uint32_t mask53 = (line320 ? 6 : 2);
             displaygraphics = ((port53 & mask53) != mask53 && (port31 & 8) != 0);
           }
         } else {
@@ -1206,8 +1206,8 @@ void IOCALL Screen::Out31(uint, uint data) {
 //  Out 32
 //  b5  パレットモード
 //
-void IOCALL Screen::Out32(uint, uint data) {
-  uint i = port32 ^ data;
+void IOCALL Screen::Out32(uint32_t, uint32_t data) {
+  uint32_t i = port32 ^ data;
   if (i & 0x20) {
     port32 = data;
     if (!color)
@@ -1221,9 +1221,9 @@ void IOCALL Screen::Out32(uint, uint data) {
 //  b3  0...Text>Grph，1...Grph>Text
 //  b2  0...Gr1 > Gr2，1...Gr2 > Gr1
 //
-void IOCALL Screen::Out33(uint, uint data) {
+void IOCALL Screen::Out33(uint32_t, uint32_t data) {
   if (n80mode) {
-    uint i = port33 ^ data;
+    uint32_t i = port33 ^ data;
     if (i & 0x8c) {
       port33 = data;
       textpriority = (data & 0x08) != 0;
@@ -1237,7 +1237,7 @@ void IOCALL Screen::Out33(uint, uint data) {
 //  Out 52
 //  バックグラウンドカラー(デジタル)の指定
 //
-void IOCALL Screen::Out52(uint, uint data) {
+void IOCALL Screen::Out52(uint32_t, uint32_t data) {
   if (!(port32 & 0x20)) {
     bgpal.blue = (data & 0x08) ? 255 : 0;
     bgpal.red = (data & 0x10) ? 255 : 0;
@@ -1252,7 +1252,7 @@ void IOCALL Screen::Out52(uint, uint data) {
 //  Out 53
 //  画面重ねあわせの制御
 //
-void IOCALL Screen::Out53(uint, uint data) {
+void IOCALL Screen::Out53(uint32_t, uint32_t data) {
   if (!n80mode) {
     LOG4("show plane(53) : %c%c%c %c\n", data & 8 ? '-' : '2', data & 4 ? '-' : '1',
          data & 2 ? '-' : '0', data & 1 ? '-' : 'T');
@@ -1264,7 +1264,7 @@ void IOCALL Screen::Out53(uint, uint data) {
     LOG7("show plane(53) : %c%c%c%c%c%c %c\n", data & 64 ? '-' : '5', data & 32 ? '-' : '4',
          data & 16 ? '-' : '3', data & 8 ? '-' : '2', data & 4 ? '-' : '1', data & 2 ? '-' : '0',
          data & 1 ? '-' : 'T');
-    uint mask;
+    uint32_t mask;
     if (color) {
       if (line320)
         mask = 0x07;
@@ -1280,7 +1280,7 @@ void IOCALL Screen::Out53(uint, uint data) {
     if ((port53 ^ data) & mask) {
       modechanged = true;
       if (color) {
-        uint mask53 = (line320 ? 6 : 2);
+        uint32_t mask53 = (line320 ? 6 : 2);
         displaygraphics = ((data & mask53) != mask53 && (port31 & 8) != 0);
       }
     }
@@ -1292,7 +1292,7 @@ void IOCALL Screen::Out53(uint, uint data) {
 //  Out 54
 //  set palette #0 / BG Color
 //
-void IOCALL Screen::Out54(uint, uint data) {
+void IOCALL Screen::Out54(uint32_t, uint32_t data) {
   if (port32 & 0x20)  // is analog palette mode ?
   {
     Pal& p = data & 0x80 ? bgpal : pal[0];
@@ -1317,7 +1317,7 @@ void IOCALL Screen::Out54(uint, uint data) {
 //  Out 55 - 5b
 //  Set palette #1 to #7
 //
-void IOCALL Screen::Out55to5b(uint port, uint data) {
+void IOCALL Screen::Out55to5b(uint32_t port, uint32_t data) {
   Pal& p = pal[port - 0x54];
 
   if (!n80mode && (port32 & 0x20))  // is analog palette mode?
@@ -1466,7 +1466,7 @@ void Screen::CreateTable() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint IFCALL Screen::GetStatusSize() {
+uint32_t IFCALL Screen::GetStatusSize() {
   return sizeof(Status);
 }
 

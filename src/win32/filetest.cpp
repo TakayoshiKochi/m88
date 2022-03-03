@@ -26,7 +26,7 @@ bool SanityCheck(uint32_t* pcrc) {
     return false;
 
   fio.Seek(0, FileIO::end);
-  uint len = fio.Tellp();
+  uint32_t len = fio.Tellp();
 
   uint8_t* mod = new uint8_t[len];
   if (!mod)
@@ -41,10 +41,10 @@ bool SanityCheck(uint32_t* pcrc) {
   *(uint32_t*)(mod + tagpos) = 0;
 
   // CRC 計算
-  uint crctable[256];
-  uint i;
+  uint32_t crctable[256];
+  uint32_t i;
   for (i = 0; i < 256; i++) {
-    uint r = i << 24;
+    uint32_t r = i << 24;
     for (int j = 0; j < 8; j++)
       r = (r << 1) ^ (r & 0x80000000 ? 0x04c11db7 : 0);
     crctable[i] = r;

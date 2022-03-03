@@ -15,14 +15,14 @@
 namespace WinSoundDriver {
 
 class DriverDS : public Driver {
-  static const uint num_blocks;
-  static const uint timer_resolution;
+  static const uint32_t num_blocks;
+  static const uint32_t timer_resolution;
 
  public:
   DriverDS();
   ~DriverDS();
 
-  bool Init(SoundSource* sb, HWND hwnd, uint rate, uint ch, uint buflen);
+  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen);
   bool Cleanup();
 
  private:
@@ -35,8 +35,8 @@ class DriverDS : public Driver {
   UINT timerid;
   LONG sending;
 
-  uint nextwrite;
-  uint buffer_length;
+  uint32_t nextwrite;
+  uint32_t buffer_length;
 };
 
 }  // namespace WinSoundDriver

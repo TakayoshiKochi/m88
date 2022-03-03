@@ -22,14 +22,14 @@ class Driver {
   Driver() {}
   virtual ~Driver() {}
 
-  virtual bool Init(SoundSource* sb, HWND hwnd, uint rate, uint ch, uint buflen) = 0;
+  virtual bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) = 0;
   virtual bool Cleanup() = 0;
   void MixAlways(bool yes) { mixalways = yes; }
 
  protected:
   SoundSource* src;
-  uint buffersize;
-  uint sampleshift;
+  uint32_t buffersize;
+  uint32_t sampleshift;
   volatile bool playing;
   bool mixalways;
 };
