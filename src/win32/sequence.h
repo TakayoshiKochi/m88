@@ -28,7 +28,7 @@ class Sequencer {
   bool Init(PC88* vm);
   bool Cleanup();
 
-  long GetExecCount();
+  int32_t GetExecCount();
   void Activate(bool active);
 
   void Lock() { cs.lock(); }
@@ -39,7 +39,7 @@ class Sequencer {
   void SetRefreshTiming(uint32_t rti);
 
  private:
-  void Execute(long clock, long length, long ec);
+  void Execute(int32_t clock, int32_t length, int32_t ec);
   void ExecuteAsynchronus();
 
   uint32_t ThreadMain();
