@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <windows.h>
-
 #include <stdint.h>
 
 //  固定長型とか
