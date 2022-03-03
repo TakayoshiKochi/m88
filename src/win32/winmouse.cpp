@@ -41,11 +41,11 @@ long IFCALL WinMouseUI::QueryInterface(REFIID id, void** ppi) {
   return S_OK;
 }
 
-ulong IFCALL WinMouseUI::AddRef() {
+uint32_t IFCALL WinMouseUI::AddRef() {
   return ++refcount;
 }
 
-ulong IFCALL WinMouseUI::Release() {
+uint32_t IFCALL WinMouseUI::Release() {
   if (--refcount)
     return refcount;
   delete this;

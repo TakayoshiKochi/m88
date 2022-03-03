@@ -10,4 +10,4 @@
 
 //  固定長型とか
 // using uint32_t = unsigned int;
-using ulong = unsigned long;
+// using uint32_t = unsigned long;

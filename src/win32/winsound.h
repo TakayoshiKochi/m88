@@ -25,7 +25,7 @@ class SoundDumpPipe : public SoundSource {
   SoundDumpPipe();
 
   void SetSource(SoundSource* source) { source_ = source; }
-  ulong GetRate() { return source_ ? source_->GetRate() : 0; }
+  uint32_t GetRate() { return source_ ? source_->GetRate() : 0; }
   int GetChannels() { return source_ ? source_->GetChannels() : 0; }
   int Get(Sample* dest, int samples);
   int GetAvail() { return INT_MAX; }
@@ -48,7 +48,7 @@ class SoundDumpPipe : public SoundSource {
 
   DumpState dumpstate_;
   int dumpedsample_;
-  ulong dumprate_;
+  uint32_t dumprate_;
 
   CriticalSection cs_;
 };

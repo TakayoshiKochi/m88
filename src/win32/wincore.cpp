@@ -178,9 +178,9 @@ bool WinCore::SaveShapshot(const char* filename) {
   memset(buf, 0, size);
 
   if (devlist.SaveStatus(buf)) {
-    ulong esize = size * 129 / 64 + 20 - 4;
+    uint32_t esize = size * 129 / 64 + 20 - 4;
     if (docomp) {
-      if (Z_OK != compress(buf + size + 4, &esize, buf, size)) {
+      if (Z_OK != compress(buf + size + 4, (uLongf*)&esize, buf, size)) {
         delete[] buf;
         return false;
       }
@@ -270,9 +270,9 @@ bool WinCore::LoadShapshot(const char* filename, const char* diskname) {
         uint8_t* cbuf = new uint8_t[csize];
 
         if (cbuf) {
-          ulong bufsize = ssh.datasize;
+          uint32_t bufsize = ssh.datasize;
           file.Read(cbuf, csize);
-          read = uncompress(buf, &bufsize, cbuf, csize) == Z_OK;
+          read = uncompress(buf, (uLongf*)&bufsize, cbuf, csize) == Z_OK;
 
           delete[] cbuf;
         }

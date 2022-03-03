@@ -43,7 +43,7 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
 
   int Get(Sample* dest, int size);
   int Get(SampleL* dest, int size);
-  ulong GetRate() { return mixrate; }
+  uint32_t GetRate() { return mixrate; }
   int GetChannels() { return 2; }
 
   int GetAvail() { return INT_MAX; }
