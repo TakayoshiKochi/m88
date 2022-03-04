@@ -7,6 +7,9 @@
 //  $Id: winmouse.cpp,v 1.9 2002/04/07 05:40:11 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <stdlib.h>
+
 #include "win32/winmouse.h"
 #include "win32/ui.h"
 #include "if/ifguid.h"
@@ -100,7 +103,7 @@ bool WinMouseUI::GetMovement(POINT* move) {
       move->y = (c.y - point.y) / 2;
 
       SetCursorPos(c.x, c.y);
-      if (Abs(move->x) < 320 && Abs(move->y) < 200) {
+      if (abs(move->x) < 320 && abs(move->y) < 200) {
         move->x = Limit(move->x, 127, -127);
         move->y = Limit(move->y, 127, -127);
       } else

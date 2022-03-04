@@ -8,8 +8,10 @@
 
 #include "win32/headers.h"
 
-#include "pc88/fdc.h"
-#include "pc88/fdu.h"
+#include <stdlib.h>
+
+#include "pc88/FDC.h"
+#include "pc88/FDU.h"
 #include "common/misc.h"
 #include "win32/critsect.h"
 #include "pc88/diskmgr.h"
@@ -628,7 +630,7 @@ void FDC::Seek(uint32_t dr, uint32_t cy) {
   dr &= 3;
 
   cy <<= drive[dr].dd;
-  int seekcount = Abs(cy - drive[dr].cyrinder);
+  int seekcount = abs((int)cy - (int)drive[dr].cyrinder);
   if (GetDeviceStatus(dr) & 0x80) {
     // FAULT
     LOG1("\tSeek on unconnected drive (%d)\n", dr);
@@ -638,7 +640,7 @@ void FDC::Seek(uint32_t dr, uint32_t cy) {
   } else {
     LOG3("Seek: %d -> %d (%d)\n", drive[dr].cyrinder, cy, seekcount);
     drive[dr].cyrinder = cy;
-    seektime = seekcount && diskwait ? (400 * Abs(seekcount) + 500) : 10;
+    seektime = seekcount && diskwait ? (400 * abs(seekcount) + 500) : 10;
     scheduler->AddEvent(seektime, this, static_cast<TimeFunc>(&FDC::SeekEvent), dr);
     seekstate |= 1 << dr;
 
