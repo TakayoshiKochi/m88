@@ -11,7 +11,6 @@
 
 #include "win32/headers.h"
 #include "devices/opm.h"
-#include "devices/fmgeninl.h"
 
 // #define LOGNAME "opm"
 

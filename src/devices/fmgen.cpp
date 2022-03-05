@@ -28,7 +28,6 @@
 
 #include "win32/headers.h"
 #include "devices/fmgen.h"
-#include "devices/fmgeninl.h"
 
 #define LOGNAME "fmgen"
 

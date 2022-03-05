@@ -1378,7 +1378,6 @@
     <ClInclude Include="src\common\soundsrc.h" />
     <ClInclude Include="src\common\srcbuf.h" />
     <ClInclude Include="src\devices\fmgen.h" />
-    <ClInclude Include="src\devices\fmgeninl.h" />
     <ClInclude Include="src\devices\fmtimer.h" />
     <ClInclude Include="src\devices\opm.h" />
     <ClInclude Include="src\devices\opna.h" />

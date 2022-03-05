@@ -347,9 +347,6 @@
     <ClInclude Include="src\devices\fmgen.h">
       <Filter>devices</Filter>
     </ClInclude>
-    <ClInclude Include="src\devices\fmgeninl.h">
-      <Filter>devices</Filter>
-    </ClInclude>
     <ClInclude Include="src\devices\fmtimer.h">
       <Filter>devices</Filter>
     </ClInclude>

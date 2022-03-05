@@ -11,7 +11,6 @@
 
 #include "win32/headers.h"
 #include "devices/opna.h"
-#include "devices/fmgeninl.h"
 
 #define BUILD_OPN
 #define BUILD_OPNA
