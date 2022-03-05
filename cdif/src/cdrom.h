@@ -11,6 +11,14 @@
 
 class ASPI;
 
+inline unsigned int NtoBCD(unsigned int a) {
+  return ((a / 10) << 4) + (a % 10);
+}
+
+inline unsigned int BCDtoN(unsigned int v) {
+  return (v >> 4) * 10 + (v & 15);
+}
+
 // ---------------------------------------------------------------------------
 //  CDROM 制御クラス
 //

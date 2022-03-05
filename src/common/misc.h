@@ -9,15 +9,3 @@
 inline int Limit(int v, int max, int min) {
   return v > max ? max : (v < min ? min : v);
 }
-
-inline unsigned int BSwap(unsigned int a) {
-  return (a >> 24) | ((a >> 8) & 0xff00) | ((a << 8) & 0xff0000) | (a << 24);
-}
-
-inline unsigned int NtoBCD(unsigned int a) {
-  return ((a / 10) << 4) + (a % 10);
-}
-
-inline unsigned int BCDtoN(unsigned int v) {
-  return (v >> 4) * 10 + (v & 15);
-}
