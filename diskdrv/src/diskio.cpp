@@ -5,6 +5,9 @@
 //  $Id: diskio.cpp,v 1.2 1999/09/25 03:13:51 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "common/misc.h"
 #include "diskio.h"
 
@@ -173,7 +176,7 @@ void DiskIO::CmdReadFile() {
       LOG1("ReadFile(%s) - ", filename);
       if (file.Open((char*)filename, FileIO::readonly)) {
         file.Seek(0, FileIO::end);
-        size = Min(0xffff, file.Tellp());
+        size = std::min(0xffff, file.Tellp());
         file.Seek(0, FileIO::begin);
         buf[0] = size & 0xff;
         buf[1] = (size >> 8) & 0xff;
@@ -188,7 +191,7 @@ void DiskIO::CmdReadFile() {
 
     case sendphase:
       if (size > 0) {
-        int b = Min(1024, size);
+        int b = std::min(1024, size);
         size -= b;
         if (file.Read(buf, b)) {
           SendPhase(buf, b);
@@ -223,7 +226,7 @@ void DiskIO::CmdWriteFile() {
       size = arg[0] + arg[1] * 256;
       if (size > 0) {
         LOG0("%d bytes ");
-        length = Min(1024, size);
+        length = std::min(1024, size);
         size -= length;
         RecvPhase(buf, length);
       } else {
@@ -238,7 +241,7 @@ void DiskIO::CmdWriteFile() {
         IdlePhase(), err = 61;
       }
       if (size > 0) {
-        length = Min(1024, size);
+        length = std::min(1024, size);
         size -= length;
         RecvPhase(buf, length);
       } else

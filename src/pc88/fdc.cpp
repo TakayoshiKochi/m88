@@ -10,6 +10,8 @@
 
 #include <stdlib.h>
 
+#include <algorithm>
+
 #include "pc88/FDC.h"
 #include "pc88/FDU.h"
 #include "common/misc.h"
@@ -453,7 +455,7 @@ void FDC::CmdReadData() {
 
     case commandphase:
       GetSectorParameters();
-      SetTimer(executephase, 250 << Min(7, idr.n));
+      SetTimer(executephase, 250 << std::min((uint8_t)7, idr.n));
       return;
 
     case executephase:
@@ -471,7 +473,7 @@ void FDC::CmdReadData() {
         SetTimer(timerphase, 20);
         return;
       }
-      SetTimer(executephase, 250 << Min(7, idr.n));
+      SetTimer(executephase, 250 << std::min((uint8_t)7, idr.n));
       return;
 
     case tcphase:
@@ -576,7 +578,7 @@ void FDC::ReadData(bool deleted, bool scan) {
     SetTimer(timerphase, 1000);
     return;
   }
-  int xbyte = idr.n ? (0x80 << Min(8, idr.n)) : (Min(dtl, 0x80));
+  int xbyte = idr.n ? (0x80 << std::min((uint8_t)8, idr.n)) : (std::min(dtl, 0x80U));
 
   if (!scan)
     ShiftToExecReadPhase(xbyte);
@@ -793,9 +795,9 @@ void FDC::CmdWriteData() {
           ShiftToResultPhase7();
           return;
         }
-        int xbyte = 0x80 << Min(8, idr.n);
+        int xbyte = 0x80 << std::min((uint8_t)8, idr.n);
         if (!idr.n) {
-          xbyte = Min(dtl, 0x80);
+          xbyte = std::min(dtl, 0x80U);
           memset(buffer + xbyte, 0, 0x80 - xbyte);
         }
         ShiftToExecWritePhase(xbyte);
@@ -999,8 +1001,8 @@ void FDC::CmdReadDiagnostic() {
         ShiftToResultPhase7();
         return;
       }
-      xbyte = idr.n ? 0x80 << Min(8, idr.n) : Min(dtl, 0x80);
-      ct = Min(readdiaglim - readdiagptr, xbyte);
+      xbyte = idr.n ? 0x80 << std::min((uint8_t)8, idr.n) : std::min(dtl, 0x80U);
+      ct = std::min(uint32_t(readdiaglim - readdiagptr), xbyte);
       readdiagcount = ct;
       ShiftToExecReadPhase(ct, readdiagptr);
       readdiagptr += ct, xbyte -= ct;
@@ -1010,7 +1012,7 @@ void FDC::CmdReadDiagnostic() {
 
     case execreadphase:
       if (xbyte > 0) {
-        ct = Min(readdiaglim - readdiagptr, xbyte);
+        ct = std::min(uint32_t(readdiaglim - readdiagptr), xbyte);
         readdiagcount += ct;
         ShiftToExecReadPhase(ct, readdiagptr);
         readdiagptr += ct, xbyte -= ct;

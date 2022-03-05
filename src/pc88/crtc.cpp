@@ -7,6 +7,9 @@
 //  $Id: crtc.cpp,v 1.34 2004/02/05 11:57:49 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "pc88/crtc.h"
 #include "pc88/pd8257.h"
 #include "pc88/config.h"
@@ -265,7 +268,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
           if (line200)
             linesperchar *= 2;
 
-          linecharlimit = Min(linesperchar, 16);
+          linecharlimit = std::min(linesperchar, 16U);
           break;
 
         //  b0-b4   Horizontal Retrace-2 (char)
@@ -286,7 +289,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
             mode &= ~enable;
 
           //          screenwidth = 640;
-          screenheight = Min(400, linesperchar * height);
+          screenheight = std::min(400U, linesperchar * height);
           LOG5("\nscrn=(640, %d), vrtc = %d, linetime = %d0 us, frametime0 = %d us\n", screenheight,
                vretrace, linetime, linetime * (height + vretrace));
           mode |= resize;
@@ -657,7 +660,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
 
   int linestep = linesperchar * bpl;
 
-  int yy = Min(screenheight / linesperchar, height) - 1;
+  int yy = std::min(screenheight / linesperchar, height) - 1;
 
   //  LOG1("ExpandImage Bank:%d\n", bank);
   //  image += y * linestep;
@@ -1084,7 +1087,7 @@ bool IFCALL CRTC::SaveStatus(uint8_t* s) {
 
   st->rev = ssrev;
   st->cmdm = cmdm;
-  st->cmdc = Max(cmdc, 0xff);
+  st->cmdc = std::max(cmdc, 0xff);
   memcpy(st->pcount, pcount, sizeof(pcount));
   memcpy(st->param0, param0, sizeof(param0));
   st->param1 = param1;

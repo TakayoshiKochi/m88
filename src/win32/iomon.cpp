@@ -5,6 +5,9 @@
 //  $Id: iomon.cpp,v 1.1 2001/02/21 11:58:54 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "win32/resource.h"
 #include "pc88/pc88.h"
 #include "pc88/ioview.h"
@@ -27,7 +30,7 @@ IOMonitor::IOMonitor() {
     for (int i = 1; i < 256; i++) {
       int r = 0x40 + static_cast<int>(0xbf * pow((i / 256.), 8.0));
       int g = 0x20 + static_cast<int>(0xdf * pow((i / 256.), 24.0));
-      ctbl[0xff - i] = RGB(Min(r, 0xff), Min(g, 0xff), 0xff);
+      ctbl[0xff - i] = RGB(std::min(r, 0xff), std::min(g, 0xff), 0xff);
     }
   }
 }

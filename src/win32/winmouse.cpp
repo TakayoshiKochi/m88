@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 
+#include "common/misc.h"
 #include "win32/winmouse.h"
 #include "win32/ui.h"
 #include "if/ifguid.h"

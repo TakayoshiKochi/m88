@@ -7,7 +7,8 @@
 #pragma once
 
 #include <stdint.h>
-#include "common/misc.h"
+
+#include <algorithm>
 
 // 8 bit 数値をまとめて処理するときに使う型
 using packed = uint32_t;
@@ -28,8 +29,8 @@ class Draw {
     }
     bool Valid() { return top <= bottom; }
     void Update(int l, int t, int r, int b) {
-      left = Min(left, l), right = Max(right, r);
-      top = Min(top, t), bottom = Max(bottom, b);
+      left = std::min(left, l), right = std::max(right, r);
+      top = std::min(top, t), bottom = std::max(bottom, b);
     }
     void Update(int t, int b) { Update(0, t, 640, b); }
 

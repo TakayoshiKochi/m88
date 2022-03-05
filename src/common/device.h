@@ -6,7 +6,9 @@
 
 #pragma once
 
+#include <assert.h>
 #include <stdint.h>
+
 #include "if/ifcommon.h"
 
 // ---------------------------------------------------------------------------
@@ -243,10 +245,6 @@ inline bool IOBus::IsSyncPort(uint32_t port) {
 //  Copyright (c) cisc 1999.
 // ---------------------------------------------------------------------------
 //  $Id: device_i.h,v 1.9 1999/08/26 08:05:55 cisc Exp $
-
-#pragma once
-
-#include <assert.h>
 
 // ---------------------------------------------------------------------------
 //  MemoryBus inline funcitions

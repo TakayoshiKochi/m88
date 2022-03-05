@@ -5,6 +5,9 @@
 //  $Id: mvmon.cpp,v 1.3 2001/02/21 11:58:55 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "win32/resource.h"
 #include "pc88/pc88.h"
 #include "win32/memmon.h"
@@ -170,7 +173,7 @@ uint32_t MemViewMonitor::StatExec(uint32_t a) {
   int ex = mv.StatExec(a);
   if (!ex)
     return 0;
-  return ex < 0x4 ? (ex + 4) * 0x10 : Min(ex + 0x80 - 0x04, 0xc0);
+  return ex < 0x4 ? (ex + 4) * 0x10 : std::min(ex + 0x80 - 0x04, 0xc0);
 }
 
 void MemViewMonitor::StatClear() {

@@ -5,6 +5,9 @@
 //  $Id: wincfg.cpp,v 1.8 2003/05/12 22:26:35 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "win32/resource.h"
 #include "win32/wincfg.h"
 #include "common/misc.h"
@@ -99,7 +102,7 @@ bool WinConfig::Show(HINSTANCE hinstance, HWND hwnd, Config* conf) {
       psh.hInstance = hinst;
       psh.pszCaption = "設定";
       psh.nPages = i;
-      psh.nStartPage = Min(page, i - 1);
+      psh.nStartPage = std::min(page, i - 1);
       psh.ppsp = psp;
       psh.pfnCallback = (PFNPROPSHEETCALLBACK)(void*)PropProcGate;
 

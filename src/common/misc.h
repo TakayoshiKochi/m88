@@ -6,13 +6,6 @@
 
 #pragma once
 
-inline int Max(int x, int y) {
-  return (x > y) ? x : y;
-}
-inline int Min(int x, int y) {
-  return (x < y) ? x : y;
-}
-
 inline int Limit(int v, int max, int min) {
   return v > max ? max : (v < min ? min : v);
 }

@@ -5,7 +5,11 @@
 //  $Id: sound.cpp,v 1.32 2003/05/19 01:10:32 cisc Exp $
 
 #include "win32/headers.h"
+
 #include <stdint.h>
+
+#include <algorithm>
+
 #include "common/misc.h"
 #include "pc88/sound.h"
 #include "pc88/pc88.h"
@@ -103,7 +107,7 @@ void Sound::Cleanup() {
 //  音合成
 //
 int Sound::Get(Sample* dest, int nsamples) {
-  int mixsamples = Min(nsamples, buffersize);
+  int mixsamples = std::min(nsamples, buffersize);
   if (mixsamples > 0) {
     // 合成
     {

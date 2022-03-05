@@ -5,6 +5,9 @@
 //  $Id: soundmon.cpp,v 1.15 2003/06/12 14:03:44 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "win32/resource.h"
 #include "win32/soundmon.h"
 #include "common/misc.h"
@@ -64,7 +67,7 @@ void OPNMonitor::DrawMain(HDC hdc, bool) {
   MoveToEx(hdc, 0, rect.bottom / 2, 0);
   //  SetPixel(hdc, 0, rect.bottom/2, 0x000f0f * (16-dim));
 
-  int r = Min(rect.right, width);
+  int r = std::min(rect.right, (LONG)width);
   int j, x;
   for (j = 1; j < width - r; j++) {
     int y0 = buf[read][j];
@@ -112,7 +115,7 @@ BOOL OPNMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
       break;
 
     case WM_SIZE:
-      width = Min(LOWORD(lp) + 128, bufsize);
+      width = std::min(LOWORD(lp) + 128, (int)bufsize);
       SetFont(hdlg, Limit(HIWORD(lp) / 32, 24, 8));
       break;
 

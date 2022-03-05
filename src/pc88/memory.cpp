@@ -9,6 +9,9 @@
 //  MemoryPage size should be equal to or less than 0x400.
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "win32/file.h"
 #include "common/device.h"
 #include "common/memmgr.h"
@@ -114,7 +117,7 @@ void Memory::Reset(uint32_t, uint32_t newmode) {
 
   // 拡張 RAM の設定
   if (n80mode)
-    neweram = Max(1, neweram);
+    neweram = std::max(1U, neweram);
   if (erambanks != neweram) {
     mm->AllocR(mid, 0, 0x8000, ram);
     mm->AllocW(mid, 0, 0x8000, ram);

@@ -10,6 +10,9 @@
 #include <commdlg.h>
 #include <shellapi.h>
 #include <mbstring.h>
+
+#include <algorithm>
+
 #include "win32/resource.h"
 #include "win32/ui.h"
 #include "win32/about.h"
@@ -1140,7 +1143,7 @@ bool WinUI::CreateDiskMenu(uint32_t drive) {
   HMENU hmenuprev = dinfo.hmenu;
   dinfo.currentdisk = -1;
 
-  int ndisks = Min(diskmgr->GetNumDisks(drive), 60);
+  int ndisks = std::min(diskmgr->GetNumDisks(drive), 60U);
   if (ndisks) {
     // メニュー作成
     dinfo.hmenu = CreatePopupMenu();

@@ -7,7 +7,10 @@
 //  $Id: cdif.cpp,v 1.2 1999/10/10 01:39:00 cisc Exp $
 
 #include "win32/headers.h"
+
 #include "cdif.h"
+
+#include <algorithm>
 
 #define LOGNAME "cdif"
 #include "common/diag.h"
@@ -372,7 +375,7 @@ void CDIF::ReadSubcodeQ() {
       datbuf[7] = NtoBCD(tmpbuf[9]);
       datbuf[8] = NtoBCD(tmpbuf[10]);
       datbuf[9] = NtoBCD(tmpbuf[11]);
-      SendPhase(Min(cmdbuf[1], 10), 0, 0);
+      SendPhase(std::min(cmdbuf[1], (uint8_t)10U), 0, 0);
       break;
   }
 }
