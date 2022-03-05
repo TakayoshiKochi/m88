@@ -264,9 +264,6 @@
     <ClCompile Include="src\win32\winsound.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\winvars.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\romeo\juliet.cpp">
       <Filter>win32\romeo</Filter>
     </ClCompile>
@@ -579,9 +576,6 @@
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\winsound.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\winvars.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\romeo\juliet.h">

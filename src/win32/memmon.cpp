@@ -321,7 +321,7 @@ bool MemoryMonitor::SaveImage() {
   // ダイアログ
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
-  ofn.lStructSize = WINVAR(OFNSIZE);
+  ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.FlagsEx = OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];
