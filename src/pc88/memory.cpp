@@ -11,7 +11,6 @@
 #include "win32/headers.h"
 #include "win32/file.h"
 #include "common/device.h"
-#include "common/device_i.h"
 #include "common/memmgr.h"
 #include "pc88/memory.h"
 #include "pc88/config.h"

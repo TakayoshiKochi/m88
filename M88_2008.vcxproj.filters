@@ -317,9 +317,6 @@
     <ClInclude Include="src\common\device.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\device_i.h">
-      <Filter>common</Filter>
-    </ClInclude>
     <ClInclude Include="src\common\draw.h">
       <Filter>common</Filter>
     </ClInclude>

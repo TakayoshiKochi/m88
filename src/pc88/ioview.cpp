@@ -6,7 +6,6 @@
 
 #include "win32/headers.h"
 #include "common/device.h"
-#include "common/device_i.h"
 #include "pc88/ioview.h"
 #include "win32/status.h"
 

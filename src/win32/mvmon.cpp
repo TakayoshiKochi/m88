@@ -9,7 +9,6 @@
 #include "pc88/pc88.h"
 #include "win32/memmon.h"
 #include "common/misc.h"
-#include "common/device_i.h"
 
 using namespace PC8801;
 

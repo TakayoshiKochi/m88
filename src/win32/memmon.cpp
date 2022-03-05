@@ -9,7 +9,6 @@
 #include "pc88/pc88.h"
 #include "win32/memmon.h"
 #include "common/misc.h"
-#include "common/device_i.h"
 #include "win32/file.h"
 #include "win32/winvars.h"
 #include "if/ifguid.h"

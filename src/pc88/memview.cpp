@@ -6,7 +6,6 @@
 
 #include "win32/headers.h"
 #include "common/device.h"
-#include "common/device_i.h"
 #include "pc88/memory.h"
 #include "pc88/memview.h"
 

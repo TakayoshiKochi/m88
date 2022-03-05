@@ -1367,7 +1367,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h" />
-    <ClInclude Include="src\common\device_i.h" />
     <ClInclude Include="src\common\diag.h" />
     <ClInclude Include="src\common\draw.h" />
     <ClInclude Include="src\common\error.h" />

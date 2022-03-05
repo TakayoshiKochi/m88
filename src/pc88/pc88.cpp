@@ -30,7 +30,6 @@
 #include "win32/loadmon.h"
 
 #include "win32/status.h"
-#include "common/device_i.h"
 
 // #define LOGNAME "pc88"
 #include "common/diag.h"
