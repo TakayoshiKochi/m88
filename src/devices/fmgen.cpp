@@ -27,7 +27,6 @@
 #include <algorithm>
 
 #include "win32/headers.h"
-#include "common/misc.h"
 #include "devices/fmgen.h"
 #include "devices/fmgeninl.h"
 

@@ -11,7 +11,6 @@
 #include "win32/resource.h"
 #include "pc88/pc88.h"
 #include "win32/memmon.h"
-#include "common/misc.h"
 
 using namespace PC8801;
 

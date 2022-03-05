@@ -11,9 +11,9 @@
 #include <stdlib.h>
 
 #include "common/misc.h"
+#include "if/ifguid.h"
 #include "win32/winmouse.h"
 #include "win32/ui.h"
-#include "if/ifguid.h"
 #include "win32/messages.h"
 
 WinMouseUI::WinMouseUI() : enable(false), ui(0), refcount(0) {

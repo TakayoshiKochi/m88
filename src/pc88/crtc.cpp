@@ -10,15 +10,14 @@
 
 #include <algorithm>
 
-#include "pc88/crtc.h"
-#include "pc88/pd8257.h"
-#include "pc88/config.h"
-#include "pc88/pc88.h"
-#include "common/schedule.h"
 #include "common/draw.h"
-#include "common/misc.h"
-#include "win32/file.h"
 #include "common/error.h"
+#include "common/schedule.h"
+#include "pc88/config.h"
+#include "pc88/crtc.h"
+#include "pc88/pc88.h"
+#include "pc88/pd8257.h"
+#include "win32/file.h"
 #include "win32/status.h"
 
 // #define LOGNAME "crtc"

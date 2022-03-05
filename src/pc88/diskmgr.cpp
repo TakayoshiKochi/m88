@@ -10,7 +10,6 @@
 
 #include "pc88/diskmgr.h"
 #include "win32/status.h"
-#include "common/misc.h"
 
 using namespace D88;
 

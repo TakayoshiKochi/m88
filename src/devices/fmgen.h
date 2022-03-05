@@ -9,6 +9,10 @@
 
 #include <stdint.h>
 
+inline int Limit(int v, int max, int min) {
+  return v > max ? max : (v < min ? min : v);
+}
+
 // ---------------------------------------------------------------------------
 //  出力サンプルの型
 //

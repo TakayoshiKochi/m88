@@ -11,7 +11,6 @@
 #include "pc88/tapemgr.h"
 #include "win32/file.h"
 #include "win32/status.h"
-#include "common/misc.h"
 
 #define LOGNAME "tape"
 #include "common/diag.h"

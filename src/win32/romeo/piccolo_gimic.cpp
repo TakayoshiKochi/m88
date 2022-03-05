@@ -9,7 +9,6 @@
 #include "win32/romeo/piccolo.h"
 #include "win32/romeo/piccolo_gimic.h"
 #include "win32/romeo/c86ctl.h"
-#include "common/misc.h"
 #include "win32/status.h"
 
 #define LOGNAME "piccolo"

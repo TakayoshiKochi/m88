@@ -8,11 +8,9 @@
 
 #include "win32/headers.h"
 
-// #include <stdio.h>
 #include <algorithm>
 
 #include "pc88/pd8257.h"
-#include "common/misc.h"
 
 // #define LOGNAME   "pd8257"
 #include "common/diag.h"

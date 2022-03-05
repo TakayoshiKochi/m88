@@ -10,7 +10,6 @@
 
 #include <algorithm>
 
-#include "common/misc.h"
 #include "pc88/intc.h"
 
 // #define LOGNAME "intc"

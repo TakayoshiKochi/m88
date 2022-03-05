@@ -13,7 +13,6 @@
 #include "win32/winkeyif.h"
 #include "win32/messages.h"
 #include "pc88/config.h"
-#include "common/misc.h"
 
 // #define LOGNAME "keyif"
 #include "common/diag.h"

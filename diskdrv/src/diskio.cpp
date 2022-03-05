@@ -8,7 +8,6 @@
 
 #include <algorithm>
 
-#include "common/misc.h"
 #include "diskio.h"
 
 #define LOGNAME "DiskIO"

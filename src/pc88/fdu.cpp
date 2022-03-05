@@ -8,7 +8,6 @@
 
 #include <algorithm>
 
-#include "common/misc.h"
 #include "pc88/fdc.h"
 #include "pc88/fdu.h"
 #include "pc88/diskmgr.h"

@@ -16,7 +16,6 @@
 #include "win32/resource.h"
 #include "win32/ui.h"
 #include "win32/about.h"
-#include "common/misc.h"
 #include "win32/file.h"
 #include "win32/messages.h"
 #include "common/error.h"

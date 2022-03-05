@@ -11,7 +11,6 @@
 
 #include "win32/headers.h"
 #include "pc88/calender.h"
-#include "common/misc.h"
 
 // #define LOGNAME "calender"
 #include "common/diag.h"

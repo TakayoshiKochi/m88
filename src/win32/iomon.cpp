@@ -12,7 +12,6 @@
 #include "pc88/pc88.h"
 #include "pc88/ioview.h"
 #include "win32/iomon.h"
-#include "common/misc.h"
 #include "win32/file.h"
 #include "win32/winvars.h"
 #include "if/ifguid.h"

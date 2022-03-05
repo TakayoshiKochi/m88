@@ -10,7 +10,6 @@
 
 #include "win32/resource.h"
 #include "win32/soundmon.h"
-#include "common/misc.h"
 #include "pc88/opnif.h"
 
 using namespace PC8801;

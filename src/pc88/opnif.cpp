@@ -7,7 +7,6 @@
 #include "win32/headers.h"
 #include "pc88/opnif.h"
 #include "pc88/config.h"
-#include "common/misc.h"
 #include "common/schedule.h"
 #include "win32/status.h"
 

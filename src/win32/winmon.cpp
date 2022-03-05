@@ -9,9 +9,8 @@
 
 #include <algorithm>
 
-#include "win32/headers.h"
-
 #include "common/misc.h"
+#include "win32/headers.h"
 #include "win32/resource.h"
 #include "win32/winmon.h"
 

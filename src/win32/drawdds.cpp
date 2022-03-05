@@ -11,7 +11,6 @@
 #include <algorithm>
 
 #include "win32/drawdds.h"
-#include "common/misc.h"
 #include "win32/messages.h"
 
 #define LOGNAME "drawdds"

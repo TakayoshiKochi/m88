@@ -11,7 +11,6 @@
 #include "win32/headers.h"
 #include "win32/sequence.h"
 #include "pc88/pc88.h"
-#include "common/misc.h"
 
 #define LOGNAME "sequence"
 #include "common/diag.h"

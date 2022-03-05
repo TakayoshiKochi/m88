@@ -10,7 +10,6 @@
 
 #include "win32/resource.h"
 #include "win32/wincfg.h"
-#include "common/misc.h"
 #include "win32/messages.h"
 
 using namespace PC8801;

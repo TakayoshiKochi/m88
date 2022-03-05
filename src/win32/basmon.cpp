@@ -9,7 +9,6 @@
 
 #include "win32/headers.h"
 #include "win32/basmon.h"
-#include "common/misc.h"
 #include "win32/resource.h"
 
 using namespace PC8801;
