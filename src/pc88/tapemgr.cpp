@@ -172,7 +172,7 @@ uint32_t TapeManager::GetPos() {
 //
 void TapeManager::Proceed(bool timer) {
   while (pos) {
-    LOG1("TAG %d\n", pos->id);
+    Log("TAG %d\n", pos->id);
     switch (pos->id) {
       case T_END:
         mode = T_BLANK;
@@ -237,7 +237,7 @@ void IOCALL TapeManager::Timer(uint32_t) {
       SetTimer(datatype & 0x100 ? 44 : 88);
       return;
     }
-    LOG0("\n");
+    Log("\n");
   }
   Proceed();
 }
@@ -247,7 +247,7 @@ void IOCALL TapeManager::Timer(uint32_t) {
 //
 bool TapeManager::Carrier() {
   if (mode == T_MARK) {
-    LOG0("*");
+    Log("*");
     return true;
   }
   return false;
@@ -258,7 +258,7 @@ bool TapeManager::Carrier() {
 //
 void TapeManager::SetTimer(int count) {
   if (count > 100)
-    LOG1("Timer: %d\n", count);
+    Log("Timer: %d\n", count);
   scheduler->DelEvent(event), event = 0;
   timercount = count;
   if (motor) {
@@ -274,7 +274,7 @@ void TapeManager::SetTimer(int count) {
 //  バイト転送
 //
 inline void TapeManager::Send(uint32_t byte) {
-  LOG1("%.2x ", byte);
+  Log("%.2x ", byte);
   bus->Out(pinput, byte);
 }
 

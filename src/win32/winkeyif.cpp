@@ -92,7 +92,7 @@ void WinKeyIF::KeyDown(uint32_t vkcode, uint32_t keydata) {
     }
   }
   uint32_t keyindex = (vkcode & 0xff) | ((keydata & (1 << 24)) ? 0x100 : 0);
-  LOG2("KeyDown  = %.2x %.3x\n", vkcode, keyindex);
+  Log("KeyDown  = %.2x %.3x\n", vkcode, keyindex);
   keystate[keyindex] = 1;
 }
 
@@ -102,7 +102,7 @@ void WinKeyIF::KeyDown(uint32_t vkcode, uint32_t keydata) {
 void WinKeyIF::KeyUp(uint32_t vkcode, uint32_t keydata) {
   uint32_t keyindex = (vkcode & 0xff) | (keydata & (1 << 24) ? 0x100 : 0);
   keystate[keyindex] = 0;
-  LOG2("KeyUp   = %.2x %.3x\n", vkcode, keyindex);
+  Log("KeyUp   = %.2x %.3x\n", vkcode, keyindex);
 
   // SHIFT + テンキーによる押しっぱなし現象対策
 
@@ -265,7 +265,7 @@ uint32_t IOCALL WinKeyIF::In(uint32_t port) {
       }
       keyport[port] = r;
       if (port == 0x0d) {
-        LOG3("In(13)   = %.2x %.2x %.2x\n", r, keystate[0xf4], keystate[0x1f4]);
+        Log("In(13)   = %.2x %.2x %.2x\n", r, keystate[0xf4], keystate[0x1f4]);
       }
     }
     return uint8_t(r);

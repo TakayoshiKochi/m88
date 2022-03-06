@@ -190,7 +190,7 @@ void IOCALL OPNIF::Reset(uint32_t, uint32_t) {
 void OPNIF::OPNUnit::Intr(bool flag) {
   bool prev = intrpending && intrenabled && bus;
   intrpending = flag;
-  LOG3("OPN     :Interrupt %d %d %d\n", intrpending, intrenabled, !prev);
+  Log("OPN     :Interrupt %d %d %d\n", intrpending, intrenabled, !prev);
   if (intrpending && intrenabled && bus && !prev) {
     bus->Out(pintr, true);
   }
@@ -207,7 +207,7 @@ inline void OPNIF::OPNUnit::SetIntrMask(bool en) {
 }
 
 void OPNIF::SetIntrMask(uint32_t port, uint32_t intrmask) {
-  //  LOG2("Intr enabled (%.2x)[%.2x]\n", a, intrmask);
+  //  Log("Intr enabled (%.2x)[%.2x]\n", a, intrmask);
   if (port == imaskport) {
     opn.SetIntrMask(!(imaskbit & intrmask));
   }
@@ -217,7 +217,7 @@ void OPNIF::SetIntrMask(uint32_t port, uint32_t intrmask) {
 //  SetRegisterIndex
 //
 void IOCALL OPNIF::SetIndex0(uint32_t a, uint32_t data) {
-  //  LOG2("Index0[%.2x] = %.2x\n", a, data);
+  //  Log("Index0[%.2x] = %.2x\n", a, data);
   index0 = data;
   if (enable && (data & 0xfc) == 0x2c) {
     regs[0x2f] = 1;
@@ -227,7 +227,7 @@ void IOCALL OPNIF::SetIndex0(uint32_t a, uint32_t data) {
 }
 
 void IOCALL OPNIF::SetIndex1(uint32_t a, uint32_t data) {
-  //  LOG2("Index1[%.2x] = %.2x\n", a, data);
+  //  Log("Index1[%.2x] = %.2x\n", a, data);
   index1 = data1 = data;
 }
 
@@ -242,9 +242,9 @@ inline uint32_t OPNIF::ChipTime() {
 //  WriteRegister
 //
 void IOCALL OPNIF::WriteData0(uint32_t a, uint32_t data) {
-  //  LOG2("Write0[%.2x] = %.2x\n", a, data);
+  //  Log("Write0[%.2x] = %.2x\n", a, data);
   if (enable) {
-    LOG3("%.8x:OPN[0%.2x] = %.2x\n", scheduler->GetTime(), index0, data);
+    Log("%.8x:OPN[0%.2x] = %.2x\n", scheduler->GetTime(), index0, data);
     TimeEvent(0);
 
     if (!opnamode) {
@@ -275,10 +275,10 @@ void IOCALL OPNIF::WriteData0(uint32_t a, uint32_t data) {
 }
 
 void IOCALL OPNIF::WriteData1(uint32_t a, uint32_t data) {
-//  LOG2("Write1[%.2x] = %.2x\n", a, data);
+//  Log("Write1[%.2x] = %.2x\n", a, data);
 #ifndef USE_OPN
   if (enable && opnamode) {
-    LOG3("%.8x:OPN[1%.2x] = %.2x\n", scheduler->GetTime(), index1, data);
+    Log("%.8x:OPN[1%.2x] = %.2x\n", scheduler->GetTime(), index1, data);
     if (index1 != 0x08 && index1 != 0x10)
       TimeEvent(0);
     data1 = data;
@@ -304,7 +304,7 @@ uint32_t IOCALL OPNIF::ReadData0(uint32_t a) {
     ret = 0;
   else
     ret = opn.GetReg(index0);
-  //  LOG2("Read0 [%.2x] = %.2x\n", a, ret);
+  //  Log("Read0 [%.2x] = %.2x\n", a, ret);
   return ret;
 }
 
@@ -317,7 +317,7 @@ uint32_t IOCALL OPNIF::ReadData1(uint32_t a) {
     else
       ret = data1;
   }
-//  LOG3("Read1 [%.2x] = %.2x  (d1:%.2x)\n", a, ret, data1);
+//  Log("Read1 [%.2x] = %.2x  (d1:%.2x)\n", a, ret, data1);
 #endif
   return ret;
 }
@@ -327,13 +327,13 @@ uint32_t IOCALL OPNIF::ReadData1(uint32_t a) {
 //
 uint32_t IOCALL OPNIF::ReadStatus(uint32_t a) {
   uint32_t ret = enable ? opn.ReadStatus() : 0xff;
-  //  LOG2("status[%.2x] = %.2x\n", a, ret);
+  //  Log("status[%.2x] = %.2x\n", a, ret);
   return ret;
 }
 
 uint32_t IOCALL OPNIF::ReadStatusEx(uint32_t a) {
   uint32_t ret = enable && opnamode ? opn.ReadStatusEx() : 0xff;
-  //  LOG2("statex[%.2x] = %.2x\n", a, ret);
+  //  Log("statex[%.2x] = %.2x\n", a, ret);
   return ret;
 }
 
@@ -358,7 +358,7 @@ void IOCALL OPNIF::TimeEvent(uint32_t e) {
   prevtime = currenttime;
 
   if (enable) {
-    LOG3("%.8x:TimeEvent(%d) : diff:%d\n", currenttime, e, diff);
+    Log("%.8x:TimeEvent(%d) : diff:%d\n", currenttime, e, diff);
 
     if (soundcontrol)
       soundcontrol->Update(this);

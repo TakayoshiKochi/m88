@@ -181,7 +181,7 @@ uint32_t __stdcall DriverDS2::ThreadEntry(LPVOID arg) {
   while (dd->playing) {
     static int p;
     int t = GetTickCount();
-    LOG1("%d ", t - p);
+    Log("%d ", t - p);
     p = t;
 
     dd->Send();

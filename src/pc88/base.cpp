@@ -104,7 +104,7 @@ void IOCALL Base::Reset(uint32_t, uint32_t) {
 //
 void IOCALL Base::RTC(uint32_t) {
   pc->bus1.Out(PC88::pint2, 1);
-  //  LOG0("RTC\n");
+  //  Log("RTC\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -115,10 +115,10 @@ void IOCALL Base::VRTC(uint32_t, uint32_t en) {
     pc->VSync();
     pc->bus1.Out(PC88::pint1, 1);
     port40 |= 0x20;
-    //      LOG0("CRTC: Retrace\n");
+    //      Log("CRTC: Retrace\n");
   } else {
     port40 &= ~0x20;
-    //      LOG0("CRTC: Display\n");
+    //      Log("CRTC: Display\n");
   }
 }
 

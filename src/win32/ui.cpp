@@ -80,7 +80,7 @@ bool WinUI::InitM88(const char* cmdline) {
   tapetitle[0] = 0;
 
   //  設定読み込み
-  LOG1("%d\tLoadConfig\n", timeGetTime());
+  Log("%d\tLoadConfig\n", timeGetTime());
   PC8801::LoadConfig(&config, m88ini, true);
 
   // ステータスバー初期化
@@ -106,7 +106,7 @@ bool WinUI::InitM88(const char* cmdline) {
   //  デバイスの初期化
   PC8801::LoadConfigDirectory(&config, m88ini, "BIOSPath", true);
 
-  LOG1("%d\tdiskmanager\n", timeGetTime());
+  Log("%d\tdiskmanager\n", timeGetTime());
   if (!diskmgr)
     diskmgr = new DiskManager;
   if (!diskmgr || !diskmgr->Init())
@@ -116,15 +116,15 @@ bool WinUI::InitM88(const char* cmdline) {
   if (!tapemgr)
     return false;
 
-  LOG1("%d\tkeyboard if\n", timeGetTime());
+  Log("%d\tkeyboard if\n", timeGetTime());
   if (!keyif.Init(hwnd))
     return false;
-  LOG1("%d\tcore\n", timeGetTime());
+  Log("%d\tcore\n", timeGetTime());
   if (!core.Init(this, hwnd, &draw, diskmgr, &keyif, &winconfig, tapemgr))
     return false;
 
   //  debug 用クラス初期化
-  LOG1("%d\tmonitors\n", timeGetTime());
+  Log("%d\tmonitors\n", timeGetTime());
   opnmon.Init(core.GetOPN1(), core.GetSound());
   memmon.Init(&core);
   codemon.Init(&core);
@@ -135,33 +135,33 @@ bool WinUI::InitM88(const char* cmdline) {
   core.GetSound()->SetSoundMonitor(&opnmon);
 
   //  実行ファイル改変チェック
-  LOG1("%d\tself test\n", timeGetTime());
+  Log("%d\tself test\n", timeGetTime());
   if (!SanityCheck())
     return false;
 
   //  エミュレーション開始
-  LOG1("%d\temulation begin\n", timeGetTime());
+  Log("%d\temulation begin\n", timeGetTime());
   core.Wait(false);
   active = true;
   fullscreen = false;
 
   //  設定反映
-  LOG1("%d\tapply cmdline\n", timeGetTime());
+  Log("%d\tapply cmdline\n", timeGetTime());
   SetCurrentDirectory(path);
   ApplyCommandLine(cmdline);
-  LOG1("%d\tapply config\n", timeGetTime());
+  Log("%d\tapply config\n", timeGetTime());
   ApplyConfig();
 
   //  リセット
-  LOG1("%d\treset\n", timeGetTime());
+  Log("%d\treset\n", timeGetTime());
   core.Reset();
 
   // あとごちゃごちゃしたもの
-  LOG1("%d\tetc\n", timeGetTime());
+  Log("%d\tetc\n", timeGetTime());
   if (!diskinfo[0].filename[0])
     PC8801::LoadConfigDirectory(&config, m88ini, "Directory", false);
 
-  LOG1("%d\tend initm88\n", timeGetTime());
+  Log("%d\tend initm88\n", timeGetTime());
   return true;
 }
 
@@ -716,7 +716,7 @@ LRESULT WinUI::WmCreate(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   point.x = rect.left;
   point.y = rect.top;
 
-  LOG0("WmCreate\n");
+  Log("WmCreate\n");
   return 0;
 }
 
@@ -783,7 +783,7 @@ LRESULT WinUI::WmClose(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WM_TIMER ハンドラ
 //
 LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  LOG2("WmTimer:%d(%d)\n", wparam, timerid);
+  Log("WmTimer:%d(%d)\n", wparam, timerid);
   if (wparam == timerid) {
     // 実効周波数,表示フレーム数を取得
     int fcount = draw.GetDrawCount();
@@ -1599,7 +1599,7 @@ LRESULT WinUI::M88ClipCursor(HWND hwnd, WPARAM op, LPARAM) {
       rect.top = center.y - 180;
       rect.bottom = center.y + 180;
     }
-    LOG4("rect: %d %d %d %d\n", rect.left, rect.top, rect.right, rect.bottom);
+    Log("rect: %d %d %d %d\n", rect.left, rect.top, rect.right, rect.bottom);
     ClipCursor(&rect);
   } else {
     ClipCursor(0);

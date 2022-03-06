@@ -151,7 +151,7 @@ uint32_t ReadMemManager::Read8P(uint32_t pid, uint32_t addr) {
 //  えらー
 //
 uint32_t ReadMemManager::UndefinedRead(void*, uint32_t addr) {
-  LOG2("bus: Read on undefined memory page 0x%x. (addr:0x%.4x)\n", addr >> pagebits, addr);
+  Log("bus: Read on undefined memory page 0x%x. (addr:0x%.4x)\n", addr >> pagebits, addr);
   return 0xff;
 }
 
@@ -188,5 +188,5 @@ void WriteMemManager::Write8P(uint32_t pid, uint32_t addr, uint32_t data) {
 //  えらー
 //
 void WriteMemManager::UndefinedWrite(void*, uint32_t addr, uint32_t) {
-  LOG2("bus: Write on undefined memory page 0x%x. (addr:0x%.4x)\n", addr >> pagebits, addr);
+  Log("bus: Write on undefined memory page 0x%x. (addr:0x%.4x)\n", addr >> pagebits, addr);
 }

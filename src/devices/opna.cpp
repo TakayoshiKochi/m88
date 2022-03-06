@@ -212,7 +212,7 @@ uint32_t OPN::GetReg(uint32_t addr) {
 
 //  レジスタアレイにデータを設定
 void OPN::SetReg(uint32_t addr, uint32_t data) {
-  //  LOG2("reg[%.2x] <- %.2x\n", addr, data);
+  //  Log("reg[%.2x] <- %.2x\n", addr, data);
   if (addr >= 0x100)
     return;
 
@@ -669,19 +669,19 @@ void OPNABase::SetADPCMBReg(uint32_t addr, uint32_t data) {
       adpcmreg[addr - 0x02 + 0] = data;
       startaddr = (adpcmreg[1] * 256 + adpcmreg[0]) << 6;
       //      memaddr = startaddr;
-      //      LOG1("  startaddr %.6x", startaddr);
+      //      Log("  startaddr %.6x", startaddr);
       break;
 
     case 0x04:  // Stop Address L
     case 0x05:  // Stop Address H
       adpcmreg[addr - 0x04 + 2] = data;
       stopaddr = (adpcmreg[3] * 256 + adpcmreg[2] + 1) << 6;
-      //      LOG1("  stopaddr %.6x", stopaddr);
+      //      Log("  stopaddr %.6x", stopaddr);
       break;
 
     case 0x08:  // ADPCM data
       if ((control1 & 0xe0) == 0x60) {
-        //          LOG2("  Wr [0x%.5x] = %.2x", memaddr, data);
+        //          Log("  Wr [0x%.5x] = %.2x", memaddr, data);
         WriteRAM(data);
       }
       break;
@@ -703,7 +703,7 @@ void OPNABase::SetADPCMBReg(uint32_t addr, uint32_t data) {
     case 0x0d:  // Limit Address H
       adpcmreg[addr - 0x0c + 6] = data;
       limitaddr = (adpcmreg[7] * 256 + adpcmreg[6] + 1) << 6;
-      //      LOG1("  limitaddr %.6x", limitaddr);
+      //      Log("  limitaddr %.6x", limitaddr);
       break;
 
     case 0x10:  // Flag Control
@@ -726,15 +726,15 @@ uint32_t OPNA::GetReg(uint32_t addr) {
     return psg.GetReg(addr);
 
   if (addr == 0x108) {
-    //      LOG1("%d:reg[108] ->   ", Diag::GetCPUTick());
+    //      Log("%d:reg[108] ->   ", Diag::GetCPUTick());
 
     uint32_t data = adpcmreadbuf & 0xff;
     adpcmreadbuf >>= 8;
     if ((control1 & 0x60) == 0x20) {
       adpcmreadbuf |= ReadRAM() << 8;
-      //          LOG2("Rd [0x%.6x:%.2x] ", memaddr, adpcmreadbuf >> 8);
+      //          Log("Rd [0x%.6x:%.2x] ", memaddr, adpcmreadbuf >> 8);
     }
-    //      LOG0("%.2x\n");
+    //      Log("%.2x\n");
     return data;
   }
 
@@ -749,22 +749,22 @@ uint32_t OPNA::GetReg(uint32_t addr) {
 //
 void OPNABase::SetStatus(uint32_t bits) {
   if (!(status & bits)) {
-    //      LOG2("SetStatus(%.2x %.2x)\n", bits, stmask);
+    //      Log("SetStatus(%.2x %.2x)\n", bits, stmask);
     status |= bits & stmask;
     UpdateStatus();
   }
   //  else
-  //      LOG1("SetStatus(%.2x) - ignored\n", bits);
+  //      Log("SetStatus(%.2x) - ignored\n", bits);
 }
 
 void OPNABase::ResetStatus(uint32_t bits) {
   status &= ~bits;
-  //  LOG1("ResetStatus(%.2x)\n", bits);
+  //  Log("ResetStatus(%.2x)\n", bits);
   UpdateStatus();
 }
 
 inline void OPNABase::UpdateStatus() {
-  //  LOG2("%d:INT = %d\n", Diag::GetCPUTick(), (status & stmask & reg29) != 0);
+  //  Log("%d:INT = %d\n", Diag::GetCPUTick(), (status & stmask & reg29) != 0);
   Intr((status & stmask & reg29) != 0);
 }
 
@@ -812,7 +812,7 @@ void OPNABase::WriteRAM(uint32_t data) {
     memaddr &= 0x3fffff;
   }
   if (memaddr == limitaddr) {
-    //      LOG1("Limit ! (%.8x)\n", limitaddr);
+    //      Log("Limit ! (%.8x)\n", limitaddr);
     memaddr = 0;
   }
   SetStatus(8);
@@ -855,7 +855,7 @@ uint32_t OPNABase::ReadRAM() {
     memaddr &= 0x3fffff;
   }
   if (memaddr == limitaddr) {
-    //      LOG1("Limit ! (%.8x)\n", limitaddr);
+    //      Log("Limit ! (%.8x)\n", limitaddr);
     memaddr = 0;
   }
   if (memaddr < stopaddr)
@@ -970,7 +970,7 @@ void OPNABase::ADPCMBMix(Sample* dest, uint32_t count) {
   }
 
   if (adpcmplay) {
-    //      LOG2("ADPCM Play: %d   DeltaN: %d\n", adpld, deltan);
+    //      Log("ADPCM Play: %d   DeltaN: %d\n", adpld, deltan);
     if (adpld <= 8192)  // fplay < fsamp
     {
       for (; count > 0; count--) {
@@ -1113,7 +1113,7 @@ void OPNABase::BuildLFOTable() {
 // ---------------------------------------------------------------------------
 
 inline void OPNABase::LFO() {
-  //  LOG3("%4d - %8d, %8d\n", c, lfocount, lfodcount);
+  //  Log("%4d - %8d, %8d\n", c, lfocount, lfodcount);
 
   //  Operator::SetPML(pmtable[(lfocount >> (FM_LFOCBITS+1)) & 0xff]);
   //  Operator::SetAML(amtable[(lfocount >> (FM_LFOCBITS+1)) & 0xff]);
@@ -1676,7 +1676,7 @@ void OPNB::SetReg(uint32_t addr, uint32_t data) {
     case 0x15:  // Stop Address H
       adpcmreg[addr - 0x14 + 2] = data;
       stopaddr = (adpcmreg[3] * 256 + adpcmreg[2] + 1) << 9;
-      //      LOG1("  stopaddr %.6x", stopaddr);
+      //      Log("  stopaddr %.6x", stopaddr);
       break;
 
     case 0x19:  // delta-N L
@@ -1702,7 +1702,7 @@ void OPNB::SetReg(uint32_t addr, uint32_t data) {
       OPNABase::SetReg(addr, data);
       break;
   }
-  //  LOG0("\n");
+  //  Log("\n");
 }
 
 // ---------------------------------------------------------------------------

@@ -70,27 +70,27 @@ Z80C::Z80C(const ID& id) : Device(id) {
 
 Z80C::~Z80C() {
 #if defined(LOGNAME) && defined(_DEBUG)
-  LOG1("Fetch8            = %10d\n", testcount[0]);
-  LOG1("Fetch8B           = %10d\n", testcount[1]);
-  LOG1("Fetch8B(special)  = %10d\n", testcount[2]);
-  LOG1("Fetch16           = %10d\n", testcount[3]);
-  LOG1("SetPC(memory)     = %10d\n", testcount[4]);
-  LOG1("SetPC(special)    = %10d\n", testcount[5]);
-  LOG1("GetPC             = %10d\n", testcount[6]);
-  LOG1("PCDec(in)         = %10d\n", testcount[7]);
-  LOG1("PCDec(out)        = %10d\n", testcount[19]);
-  LOG1("Jump(in)          = %10d\n", testcount[9]);
-  LOG1("Jump(out)         = %10d\n", testcount[10]);
-  LOG1("ReinitPage(Out)   = %10d\n", testcount[11]);
-  LOG1("Read8(direct)     = %10d\n", testcount[12]);
-  LOG1("Read8(special)    = %10d\n", testcount[8]);
-  LOG1("Read16(direct)    = %10d\n", testcount[13]);
-  LOG1("Write8(direct)    = %10d\n", testcount[14]);
-  LOG1("Write8(special)   = %10d\n", testcount[16]);
-  LOG1("Write16           = %10d\n", testcount[15]);
-  LOG1("JumpRelative(in)  = %10d\n", testcount[17]);
-  LOG1("JumpRelative(out) = %10d\n", testcount[18]);
-  LOG0("\n");
+  Log("Fetch8            = %10d\n", testcount[0]);
+  Log("Fetch8B           = %10d\n", testcount[1]);
+  Log("Fetch8B(special)  = %10d\n", testcount[2]);
+  Log("Fetch16           = %10d\n", testcount[3]);
+  Log("SetPC(memory)     = %10d\n", testcount[4]);
+  Log("SetPC(special)    = %10d\n", testcount[5]);
+  Log("GetPC             = %10d\n", testcount[6]);
+  Log("PCDec(in)         = %10d\n", testcount[7]);
+  Log("PCDec(out)        = %10d\n", testcount[19]);
+  Log("Jump(in)          = %10d\n", testcount[9]);
+  Log("Jump(out)         = %10d\n", testcount[10]);
+  Log("ReinitPage(Out)   = %10d\n", testcount[11]);
+  Log("Read8(direct)     = %10d\n", testcount[12]);
+  Log("Read8(special)    = %10d\n", testcount[8]);
+  Log("Read16(direct)    = %10d\n", testcount[13]);
+  Log("Write8(direct)    = %10d\n", testcount[14]);
+  Log("Write8(special)   = %10d\n", testcount[16]);
+  Log("Write16           = %10d\n", testcount[15]);
+  Log("JumpRelative(in)  = %10d\n", testcount[17]);
+  Log("JumpRelative(out) = %10d\n", testcount[18]);
+  Log("\n");
 #endif
   if (dumplog)
     fclose(dumplog);

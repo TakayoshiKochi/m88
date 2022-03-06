@@ -130,13 +130,13 @@ uint32_t IOCALL SubSystem::IntAck(uint32_t) {
 //
 void IOCALL SubSystem::M_Set0(uint32_t, uint32_t data) {
   idlecount = 0;
-  LOG1(".%.2x ", data);
+  Log(".%.2x ", data);
   piom.SetData(0, data);
 }
 
 void IOCALL SubSystem::M_Set1(uint32_t, uint32_t data) {
   idlecount = 0;
-  LOG1(" %.2x ", data);
+  Log(" %.2x ", data);
   piom.SetData(1, data);
 }
 
@@ -148,7 +148,7 @@ void IOCALL SubSystem::M_Set2(uint32_t, uint32_t data) {
 void IOCALL SubSystem::M_SetCW(uint32_t, uint32_t data) {
   idlecount = 0;
   if (data == 0x0f)
-    LOG0("\ncmd: ");
+    Log("\ncmd: ");
   if (data & 0x80)
     cw_m = data;
   piom.SetCW(data);
@@ -157,14 +157,14 @@ void IOCALL SubSystem::M_SetCW(uint32_t, uint32_t data) {
 uint32_t IOCALL SubSystem::M_Read0(uint32_t) {
   idlecount = 0;
   uint32_t d = piom.Read0();
-  LOG1(">%.2x ", d);
+  Log(">%.2x ", d);
   return d;
 }
 
 uint32_t IOCALL SubSystem::M_Read1(uint32_t) {
   idlecount = 0;
   uint32_t d = piom.Read1();
-  LOG1(")%.2x ", d);
+  Log(")%.2x ", d);
   return d;
 }
 
@@ -179,19 +179,19 @@ uint32_t IOCALL SubSystem::M_Read2(uint32_t) {
 //
 void IOCALL SubSystem::S_Set0(uint32_t, uint32_t data) {
   idlecount = 0;
-  //  LOG1("<a %.2x> ", data);
+  //  Log("<a %.2x> ", data);
   pios.SetData(0, data);
 }
 
 void IOCALL SubSystem::S_Set1(uint32_t, uint32_t data) {
   idlecount = 0;
-  //  LOG1("<b %.2x> ", data);
+  //  Log("<b %.2x> ", data);
   pios.SetData(1, data);
 }
 
 void IOCALL SubSystem::S_Set2(uint32_t, uint32_t data) {
   idlecount = 0;
-  //  LOG1("<c %.2x> ", data);
+  //  Log("<c %.2x> ", data);
   pios.SetData(2, data);
 }
 
@@ -205,21 +205,21 @@ void IOCALL SubSystem::S_SetCW(uint32_t, uint32_t data) {
 uint32_t IOCALL SubSystem::S_Read0(uint32_t) {
   idlecount = 0;
   uint32_t d = pios.Read0();
-  //  LOG1("(a %.2x) ", d);
+  //  Log("(a %.2x) ", d);
   return d;
 }
 
 uint32_t IOCALL SubSystem::S_Read1(uint32_t) {
   idlecount = 0;
   uint32_t d = pios.Read1();
-  //  LOG1("(b %.2x) ", d);
+  //  Log("(b %.2x) ", d);
   return d;
 }
 
 uint32_t IOCALL SubSystem::S_Read2(uint32_t) {
   idlecount++;
   uint32_t d = pios.Read2();
-  //  LOG1("(c %.2x) ", d);
+  //  Log("(c %.2x) ", d);
   return d;
 }
 
@@ -251,7 +251,7 @@ bool IFCALL SubSystem::SaveStatus(uint8_t* s) {
   st->idlecount = idlecount;
   memcpy(st->ram, ram, 0x4000);
 
-  LOG0("\n=== SaveStatus\n");
+  Log("\n=== SaveStatus\n");
   return true;
 }
 
@@ -268,7 +268,7 @@ bool IFCALL SubSystem::LoadStatus(const uint8_t* s) {
 
   idlecount = st->idlecount;
   memcpy(ram, st->ram, 0x4000);
-  LOG0("\n=== LoadStatus\n");
+  Log("\n=== LoadStatus\n");
   return true;
 }
 

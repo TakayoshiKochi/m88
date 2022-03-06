@@ -175,7 +175,7 @@ char* Z80Diag::Expand(char* dest, const char* src) {
           break;
 
         default:
-          LOG1("unknown directive: @%c\n", src[-1]);
+          Log("unknown directive: @%c\n", src[-1]);
           break;
       }
     }

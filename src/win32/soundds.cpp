@@ -186,7 +186,7 @@ void DriverDS::Send() {
     if (writelength <= 0)
       goto ret;
 
-    LOG3("play = %5d  write = %5d  length = %5d\n", cplay, nextwrite, writelength);
+    Log("play = %5d  write = %5d  length = %5d\n", cplay, nextwrite, writelength);
     {
       void *a1, *a2;
       DWORD al1, al2;

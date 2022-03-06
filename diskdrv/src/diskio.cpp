@@ -44,7 +44,7 @@ void DiskIO::SetCommand(uint32_t, uint32_t d) {
     file.Close();
   phase = idlephase;
   cmd = d;
-  LOG1("\n[%.2x]", d);
+  Log("\n[%.2x]", d);
   status |= 1;
   ProcCommand();
 }
@@ -147,7 +147,7 @@ void DiskIO::ProcCommand() {
 void DiskIO::CmdSetFileName() {
   switch (phase) {
     case idlephase:
-      LOG0("SetFileName ");
+      Log("SetFileName ");
       ArgPhase(1);
       break;
 
@@ -160,7 +160,7 @@ void DiskIO::CmdSetFileName() {
       err = 56;
     case recvphase:
       filename[arg[0]] = 0;
-      LOG1("Path=%s", filename);
+      Log("Path=%s", filename);
       IdlePhase();
       break;
   }
@@ -172,17 +172,17 @@ void DiskIO::CmdReadFile() {
   switch (phase) {
     case idlephase:
       writebuffer = false;
-      LOG1("ReadFile(%s) - ", filename);
+      Log("ReadFile(%s) - ", filename);
       if (file.Open((char*)filename, FileIO::readonly)) {
         file.Seek(0, FileIO::end);
         size = std::min(0xffff, file.Tellp());
         file.Seek(0, FileIO::begin);
         buf[0] = size & 0xff;
         buf[1] = (size >> 8) & 0xff;
-        LOG1("%d bytes  ", size);
+        Log("%d bytes  ", size);
         SendPhase(buf, 2);
       } else {
-        LOG0("failed");
+        Log("failed");
         err = 53;
         IdlePhase();
       }
@@ -199,7 +199,7 @@ void DiskIO::CmdReadFile() {
         err = 64;
       }
 
-      LOG0("success");
+      Log("success");
       IdlePhase();
       err = 0;
       break;
@@ -212,11 +212,11 @@ void DiskIO::CmdWriteFile() {
   switch (phase) {
     case idlephase:
       writebuffer = true;
-      LOG1("WriteFile(%s) - ", filename);
+      Log("WriteFile(%s) - ", filename);
       if (file.Open((char*)filename, FileIO::create))
         ArgPhase(2);
       else {
-        LOG0("failed");
+        Log("failed");
         IdlePhase(), err = 60;
       }
       break;
@@ -224,19 +224,19 @@ void DiskIO::CmdWriteFile() {
     case argphase:
       size = arg[0] + arg[1] * 256;
       if (size > 0) {
-        LOG0("%d bytes ");
+        Log("%d bytes ");
         length = std::min(1024, size);
         size -= length;
         RecvPhase(buf, length);
       } else {
-        LOG0("success");
+        Log("success");
         IdlePhase(), err = 0;
       }
       break;
 
     case recvphase:
       if (!file.Write(buf, length)) {
-        LOG0("write error");
+        Log("write error");
         IdlePhase(), err = 61;
       }
       if (size > 0) {
@@ -252,14 +252,14 @@ void DiskIO::CmdWriteFile() {
 void DiskIO::CmdWriteFlush() {
   switch (phase) {
     case idlephase:
-      LOG0("WriteFlush ");
+      Log("WriteFlush ");
       if (writebuffer) {
         if (length - len > 0)
-          LOG1("%d bytes\n", length - len);
+          Log("%d bytes\n", length - len);
         file.Write(buf, length - len);
         writebuffer = false;
       } else {
-        LOG0("failed\n");
+        Log("failed\n");
         err = 51;
       }
       IdlePhase();

@@ -162,7 +162,7 @@ bool StatusDisplay::Show(int priority, int duration, char* msg, ...) {
   entry->clear = duration != 0;
   list = entry;
 
-  LOG3("reg : [%s] p:%5d d:%8d\n", entry->msg, entry->priority, entry->duration);
+  Log("reg : [%s] p:%5d d:%8d\n", entry->msg, entry->priority, entry->duration);
   updatemessage = true;
   return true;
 }
@@ -179,12 +179,12 @@ void StatusDisplay::Update() {
     List* entry = 0;
     int c = GetTickCount();
     for (List* l = list; l; l = l->next) {
-      //          LOG3("\t\t[%s] p:%5d d:%8d\n", l->msg, l->priority, l->duration);
+      //          Log("\t\t[%s] p:%5d d:%8d\n", l->msg, l->priority, l->duration);
       if ((l->priority < pc) && ((!l->clear) || (l->duration - c) > 0))
         entry = l, pc = l->priority;
     }
     if (entry) {
-      LOG3("show: [%s] p:%5d d:%8d\n", entry->msg, entry->priority, entry->duration);
+      Log("show: [%s] p:%5d d:%8d\n", entry->msg, entry->priority, entry->duration);
       memcpy(buf, entry->msg, 128);
       PostMessage(hwnd, SB_SETTEXT, SBT_OWNERDRAW | 0, (LPARAM)buf);
 
@@ -201,7 +201,7 @@ void StatusDisplay::Update() {
       }
       Clean();
     } else {
-      LOG0("clear\n");
+      Log("clear\n");
       PostMessage(hwnd, SB_SETTEXT, 0, (LPARAM) " ");
       currentpriority = 10000;
       if (timerid) {

@@ -10,9 +10,9 @@ inline void LOGDDERR(const char* text, HRESULT hr) {
   if (hr != DD_OK) {
     const char* err = GetDDERR(hr);
     if (!err)
-      LOG2("%s -> 0x%.8x\n", text, hr);
+      Log("%s -> 0x%.8x\n", text, hr);
     else
-      LOG2("%s -> %s\n", text, err);
+      Log("%s -> %s\n", text, err);
   }
   return;
 }

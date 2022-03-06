@@ -43,7 +43,7 @@ CDROM::CDROM() {
   m_maxcd = 0;
   memset(m_driveletters, 0x00, sizeof(m_driveletters));
   memset(track, 0xff, sizeof(track));
-  LOG0("construct\n");
+  Log("construct\n");
 }
 
 // --------------------------------------------------------------------------
@@ -60,7 +60,7 @@ CDROM::~CDROM() {
 //  初期化
 //
 bool CDROM::Init() {
-  LOG0("init\n");
+  Log("init\n");
   if (!FindDrive()) {
     return false;
   }
@@ -90,7 +90,7 @@ bool CDROM::FindDrive() {
   for (int i = 0; buf[i] != 0; i += 4) {
     if (::GetDriveType(&buf[i]) == DRIVE_CDROM) {
       m_driveletters[m_maxcd++] = buf[i];
-      LOG2("CDROM on %d:%d\n", i, m_maxcd);
+      Log("CDROM on %d:%d\n", i, m_maxcd);
       if (m_maxcd >= MAX_DRIVE) {
         break;
       }
@@ -122,14 +122,14 @@ int CDROM::ReadTOC() {
   cdb.flags = 2;
   cdb.length = 12;
 
-  LOG0("Read TOC ");
+  Log("Read TOC ");
   for (int i = 0; i < 2; i++) {
     r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, &toc, 12);
     if (r >= 0)
       break;
   }
   if (r < 0) {
-    LOG0("failed\n");
+    Log("failed\n");
     return 0;
   }
 
@@ -137,7 +137,7 @@ int CDROM::ReadTOC() {
   trstart =
       BCDtoN((r >> 16) & 0xff) * 75 * 60 + BCDtoN((r >> 8) & 0xff) * 75 + BCDtoN((r >> 0) & 0xff);
 
-  LOG3("[%d]-[%d] (%d)\n", toc.header.start, toc.header.end, trstart);
+  Log("[%d]-[%d] (%d)\n", toc.header.start, toc.header.end, trstart);
   //  printf("[%d]-[%d]\n", toc.header.start, toc.header.end);
 
   // 各トラックの位置を取得
@@ -150,7 +150,7 @@ int CDROM::ReadTOC() {
   cdb.length = tsize;
   r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, &toc, tsize);
   if (r < 0) {
-    LOG0("failed\n");
+    Log("failed\n");
     return 0;
   }
 
@@ -166,9 +166,9 @@ int CDROM::ReadTOC() {
     if (shift && tr->addr >= 13578)
       tr->addr -= 228;
 #endif
-    LOG3("Track %.2d: %6d %.2x\n", start + t, tr->addr, tr->control);
+    Log("Track %.2d: %6d %.2x\n", start + t, tr->addr, tr->control);
   }
-  LOG0("\n");
+  Log("\n");
 
   return end;
 }

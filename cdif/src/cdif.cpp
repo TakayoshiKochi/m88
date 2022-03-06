@@ -58,7 +58,7 @@ void IOCALL CDIF::SystemReset(uint32_t, uint32_t d) {
 //  リセット
 //
 void CDIF::Reset() {
-  LOG0("Reset!\n");
+  Log("Reset!\n");
   status = 0;
   data = 0;
   phase = idlephase;
@@ -79,12 +79,12 @@ void CDIF::DataOut() {
   switch (s) {
     case 0x00:  // データ送信モード
       *ptr++ = data;
-      LOG1("(%.2x)", data);
+      Log("(%.2x)", data);
 
       if (--length > 0)
         status |= 0x00 | 0x40;
       else {
-        LOG0("\n");
+        Log("\n");
         ProcessCommand();
       }
       break;
@@ -95,15 +95,15 @@ void CDIF::DataOut() {
           length = 1 + (data < 0x80 ? 5 : 9);
           phase = paramphase;
           ptr = cmdbuf;
-          LOG0("Command: ");
+          Log("Command: ");
 
         case paramphase:
-          LOG1("[%.2x]", data);
+          Log("[%.2x]", data);
           *ptr++ = data;
           if (--length > 0) {
             status |= 0x40 | 0x10;
           } else {
-            LOG0(" - ");
+            Log(" - ");
             status &= ~0x38;
             phase = execphase;
             ProcessCommand();
@@ -127,14 +127,14 @@ void CDIF::DataIn() {
       break;
 
     case 0x18:  // 結果受信モード
-      LOG0(">Status\n");
+      Log(">Status\n");
       data = 0;
       phase = statusphase;
       status |= 0x38 | 0x40;
       break;
 
     case 0x38:  // 終了ステータス受信モード
-      LOG0(">Idle\n");
+      Log(">Idle\n");
       data = 0;
       phase = idlephase;
       status = 0;
@@ -145,7 +145,7 @@ void CDIF::DataIn() {
 void CDIF::SendPhase(int bytes, int r, int s) {
   rslt = r, stat = s;
 
-  LOG0(">SendPhase\n");
+  Log(">SendPhase\n");
   phase = sendphase;
   length = bytes - 1;
   status |= 0x08 | 0x40;
@@ -154,7 +154,7 @@ void CDIF::SendPhase(int bytes, int r, int s) {
 }
 
 void CDIF::RecvPhase(int bytes) {
-  LOG0(">RecvPhase\n");
+  Log(">RecvPhase\n");
   phase = recvphase;
   length = bytes;
   status |= 0x00 | 0x40;
@@ -162,7 +162,7 @@ void CDIF::RecvPhase(int bytes) {
 }
 
 void CDIF::ResultPhase(int res, int st) {
-  LOG0(">Result\n");
+  Log(">Result\n");
   data = res;
   stat = st;
   status |= 0x18 | 0x40;
@@ -178,7 +178,7 @@ void CDIF::SendCommand(uint32_t a, uint32_t b, uint32_t c) {
 }
 
 void CDIF::Done(int ret) {
-  LOG3("[done(%d:%d:%d)]", cmdbuf[0], phase, ret);
+  Log("[done(%d:%d:%d)]", cmdbuf[0], phase, ret);
   rslt = ret;
   if (phase == waitphase)
     ProcessCommand();
@@ -216,7 +216,7 @@ void CDIF::ProcessCommand() {
       break;
 
     default:
-      LOG0("unknown\n");
+      Log("unknown\n");
       ResultPhase(0, 0);
       break;
   }
@@ -231,7 +231,7 @@ void CDIF::ReadSector() {
 
     case execphase:
       sector = (((cmdbuf[1] << 8) + cmdbuf[2]) << 8) + cmdbuf[3];
-      LOG1("Read Sector (%d)\n", sector);
+      Log("Read Sector (%d)\n", sector);
       //      statusdisplay.Show(90, 0, "Read Sector (%d)", sector);
       length = retrycount + 1;
       rslt = 0;
@@ -239,7 +239,7 @@ void CDIF::ReadSector() {
     case waitphase:
       if (!rslt) {
         if (length-- > 0) {
-          LOG2("(%2d) Read#%d\n", rslt, retrycount - length + 1);
+          Log("(%2d) Read#%d\n", rslt, retrycount - length + 1);
           SendCommand(readmode ? CDControl::read2 : CDControl::read1, sector, (uint32_t)tmpbuf);
           break;
         }
@@ -247,7 +247,7 @@ void CDIF::ReadSector() {
         break;
       }
       n = dmac->RequestWrite(1, tmpbuf, readmode ? 2340 : 2048);
-      LOG1("DMA: %d bytes\n", n);
+      Log("DMA: %d bytes\n", n);
       ResultPhase(0, 0);
       break;
   }
@@ -259,7 +259,7 @@ void CDIF::ReadSector() {
 void CDIF::SetReadMode() {
   switch (phase) {
     case execphase:
-      LOG1("Set Read Mode (%d)\n", cmdbuf[4]);
+      Log("Set Read Mode (%d)\n", cmdbuf[4]);
       RecvPhase(11);
       break;
 
@@ -283,7 +283,7 @@ void CDIF::TrackSearch() {
       //      addre = cmdbuf[1] & 1 ? cdrom.GetTrackInfo(0)->addr : addrs+1;
       addre = cdrom.GetTrackInfo(0)->addr;
 
-      LOG2("Track Search (%d - %d)\n", addrs, addre);
+      Log("Track Search (%d - %d)\n", addrs, addre);
       //      statusdisplay.Show(90, 0, "Search Track (%d)", addrs);
       SendCommand(CDControl::playaudio, addrs, addre);
       if (cmdbuf[1] & 1)
@@ -312,7 +312,7 @@ void CDIF::PlayStart() {
 
     case execphase:
       addre = GetPlayAddress();
-      LOG2("Audio Play Start (%d - %d)\n", addrs, addre);
+      Log("Audio Play Start (%d - %d)\n", addrs, addre);
       //      statusdisplay.Show(90, 0, "Play Audio (%d - %d)", addrs, addre);
       SendCommand(CDControl::playaudio, addrs, addre);
       break;
@@ -347,7 +347,7 @@ void CDIF::PlayStop() {
 void CDIF::ReadSubcodeQ() {
   switch (phase) {
     case execphase:
-      LOG0("Read Subcode-Q\n");
+      Log("Read Subcode-Q\n");
       SendCommand(CDControl::readsubcodeq, (uint32_t)tmpbuf);
       break;
 
@@ -386,12 +386,12 @@ void CDIF::ReadSubcodeQ() {
 void CDIF::CheckDriveStatus() {
   switch (phase) {
     case execphase:
-      LOG0("Check Drive Status");
+      Log("Check Drive Status");
       SendCommand(CDControl::checkdisk);
       break;
 
     case waitphase:
-      LOG2("result : %d (%d)\n", rslt, cdrom.GetNumTracks());
+      Log("result : %d (%d)\n", rslt, cdrom.GetNumTracks());
       ResultPhase(0, 0);
       break;
   }
@@ -404,7 +404,7 @@ void CDIF::ReadTOC() {
   int t = 0;
   switch (phase) {
     case execphase:
-      LOG0("READ TOC - ");
+      Log("READ TOC - ");
 
       switch (cmdbuf[1]) {
         case 0x00:
@@ -417,16 +417,16 @@ void CDIF::ReadTOC() {
           if (t <= cdrom.GetNumTracks()) {
             const CDROM::Track* tr = cdrom.GetTrackInfo(t);
             if (t)
-              LOG2("Track %d(%p) ", t, tr);
+              Log("Track %d(%p) ", t, tr);
             else
-              LOG0("ReadOut");
+              Log("ReadOut");
 
             CDROM::MSF msf = cdrom.ToMSF(tr->addr);
             datbuf[0] = msf.min;
             datbuf[1] = msf.sec;
             datbuf[2] = msf.frame;
             datbuf[3] = t ? tr->control & 0x0f : 0;
-            LOG5(" : %8d/%.2x:%.2x.%.2x %.2x\n", tr->addr, msf.min, msf.sec, msf.frame,
+            Log(" : %8d/%.2x:%.2x.%.2x %.2x\n", tr->addr, msf.min, msf.sec, msf.frame,
                  t ? tr->control : 0);
             SendPhase(4, 0, 0);
             break;
@@ -443,10 +443,10 @@ void CDIF::ReadTOC() {
     case waitphase:
       rslt = cdrom.GetNumTracks();
       //      statusdisplay.Show(90, 0, "Read TOC - %d tracks", rslt);
-      LOG1("GetNumTracks (%d)\n", rslt);
+      Log("GetNumTracks (%d)\n", rslt);
       for (t = 0; t < rslt; t++) {
         const CDROM::Track* tr = cdrom.GetTrackInfo(t);
-        LOG2("  %d: %d\n", t, tr->addr);
+        Log("  %d: %d\n", t, tr->addr);
       }
       if (rslt)
         datbuf[0] = 1, datbuf[1] = NtoBCD(rslt);
@@ -489,10 +489,10 @@ uint32_t CDIF::GetPlayAddress() {
 //  I/O
 //
 void IOCALL CDIF::Out90(uint32_t, uint32_t d) {
-  LOG1("O[90] <- %.2x\n", d);
+  Log("O[90] <- %.2x\n", d);
   if (d & 1) {
     if (active && data == 0x81) {
-      LOG0("Command_A\n");
+      Log("Command_A\n");
       status |= 0x40 | 0x10 | 1;
       status &= ~(0x80 | 0x38);
       phase = cmd1phase;
@@ -500,7 +500,7 @@ void IOCALL CDIF::Out90(uint32_t, uint32_t d) {
   } else {
     status &= ~1;
     if (phase == cmd1phase) {
-      LOG0("Command_B\n");
+      Log("Command_B\n");
       phase = cmd2phase;
       status = (status & ~0x78) | 0x80 | 0x50;
     }
@@ -508,7 +508,7 @@ void IOCALL CDIF::Out90(uint32_t, uint32_t d) {
 }
 
 uint32_t IOCALL CDIF::In90(uint32_t) {
-  //  LOG1("I[90] -> %.2x\n", status);
+  //  Log("I[90] -> %.2x\n", status);
   return status;
 }
 
@@ -516,14 +516,14 @@ uint32_t IOCALL CDIF::In90(uint32_t) {
 //  データポート
 //
 void IOCALL CDIF::Out91(uint32_t, uint32_t d) {
-  //  LOG1("O[91] <- %.2x (DATA)\n", d);
+  //  Log("O[91] <- %.2x (DATA)\n", d);
   data = d;
   if (status & 0x80)
     DataOut();
 }
 
 uint32_t IOCALL CDIF::In91(uint32_t) {
-  LOG1("I[91] -> %.2x\n", data);
+  Log("I[91] -> %.2x\n", data);
   uint32_t r = data;
   if (status & 0x80)
     DataIn();
@@ -531,7 +531,7 @@ uint32_t IOCALL CDIF::In91(uint32_t) {
 }
 
 void IOCALL CDIF::Out94(uint32_t, uint32_t d) {
-  LOG1("O[94] <- %.2x\n", d);
+  Log("O[94] <- %.2x\n", d);
   if (d & 0x80) {
     Reset();
   }
@@ -539,49 +539,49 @@ void IOCALL CDIF::Out94(uint32_t, uint32_t d) {
 
 void IOCALL CDIF::Out97(uint32_t, uint32_t d) {
   //  cd.SendCommand(CDControl::playtrack, d);
-  LOG1("O[97] <- %.2x\n", d);
+  Log("O[97] <- %.2x\n", d);
 }
 
 void IOCALL CDIF::Out99(uint32_t, uint32_t d) {
-  //  LOG1("O[99] <- %.2x\n", d);
+  //  Log("O[99] <- %.2x\n", d);
 }
 
 void IOCALL CDIF::Out9f(uint32_t, uint32_t d) {
   //  cd.SendCommand(CDControl::readtoc);
-  LOG1("O[9f] <- %.2x", d);
+  Log("O[9f] <- %.2x", d);
   if (enable) {
     active = d & 1;
-    LOG1("  CD-ROM drive %s.\n", active ? "activated" : "deactivated");
+    Log("  CD-ROM drive %s.\n", active ? "activated" : "deactivated");
   }
 }
 
 uint32_t IOCALL CDIF::In92(uint32_t) {
-  LOG1("I[92] -> %.2x\n", 0);
+  Log("I[92] -> %.2x\n", 0);
   return 0;
 }
 
 uint32_t IOCALL CDIF::In93(uint32_t) {
-  LOG1("I[93] -> %.2x\n", 0);
+  Log("I[93] -> %.2x\n", 0);
   return 0;
 }
 
 uint32_t IOCALL CDIF::In96(uint32_t) {
-  LOG1("I[96] -> %.2x\n", 0);
+  Log("I[96] -> %.2x\n", 0);
   return 0;
 }
 
 uint32_t IOCALL CDIF::In99(uint32_t) {
-  LOG1("I[99] -> %.2x\n", 0);
+  Log("I[99] -> %.2x\n", 0);
   return 0;
 }
 
 uint32_t IOCALL CDIF::In9b(uint32_t) {
-  //  LOG1("I[9b] -> %.2x\n", 0);
+  //  Log("I[9b] -> %.2x\n", 0);
   return 60;
 }
 
 uint32_t IOCALL CDIF::In9d(uint32_t) {
-  //  LOG1("I[9d] -> %.2x\n", 0);
+  //  Log("I[9d] -> %.2x\n", 0);
   return 60;
 }
 
@@ -589,7 +589,7 @@ uint32_t IOCALL CDIF::In9d(uint32_t) {
 //  再生モード
 //
 void IOCALL CDIF::Out98(uint32_t, uint32_t d) {
-  LOG1("O[98] <- %.2x\n", d);
+  Log("O[98] <- %.2x\n", d);
   playmode = d;
 }
 
@@ -598,7 +598,7 @@ uint32_t IOCALL CDIF::In98(uint32_t) {
     clk = ~clk;
 
   uint32_t r = (clk & 0x80) | (playmode & 0x7f);
-  LOG1("I[98] -> %.2x\n", r);
+  Log("I[98] -> %.2x\n", r);
   return r;
 }
 

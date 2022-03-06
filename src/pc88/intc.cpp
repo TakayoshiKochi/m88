@@ -40,7 +40,7 @@ bool INTC::Init(IOBus* b, uint32_t ip, uint32_t ipbase) {
 //
 inline void INTC::IRQ(bool flag) {
   bus->Out(irqport, flag);
-  LOG1("irq(%d)\n", flag);
+  Log("irq(%d)\n", flag);
 }
 
 // ---------------------------------------------------------------------------
@@ -59,13 +59,13 @@ void IOCALL INTC::Request(uint32_t port, uint32_t en) {
   if (en) {
     bit &= stat.mask2;
     // request
-    LOG2("INT%d REQ - %s :", port - iportbase,
+    Log("INT%d REQ - %s :", port - iportbase,
          bit ? (bit & stat.mask ? "accept" : "denied") : "discarded");
     if (!(stat.irq & bit)) {
       stat.irq |= bit;
       IRQ((stat.irq & stat.mask & stat.mask2) != 0);
     } else
-      LOG0("\n");
+      Log("\n");
   } else {
     // cancel
     if (stat.irq & bit) {
@@ -84,7 +84,7 @@ uint32_t IOCALL INTC::IntAck(uint32_t) {
     if (ai & 1) {
       stat.irq &= ~(1 << i);
       stat.mask = 0;
-      LOG1("INT%d ACK  : ", i);
+      Log("INT%d ACK  : ", i);
       IRQ(false);
 
       return i * 2;
@@ -100,7 +100,7 @@ void IOCALL INTC::SetMask(uint32_t, uint32_t data) {
   static const int8_t table[8] = {~7, ~3, ~5, ~1, ~6, ~2, ~4, ~0};
   stat.mask2 = table[data & 7];
   stat.irq &= stat.mask2;
-  LOG2("p[e6] = %.2x (%.2x) : ", data, stat.mask2);
+  Log("p[e6] = %.2x (%.2x) : ", data, stat.mask2);
   IRQ((stat.irq & stat.mask & stat.mask2) != 0);
 }
 
@@ -110,7 +110,7 @@ void IOCALL INTC::SetMask(uint32_t, uint32_t data) {
 void IOCALL INTC::SetRegister(uint32_t, uint32_t data) {
   stat.mask = ~(-1 << std::min(8U, data));
   //  mode = (data & 7) != 0;
-  LOG1("p[e4] = %.2x  : ", data);
+  Log("p[e4] = %.2x  : ", data);
   IRQ((stat.irq & stat.mask & stat.mask2) != 0);
 }
 
