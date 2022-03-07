@@ -4,13 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: opnif.cpp,v 1.24 2003/09/28 14:35:35 cisc Exp $
 
-#include "win32/headers.h"
 #include "pc88/opnif.h"
-#include "pc88/config.h"
-#include "common/schedule.h"
-#include "win32/status.h"
 
+#include "common/schedule.h"
+#include "pc88/config.h"
 #include "win32/romeo/piccolo.h"
+#include "win32/status.h"
 
 // #include "romeo/juliet.h"
 

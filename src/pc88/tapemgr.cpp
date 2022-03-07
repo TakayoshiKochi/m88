@@ -4,11 +4,10 @@
 // ---------------------------------------------------------------------------
 //  $Id: tapemgr.cpp,v 1.3 2000/08/06 09:58:51 cisc Exp $
 
-#include "win32/headers.h"
+#include "pc88/tapemgr.h"
 
 #include <algorithm>
 
-#include "pc88/tapemgr.h"
 #include "win32/file.h"
 #include "win32/status.h"
 

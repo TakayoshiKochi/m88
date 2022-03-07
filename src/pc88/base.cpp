@@ -4,13 +4,13 @@
 // ---------------------------------------------------------------------------
 //  $Id: base.cpp,v 1.19 2003/09/28 14:35:35 cisc Exp $
 
-#include "win32/headers.h"
+
+#include "pc88/pc88.h"
 
 #include <stdlib.h>
 
 #include "common/draw.h"
 #include "pc88/base.h"
-#include "pc88/pc88.h"
 #include "pc88/config.h"
 #include "pc88/tapemgr.h"
 #include "win32/status.h"

@@ -6,18 +6,16 @@
 // ---------------------------------------------------------------------------
 //  $Id: fdc.cpp,v 1.20 2003/05/12 22:26:35 cisc Exp $
 
-#include "win32/headers.h"
+#include "pc88/fdc.h"
 
 #include <stdlib.h>
 
 #include <algorithm>
 
-#include "pc88/fdc.h"
-#include "pc88/fdu.h"
-#include "win32/critsect.h"
-#include "pc88/diskmgr.h"
-#include "win32/status.h"
 #include "pc88/config.h"
+#include "pc88/diskmgr.h"
+#include "win32/critsect.h"
+#include "win32/status.h"
 
 #define LOGNAME "fdc"
 #include "common/diag.h"

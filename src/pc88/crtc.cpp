@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: crtc.cpp,v 1.34 2004/02/05 11:57:49 cisc Exp $
 
-#include "win32/headers.h"
+#include "pc88/crtc.h"
 
 #include <algorithm>
 
@@ -14,7 +14,6 @@
 #include "common/error.h"
 #include "common/schedule.h"
 #include "pc88/config.h"
-#include "pc88/crtc.h"
 #include "pc88/pc88.h"
 #include "pc88/pd8257.h"
 #include "win32/file.h"

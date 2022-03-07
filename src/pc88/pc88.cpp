@@ -8,30 +8,28 @@
 
 //  Memory Bus Banksize <= 0x400
 
-#include "win32/headers.h"
+#include "pc88/pc88.h"
 
 #include <algorithm>
 
-#include "pc88/pc88.h"
-#include "pc88/config.h"
-#include "pc88/memory.h"
-#include "pc88/pd8257.h"
-#include "pc88/kanjirom.h"
-#include "pc88/screen.h"
-#include "pc88/intc.h"
-#include "pc88/crtc.h"
 #include "pc88/base.h"
-#include "pc88/fdc.h"
-#include "pc88/subsys.h"
-#include "pc88/sio.h"
-#include "pc88/opnif.h"
-#include "pc88/diskmgr.h"
-#include "pc88/tapemgr.h"
 #include "pc88/beep.h"
-#include "pc88/joypad.h"
 #include "pc88/calender.h"
+#include "pc88/config.h"
+#include "pc88/crtc.h"
+#include "pc88/diskmgr.h"
+#include "pc88/fdc.h"
+#include "pc88/intc.h"
+#include "pc88/joypad.h"
+#include "pc88/kanjirom.h"
+#include "pc88/memory.h"
+#include "pc88/opnif.h"
+#include "pc88/pd8257.h"
+#include "pc88/screen.h"
+#include "pc88/sio.h"
+#include "pc88/subsys.h"
+#include "pc88/tapemgr.h"
 #include "win32/loadmon.h"
-
 #include "win32/status.h"
 
 // #define LOGNAME "pc88"

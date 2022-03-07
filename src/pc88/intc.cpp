@@ -6,11 +6,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: intc.cpp,v 1.15 2000/06/22 16:22:18 cisc Exp $
 
-#include "win32/headers.h"
+#include "pc88/intc.h"
 
 #include <algorithm>
-
-#include "pc88/intc.h"
 
 // #define LOGNAME "intc"
 #include "common/diag.h"

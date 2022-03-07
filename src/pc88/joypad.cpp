@@ -4,10 +4,10 @@
 // ---------------------------------------------------------------------------
 //  $Id: joypad.cpp,v 1.3 2003/05/19 01:10:31 cisc Exp $
 
+#include "pc88/joypad.h"
+
 #include <utility>
 
-#include "win32/headers.h"
-#include "pc88/joypad.h"
 #include "if/ifguid.h"
 
 using namespace PC8801;

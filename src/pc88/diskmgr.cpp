@@ -4,11 +4,10 @@
 // ---------------------------------------------------------------------------
 //  $Id: diskmgr.cpp,v 1.13 1999/11/26 10:13:46 cisc Exp $
 
-#include "win32/headers.h"
+#include "pc88/diskmgr.h"
 
 #include <algorithm>
 
-#include "pc88/diskmgr.h"
 #include "win32/status.h"
 
 using namespace D88;

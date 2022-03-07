@@ -6,11 +6,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: pd8257.cpp,v 1.14 1999/10/10 01:47:09 cisc Exp $
 
-#include "win32/headers.h"
+#include "pc88/pd8257.h"
 
 #include <algorithm>
-
-#include "pc88/pd8257.h"
 
 // #define LOGNAME   "pd8257"
 #include "common/diag.h"
