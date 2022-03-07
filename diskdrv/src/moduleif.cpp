@@ -1,9 +1,8 @@
 //  $Id: moduleif.cpp,v 1.2 1999/11/26 10:12:57 cisc Exp $
 
-#include "win32/headers.h"
+#include "diskio.h"
 #include "if/ifcommon.h"
 #include "if/ifguid.h"
-#include "diskio.h"
 
 #define EXTDEVAPI __declspec(dllexport)
 

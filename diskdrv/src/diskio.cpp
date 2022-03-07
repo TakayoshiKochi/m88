@@ -4,11 +4,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: diskio.cpp,v 1.2 1999/09/25 03:13:51 cisc Exp $
 
-#include "win32/headers.h"
+#include "diskio.h"
 
 #include <algorithm>
-
-#include "diskio.h"
 
 #define LOGNAME "DiskIO"
 #include "common/diag.h"

@@ -4,11 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: cdrom.cpp,v 1.2 1999/11/26 10:12:47 cisc Exp $
 
-#include "win32/headers.h"
-#include <stddef.h>
-#include <winioctl.h>
-#include <ntddscsi.h>
 #include "cdrom.h"
+
+#include <stddef.h>
+#include <ntddscsi.h>
+#include <winioctl.h>
+
 #include "aspi.h"
 #include "aspidef.h"
 #include "cdromdef.h"

@@ -6,7 +6,8 @@
 
 #pragma once
 
-#include <winbase.h>
+#include <windows.h>
+
 #include "common/device.h"
 
 class CDROM;

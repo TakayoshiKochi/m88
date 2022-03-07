@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <windows.h>
+
 #include "if/ifcommon.h"
 
 class ConfigCDIF : public IConfigPropSheet {

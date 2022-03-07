@@ -6,8 +6,6 @@
 // ----------------------------------------------------------------------------
 //  $Id: cdif.cpp,v 1.2 1999/10/10 01:39:00 cisc Exp $
 
-#include "win32/headers.h"
-
 #include "cdif.h"
 
 #include <algorithm>

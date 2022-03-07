@@ -4,7 +4,8 @@
 // ----------------------------------------------------------------------------
 //  $Id: diag.cpp,v 1.11 1999/11/26 10:14:08 cisc Exp $
 //
-#include "win32/headers.h"
+
+#include <stdarg.h>
 
 #define INCLDIAG
 #include "common/diag.h"
