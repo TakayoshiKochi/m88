@@ -1,9 +1,7 @@
 //  $Id: piccolo.cpp,v 1.3 2003/04/22 13:16:36 cisc Exp $
 
-#include "win32/headers.h"
-#include <windows.h>
-#include "win32/romeo/piccolo.h"
 #include "win32/romeo/piccolo_romeo.h"
+
 #include "win32/romeo/romeo.h"
 #include "win32/status.h"
 

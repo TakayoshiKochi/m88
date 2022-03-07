@@ -4,10 +4,8 @@
  * License : GNU General Public License
  */
 
-#include "win32/headers.h"
-#include <windows.h>
-#include "win32/romeo/piccolo.h"
 #include "win32/romeo/piccolo_gimic.h"
+
 #include "win32/romeo/c86ctl.h"
 #include "win32/status.h"
 
