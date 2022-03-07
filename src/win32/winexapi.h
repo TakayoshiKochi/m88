@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <windows.h>
+
+#include <ddraw.h>
+
 class ExtendedAPIAccessBase {
  public:
   ExtendedAPIAccessBase(const char* dllname, const char* apiname, void* dummy);

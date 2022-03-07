@@ -494,9 +494,6 @@
     <ClInclude Include="src\win32\filetest.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\headers.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\iomon.h">
       <Filter>Win32</Filter>
     </ClInclude>

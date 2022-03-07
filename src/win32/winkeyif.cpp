@@ -6,13 +6,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: WinKeyIF.cpp,v 1.8 2000/02/04 01:50:00 cisc Exp $
 
-#include "win32/headers.h"
+#include "win32/winkeyif.h"
 
 #include <algorithm>
 
-#include "win32/winkeyif.h"
-#include "win32/messages.h"
 #include "pc88/config.h"
+#include "win32/messages.h"
 
 // #define LOGNAME "keyif"
 #include "common/diag.h"

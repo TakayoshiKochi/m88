@@ -7,8 +7,8 @@
 #pragma once
 
 #include "common/device.h"
-#include "win32/winmon.h"
 #include "common/soundsrc.h"
+#include "win32/winmon.h"
 
 // ---------------------------------------------------------------------------
 

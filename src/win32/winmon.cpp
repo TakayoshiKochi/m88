@@ -4,15 +4,16 @@
 // ---------------------------------------------------------------------------
 //  $Id: winmon.cpp,v 1.4 2002/04/07 05:40:11 cisc Exp $
 
+#include "win32/winmon.h"
+
 #include <assert.h>
+#include <commctrl.h>
 #include <stdio.h>
 
 #include <algorithm>
 
 #include "common/misc.h"
-#include "win32/headers.h"
 #include "win32/resource.h"
-#include "win32/winmon.h"
 
 // ---------------------------------------------------------------------------
 //  構築/消滅

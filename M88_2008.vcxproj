@@ -1431,7 +1431,6 @@
     <ClInclude Include="src\win32\extdev.h" />
     <ClInclude Include="src\win32\file.h" />
     <ClInclude Include="src\win32\filetest.h" />
-    <ClInclude Include="src\win32\headers.h" />
     <ClInclude Include="src\win32\iomon.h" />
     <ClInclude Include="src\win32\keybconn.h" />
     <ClInclude Include="src\win32\loadmon.h" />

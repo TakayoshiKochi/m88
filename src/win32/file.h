@@ -8,9 +8,10 @@
 
 #pragma once
 
+#include <windows.h>
+
 #include <stdint.h>
 #include <stdlib.h>
-#include <windows.h>
 
 // ---------------------------------------------------------------------------
 

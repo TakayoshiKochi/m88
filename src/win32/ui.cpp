@@ -6,26 +6,26 @@
 // ---------------------------------------------------------------------------
 //  $Id: ui.cpp,v 1.62 2003/09/28 14:35:35 cisc Exp $
 
-#include "win32/headers.h"
+#include "win32/ui.h"
+
 #include <commdlg.h>
+#include <ddraw.h>
 #include <shellapi.h>
 #include <mbstring.h>
 
 #include <algorithm>
 
-#include "win32/resource.h"
-#include "win32/ui.h"
-#include "win32/about.h"
-#include "win32/file.h"
-#include "win32/messages.h"
 #include "common/error.h"
-#include "win32/88config.h"
-#include "win32/status.h"
 #include "pc88/opnif.h"
 #include "pc88/diskmgr.h"
 #include "pc88/tapemgr.h"
 #include "win32/filetest.h"
-#include "win32/winvars.h"
+#include "win32/88config.h"
+#include "win32/about.h"
+#include "win32/file.h"
+#include "win32/resource.h"
+#include "win32/messages.h"
+#include "win32/status.h"
 #include "win32/winexapi.h"
 
 #define LOGNAME "ui"

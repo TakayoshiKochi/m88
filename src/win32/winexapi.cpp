@@ -1,7 +1,5 @@
 //  $Id: winexapi.cpp,v 1.1 2002/04/07 05:40:11 cisc Exp $
 
-#include "win32/headers.h"
-
 #define DECLARE_EXAPI(name, type, arg, dll, api, def) \
   static type WINAPI ef_##name arg {                  \
     return def;                                       \

@@ -8,20 +8,23 @@
 
 #pragma once
 
+#include <windows.h>
+
 #include <stdint.h>
+
+#include "win32/88config.h"
+#include "win32/basmon.h"
+#include "win32/codemon.h"
+#include "win32/iomon.h"
+#include "win32/loadmon.h"
+#include "win32/memmon.h"
+#include "win32/newdisk.h"
+#include "win32/regmon.h"
+#include "win32/soundmon.h"
+#include "win32/wincfg.h"
 #include "win32/wincore.h"
 #include "win32/windraw.h"
 #include "win32/winkeyif.h"
-#include "win32/88config.h"
-#include "win32/wincfg.h"
-#include "win32/newdisk.h"
-#include "win32/soundmon.h"
-#include "win32/memmon.h"
-#include "win32/codemon.h"
-#include "win32/basmon.h"
-#include "win32/regmon.h"
-#include "win32/loadmon.h"
-#include "win32/iomon.h"
 
 // ---------------------------------------------------------------------------
 

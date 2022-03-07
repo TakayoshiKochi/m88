@@ -6,8 +6,10 @@
 
 // #define  DIRECTINPUT_VERSION     0x0300
 
-#include "win32/headers.h"
 #include "win32/winjoy.h"
+
+#include <mmsystem.h>
+
 #include "pc88/config.h"
 #include "win32/status.h"
 

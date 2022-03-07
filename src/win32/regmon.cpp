@@ -4,13 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: regmon.cpp,v 1.1 2000/11/02 12:43:51 cisc Exp $
 
-#include "win32/headers.h"
+#include "win32/regmon.h"
 
 #include <algorithm>
 
-#include "win32/resource.h"
-#include "win32/regmon.h"
 #include "pc88/pc88.h"
+#include "win32/resource.h"
 
 using namespace PC8801;
 

@@ -4,13 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: wincfg.cpp,v 1.8 2003/05/12 22:26:35 cisc Exp $
 
-#include "win32/headers.h"
+#include "win32/wincfg.h"
 
 #include <algorithm>
 
-#include "win32/resource.h"
-#include "win32/wincfg.h"
 #include "win32/messages.h"
+#include "win32/resource.h"
 
 using namespace PC8801;
 

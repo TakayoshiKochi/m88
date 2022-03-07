@@ -4,13 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: soundmon.cpp,v 1.15 2003/06/12 14:03:44 cisc Exp $
 
-#include "win32/headers.h"
+#include "win32/soundmon.h"
 
 #include <algorithm>
 
-#include "win32/resource.h"
-#include "win32/soundmon.h"
 #include "pc88/opnif.h"
+#include "win32/resource.h"
 
 using namespace PC8801;
 

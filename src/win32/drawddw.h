@@ -9,6 +9,8 @@
 #if !defined(win32_drawddw_h)
 #define win32_drawddw_h
 
+#include <ddraw.h>
+
 #include "win32/windraw.h"
 
 // ---------------------------------------------------------------------------
