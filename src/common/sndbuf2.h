@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "win32/critsect.h"
-#include "if/ifcommon.h"
 #include "common/soundsrc.h"
+#include "if/ifcommon.h"
+#include "win32/critsect.h"
 
 // ---------------------------------------------------------------------------
 //  SoundBuffer2

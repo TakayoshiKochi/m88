@@ -1,5 +1,7 @@
 //  $Id: srcbuf.cpp,v 1.2 2003/05/12 22:26:34 cisc Exp $
 
+#include "common/srcbuf.h"
+
 #include <assert.h>
 #include <math.h>
 #include <string.h>
@@ -7,7 +9,6 @@
 #include <algorithm>
 
 #include "common/misc.h"
-#include "common/srcbuf.h"
 
 #ifndef PI
 #define PI 3.14159265358979323846

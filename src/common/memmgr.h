@@ -7,6 +7,7 @@
 #pragma once
 
 #include <assert.h>
+#include <windows.h>
 
 #include "if/ifcommon.h"
 

@@ -4,10 +4,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: psg.cpp,v 1.10 2002/05/15 21:38:01 cisc Exp $
 
-#include <math.h>
-
-#include "win32/headers.h"
 #include "devices/psg.h"
+
+#include <math.h>
 
 inline int Limit(int v, int max, int min) {
   return v > max ? max : (v < min ? min : v);

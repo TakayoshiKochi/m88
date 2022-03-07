@@ -21,13 +21,12 @@
 //      ほか掲示板等で様々なご助言，ご支援をお寄せいただいた皆様に
 // ---------------------------------------------------------------------------
 
+#include "devices/fmgen.h"
+
 #include <assert.h>
 #include <math.h>
 
 #include <algorithm>
-
-#include "win32/headers.h"
-#include "devices/fmgen.h"
 
 #define LOGNAME "fmgen"
 
