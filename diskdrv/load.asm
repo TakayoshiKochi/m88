@@ -43,7 +43,7 @@ lload_2:
 		push	af
 		push	hl
 	
-	; ASCII/BINARY ”»•Ê
+	; ASCII/BINARY åˆ¤åˆ¥
 		inc	b
 		dec	b
 		jr	nz,lload_7
@@ -108,12 +108,12 @@ lload_8:
 		jp	(hl)
 
 ; ----------------------------------------------------------------------------
-;	ASCII BASIC ƒvƒƒOƒ‰ƒ€ƒ[ƒh
+;	ASCII BASIC ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ­ãƒ¼ãƒ‰
 ;
 asciiload:
-		ld	(0e9b8h),de	; æ“Ç‚İ‚µ‚½‚QƒoƒCƒg‚ğ•Û‘¶
+		ld	(0e9b8h),de	; å…ˆèª­ã¿ã—ãŸï¼’ãƒã‚¤ãƒˆã‚’ä¿å­˜
 		
-		ld	hl,(TXTTAB)	; NEW “Iˆ—
+		ld	hl,(TXTTAB)	; NEW çš„å‡¦ç†
 		dec	hl
 		xor	a
 		ld	(hl),a
@@ -130,30 +130,30 @@ asciiload:
 		
 		call	loadhookvector
 		
-		ld	hl,0e9b8h+2	; Å‰‚Í‚QƒoƒCƒg•ª‚¸‚ç‚·
+		ld	hl,0e9b8h+2	; æœ€åˆã¯ï¼’ãƒã‚¤ãƒˆåˆ†ãšã‚‰ã™
 		ld	b,0fch
 		jr	asciiload_2
 asciiload_1:
 		ld	hl,0e9b8h		
 		ld	b,0feh
-asciiload_2:				; ‚Ü‚¸§Œä•¶š‚ğ”ò‚Î‚·
+asciiload_2:				; ã¾ãšåˆ¶å¾¡æ–‡å­—ã‚’é£›ã°ã™
 		in	a,(DIOSTAT)
 		and	4
-		jr	z,asciiload_e	; EOF ƒ`ƒFƒbƒN
+		jr	z,asciiload_e	; EOF ãƒã‚§ãƒƒã‚¯
 		in	a,(DIODAT)
 		cp	20h		; skip control char
 		jr	c,asciiload_2
 		ld	(hl),a
 		inc	hl
 asciiload_3:
-		in	a,(DIOSTAT)	; •¶š—ñ‚ğ“Ç‚İ‚Ş
+		in	a,(DIOSTAT)	; æ–‡å­—åˆ—ã‚’èª­ã¿è¾¼ã‚€
 		and	4
 		jr	z,asciiload_e
 		in	a,(DIODAT)
-		cp	9		; tab ‚Í‹ó”’•¶š‚Á‚Ä‚±‚Æ‚Å...
+		cp	9		; tab ã¯ç©ºç™½æ–‡å­—ã£ã¦ã“ã¨ã§...
 		jr	z,asciiload_6
 		cp	20h
-		jr	c,asciiload_4	; §Œä•¶š‚ª—ˆ‚½“_‚Å‚PsI‚í‚è
+		jr	c,asciiload_4	; åˆ¶å¾¡æ–‡å­—ãŒæ¥ãŸæ™‚ç‚¹ã§ï¼‘è¡Œçµ‚ã‚ã‚Š
 asciiload_6:
 		ld	(hl),a
 		inc	hl
@@ -164,9 +164,9 @@ asciiload_6:
 asciiload_4:
 		ld	(hl),0
 		
-		ld	hl,0e9b8h-1	; •¶š—ñ
+		ld	hl,0e9b8h-1	; æ–‡å­—åˆ—
 asciiload_5:
-		inc	hl		; ‹ó”’”ò‚Î‚µ
+		inc	hl		; ç©ºç™½é£›ã°ã—
 		ld	a,(hl)
 		cp	' '
 		jr	z,asciiload_5
@@ -174,7 +174,7 @@ asciiload_5:
 		jr	z,asciiload_5
 		
 		ld	a,(hl)
-		sub	'0'		; ƒvƒƒOƒ‰ƒ€‚Å‚ ‚é‚±‚Æ‚ğŠm”F
+		sub	'0'		; ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã§ã‚ã‚‹ã“ã¨ã‚’ç¢ºèª
 		cp	10
 		ld	e,57		; Direct statement in file
 		jp	nc,ErrorExit
@@ -188,15 +188,15 @@ asciiload_e:
 		call	loadresetvector
 		
 		pop	hl
-		call	CheckError	; ƒGƒ‰[ƒ`ƒFƒbƒN
+		call	CheckError	; ã‚¨ãƒ©ãƒ¼ãƒã‚§ãƒƒã‚¯
 		pop	af
 		pop	hl
 		pop	bc
-		bit	1,a		; ,R ƒIƒvƒVƒ‡ƒ“—L‚è‚È‚ç
+		bit	1,a		; ,R ã‚ªãƒ—ã‚·ãƒ§ãƒ³æœ‰ã‚Šãªã‚‰
 		ld	bc,0b7eh	; RUN
-		jr	nz,asciiload_r	; –³‚µ‚È‚ç
+		jr	nz,asciiload_r	; ç„¡ã—ãªã‚‰
 		ld	bc,050e6h	; CLEAR
-asciiload_r:				; ‚ÌƒGƒ“ƒgƒŠ‚É‚Ê‚¯‚é
+asciiload_r:				; ã®ã‚¨ãƒ³ãƒˆãƒªã«ã¬ã‘ã‚‹
 		push	bc
 		jp	(hl)
 
@@ -253,7 +253,7 @@ load_oldvectors	equ	0e000h
 		org	loadsub_blk + loadsub_len
 		
 ; ----------------------------------------------------------------------------
-;	LOAD ‹¤’Êˆ—
+;	LOAD å…±é€šå‡¦ç†
 ;
 LoadStart:
 		call	getfilename

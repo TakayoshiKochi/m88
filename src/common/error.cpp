@@ -11,13 +11,13 @@ Error::Errno Error::err = Error::unknown;
 
 const char* Error::ErrorText[Error::nerrors] =
 {
-	"Œ´ˆö•s–¾‚ÌƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½.",
-	"PC88 ‚Ì ROM ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ.\nƒtƒ@ƒCƒ‹–¼‚ðŠm”F‚µ‚Ä‚­‚¾‚³‚¢.",
-	"ƒƒ‚ƒŠ‚ÌŠ„‚è“–‚Ä‚ÉŽ¸”s‚µ‚Ü‚µ‚½.",
-	"‰æ–Ê‚Ì‰Šú‰»‚ÉŽ¸”s‚µ‚Ü‚µ‚½.",
-	"ƒXƒŒƒbƒh‚ðì¬‚Å‚«‚Ü‚¹‚ñ.",
-	"ƒeƒLƒXƒgƒtƒHƒ“ƒg‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ.",
-	"ŽÀsƒtƒ@ƒCƒ‹‚ª‘‚«Š·‚¦‚ç‚ê‚½‹°‚ê‚ª‚ ‚è‚Ü‚·.\nŒÌˆÓ‚Å‚È‚¯‚ê‚ÎƒEƒBƒ‹ƒXŠ´õ‚ª‹^‚í‚ê‚Ü‚·.",
+	"åŽŸå› ä¸æ˜Žã®ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	"PC88 ã® ROM ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“.\nãƒ•ã‚¡ã‚¤ãƒ«åã‚’ç¢ºèªã—ã¦ãã ã•ã„.",
+	"ãƒ¡ãƒ¢ãƒªã®å‰²ã‚Šå½“ã¦ã«å¤±æ•—ã—ã¾ã—ãŸ.",
+	"ç”»é¢ã®åˆæœŸåŒ–ã«å¤±æ•—ã—ã¾ã—ãŸ.",
+	"ã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ä½œæˆã§ãã¾ã›ã‚“.",
+	"ãƒ†ã‚­ã‚¹ãƒˆãƒ•ã‚©ãƒ³ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“.",
+	"å®Ÿè¡Œãƒ•ã‚¡ã‚¤ãƒ«ãŒæ›¸ãæ›ãˆã‚‰ã‚ŒãŸæã‚ŒãŒã‚ã‚Šã¾ã™.\næ•…æ„ã§ãªã‘ã‚Œã°ã‚¦ã‚£ãƒ«ã‚¹æ„ŸæŸ“ãŒç–‘ã‚ã‚Œã¾ã™.",
 };
 
 const char* Error::GetErrorText()
