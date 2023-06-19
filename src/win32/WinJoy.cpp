@@ -15,7 +15,7 @@ using namespace PC8801;
 
 
 // ---------------------------------------------------------------------------
-//	\’z/Á–Å
+//	æ§‹ç¯‰/æ¶ˆæ»…
 //
 WinPadIF::WinPadIF()
 {
@@ -28,21 +28,21 @@ WinPadIF::~WinPadIF()
 }
 
 // ---------------------------------------------------------------------------
-//	‰Šú‰»
+//	åˆæœŸåŒ–
 //
 bool WinPadIF::Init()
 {
 	enabled = false;
 	if (!joyGetNumDevs())
 	{
-		statusdisplay.Show(70, 3000, "ƒWƒ‡ƒCƒXƒeƒBƒbƒN API ‚ğg—p‚Å‚«‚Ü‚¹‚ñ");
+		statusdisplay.Show(70, 3000, "ã‚¸ãƒ§ã‚¤ã‚¹ãƒ†ã‚£ãƒƒã‚¯ API ã‚’ä½¿ç”¨ã§ãã¾ã›ã‚“");
 		return false;
 	}
 
 	JOYINFO joyinfo;
 	if (joyGetPos(JOYSTICKID1, &joyinfo) == JOYERR_UNPLUGGED)
 	{
-		statusdisplay.Show(70, 3000, "ƒWƒ‡ƒCƒXƒeƒBƒbƒN‚ªÚ‘±‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ");
+		statusdisplay.Show(70, 3000, "ã‚¸ãƒ§ã‚¤ã‚¹ãƒ†ã‚£ãƒƒã‚¯ãŒæ¥ç¶šã•ã‚Œã¦ã„ã¾ã›ã‚“");
 		return false;
 	}
 	enabled = true;
@@ -50,7 +50,7 @@ bool WinPadIF::Init()
 }
 
 // ---------------------------------------------------------------------------
-//	ƒWƒ‡ƒCƒXƒeƒBƒbƒN‚Ìó‘Ô‚ğXV
+//	ã‚¸ãƒ§ã‚¤ã‚¹ãƒ†ã‚£ãƒƒã‚¯ã®çŠ¶æ…‹ã‚’æ›´æ–°
 //
 void IFCALL WinPadIF::GetState(PadState* d)
 {

@@ -2,7 +2,7 @@
 //	M88 - PC-88 emulator
 //	Copyright (C) cisc 1998.
 // ----------------------------------------------------------------------------
-//	Z80 ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“ƒpƒbƒP[ƒW”äŠrÀs—pƒNƒ‰ƒX
+//	Z80 ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸æ¯”è¼ƒå®Ÿè¡Œç”¨ã‚¯ãƒ©ã‚¹
 //	$Id: Z80Test.cpp,v 1.6 1999/08/14 14:45:06 cisc Exp $
 
 #include "headers.h"
@@ -100,7 +100,7 @@ int Z80Test::Exec(int step)
 }
 
 // ---------------------------------------------------------------------------
-//	Exec ‚ğ“r’†‚Å’†’f
+//	Exec ã‚’é€”ä¸­ã§ä¸­æ–­
 //
 void Z80Test::Stop(int count)
 {
@@ -115,26 +115,26 @@ void Z80Test::Test()
 	Z80Reg& reg1 = cpu1.GetReg();
 	Z80Reg& reg2 = cpu2.GetReg();
 
-	// ‰Šú‰»
+	// åˆæœŸåŒ–
 	readcount = writecount = readcountt = writecountt = codesize = 0;
-	reg = reg2 = reg1;					// ƒŒƒWƒXƒ^‚ğˆê’v‚³‚¹‚é
+	reg = reg2 = reg1;					// ãƒ¬ã‚¸ã‚¹ã‚¿ã‚’ä¸€è‡´ã•ã›ã‚‹
 
 	pc = reg1.pc;
 	cpu2.SetPC(pc);
 	intr = cpu1.IsIntr() + 2 * cpu2.IsIntr();
 
-	// Às
+	// å®Ÿè¡Œ
 	clockcount += cpu1.ExecOne();
 	cpu2.ExecOne();
 
-	// ƒtƒ‰ƒO‚Ìˆê’v‚ğŠm”F
+	// ãƒ•ãƒ©ã‚°ã®ä¸€è‡´ã‚’ç¢ºèª
 	if ((reg1.r.b.flags & 0xd7) != (reg2.r.b.flags & 0xd7))
 	{
-		Error("ƒtƒ‰ƒO‚Ì•sˆê’v");
+		Error("ãƒ•ãƒ©ã‚°ã®ä¸ä¸€è‡´");
 		return;
 	}
 
-	// ƒŒƒWƒXƒ^‚Ìˆê’vŠm”F
+	// ãƒ¬ã‚¸ã‚¹ã‚¿ã®ä¸€è‡´ç¢ºèª
 	if (((reg1.r.b.a ^ reg2.r.b.a)
 		| (reg1.r.w.bc ^ reg2.r.w.bc)
 		| (reg1.r.w.de ^ reg2.r.w.de)
@@ -145,26 +145,26 @@ void Z80Test::Test()
 		| (!reg1.iff1 ^ !reg2.iff1)
 		) & 0xffff)
 	{
-		Error("ƒŒƒWƒXƒ^‚Ì•sˆê’v");
+		Error("ãƒ¬ã‚¸ã‚¹ã‚¿ã®ä¸ä¸€è‡´");
 		return;
 	}
 
 	if (readcount != readcountt)
 	{
-		Error("“Ç‚İ‚İ‰ñ”‚Ì•sˆê’v");
+		Error("èª­ã¿è¾¼ã¿å›æ•°ã®ä¸ä¸€è‡´");
 		return;
 	}
 
 	if (writecount != writecountt)
 	{
-		Error("‘‚«‚İ‰ñ”‚Ì•sˆê’v");
+		Error("æ›¸ãè¾¼ã¿å›æ•°ã®ä¸ä¸€è‡´");
 		return;
 	}
 
-	// PC ‚Ìˆê’vŠm”F
+	// PC ã®ä¸€è‡´ç¢ºèª
 	if (cpu1.GetPC() != cpu2.GetPC())
 	{
-		Error("PC ‚Ì•sˆê’v");
+		Error("PC ã®ä¸ä¸€è‡´");
 		return;
 	}
 }
@@ -234,7 +234,7 @@ inline uint Z80Test::Read8R(uint a)
 		return data;
 	}
 	fprintf(fp, "%x %x\n", a, pc);
-	Error("‚P–½—ß’†‚É‚WƒoƒCƒg‚ğ’´‚¦‚éƒf[ƒ^‚Ì“Ç‚İ‚İ");
+	Error("ï¼‘å‘½ä»¤ä¸­ã«ï¼˜ãƒã‚¤ãƒˆã‚’è¶…ãˆã‚‹ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿");
 	return bus->Read8(a);
 }
 
@@ -254,7 +254,7 @@ inline uint Z80Test::Read8T(uint a)
 	}
 
 	char buf[128];
-	sprintf(buf, "“Ç‚İ‚İƒAƒhƒŒƒX‚Ì•sˆê’v: %.4x", a);
+	sprintf(buf, "èª­ã¿è¾¼ã¿ã‚¢ãƒ‰ãƒ¬ã‚¹ã®ä¸ä¸€è‡´: %.4x", a);
 	Error(buf);
 	return 0;
 }
@@ -272,7 +272,7 @@ inline void Z80Test::Write8R(uint a, uint d)
 		bus->Write8(a, d);
 		return;
 	}
-	Error("‚P–½—ß’†‚É‚WƒoƒCƒg‚ğ’´‚¦‚éƒf[ƒ^‚Ì‘‚«‚İ");
+	Error("ï¼‘å‘½ä»¤ä¸­ã«ï¼˜ãƒã‚¤ãƒˆã‚’è¶…ãˆã‚‹ãƒ‡ãƒ¼ã‚¿ã®æ›¸ãè¾¼ã¿");
 }
 
 inline void Z80Test::Write8T(uint a, uint d)
@@ -286,14 +286,14 @@ inline void Z80Test::Write8T(uint a, uint d)
 			if (writedat[i] != d)
 			{
 				char buf[128];
-				sprintf(buf, "‘‚«‚İƒf[ƒ^‚Ì•sˆê’v at %.4x:%.2x %.2x", a, writedat[i], d);
+				sprintf(buf, "æ›¸ãè¾¼ã¿ãƒ‡ãƒ¼ã‚¿ã®ä¸ä¸€è‡´ at %.4x:%.2x %.2x", a, writedat[i], d);
 				Error(buf);
 			}
 			return;
 		}
 	}
 	char buf[128];
-	sprintf(buf, "‘‚«‚İƒAƒhƒŒƒX‚Ì•sˆê’v: %.4x", a);
+	sprintf(buf, "æ›¸ãè¾¼ã¿ã‚¢ãƒ‰ãƒ¬ã‚¹ã®ä¸ä¸€è‡´: %.4x", a);
 	Error(buf);
 }
 
@@ -310,7 +310,7 @@ uint Z80Test::InT(uint a)
 {
 	if (inptr == a)
 		return indat;
-	Error("“ü—Íƒ|[ƒg‚Ì•sˆê’v");
+	Error("å…¥åŠ›ãƒãƒ¼ãƒˆã®ä¸ä¸€è‡´");
 	return 0;
 }
 
@@ -327,10 +327,10 @@ void Z80Test::OutT(uint a, uint d)
 	if (outptr == a)
 	{
 		if (outdat != d)
-			Error("o—Íƒf[ƒ^‚Ì•sˆê’v");
+			Error("å‡ºåŠ›ãƒ‡ãƒ¼ã‚¿ã®ä¸ä¸€è‡´");
 		return;
 	}
-	Error("o—Íƒ|[ƒg‚Ì•sˆê’v");
+	Error("å‡ºåŠ›ãƒãƒ¼ãƒˆã®ä¸ä¸€è‡´");
 }
 
 // ----------------------------------------------------------------------------

@@ -38,7 +38,7 @@ int main(int ac, char** av)
 					crctable[i] = r;
 				}
 
-				// CRC ŒvŽZ
+				// CRC è¨ˆç®—
 
 				for (i=0; i<len; i++)
 					crc = (crc << 8) ^ crctable[((crc >> 24) ^ mod[i]) & 0xff];

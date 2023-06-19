@@ -12,7 +12,7 @@
 using namespace D88;
 
 // ---------------------------------------------------------------------------
-//	\’zE”jŠü
+//	æ§‹ç¯‰ãƒ»ç ´æ£„
 //
 DiskImageHolder::DiskImageHolder()
 {
@@ -25,18 +25,18 @@ DiskImageHolder::~DiskImageHolder()
 }
 
 // ---------------------------------------------------------------------------
-//	ƒtƒ@ƒCƒ‹‚ğŠJ‚­
+//	ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã
 //
 bool DiskImageHolder::Open(const char* filename, bool ro, bool create)
 {
-	// Šù‚É‚Á‚Ä‚¢‚éƒtƒ@ƒCƒ‹‚©‚Ç‚¤‚©‚ğŠm”F
+	// æ—¢ã«æŒã£ã¦ã„ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã©ã†ã‹ã‚’ç¢ºèª
 	if (Connect(filename))
 		return true;
 	
 	if (ref > 0)
 		return false;
 	
-	// ƒtƒ@ƒCƒ‹‚ğŠJ‚­
+	// ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã
 	readonly = ro;
 	
 	if (readonly || !fio.Open(filename, 0))
@@ -44,21 +44,21 @@ bool DiskImageHolder::Open(const char* filename, bool ro, bool create)
 		if (fio.Open(filename, FileIO::readonly))
 		{
 			if (!readonly)
-				statusdisplay.Show(100, 3000, "“Çæê—pƒtƒ@ƒCƒ‹‚Å‚·");
+				statusdisplay.Show(100, 3000, "èª­å–å°‚ç”¨ãƒ•ã‚¡ã‚¤ãƒ«ã§ã™");
 			readonly = true;
 		}
 		else
 		{
-			// V‚µ‚¢ƒfƒBƒXƒNƒCƒ[ƒWH
+			// æ–°ã—ã„ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ï¼Ÿ
 			if (!create || !fio.Open(filename, FileIO::create))
 			{
-				statusdisplay.Show(80, 3000, "ƒfƒBƒXƒNƒCƒ[ƒW‚ğŠJ‚¯‚Ü‚¹‚ñ");
+				statusdisplay.Show(80, 3000, "ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚’é–‹ã‘ã¾ã›ã‚“");
 				return false;
 			}
 		}
 	}
 	
-	// ƒtƒ@ƒCƒ‹–¼‚ğ“o˜^
+	// ãƒ•ã‚¡ã‚¤ãƒ«åã‚’ç™»éŒ²
 	strncpy(diskname, filename, MAX_PATH-1);
 	diskname[MAX_PATH-1] = 0;
 
@@ -70,7 +70,7 @@ bool DiskImageHolder::Open(const char* filename, bool ro, bool create)
 }
 
 // ---------------------------------------------------------------------------
-//	V‚µ‚¢ƒfƒBƒXƒNƒCƒ[ƒW‚ğ‰Á‚¦‚é
+//	æ–°ã—ã„ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚’åŠ ãˆã‚‹
 //	type:	2D 0 / 2DD 1 / 2HD 2
 //
 bool DiskImageHolder::AddDisk(const char* title, uint type)
@@ -99,7 +99,7 @@ bool DiskImageHolder::AddDisk(const char* title, uint type)
 }
 
 // ---------------------------------------------------------------------------
-//	ƒfƒBƒXƒNƒCƒ[ƒW‚Ìî•ñ‚ğ“¾‚é
+//	ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ã®æƒ…å ±ã‚’å¾—ã‚‹
 //
 bool DiskImageHolder::ReadHeaders()
 {
@@ -117,11 +117,11 @@ bool DiskImageHolder::ReadHeaders()
 	ImageHeader ih;
 	for (ndisks = 0; ndisks < max_disks; ndisks++)
 	{
-		// ƒwƒbƒ_[“Ç‚İ‚İ
+		// ãƒ˜ãƒƒãƒ€ãƒ¼èª­ã¿è¾¼ã¿
 		DiskInfo& disk = disks[ndisks];
 		disk.pos = fio.Tellp();
 		
-		// 256+16 ‚Í Raw ƒCƒ[ƒW‚ÌÅ¬ƒTƒCƒY
+		// 256+16 ã¯ Raw ã‚¤ãƒ¡ãƒ¼ã‚¸ã®æœ€å°ã‚µã‚¤ã‚º
 		if (fio.Read(&ih, sizeof(ImageHeader)) < 256+16)
 			break;
 		
@@ -129,7 +129,7 @@ bool DiskImageHolder::ReadHeaders()
 		{
 			if (!IsValidHeader(ih))
 			{
-				statusdisplay.Show(90, 3000, "ƒCƒ[ƒW‚É–³Œø‚Èƒf[ƒ^‚ªŠÜ‚Ü‚ê‚Ä‚¢‚Ü‚·");
+				statusdisplay.Show(90, 3000, "ã‚¤ãƒ¡ãƒ¼ã‚¸ã«ç„¡åŠ¹ãªãƒ‡ãƒ¼ã‚¿ãŒå«ã¾ã‚Œã¦ã„ã¾ã™");
 				break;
 			}
 			
@@ -142,7 +142,7 @@ bool DiskImageHolder::ReadHeaders()
 		{
 			if (ndisks != 0)
 			{
-				statusdisplay.Show(80, 3000, "READER ŒnƒfƒBƒXƒNƒCƒ[ƒW‚Í˜AŒ‹‚Å‚«‚Ü‚¹‚ñ");
+				statusdisplay.Show(80, 3000, "READER ç³»ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ã¯é€£çµã§ãã¾ã›ã‚“");
 				return false;
 			}
 
@@ -158,7 +158,7 @@ bool DiskImageHolder::ReadHeaders()
 }
 
 // ---------------------------------------------------------------------------
-//	‚Æ‚¶‚é
+//	ã¨ã˜ã‚‹
 //
 void DiskImageHolder::Close()
 {
@@ -173,7 +173,7 @@ void DiskImageHolder::Close()
 //
 bool DiskImageHolder::Connect(const char* filename)
 {
-	// Šù‚É‚Á‚Ä‚¢‚éƒtƒ@ƒCƒ‹‚©‚Ç‚¤‚©‚ğŠm”F
+	// æ—¢ã«æŒã£ã¦ã„ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã©ã†ã‹ã‚’ç¢ºèª
 	if (!strnicmp(diskname, filename, MAX_PATH))
 	{
 		ref++;
@@ -193,26 +193,26 @@ bool DiskImageHolder::Disconnect()
 }
 
 // ---------------------------------------------------------------------------
-//	ƒwƒbƒ_[‚ª—LŒø‚©‚Ç‚¤‚©‚ğŠm”F
+//	ãƒ˜ãƒƒãƒ€ãƒ¼ãŒæœ‰åŠ¹ã‹ã©ã†ã‹ã‚’ç¢ºèª
 //	
 bool DiskImageHolder::IsValidHeader(ImageHeader& ih)
 {
 	int i;
-	// 2D ƒCƒ[ƒW‚Ìê‡—]Œv‚È—Ìˆæ‚ÍŒ©‚È‚©‚Á‚½‚±‚Æ‚É‚·‚é
+	// 2D ã‚¤ãƒ¡ãƒ¼ã‚¸ã®å ´åˆä½™è¨ˆãªé ˜åŸŸã¯è¦‹ãªã‹ã£ãŸã“ã¨ã«ã™ã‚‹
 	if (ih.disktype == 0)
 		memset(&ih.trackptr[84], 0, 4*80);
 
-	// ğŒ: title ‚ª 25 •¶šˆÈ‰º‚Å‚ ‚é‚±‚Æ
+	// æ¡ä»¶: title ãŒ 25 æ–‡å­—ä»¥ä¸‹ã§ã‚ã‚‹ã“ã¨
 	for (i=0; i<25 && ih.title[i]; i++)
 		;
 	if (i==25)
 		return false;
 	
-	// ğŒ: disksize <= 4M
+	// æ¡ä»¶: disksize <= 4M
 	if (ih.disksize > 4 * 1024 * 1024)
 		return false;
 
-	// ğŒ: trackptr[0-159] < disksize
+	// æ¡ä»¶: trackptr[0-159] < disksize
 	uint trackstart = sizeof(ImageHeader);
 	for (int t=0; t<160; t++)
 	{
@@ -222,7 +222,7 @@ bool DiskImageHolder::IsValidHeader(ImageHeader& ih)
 			trackstart = uint(ih.trackptr[t]);
 	}
 	
-	// ğŒ: 32+4*84 <= trackstart
+	// æ¡ä»¶: 32+4*84 <= trackstart
 	if (trackstart < 32 + 4 * 84)
 		return false;
 	
@@ -265,7 +265,7 @@ bool DiskImageHolder::SetDiskSize(int index, int newsize)
 	if (!sizediff)
 		return true;
 
-	// ˆÚ“®‚³‚¹‚é•K—v‚Ì‚ ‚éƒf[ƒ^‚ÌƒTƒCƒY‚ğŒvZ‚·‚é
+	// ç§»å‹•ã•ã›ã‚‹å¿…è¦ã®ã‚ã‚‹ãƒ‡ãƒ¼ã‚¿ã®ã‚µã‚¤ã‚ºã‚’è¨ˆç®—ã™ã‚‹
 	int32 sizemove=0;
 	for (i=index+1; i<ndisks; i++)
 	{
@@ -300,7 +300,7 @@ bool DiskImageHolder::SetDiskSize(int index, int newsize)
 }
 
 // ---------------------------------------------------------------------------
-//	\’zE”jŠü
+//	æ§‹ç¯‰ãƒ»ç ´æ£„
 //
 DiskManager::DiskManager()
 {
@@ -319,7 +319,7 @@ DiskManager::~DiskManager()
 }
 
 // ---------------------------------------------------------------------------
-//	‰Šú‰»
+//	åˆæœŸåŒ–
 //
 bool DiskManager::Init()
 {
@@ -333,8 +333,8 @@ bool DiskManager::Init()
 }
 
 // ---------------------------------------------------------------------------
-//	ƒfƒBƒXƒNƒCƒ[ƒW‚ªŠù‚ÉŠJ‚©‚ê‚Ä‚¢‚é‚©‚Ç‚¤‚©Šm”F
-//	arg:diskname	ƒfƒBƒXƒNƒCƒ[ƒW‚Ìƒtƒ@ƒCƒ‹ƒl[ƒ€
+//	ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ãŒæ—¢ã«é–‹ã‹ã‚Œã¦ã„ã‚‹ã‹ã©ã†ã‹ç¢ºèª
+//	arg:diskname	ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ã®ãƒ•ã‚¡ã‚¤ãƒ«ãƒãƒ¼ãƒ 
 //	
 bool DiskManager::IsImageOpen(const char* diskname)
 {
@@ -353,10 +353,10 @@ bool DiskManager::IsImageOpen(const char* diskname)
 
 // ---------------------------------------------------------------------------
 //	Mount
-//	arg:dr			Mount ‚·‚éƒhƒ‰ƒCƒu
-//		diskname	ƒfƒBƒXƒNƒCƒ[ƒW‚Ìƒtƒ@ƒCƒ‹ƒl[ƒ€
-//		readonly	“Ç‚İ‚İ‚Ì‚İ
-//		index		mount ‚·‚éƒfƒBƒXƒNƒCƒ[ƒW‚Ì”Ô† (-1 == no disk)
+//	arg:dr			Mount ã™ã‚‹ãƒ‰ãƒ©ã‚¤ãƒ–
+//		diskname	ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ã®ãƒ•ã‚¡ã‚¤ãƒ«ãƒãƒ¼ãƒ 
+//		readonly	èª­ã¿è¾¼ã¿ã®ã¿
+//		index		mount ã™ã‚‹ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ã®ç•ªå· (-1 == no disk)
 //
 bool DiskManager::Mount
 (uint dr, const char* diskname, bool readonly, int index, bool create)
@@ -366,14 +366,14 @@ bool DiskManager::Mount
 	Unmount(dr);
 	
 	CriticalSection::Lock lock(cs);
-	// ƒfƒBƒXƒNƒCƒ[ƒW‚ª‚·‚Å‚É hold ‚³‚ê‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğŠm”F
+	// ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ãŒã™ã§ã« hold ã•ã‚Œã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’ç¢ºèª
 	DiskImageHolder* h = 0;
 	for (i=0; i<max_drives; i++)
 	{
 		if (holder[i].Connect(diskname))
 		{
 			h = &holder[i];
-			// ‚±‚ê‚©‚çŠJ‚­ƒfƒBƒXƒN‚ªŠù‚ÉŠJ‚©‚ê‚Ä‚¢‚È‚¢‚±‚Æ‚ğŠm”F‚·‚é
+			// ã“ã‚Œã‹ã‚‰é–‹ããƒ‡ã‚£ã‚¹ã‚¯ãŒæ—¢ã«é–‹ã‹ã‚Œã¦ã„ãªã„ã“ã¨ã‚’ç¢ºèªã™ã‚‹
 			if (index >= 0)
 			{
 				for (uint d=0; d<max_drives; d++)
@@ -381,7 +381,7 @@ bool DiskManager::Mount
 					if ((d != dr) && (drive[d].holder == h) && (drive[d].index == index))
 					{
 						index = -1;		// no disk
-						statusdisplay.Show(90, 3000, "‚±‚ÌƒfƒBƒXƒN‚Íg—p’†‚Å‚·");
+						statusdisplay.Show(90, 3000, "ã“ã®ãƒ‡ã‚£ã‚¹ã‚¯ã¯ä½¿ç”¨ä¸­ã§ã™");
 						break;
 					}
 				}
@@ -389,7 +389,7 @@ bool DiskManager::Mount
 			break;
 		}
 	}
-	if (!h)			// ‹ó‚¢‚Ä‚¢‚é holder ‚É hold ‚³‚¹‚é
+	if (!h)			// ç©ºã„ã¦ã„ã‚‹ holder ã« hold ã•ã›ã‚‹
 	{
 		for (i=0; i<max_drives; i++)
 		{
@@ -441,7 +441,7 @@ bool DiskManager::Mount
 }	
 
 // ---------------------------------------------------------------------------
-//	ƒfƒBƒXƒN‚ğæ‚èŠO‚·
+//	ãƒ‡ã‚£ã‚¹ã‚¯ã‚’å–ã‚Šå¤–ã™
 //
 bool DiskManager::Unmount(uint dr)
 {
@@ -475,12 +475,12 @@ bool DiskManager::Unmount(uint dr)
 		drv.holder = 0;
 	}
 	if (!ret)
-		statusdisplay.Show(50, 3000, "ƒfƒBƒXƒN‚ÌXV‚É¸”s‚µ‚Ü‚µ‚½");
+		statusdisplay.Show(50, 3000, "ãƒ‡ã‚£ã‚¹ã‚¯ã®æ›´æ–°ã«å¤±æ•—ã—ã¾ã—ãŸ");
 	return ret;
 }
 
 // ---------------------------------------------------------------------------
-//	ƒfƒBƒXƒNƒCƒ[ƒW‚ğ“Ç‚İ‚Ş
+//	ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚’èª­ã¿è¾¼ã‚€
 //
 bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive)
 {
@@ -490,7 +490,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive)
 	if (!memcmp(ih.title, "M88 RawDiskImage", 16))
 		return ReadDiskImageRaw(fio, drive);
 	
-	// ƒfƒBƒXƒN‚Ìƒ^ƒCƒvƒ`ƒFƒbƒN
+	// ãƒ‡ã‚£ã‚¹ã‚¯ã®ã‚¿ã‚¤ãƒ—ãƒã‚§ãƒƒã‚¯
 	FloppyDisk::DiskType type;
 	uint hd = 0;
 	switch (ih.disktype)
@@ -510,7 +510,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive)
 		break;
 
 	default:
-		statusdisplay.Show(90, 3000, "ƒTƒ|[ƒg‚µ‚Ä‚¢‚È‚¢ƒƒfƒBƒA‚Å‚·");
+		statusdisplay.Show(90, 3000, "ã‚µãƒãƒ¼ãƒˆã—ã¦ã„ãªã„ãƒ¡ãƒ‡ã‚£ã‚¢ã§ã™");
 		return false;
 	}
 	bool readonly = drive->holder->IsReadOnly() || ih.readonly;
@@ -518,11 +518,11 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive)
 	FloppyDisk& disk = drive->disk;
 	if (!disk.Init(type, readonly))
 	{
-		statusdisplay.Show(70, 3000, "ì‹Æ—p—Ìˆæ‚ğŠ„‚è“–‚Ä‚é‚±‚Æ‚ª‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½");
+		statusdisplay.Show(70, 3000, "ä½œæ¥­ç”¨é ˜åŸŸã‚’å‰²ã‚Šå½“ã¦ã‚‹ã“ã¨ãŒã§ãã¾ã›ã‚“ã§ã—ãŸ");
 		return false;
 	}
 
-	// ‚²‚İ‚»‚¤‚¶‚»‚Ì‚P
+	// ã”ã¿ãã†ã˜ãã®ï¼‘
 	for (t=0; t<disk.GetNumTracks(); t++)
 	{
 		if (ih.trackptr[t] >= ih.disksize)
@@ -531,9 +531,9 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive)
 	if (t<164)
 		memset(&ih.trackptr[t], 0, (164-t) * 4);
 	if (t<(uint) Min(160, disk.GetNumTracks()))
-		statusdisplay.Show(80, 3000, "ƒwƒbƒ_[‚É–³Œø‚Èƒf[ƒ^‚ªŠÜ‚Ü‚ê‚Ä‚¢‚Ü‚·");
+		statusdisplay.Show(80, 3000, "ãƒ˜ãƒƒãƒ€ãƒ¼ã«ç„¡åŠ¹ãªãƒ‡ãƒ¼ã‚¿ãŒå«ã¾ã‚Œã¦ã„ã¾ã™");
 
-	// trackptr ‚Ì‚²‚İ‚»‚¤‚¶
+	// trackptr ã®ã”ã¿ãã†ã˜
 	uint trackstart = sizeof(ImageHeader);
 	for (t=0; t<84; t++)
 	{
@@ -543,7 +543,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive)
 	if (trackstart < sizeof(ImageHeader))
 		memset(((char*) &ih) + trackstart, 0, sizeof(ImageHeader)-trackstart);
 
-	// trackptr ƒf[ƒ^‚Ì•Û‘¶
+	// trackptr ãƒ‡ãƒ¼ã‚¿ã®ä¿å­˜
 	for (t=0; t<164; t++)
 	{
 		drive->trackpos[t] = ih.trackptr[t];
@@ -555,7 +555,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive)
 		disk.FormatTrack(0, 0);
 	}
 
-	// Šeƒgƒ‰ƒbƒN‚Ì“Ç‚İ‚İ
+	// å„ãƒˆãƒ©ãƒƒã‚¯ã®èª­ã¿è¾¼ã¿
 	for (t=0; t<disk.GetNumTracks(); t++)
 	{
 		int cy = t >> 1;
@@ -600,7 +600,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive)
 }
 
 // ---------------------------------------------------------------------------
-//	ƒfƒBƒXƒNƒCƒ[ƒW (READER Œ`®) ‚ğ“Ç‚İ‚Ş
+//	ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ (READER å½¢å¼) ã‚’èª­ã¿è¾¼ã‚€
 //
 bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive)
 {
@@ -611,7 +611,7 @@ bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive)
 	FloppyDisk& disk = drive->disk;
 	if (!disk.Init(FloppyDisk::MD2D, readonly))
 	{
-		statusdisplay.Show(70, 3000, "ì‹Æ—p—Ìˆæ‚ğŠ„‚è“–‚Ä‚é‚±‚Æ‚ª‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½");
+		statusdisplay.Show(70, 3000, "ä½œæ¥­ç”¨é ˜åŸŸã‚’å‰²ã‚Šå½“ã¦ã‚‹ã“ã¨ãŒã§ãã¾ã›ã‚“ã§ã—ãŸ");
 		return false;
 	}
 
@@ -627,7 +627,7 @@ bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive)
 		disk.FormatTrack(0, 0);
 	}
 
-	// Šeƒgƒ‰ƒbƒN‚Ì“Ç‚İ‚İ
+	// å„ãƒˆãƒ©ãƒƒã‚¯ã®èª­ã¿è¾¼ã¿
 	uint8 buf[256];
 	FloppyDisk::IDR id;
 	id.n = 1;
@@ -662,7 +662,7 @@ bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive)
 
 
 // ---------------------------------------------------------------------------
-//	ƒfƒBƒXƒNƒCƒ[ƒW‚ÌƒTƒCƒY‚ğŒvZ‚·‚é
+//	ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ã®ã‚µã‚¤ã‚ºã‚’è¨ˆç®—ã™ã‚‹
 //
 uint DiskManager::GetDiskImageSize(Drive* drv)
 {
@@ -683,15 +683,15 @@ uint DiskManager::GetDiskImageSize(Drive* drv)
 }
 	
 // ---------------------------------------------------------------------------
-//	ƒfƒBƒXƒNƒCƒ[ƒW‚Ì‘‚«o‚µ
-//	•K—v‚Æ‚È‚é—Ìˆæ‚Í‚ ‚ç‚©‚¶‚ßŠm•Û‚³‚ê‚Ä‚¢‚é‚±‚Æ‚Æ‚·‚é
+//	ãƒ‡ã‚£ã‚¹ã‚¯ã‚¤ãƒ¡ãƒ¼ã‚¸ã®æ›¸ãå‡ºã—
+//	å¿…è¦ã¨ãªã‚‹é ˜åŸŸã¯ã‚ã‚‰ã‹ã˜ã‚ç¢ºä¿ã•ã‚Œã¦ã„ã‚‹ã“ã¨ã¨ã™ã‚‹
 //
 bool DiskManager::WriteDiskImage(FileIO* fio, Drive* drv)
 {
 	static const uint8 typetbl[3] = { 0x00, 0x10, 0x20 };
 	int t;
 
-	// Header ‚Ìì¬
+	// Header ã®ä½œæˆ
 	ImageHeader ih;
 	memset(&ih, 0, sizeof(ImageHeader));
 	strcpy(ih.title, drv->holder->GetTitle(drv->index));
@@ -736,7 +736,7 @@ bool DiskManager::WriteDiskImage(FileIO* fio, Drive* drv)
 }
 
 // ---------------------------------------------------------------------------
-//	ƒgƒ‰ƒbƒNˆê‚Â•ª‚ÌƒCƒ[ƒW‚ğ‚©‚­
+//	ãƒˆãƒ©ãƒƒã‚¯ä¸€ã¤åˆ†ã®ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚’ã‹ã
 //
 bool DiskManager::WriteTrackImage(FileIO* fio, Drive* drv, int t)
 {
@@ -772,7 +772,7 @@ bool DiskManager::WriteTrackImage(FileIO* fio, Drive* drv, int t)
 
 // ---------------------------------------------------------------------------
 //	Unlock
-//	Disk •ÏXéŒ¾
+//	Disk å¤‰æ›´å®£è¨€
 //
 void DiskManager::Modified(int dr, int tr)
 {
@@ -784,7 +784,7 @@ void DiskManager::Modified(int dr, int tr)
 
 // ---------------------------------------------------------------------------
 //	Update
-//	ƒgƒ‰ƒbƒN‚ÌˆÊ’u‚ğ•Ï‚¦‚¸‚ÉXV‚Å‚«‚é•ÏX‚ğ‚©‚«‚±‚Ş
+//	ãƒˆãƒ©ãƒƒã‚¯ã®ä½ç½®ã‚’å¤‰ãˆãšã«æ›´æ–°ã§ãã‚‹å¤‰æ›´ã‚’ã‹ãã“ã‚€
 //
 void DiskManager::Update()
 {
@@ -837,7 +837,7 @@ void DiskManager::UpdateDrive(Drive* drv)
 }
 
 // ---------------------------------------------------------------------------
-//	ƒCƒ[ƒWƒ^ƒCƒgƒ‹æ“¾
+//	ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚¿ã‚¤ãƒˆãƒ«å–å¾—
 //
 const char* DiskManager::GetImageTitle(uint dr, uint index)
 {
@@ -849,7 +849,7 @@ const char* DiskManager::GetImageTitle(uint dr, uint index)
 }
 
 // ---------------------------------------------------------------------------
-//	ƒCƒ[ƒW‚Ì”æ“¾
+//	ã‚¤ãƒ¡ãƒ¼ã‚¸ã®æ•°å–å¾—
 //
 uint DiskManager::GetNumDisks(uint dr)
 {
@@ -862,7 +862,7 @@ uint DiskManager::GetNumDisks(uint dr)
 }
 
 // ---------------------------------------------------------------------------
-//	Œ»İ‘I‘ğ‚³‚ê‚Ä‚¢‚éƒfƒBƒXƒN‚Ì”Ô†‚ğæ“¾
+//	ç¾åœ¨é¸æŠã•ã‚Œã¦ã„ã‚‹ãƒ‡ã‚£ã‚¹ã‚¯ã®ç•ªå·ã‚’å–å¾—
 //
 int DiskManager::GetCurrentDisk(uint dr)
 {
@@ -875,10 +875,10 @@ int DiskManager::GetCurrentDisk(uint dr)
 }
 
 // ---------------------------------------------------------------------------
-//	ƒfƒBƒXƒN’Ç‰Á
-//	dr		‘ÎÛƒhƒ‰ƒCƒu
-//	title	ƒfƒBƒXƒNƒ^ƒCƒgƒ‹
-//	type	b1-0	ƒfƒBƒXƒN‚ÌƒƒfƒBƒAƒ^ƒCƒv
+//	ãƒ‡ã‚£ã‚¹ã‚¯è¿½åŠ 
+//	dr		å¯¾è±¡ãƒ‰ãƒ©ã‚¤ãƒ–
+//	title	ãƒ‡ã‚£ã‚¹ã‚¯ã‚¿ã‚¤ãƒˆãƒ«
+//	type	b1-0	ãƒ‡ã‚£ã‚¹ã‚¯ã®ãƒ¡ãƒ‡ã‚£ã‚¢ã‚¿ã‚¤ãƒ—
 //					00 = 2D, 01 = 2DD, 10 = 2HD
 //
 bool DiskManager::AddDisk(uint dr, const char* title, uint type)
@@ -892,8 +892,8 @@ bool DiskManager::AddDisk(uint dr, const char* title, uint type)
 }
 
 // ---------------------------------------------------------------------------
-//	N88-BASIC •W€ƒtƒH[ƒ}ƒbƒg‚ğŠ|‚¯‚é
-//	‹‰õ‚È•û–@‚Å(^^;
+//	N88-BASIC æ¨™æº–ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚’æ›ã‘ã‚‹
+//	è±ªå¿«ãªæ–¹æ³•ã§(^^;
 //
 bool DiskManager::FormatDisk(uint dr)
 {
@@ -905,7 +905,7 @@ bool DiskManager::FormatDisk(uint dr)
 	if (!buf)
 		return false;
 
-	// ƒtƒH[ƒ}ƒbƒg
+	// ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
 	memset(buf, 0xff, 80*16*256);
 	// IPL
 	buf[0] = 0xc9;
@@ -917,7 +917,7 @@ bool DiskManager::FormatDisk(uint dr)
 	buf[0x25e4a] = 0xfe; buf[0x25e4b] = 0xfe;
 	buf[0x25f4a] = 0xfe; buf[0x25f4b] = 0xfe;
 	
-	// ‘‚«‚İ
+	// æ›¸ãè¾¼ã¿
 	FloppyDisk& disk = drive[dr].disk;
 	FloppyDisk::IDR id;
 	id.n = 1;
