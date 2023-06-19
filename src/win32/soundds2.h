@@ -12,39 +12,35 @@
 
 // ---------------------------------------------------------------------------
 
-namespace WinSoundDriver
-{
+namespace WinSoundDriver {
 
-class DriverDS2 : public Driver
-{
-private:
-    enum
-    {
-        nblocks = 4,        // 2 以上
-    };
+class DriverDS2 : public Driver {
+ private:
+  enum {
+    nblocks = 4,  // 2 以上
+  };
 
-public:
-    DriverDS2();
-    ~DriverDS2();
+ public:
+  DriverDS2();
+  ~DriverDS2();
 
-    bool Init(SoundSource* sb, HWND hwnd, uint rate, uint ch, uint buflen);
-    bool Cleanup();
+  bool Init(SoundSource* sb, HWND hwnd, uint rate, uint ch, uint buflen);
+  bool Cleanup();
 
-private:
-    static uint WINAPI ThreadEntry(LPVOID arg);
-    void Send();
+ private:
+  static uint WINAPI ThreadEntry(LPVOID arg);
+  void Send();
 
-    LPDIRECTSOUND lpds;
-    LPDIRECTSOUNDBUFFER lpdsb_primary;
-    LPDIRECTSOUNDBUFFER lpdsb;
-    LPDIRECTSOUNDNOTIFY lpnotify;
-    
-    uint buffer_length;
-    HANDLE hthread;
-    uint idthread;
-    HANDLE hevent;
-    uint nextwrite;
+  LPDIRECTSOUND lpds;
+  LPDIRECTSOUNDBUFFER lpdsb_primary;
+  LPDIRECTSOUNDBUFFER lpdsb;
+  LPDIRECTSOUNDNOTIFY lpnotify;
+
+  uint buffer_length;
+  HANDLE hthread;
+  uint idthread;
+  HANDLE hevent;
+  uint nextwrite;
 };
 
-}
-
+}  // namespace WinSoundDriver

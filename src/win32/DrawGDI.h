@@ -13,39 +13,38 @@
 
 #include "windraw.h"
 
-class WinDrawGDI : public WinDrawSub
-{
-public:
-    WinDrawGDI();
-    ~WinDrawGDI();
+class WinDrawGDI : public WinDrawSub {
+ public:
+  WinDrawGDI();
+  ~WinDrawGDI();
 
-    bool Init(HWND hwnd, uint w, uint h, GUID*);
-    bool Resize(uint width, uint height);
-    bool Cleanup();
-    void SetPalette(PALETTEENTRY* pal, int index, int nentries);
-    void DrawScreen(const RECT& rect, bool refresh);
-    bool Lock(uint8** pimage, int* pbpl);
-    bool Unlock();
+  bool Init(HWND hwnd, uint w, uint h, GUID*);
+  bool Resize(uint width, uint height);
+  bool Cleanup();
+  void SetPalette(PALETTEENTRY* pal, int index, int nentries);
+  void DrawScreen(const RECT& rect, bool refresh);
+  bool Lock(uint8** pimage, int* pbpl);
+  bool Unlock();
 
-private:
-    struct BI256        // BITMAPINFO
-    {
-        BITMAPINFOHEADER header;
-        RGBQUAD colors[256];
-    };
+ private:
+  struct BI256  // BITMAPINFO
+  {
+    BITMAPINFOHEADER header;
+    RGBQUAD colors[256];
+  };
 
-private:
-    bool    MakeBitmap();
-    
-    HBITMAP hbitmap;
-    uint8*  bitmapimage;
-    HWND    hwnd;
-    uint8*  image; 
-    int     bpl;
-    uint    width;
-    uint    height;
-    bool    updatepal;
-    BI256   binfo;
+ private:
+  bool MakeBitmap();
+
+  HBITMAP hbitmap;
+  uint8* bitmapimage;
+  HWND hwnd;
+  uint8* image;
+  int bpl;
+  uint width;
+  uint height;
+  bool updatepal;
+  BI256 binfo;
 };
 
-#endif // !defined(win32_drawgdi_h)
+#endif  // !defined(win32_drawgdi_h)

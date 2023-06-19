@@ -12,33 +12,28 @@
 
 // ---------------------------------------------------------------------------
 
-class WinNewDisk 
-{
-public:
-    enum DiskType
-    {
-        MD2D=0, MD2DD, MD2HD
-    };
-public:
-    WinNewDisk();
-    ~WinNewDisk() {}
-    
-    bool Show(HINSTANCE, HWND);
-    const char* GetTitle() { return info.title; }
-    DiskType GetType() { return info.type; }
-    bool DoFormat() { return info.basicformat; }
+class WinNewDisk {
+ public:
+  enum DiskType { MD2D = 0, MD2DD, MD2HD };
 
-    struct DiskInfo
-    {
-        char title[20];
-        DiskType type;
-        bool basicformat;
-    };
+ public:
+  WinNewDisk();
+  ~WinNewDisk() {}
 
-private:
-    BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
-    static BOOL CALLBACK DlgProcGate(HWND, UINT, WPARAM, LPARAM);
+  bool Show(HINSTANCE, HWND);
+  const char* GetTitle() { return info.title; }
+  DiskType GetType() { return info.type; }
+  bool DoFormat() { return info.basicformat; }
 
-    DiskInfo info;
+  struct DiskInfo {
+    char title[20];
+    DiskType type;
+    bool basicformat;
+  };
+
+ private:
+  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
+  static BOOL CALLBACK DlgProcGate(HWND, UINT, WPARAM, LPARAM);
+
+  DiskInfo info;
 };
-

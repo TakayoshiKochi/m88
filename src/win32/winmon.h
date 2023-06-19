@@ -15,105 +15,101 @@
 
 // ---------------------------------------------------------------------------
 
-class WinMonitor
-{
-public:
-    WinMonitor();
-    ~WinMonitor();
+class WinMonitor {
+ public:
+  WinMonitor();
+  ~WinMonitor();
 
-    bool Init(LPCTSTR tmpl);
-    void Show(HINSTANCE, HWND, bool show);
-    
-    bool IsOpen() { return !!hwnd; }
-    
-    void Update();
+  bool Init(LPCTSTR tmpl);
+  void Show(HINSTANCE, HWND, bool show);
 
-protected:
-    void Locate(int x, int y);
-    void Puts(const char*);
-    void Putf(const char*, ...);
+  bool IsOpen() { return !!hwnd; }
 
-    void SetTxCol(COLORREF col) { txcol = col; }
-    void SetBkCol(COLORREF col) { bkcol = col; }
-    
-    int  GetWidth() { return width; }
-    int  GetHeight() { return height; }
-    int  GetLine() { return line; }
-    void SetLine(int l);
-    void SetLines(int nlines);
-    bool GetTextPos(POINT*);
-    bool EnableStatus(bool);
-    bool PutStatus(const char* text, ...);
-    
-    bool SetFont(HWND hwnd, int fh);
-    
-    void ClearText();
-    
-    int  GetScrPos(bool tracking);
-    void ScrollUp();
-    void ScrollDown();
-    
-    void SetUpdateTimer(int t);
-    
-    virtual void DrawMain(HDC, bool = false);
-    virtual BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
-    
-    HWND GetHWnd() { return hwnd; }
-    HWND GetHWndStatus() { return hwndstatus; }
-    HINSTANCE GetHInst() { return hinst; }
+  void Update();
 
-private:
-    virtual void UpdateText();
-    virtual int VerticalScroll(int msg);
-    virtual void Start() {}
-    virtual void Stop() {}
+ protected:
+  void Locate(int x, int y);
+  void Puts(const char*);
+  void Putf(const char*, ...);
 
-    static BOOL CALLBACK DlgProcGate(HWND, UINT, WPARAM, LPARAM);
-    
-    void Draw(HWND, HDC);
-    void ResizeWindow(HWND);
+  void SetTxCol(COLORREF col) { txcol = col; }
+  void SetBkCol(COLORREF col) { bkcol = col; }
 
-    HWND hwnd;
-    HINSTANCE hinst;
-    LPCTSTR lptemplate;
+  int GetWidth() { return width; }
+  int GetHeight() { return height; }
+  int GetLine() { return line; }
+  void SetLine(int l);
+  void SetLines(int nlines);
+  bool GetTextPos(POINT*);
+  bool EnableStatus(bool);
+  bool PutStatus(const char* text, ...);
 
-    HWND hwndstatus;
-    char statusbuf[128];
+  bool SetFont(HWND hwnd, int fh);
 
-    int clientwidth;
-    int clientheight;
-    
-    HDC hdc;
-    HFONT hfont;
-    int fontwidth;
-    int fontheight;
+  void ClearText();
 
-    HBITMAP hbitmap;
-    
-    struct TXCHAR
-    {
-        char ch;
-        COLORREF txcol;
-        COLORREF bkcol;
-    };
+  int GetScrPos(bool tracking);
+  void ScrollUp();
+  void ScrollDown();
 
-    TXCHAR* txtbuf;
-    TXCHAR* txpbuf;
-    TXCHAR* txtbufptr;
-    POINT txp;
-    int width;
-    int height;
+  void SetUpdateTimer(int t);
 
-    COLORREF txcol, txcolprev;
-    COLORREF bkcol, bkcolprev;
+  virtual void DrawMain(HDC, bool = false);
+  virtual BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
 
-    RECT wndrect;
+  HWND GetHWnd() { return hwnd; }
+  HWND GetHWndStatus() { return hwndstatus; }
+  HINSTANCE GetHInst() { return hinst; }
 
-    int line;
-    int nlines;
+ private:
+  virtual void UpdateText();
+  virtual int VerticalScroll(int msg);
+  virtual void Start() {}
+  virtual void Stop() {}
 
-    UINT_PTR timer;
-    int timerinterval;
+  static BOOL CALLBACK DlgProcGate(HWND, UINT, WPARAM, LPARAM);
 
+  void Draw(HWND, HDC);
+  void ResizeWindow(HWND);
+
+  HWND hwnd;
+  HINSTANCE hinst;
+  LPCTSTR lptemplate;
+
+  HWND hwndstatus;
+  char statusbuf[128];
+
+  int clientwidth;
+  int clientheight;
+
+  HDC hdc;
+  HFONT hfont;
+  int fontwidth;
+  int fontheight;
+
+  HBITMAP hbitmap;
+
+  struct TXCHAR {
+    char ch;
+    COLORREF txcol;
+    COLORREF bkcol;
+  };
+
+  TXCHAR* txtbuf;
+  TXCHAR* txpbuf;
+  TXCHAR* txtbufptr;
+  POINT txp;
+  int width;
+  int height;
+
+  COLORREF txcol, txcolprev;
+  COLORREF bkcol, bkcolprev;
+
+  RECT wndrect;
+
+  int line;
+  int nlines;
+
+  UINT_PTR timer;
+  int timerinterval;
 };
-

@@ -2,7 +2,6 @@
 
 #pragma once
 
-#define APP_VER_MAJOR   2
-#define APP_VER_MINOR   21
-#define APP_VER_STRING  "2.21"
-
+#define APP_VER_MAJOR 2
+#define APP_VER_MINOR 21
+#define APP_VER_STRING "2.21"

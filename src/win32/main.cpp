@@ -16,43 +16,39 @@ char m88ini[MAX_PATH];
 // ---------------------------------------------------------------------------
 //  InitPathInfo
 //
-static void InitPathInfo()
-{
-    char buf[MAX_PATH];
-    char drive[_MAX_DRIVE];
-    char dir[_MAX_DIR];
-    char fname[_MAX_FNAME];
-    char ext[_MAX_EXT];
+static void InitPathInfo() {
+  char buf[MAX_PATH];
+  char drive[_MAX_DRIVE];
+  char dir[_MAX_DIR];
+  char fname[_MAX_FNAME];
+  char ext[_MAX_EXT];
 
-    GetModuleFileName(0, buf, MAX_PATH);
-    _splitpath(buf, drive, dir, fname, ext); 
-    sprintf(m88ini, "%s%s%s.ini", drive, dir, fname);
-    sprintf(m88dir, "%s%s", drive, dir);
+  GetModuleFileName(0, buf, MAX_PATH);
+  _splitpath(buf, drive, dir, fname, ext);
+  sprintf(m88ini, "%s%s%s.ini", drive, dir, fname);
+  sprintf(m88dir, "%s%s", drive, dir);
 }
 
 // ---------------------------------------------------------------------------
 //  WinMain
 //
-int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR cmdline, int nwinmode)
-{
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR cmdline, int nwinmode) {
+  _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-    if (FAILED(CoInitialize(NULL)))
-        return -1;
+  if (FAILED(CoInitialize(NULL)))
+    return -1;
 
-    InitPathInfo();
-    InitCommonControls();
-        
-    int r = -1;
+  InitPathInfo();
+  InitCommonControls();
 
-    WinUI* ui = new WinUI(hinst);
-    if (ui && ui->InitWindow(nwinmode))
-    {
-        r = ui->Main(cmdline);
-    }
-    delete ui;
+  int r = -1;
 
-    CoUninitialize();
-    return r;
+  WinUI* ui = new WinUI(hinst);
+  if (ui && ui->InitWindow(nwinmode)) {
+    r = ui->Main(cmdline);
+  }
+  delete ui;
+
+  CoUninitialize();
+  return r;
 }
-

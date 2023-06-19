@@ -8,37 +8,31 @@
 
 #include "if/ifcommon.h"
 
-namespace PC8801
-{
+namespace PC8801 {
 
 //
-class ExtendModule
-{
-public:
-    ExtendModule();
-    ~ExtendModule();
+class ExtendModule {
+ public:
+  ExtendModule();
+  ~ExtendModule();
 
-    static ExtendModule* Create(const char* dllname, ISystem* pc);
-    
-    bool Connect(const char* dllname, ISystem* pc);
-    bool Disconnect();
+  static ExtendModule* Create(const char* dllname, ISystem* pc);
 
-    IDevice::ID GetID();
-    void* QueryIF(REFIID iid);
+  bool Connect(const char* dllname, ISystem* pc);
+  bool Disconnect();
 
-private:
-    typedef IModule* (__cdecl *F_CONNECT2)(ISystem*);
+  IDevice::ID GetID();
+  void* QueryIF(REFIID iid);
 
-    HMODULE hdll;
-    IModule* mod;
+ private:
+  typedef IModule*(__cdecl* F_CONNECT2)(ISystem*);
+
+  HMODULE hdll;
+  IModule* mod;
 };
 
-
-
-inline void* ExtendModule::QueryIF(REFIID iid)
-{
-    return mod ? mod->QueryIF(iid) : 0;
+inline void* ExtendModule::QueryIF(REFIID iid) {
+  return mod ? mod->QueryIF(iid) : 0;
 }
 
-}
-
+}  // namespace PC8801

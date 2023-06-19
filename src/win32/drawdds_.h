@@ -13,58 +13,56 @@
 
 // ---------------------------------------------------------------------------
 
-class WinDrawDDS : public WinDrawSub
-{
-public:
-    WinDrawDDS(bool force480 = true);
-    ~WinDrawDDS();
+class WinDrawDDS : public WinDrawSub {
+ public:
+  WinDrawDDS(bool force480 = true);
+  ~WinDrawDDS();
 
-    bool Init(HWND hwnd);
-    void Resize(uint w, uint h);
-    bool Cleanup();
+  bool Init(HWND hwnd);
+  void Resize(uint w, uint h);
+  bool Cleanup();
 
-    void SetPalette(PALETTEENTRY* pal);
-    void QueryNewPalette();
-    void DrawScreen(const RECT& rect, bool refresh);
-    bool Lock(uint8** pimage, int* pbpl);
-    bool Unlock();
-    void SetGUIMode(bool guimode);
-    void Flip();
-    bool SetFlipMode(bool f);
+  void SetPalette(PALETTEENTRY* pal);
+  void QueryNewPalette();
+  void DrawScreen(const RECT& rect, bool refresh);
+  bool Lock(uint8** pimage, int* pbpl);
+  bool Unlock();
+  void SetGUIMode(bool guimode);
+  void Flip();
+  bool SetFlipMode(bool f);
 
-private:
-    void FillBlankArea();
-    bool RestoreSurface();
-    bool SetScreenMode();
-    bool CreateDDPalette();
-    bool CreateDD2();
-    bool CreateDDS();
+ private:
+  void FillBlankArea();
+  bool RestoreSurface();
+  bool SetScreenMode();
+  bool CreateDDPalette();
+  bool CreateDD2();
+  bool CreateDDS();
 
-    static HRESULT WINAPI EDMCallBack(LPDDSURFACEDESC, LPVOID);
+  static HRESULT WINAPI EDMCallBack(LPDDSURFACEDESC, LPVOID);
 
-    HWND hwnd;
+  HWND hwnd;
 
-    LPDIRECTDRAW2 ddraw;
-    LPDIRECTDRAWPALETTE ddpal;
-    LPDIRECTDRAWSURFACE ddsscrn;
-    LPDIRECTDRAWCLIPPER ddcscrn;
-    LPDIRECTDRAWSURFACE ddswork;
-    LPDIRECTDRAWSURFACE ddsback;
-    
-    int lines;      // 400 or 480
-    int screenheight;
-    
-    bool palchanged;
-    bool locked;
-    bool guimode;
-    bool shouldflip;
-    bool bsvideo;
-    bool doflip;
-    HANDLE hevflip;
-    RECT rcprev[2];
-    
-    PALETTEENTRY palentry[256];
+  LPDIRECTDRAW2 ddraw;
+  LPDIRECTDRAWPALETTE ddpal;
+  LPDIRECTDRAWSURFACE ddsscrn;
+  LPDIRECTDRAWCLIPPER ddcscrn;
+  LPDIRECTDRAWSURFACE ddswork;
+  LPDIRECTDRAWSURFACE ddsback;
+
+  int lines;  // 400 or 480
+  int screenheight;
+
+  bool palchanged;
+  bool locked;
+  bool guimode;
+  bool shouldflip;
+  bool bsvideo;
+  bool doflip;
+  HANDLE hevflip;
+  RECT rcprev[2];
+
+  PALETTEENTRY palentry[256];
 };
 
-
-#endif // !defined(win32_drawdds_h)
+#endif  // !defined(win32_drawdds_h)

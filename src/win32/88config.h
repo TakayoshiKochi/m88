@@ -9,10 +9,8 @@
 #include "if/ifcommon.h"
 #include "pc88/config.h"
 
-namespace PC8801
-{
-    void SaveConfig(Config* cfg, const char* inifile, bool writedefault);
-    void LoadConfig(Config* cfg, const char* inifile, bool applydefault);
-    void LoadConfigDirectory(Config* cfg, const char* inifile, const char* entry, bool readalways);
-}
-
+namespace PC8801 {
+void SaveConfig(Config* cfg, const char* inifile, bool writedefault);
+void LoadConfig(Config* cfg, const char* inifile, bool applydefault);
+void LoadConfigDirectory(Config* cfg, const char* inifile, const char* entry, bool readalways);
+}  // namespace PC8801

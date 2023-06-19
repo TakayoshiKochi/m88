@@ -7,17 +7,16 @@ static WinVars winvars;
 
 int WinVars::var[nparam];
 
-void WinVars::Init()
-{
-    // Windows のバージョン
-    OSVERSIONINFO vi;
-    memset(&vi, 0, sizeof(vi));
-    vi.dwOSVersionInfoSize = sizeof(vi);
-    GetVersionEx(&vi);
-    var[MajorVer]   = vi.dwMajorVersion;
-    var[MinorVer]   = vi.dwMinorVersion;
+void WinVars::Init() {
+  // Windows のバージョン
+  OSVERSIONINFO vi;
+  memset(&vi, 0, sizeof(vi));
+  vi.dwOSVersionInfoSize = sizeof(vi);
+  GetVersionEx(&vi);
+  var[MajorVer] = vi.dwMajorVersion;
+  var[MinorVer] = vi.dwMinorVersion;
 
-    // 構造体とか
-    var[OFNSIZE]    = Var(MajorVer) <= 4 ? OFNV4SIZE : sizeof(OPENFILENAME);
-    var[MIISIZE]    = Var(MajorVer) <= 4 ? 44 : sizeof(MENUITEMINFO);
+  // 構造体とか
+  var[OFNSIZE] = Var(MajorVer) <= 4 ? OFNV4SIZE : sizeof(OPENFILENAME);
+  var[MIISIZE] = Var(MajorVer) <= 4 ? 44 : sizeof(MENUITEMINFO);
 }

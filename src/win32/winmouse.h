@@ -11,32 +11,30 @@
 
 class WinUI;
 
-class WinMouseUI : public IMouseUI
-{
-public:
-    WinMouseUI();
-    ~WinMouseUI();
+class WinMouseUI : public IMouseUI {
+ public:
+  WinMouseUI();
+  ~WinMouseUI();
 
-    bool Init(WinUI* ui);
+  bool Init(WinUI* ui);
 
-    long IFCALL QueryInterface(REFIID, void**);
-    ulong IFCALL AddRef();
-    ulong IFCALL Release();
+  long IFCALL QueryInterface(REFIID, void**);
+  ulong IFCALL AddRef();
+  ulong IFCALL Release();
 
-    bool IFCALL Enable(bool en);
-    bool IFCALL GetMovement(POINT*);
-    uint IFCALL GetButton();
+  bool IFCALL Enable(bool en);
+  bool IFCALL GetMovement(POINT*);
+  uint IFCALL GetButton();
 
-private:
-    POINT GetWindowCenter();
-    
-    WinUI* ui;
-    
-    POINT move;
-    int32 activetime;
-    bool enable;
-    int orgmouseparams[3];
+ private:
+  POINT GetWindowCenter();
 
-    ulong refcount;
+  WinUI* ui;
+
+  POINT move;
+  int32 activetime;
+  bool enable;
+  int orgmouseparams[3];
+
+  ulong refcount;
 };
-

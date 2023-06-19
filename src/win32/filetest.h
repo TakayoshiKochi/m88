@@ -5,4 +5,4 @@
 
 bool SanityCheck(uint32* = 0);
 
-#endif // incl_filetest_h
+#endif  // incl_filetest_h

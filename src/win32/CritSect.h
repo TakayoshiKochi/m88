@@ -9,25 +9,24 @@
 #ifndef Win32_CriticalSection_h
 #define Win32_CriticalSection_h
 
-class CriticalSection
-{
-public:
-    class Lock
-    {
-        CriticalSection& cs;
-    public:
-        Lock(CriticalSection& c) : cs(c) { cs.lock(); }
-        ~Lock() { cs.unlock(); }
-    };
+class CriticalSection {
+ public:
+  class Lock {
+    CriticalSection& cs;
 
-    CriticalSection() { InitializeCriticalSection(&css); }
-    ~CriticalSection() { DeleteCriticalSection(&css); }
+   public:
+    Lock(CriticalSection& c) : cs(c) { cs.lock(); }
+    ~Lock() { cs.unlock(); }
+  };
 
-    void lock() { EnterCriticalSection(&css); }
-    void unlock() { LeaveCriticalSection(&css); }
+  CriticalSection() { InitializeCriticalSection(&css); }
+  ~CriticalSection() { DeleteCriticalSection(&css); }
 
-private:
-    CRITICAL_SECTION css;
+  void lock() { EnterCriticalSection(&css); }
+  void unlock() { LeaveCriticalSection(&css); }
+
+ private:
+  CRITICAL_SECTION css;
 };
 
-#endif // Win32_CriticalSection_h
+#endif  // Win32_CriticalSection_h

@@ -13,28 +13,25 @@
 
 // ---------------------------------------------------------------------------
 
-namespace WinSoundDriver
-{
+namespace WinSoundDriver {
 
-class Driver
-{
-public:
-//  typedef SoundBuffer::Sample Sample;
-    
-    Driver() {}
-    virtual ~Driver() {}
+class Driver {
+ public:
+  //  typedef SoundBuffer::Sample Sample;
 
-    virtual bool Init(SoundSource* sb, HWND hwnd, uint rate, uint ch, uint buflen) = 0;
-    virtual bool Cleanup() = 0;
-    void MixAlways(bool yes) { mixalways = yes; }
+  Driver() {}
+  virtual ~Driver() {}
 
-protected:
-    SoundSource* src;
-    uint buffersize;
-    uint sampleshift;
-    volatile bool playing;
-    bool mixalways;
+  virtual bool Init(SoundSource* sb, HWND hwnd, uint rate, uint ch, uint buflen) = 0;
+  virtual bool Cleanup() = 0;
+  void MixAlways(bool yes) { mixalways = yes; }
+
+ protected:
+  SoundSource* src;
+  uint buffersize;
+  uint sampleshift;
+  volatile bool playing;
+  bool mixalways;
 };
 
-}
-
+}  // namespace WinSoundDriver

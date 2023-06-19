@@ -15,27 +15,24 @@
 
 class PC88;
 
-namespace PC8801
-{
+namespace PC8801 {
 
-class CodeMonitor : public MemViewMonitor
-{
-public:
-    CodeMonitor();
-    ~CodeMonitor();
+class CodeMonitor : public MemViewMonitor {
+ public:
+  CodeMonitor();
+  ~CodeMonitor();
 
-    bool Init(PC88*); 
+  bool Init(PC88*);
 
-private:
-    void UpdateText();
-    int VerticalScroll(int msg);
-    BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
+ private:
+  void UpdateText();
+  int VerticalScroll(int msg);
+  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
 
-    bool Dump(FILE* fp, int from, int to);
-    bool DumpImage();
-    
-    Z80Diag diag;
+  bool Dump(FILE* fp, int from, int to);
+  bool DumpImage();
+
+  Z80Diag diag;
 };
 
-}
-
+}  // namespace PC8801

@@ -10,51 +10,41 @@
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-TimeKeeper::TimeKeeper()
-{
-    assert(unit > 0);
+TimeKeeper::TimeKeeper() {
+  assert(unit > 0);
 
-    LARGE_INTEGER li;
-    if (QueryPerformanceFrequency(&li))
-    {
-        freq = (li.LowPart+unit*500) / (unit*1000);
-        QueryPerformanceCounter(&li);
-        base = li.LowPart;
-    }
-    else
-    {
-        freq = 0;
-        timeBeginPeriod(1);         // 精度を上げるためのおまじない…らしい
-        base = timeGetTime();
-    }
-    time = 0;
+  LARGE_INTEGER li;
+  if (QueryPerformanceFrequency(&li)) {
+    freq = (li.LowPart + unit * 500) / (unit * 1000);
+    QueryPerformanceCounter(&li);
+    base = li.LowPart;
+  } else {
+    freq = 0;
+    timeBeginPeriod(1);  // 精度を上げるためのおまじない…らしい
+    base = timeGetTime();
+  }
+  time = 0;
 }
 
-TimeKeeper::~TimeKeeper()
-{
-    if (!freq)
-    {
-        timeEndPeriod(1);
-    }
+TimeKeeper::~TimeKeeper() {
+  if (!freq) {
+    timeEndPeriod(1);
+  }
 }
 
 // ---------------------------------------------------------------------------
 //  時間を取得
 //
-uint32 TimeKeeper::GetTime()
-{
-    if (freq)
-    {
-        LARGE_INTEGER li;
-        QueryPerformanceCounter(&li);
-        uint32 dc = li.LowPart - base;
-        time += dc / freq;
-        base = li.LowPart - dc % freq;
-        return time;
-    }
-    else
-    {
-        time = timeGetTime();
-        return time * unit;
-    }
+uint32 TimeKeeper::GetTime() {
+  if (freq) {
+    LARGE_INTEGER li;
+    QueryPerformanceCounter(&li);
+    uint32 dc = li.LowPart - base;
+    time += dc / freq;
+    base = li.LowPart - dc % freq;
+    return time;
+  } else {
+    time = timeGetTime();
+    return time * unit;
+  }
 }

@@ -11,33 +11,29 @@
 
 #if defined(_DEBUG)
 
-//Z80C* Diag::cpu = 0;
+// Z80C* Diag::cpu = 0;
 
-Diag::Diag(const char* logname)
-{
-    file = fopen(logname, "w");
+Diag::Diag(const char* logname) {
+  file = fopen(logname, "w");
 }
 
-Diag::~Diag()
-{
-    if (file)
-        fclose(file);
+Diag::~Diag() {
+  if (file)
+    fclose(file);
 }
 
-void Diag::Put(const char* arg, ...)
-{
-    va_list va;
-    va_start(va, arg);
+void Diag::Put(const char* arg, ...) {
+  va_list va;
+  va_start(va, arg);
 
-    if (file)
-        vfprintf(file, arg, va);
-    va_end(va);
+  if (file)
+    vfprintf(file, arg, va);
+  va_end(va);
 }
 
-int Diag::GetCPUTick()
-{
-    return 0;
-//  return cpu ? cpu->GetCount() : 0;
+int Diag::GetCPUTick() {
+  return 0;
+  //  return cpu ? cpu->GetCount() : 0;
 }
 
 #endif

@@ -9,64 +9,60 @@
 #include "types.h"
 #include "critsect.h"
 
-class StatusDisplay
-{
-public:
-    StatusDisplay();
-    ~StatusDisplay();
+class StatusDisplay {
+ public:
+  StatusDisplay();
+  ~StatusDisplay();
 
-    bool Init(HWND hwndparent);
-    void Cleanup();
+  bool Init(HWND hwndparent);
+  void Cleanup();
 
-    bool Enable(bool sfs=false);
-    bool Disable();
-    int GetHeight() { return height; }
-    void DrawItem(DRAWITEMSTRUCT* dis);
-    void FDAccess(uint dr, bool hd, bool active);
-    void UpdateDisplay();
-    void WaitSubSys() { litstat[2] = 9; }
+  bool Enable(bool sfs = false);
+  bool Disable();
+  int GetHeight() { return height; }
+  void DrawItem(DRAWITEMSTRUCT* dis);
+  void FDAccess(uint dr, bool hd, bool active);
+  void UpdateDisplay();
+  void WaitSubSys() { litstat[2] = 9; }
 
-    bool Show(int priority, int duration, char* msg, ...);
-    void Update();
-    UINT_PTR GetTimerID() { return timerid; }
+  bool Show(int priority, int duration, char* msg, ...);
+  void Update();
+  UINT_PTR GetTimerID() { return timerid; }
 
-    HWND GetHWnd() { return hwnd; }
+  HWND GetHWnd() { return hwnd; }
 
-private:
-    struct List
-    {
-        List* next;
-        int priority;
-        int duration;
-        char msg[127];
-        bool clear;
-    };
-    struct Border
-    {
-        int horizontal;
-        int vertical;
-        int split;
-    };
+ private:
+  struct List {
+    List* next;
+    int priority;
+    int duration;
+    char msg[127];
+    bool clear;
+  };
+  struct Border {
+    int horizontal;
+    int vertical;
+    int split;
+  };
 
-    void Clean();
-    
-    HWND hwnd;
-    HWND hwndparent;
-    List* list;
-    UINT_PTR timerid;
-    CriticalSection cs;
-    Border border;
-    int height;
-    int litstat[3];
-    int litcurrent[3];
-    bool showfdstat;
-    bool updatemessage;
+  void Clean();
 
-    int currentduration;
-    int currentpriority;
+  HWND hwnd;
+  HWND hwndparent;
+  List* list;
+  UINT_PTR timerid;
+  CriticalSection cs;
+  Border border;
+  int height;
+  int litstat[3];
+  int litcurrent[3];
+  bool showfdstat;
+  bool updatemessage;
 
-    char buf[128];
+  int currentduration;
+  int currentpriority;
+
+  char buf[128];
 };
 
 extern StatusDisplay statusdisplay;
-

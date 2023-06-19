@@ -2,27 +2,18 @@
 
 #pragma once
 
-class WinVars
-{
-public:
-    enum Type
-    {
-        MajorVer = 0,
-        MinorVer,
-        OFNSIZE,
-        MIISIZE,
-        nparam
-    };
+class WinVars {
+ public:
+  enum Type { MajorVer = 0, MinorVer, OFNSIZE, MIISIZE, nparam };
 
-    WinVars() { Init(); }
+  WinVars() { Init(); }
 
-    static int Var(Type t) { return var[t]; }
+  static int Var(Type t) { return var[t]; }
 
-private:
-    static void Init();
-    
-    static int var[nparam];
+ private:
+  static void Init();
+
+  static int var[nparam];
 };
 
 #define WINVAR(a) WinVars::Var(WinVars::a)
-

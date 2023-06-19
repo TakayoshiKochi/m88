@@ -15,28 +15,25 @@
 
 class PC88;
 
-namespace PC8801
-{
+namespace PC8801 {
 
-class IOMonitor : public WinMonitor
-{
-public:
-    IOMonitor();
-    ~IOMonitor();
+class IOMonitor : public WinMonitor {
+ public:
+  IOMonitor();
+  ~IOMonitor();
 
-    bool Init(WinCore*); 
+  bool Init(WinCore*);
 
-private:
-    void Start();
-    void Stop();
-    void UpdateText();
-    BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
-    IOViewer iov;
-    WinCore* pc;
-    bool bank;
+ private:
+  void Start();
+  void Stop();
+  void UpdateText();
+  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
+  IOViewer iov;
+  WinCore* pc;
+  bool bank;
 
-    static COLORREF ctbl[0x100];
+  static COLORREF ctbl[0x100];
 };
 
-}
-
+}  // namespace PC8801

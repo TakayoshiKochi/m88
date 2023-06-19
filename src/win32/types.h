@@ -16,7 +16,7 @@ typedef unsigned long ulong;
 
 typedef unsigned char uint8;
 typedef unsigned short uint16;
-typedef unsigned int  uint32;
+typedef unsigned int uint32;
 
 typedef signed char sint8;
 typedef signed short sint16;
@@ -41,9 +41,9 @@ typedef LONG_PTR intpointer;
 #undef PTR_IDBIT
 #else
 #if defined(_DEBUG)
-    #define PTR_IDBIT   0x80000000
+#define PTR_IDBIT 0x80000000
 #else
-    #define PTR_IDBIT   0x1
+#define PTR_IDBIT 0x1
 #endif
 #endif
 
@@ -61,16 +61,15 @@ typedef LONG_PTR intpointer;
 // ---------------------------------------------------------------------------
 
 #ifdef USE_Z80_X86
-    #define MEMCALL __stdcall
+#define MEMCALL __stdcall
 #else
-    #define MEMCALL
+#define MEMCALL
 #endif
 
-#if defined(USE_NEW_CAST) && defined(__cplusplus) 
-    #define STATIC_CAST(t, o)           static_cast<t> (o)
-    #define REINTERPRET_CAST(t, o)      reinterpret_cast<t> (o)
+#if defined(USE_NEW_CAST) && defined(__cplusplus)
+#define STATIC_CAST(t, o) static_cast<t>(o)
+#define REINTERPRET_CAST(t, o) reinterpret_cast<t>(o)
 #else
-    #define STATIC_CAST(t, o)           ((t)(o))
-    #define REINTERPRET_CAST(t, o)      (*(t*)(void*)&(o))
+#define STATIC_CAST(t, o) ((t)(o))
+#define REINTERPRET_CAST(t, o) (*(t*)(void*)&(o))
 #endif
-
