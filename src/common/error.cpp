@@ -9,8 +9,7 @@
 
 Error::Errno Error::err = Error::unknown;
 
-const char* Error::ErrorText[Error::nerrors] =
-{
+const char* Error::ErrorText[Error::nerrors] = {
     "原因不明のエラーが発生しました.",
     "PC88 の ROM ファイルが見つかりません.\nファイル名を確認してください.",
     "メモリの割り当てに失敗しました.",
@@ -20,12 +19,10 @@ const char* Error::ErrorText[Error::nerrors] =
     "実行ファイルが書き換えられた恐れがあります.\n故意でなければウィルス感染が疑われます.",
 };
 
-const char* Error::GetErrorText()
-{
-    return ErrorText[err];
+const char* Error::GetErrorText() {
+  return ErrorText[err];
 }
 
-void Error::SetError(Errno e)
-{
-    err = e;
+void Error::SetError(Errno e) {
+  err = e;
 }
