@@ -256,7 +256,7 @@ bool SoundDumpPipe::DumpStart(char* filename)
 	
 	dumpstate_ = STANDBY;
 	dumpedsample_ = 0;
-	statusdisplay.Show(100, 0, "録音待機中〜");
+	statusdisplay.Show(100, 0, "録音待機中～");
 	return true;
 }
 
