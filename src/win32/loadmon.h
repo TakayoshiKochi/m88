@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------
 //  M88 - PC-8801 emulator
-//	Copyright (C) cisc 1998, 2000.
+//  Copyright (C) cisc 1998, 2000.
 // ---------------------------------------------------------------------------
-//	$Id: loadmon.h,v 1.1 2001/02/21 11:58:54 cisc Exp $
+//  $Id: loadmon.h,v 1.1 2001/02/21 11:58:54 cisc Exp $
 
 #pragma once
 
@@ -10,79 +10,73 @@
 #include "winmon.h"
 #include "critsect.h"
 
-//#define ENABLE_LOADMONITOR
+// #define ENABLE_LOADMONITOR
 
 // ---------------------------------------------------------------------------
 
 #ifdef ENABLE_LOADMONITOR
 
-class LoadMonitor : public WinMonitor
-{
-public:
-	enum
-	{
-		presis = 10,
-	};
+class LoadMonitor : public WinMonitor {
+ public:
+  enum {
+    presis = 10,
+  };
 
-	LoadMonitor();
-	~LoadMonitor();
+  LoadMonitor();
+  ~LoadMonitor();
 
-	bool Init(); 
+  bool Init();
 
-	void ProcBegin(const char* name);
-	void ProcEnd(const char* name);
-	static LoadMonitor* GetInstance() { return instance; }
+  void ProcBegin(const char* name);
+  void ProcEnd(const char* name);
+  static LoadMonitor* GetInstance() { return instance; }
 
-private:
-	struct State
-	{
-		int	total[presis];				// 累計
-		DWORD timeentered;		// 開始時刻
-	};
+ private:
+  struct State {
+    int total[presis];  // 累計
+    DWORD timeentered;  // 開始時刻
+  };
 
-	typedef map<string, State> States;
+  typedef map<string, State> States;
 
-	void UpdateText();
-	BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
-	void DrawMain(HDC, bool);
+  void UpdateText();
+  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
+  void DrawMain(HDC, bool);
 
-	States states;
-	int base;
-	int tidx;
-	int tprv;
+  States states;
+  int base;
+  int tidx;
+  int tprv;
 
-	CriticalSection cs;
-	static LoadMonitor* instance;
+  CriticalSection cs;
+  static LoadMonitor* instance;
 };
 
-inline void LOADBEGIN(const char* key)
-{
-	LoadMonitor* lm = LoadMonitor::GetInstance();
-	if (lm) lm->ProcBegin(key);
+inline void LOADBEGIN(const char* key) {
+  LoadMonitor* lm = LoadMonitor::GetInstance();
+  if (lm)
+    lm->ProcBegin(key);
 }
 
-inline void LOADEND(const char* key)
-{
-	LoadMonitor* lm = LoadMonitor::GetInstance();
-	if (lm) lm->ProcEnd(key);
+inline void LOADEND(const char* key) {
+  LoadMonitor* lm = LoadMonitor::GetInstance();
+  if (lm)
+    lm->ProcEnd(key);
 }
 
 #else
 
-class LoadMonitor
-{
-public:
-	LoadMonitor() {}
-	~LoadMonitor() {}
+class LoadMonitor {
+ public:
+  LoadMonitor() {}
+  ~LoadMonitor() {}
 
-	bool Show(HINSTANCE, HWND, bool) { return false; }
-	bool IsOpen() { return false; }
-	bool Init() { return false; }
+  bool Show(HINSTANCE, HWND, bool) { return false; }
+  bool IsOpen() { return false; }
+  bool Init() { return false; }
 };
-
 
 #define LOADBEGIN(a)
 #define LOADEND(a)
 
 #endif
-

@@ -5,5 +5,3 @@
 #include <ddraw.h>
 #include <dsound.h>
 #include "if/ifguid.h"
-
-

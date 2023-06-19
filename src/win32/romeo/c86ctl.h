@@ -1,10 +1,10 @@
 /***
-	c86ctl
-	
-	Copyright (c) 2009-2010, honet. All rights reserved.
-	This software is licensed under the BSD license.
+    c86ctl
+    
+    Copyright (c) 2009-2010, honet. All rights reserved.
+    This software is licensed under the BSD license.
 
-	honet.kk(at)gmail.com
+    honet.kk(at)gmail.com
  */
 
 
@@ -21,26 +21,26 @@ extern "C" {
 /*----------------------------------------------------------------------------*/
 /*  定数定義                                                                  */
 /*----------------------------------------------------------------------------*/
-#define C86CTL_ERR_NONE						0
-#define C86CTL_ERR_UNKNOWN					-1
-#define C86CTL_ERR_INVALID_PARAM			-2
-#define C86CTL_ERR_NOT_IMPLEMENTED			-9999
-#define C86CTL_ERR_NODEVICE					-1000
+#define C86CTL_ERR_NONE                     0
+#define C86CTL_ERR_UNKNOWN                  -1
+#define C86CTL_ERR_INVALID_PARAM            -2
+#define C86CTL_ERR_NOT_IMPLEMENTED          -9999
+#define C86CTL_ERR_NODEVICE                 -1000
 
 enum ChipType {
-	CHIP_UNKNOWN = 0,
-	CHIP_OPNA,
-	CHIP_OPM,
-	CHIP_OPN3L,
+    CHIP_UNKNOWN = 0,
+    CHIP_OPNA,
+    CHIP_OPM,
+    CHIP_OPN3L,
 };
 
 /*----------------------------------------------------------------------------*/
 /*  構造体定義                                                                */
 /*----------------------------------------------------------------------------*/
 struct Devinfo{
-	char Devname[16];
-	char Rev;
-	char Serial[15];
+    char Devname[16];
+    char Rev;
+    char Serial[15];
 };
 
 /*----------------------------------------------------------------------------*/
@@ -52,10 +52,10 @@ static const GUID IID_IRealChipBase =
 
 interface IRealChipBase : public IUnknown
 {
-	virtual int __stdcall initialize(void) = 0;
-	virtual int __stdcall deinitialize(void) = 0;
-	virtual int __stdcall getNumberOfChip(void) = 0;
-	virtual HRESULT __stdcall getChipInterface( int id, REFIID riid, void** ppi ) = 0;
+    virtual int __stdcall initialize(void) = 0;
+    virtual int __stdcall deinitialize(void) = 0;
+    virtual int __stdcall getNumberOfChip(void) = 0;
+    virtual HRESULT __stdcall getChipInterface( int id, REFIID riid, void** ppi ) = 0;
 };
 
 
@@ -66,10 +66,10 @@ static const GUID IID_IRealChip =
 interface IRealChip : public IUnknown
 {
 public:
-	virtual int __stdcall reset(void) = 0;
-	virtual void __stdcall out( UINT addr, UCHAR data ) = 0;
-	virtual UCHAR __stdcall in( UINT addr ) = 0;
-	//virtual __stdcall getModuleType() = 0;
+    virtual int __stdcall reset(void) = 0;
+    virtual void __stdcall out( UINT addr, UCHAR data ) = 0;
+    virtual UCHAR __stdcall in( UINT addr ) = 0;
+    //virtual __stdcall getModuleType() = 0;
 };
 
 
@@ -79,13 +79,13 @@ static const GUID IID_IGimic =
 
 interface IGimic : public IUnknown
 {
-	virtual int __stdcall getFWVer( UINT *major, UINT *minor, UINT *revision, UINT *build ) = 0;
-	virtual int __stdcall getMBInfo( struct Devinfo *info ) = 0;
-	virtual int __stdcall getModuleInfo( struct Devinfo *info ) = 0;
-	virtual int __stdcall setSSGVolume(UCHAR vol) = 0;
-	virtual int __stdcall getSSGVolume(UCHAR *vol) = 0;
-	virtual int __stdcall setPLLClock(UINT clock) = 0;
-	virtual int __stdcall getPLLClock(UINT *clock) = 0;
+    virtual int __stdcall getFWVer( UINT *major, UINT *minor, UINT *revision, UINT *build ) = 0;
+    virtual int __stdcall getMBInfo( struct Devinfo *info ) = 0;
+    virtual int __stdcall getModuleInfo( struct Devinfo *info ) = 0;
+    virtual int __stdcall setSSGVolume(UCHAR vol) = 0;
+    virtual int __stdcall getSSGVolume(UCHAR *vol) = 0;
+    virtual int __stdcall setPLLClock(UINT clock) = 0;
+    virtual int __stdcall getPLLClock(UINT *clock) = 0;
 };
 
 
@@ -96,11 +96,11 @@ interface IGimic : public IUnknown
 HRESULT WINAPI CreateInstance( REFIID riid, void** ppi );
 
 
-int WINAPI c86ctl_initialize(void);					// DEPRECATED
-int WINAPI c86ctl_deinitialize(void);				// DEPRECATED
-int WINAPI c86ctl_reset(void);						// DEPRECATED
-void WINAPI c86ctl_out( UINT addr, UCHAR data );	// DEPRECATED
-UCHAR WINAPI c86ctl_in( UINT addr );				// DEPRECATED
+int WINAPI c86ctl_initialize(void);                 // DEPRECATED
+int WINAPI c86ctl_deinitialize(void);               // DEPRECATED
+int WINAPI c86ctl_reset(void);                      // DEPRECATED
+void WINAPI c86ctl_out( UINT addr, UCHAR data );    // DEPRECATED
+UCHAR WINAPI c86ctl_in( UINT addr );                // DEPRECATED
 
 
 

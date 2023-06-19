@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------
-//	M88 - PC-8801 Emulator.
-//	Copyright (C) cisc 1997, 2001.
+//  M88 - PC-8801 Emulator.
+//  Copyright (C) cisc 1997, 2001.
 // ---------------------------------------------------------------------------
-//	$Id: wincore.h,v 1.34 2003/05/15 13:15:36 cisc Exp $
+//  $Id: wincore.h,v 1.34 2003/05/15 13:15:36 cisc Exp $
 
 #pragma once
 
@@ -16,91 +16,89 @@
 #include "sequence.h"
 #include "winjoy.h"
 
-namespace PC8801
-{
-	class WinKeyIF;
-	class ExternalDevice;
-	class ExtendModule;
-}
-
+namespace PC8801 {
+class WinKeyIF;
+class ExternalDevice;
+class ExtendModule;
+}  // namespace PC8801
 
 class WinUI;
 
 // ---------------------------------------------------------------------------
 
-class WinCore : public PC88, public ISystem, public ILockCore
-{
-public:
-	WinCore();
-	~WinCore();
-	bool Init(WinUI* ui, HWND hwnd, Draw* draw, DiskManager* diskmgr, 
-			  PC8801::WinKeyIF* keyb, IConfigPropBase* cpb, TapeManager* tapemgr); 
-	bool Cleanup();
+class WinCore : public PC88, public ISystem, public ILockCore {
+ public:
+  WinCore();
+  ~WinCore();
+  bool Init(WinUI* ui,
+            HWND hwnd,
+            Draw* draw,
+            DiskManager* diskmgr,
+            PC8801::WinKeyIF* keyb,
+            IConfigPropBase* cpb,
+            TapeManager* tapemgr);
+  bool Cleanup();
 
-	void Reset();
-	void ApplyConfig(PC8801::Config* config);
-	
-	
-	bool SaveShapshot(const char* filename);
-	bool LoadShapshot(const char* filename, const char* diskname = 0);
+  void Reset();
+  void ApplyConfig(PC8801::Config* config);
 
-	PC8801::WinSound* GetSound() { return &sound; }
+  bool SaveShapshot(const char* filename);
+  bool LoadShapshot(const char* filename, const char* diskname = 0);
 
-	long GetExecCount() { return seq.GetExecCount(); }
-	void Wait(bool dowait) { seq.Activate(!dowait); }
-	void* IFCALL QueryIF(REFIID iid);
-	void IFCALL Lock() { seq.Lock(); }
-	void IFCALL Unlock() { seq.Unlock(); }
+  PC8801::WinSound* GetSound() { return &sound; }
 
-private:
-//	Snapshot ヘッダー
-	enum
-	{
-		ssmajor = 1, ssminor = 1,
-	};
+  long GetExecCount() { return seq.GetExecCount(); }
+  void Wait(bool dowait) { seq.Activate(!dowait); }
+  void* IFCALL QueryIF(REFIID iid);
+  void IFCALL Lock() { seq.Lock(); }
+  void IFCALL Unlock() { seq.Unlock(); }
 
-	struct SnapshotHeader
-	{
-		char id[16];
-		uint8 major, minor;
+ private:
+  //  Snapshot ヘッダー
+  enum {
+    ssmajor = 1,
+    ssminor = 1,
+  };
 
-		int8 disk[2];
-		int datasize;
-		PC8801::Config::BASICMode basicmode;
-		int16 clock;
-		uint16 erambanks;
-		uint16 cpumode;
-		uint16 mainsubratio;
-		uint flags;
-		uint flag2;
-	};
+  struct SnapshotHeader {
+    char id[16];
+    uint8 major, minor;
 
-	class LockObj
-	{
-		WinCore* b;
-	public:
-		LockObj(WinCore* _b) : b(_b) { b->Lock(); }
-		~LockObj() { b->Unlock(); }
-	};
+    int8 disk[2];
+    int datasize;
+    PC8801::Config::BASICMode basicmode;
+    int16 clock;
+    uint16 erambanks;
+    uint16 cpumode;
+    uint16 mainsubratio;
+    uint flags;
+    uint flag2;
+  };
 
-private:
-	bool ConnectDevices(PC8801::WinKeyIF* keyb);
-	bool ConnectExternalDevices();
+  class LockObj {
+    WinCore* b;
 
-	WinUI* ui;
-	IConfigPropBase* cfgprop;
+   public:
+    LockObj(WinCore* _b) : b(_b) { b->Lock(); }
+    ~LockObj() { b->Unlock(); }
+  };
 
-	Sequencer seq;
-	WinPadIF padif;
+ private:
+  bool ConnectDevices(PC8801::WinKeyIF* keyb);
+  bool ConnectExternalDevices();
 
-	typedef vector<PC8801::ExtendModule*> ExtendModules;
-	ExtendModules extmodules;
+  WinUI* ui;
+  IConfigPropBase* cfgprop;
 
-	PC8801::WinSound sound;
-	PC8801::Config config;
+  Sequencer seq;
+  WinPadIF padif;
 
-	typedef vector<PC8801::ExternalDevice*> ExternalDevices;
-	ExternalDevices extdevices;
+  typedef vector<PC8801::ExtendModule*> ExtendModules;
+  ExtendModules extmodules;
 
+  PC8801::WinSound sound;
+  PC8801::Config config;
+
+  typedef vector<PC8801::ExternalDevice*> ExternalDevices;
+  ExternalDevices extdevices;
 };
-

@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------
 //  M88 - PC-8801 emulator
-//	Copyright (C) cisc 1998, 1999.
+//  Copyright (C) cisc 1998, 1999.
 // ---------------------------------------------------------------------------
-//	$Id: wincfg.h,v 1.4 2003/05/12 22:26:35 cisc Exp $
+//  $Id: wincfg.h,v 1.4 2003/05/12 22:26:35 cisc Exp $
 
 #pragma once
 
@@ -10,60 +10,56 @@
 #include "pc88/config.h"
 #include "cfgpage.h"
 
-namespace PC8801
-{
+namespace PC8801 {
 
-class WinConfig : public IConfigPropBase
-{
-public:
-	WinConfig();
-	~WinConfig();
-	
-	bool Show(HINSTANCE, HWND, Config* config);
-	bool ProcMsg(MSG& msg);
-	bool IsOpen() { return !!hwndps; }
-	void Close();
+class WinConfig : public IConfigPropBase {
+ public:
+  WinConfig();
+  ~WinConfig();
 
-private:
-	struct PPNode
-	{
-		PPNode* next;
-		IConfigPropSheet* sheet;
-	};
+  bool Show(HINSTANCE, HWND, Config* config);
+  bool ProcMsg(MSG& msg);
+  bool IsOpen() { return !!hwndps; }
+  void Close();
 
-	bool IFCALL Add(IConfigPropSheet* sheet);
-	bool IFCALL Remove(IConfigPropSheet* sheet);
+ private:
+  struct PPNode {
+    PPNode* next;
+    IConfigPropSheet* sheet;
+  };
 
-	bool IFCALL Apply();
-	bool IFCALL PageSelected(IConfigPropSheet*);
-	bool IFCALL PageChanged(HWND);
-	void IFCALL _ChangeVolume(bool);
+  bool IFCALL Add(IConfigPropSheet* sheet);
+  bool IFCALL Remove(IConfigPropSheet* sheet);
 
-	int PropProc(HWND, UINT, LPARAM);
-	static int CALLBACK PropProcGate(HWND, UINT, LPARAM);
-	static WinConfig* instance;
+  bool IFCALL Apply();
+  bool IFCALL PageSelected(IConfigPropSheet*);
+  bool IFCALL PageChanged(HWND);
+  void IFCALL _ChangeVolume(bool);
 
-	PPNode* pplist;
-	typedef vector<IConfigPropSheet*> PropSheets;
-	PropSheets propsheets;
-	
-	HWND hwndparent;
-	HWND hwndps;
-	HINSTANCE hinst;
-	Config config;
-	Config orgconfig;
-	int page;
-	int npages;
+  int PropProc(HWND, UINT, LPARAM);
+  static int CALLBACK PropProcGate(HWND, UINT, LPARAM);
+  static WinConfig* instance;
 
-	ConfigCPU ccpu;
-	ConfigScreen cscrn;
-	ConfigSound csound;
-	ConfigVolume cvol;
-	ConfigFunction cfunc;
-	ConfigSwitch cswitch;
-	ConfigEnv cenv;
-	ConfigROMEO cromeo;
+  PPNode* pplist;
+  typedef vector<IConfigPropSheet*> PropSheets;
+  PropSheets propsheets;
+
+  HWND hwndparent;
+  HWND hwndps;
+  HINSTANCE hinst;
+  Config config;
+  Config orgconfig;
+  int page;
+  int npages;
+
+  ConfigCPU ccpu;
+  ConfigScreen cscrn;
+  ConfigSound csound;
+  ConfigVolume cvol;
+  ConfigFunction cfunc;
+  ConfigSwitch cswitch;
+  ConfigEnv cenv;
+  ConfigROMEO cromeo;
 };
 
-}
-
+}  // namespace PC8801
