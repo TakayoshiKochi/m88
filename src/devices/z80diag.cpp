@@ -13,288 +13,256 @@
 // ---------------------------------------------------------------------------
 //  構築
 //
-Z80Diag::Z80Diag()
-{
-}
+Z80Diag::Z80Diag() {}
 
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool Z80Diag::Init(IMemoryAccess* b)
-{
-    mem = b;
-    return true;
+bool Z80Diag::Init(IMemoryAccess* b) {
+  mem = b;
+  return true;
 }
 
 // ---------------------------------------------------------------------------
 //  1命令逆アセンブルする
 //
-uint Z80Diag::Disassemble(uint _pc, char* dest)
-{
-    pc = _pc;
-    xmode = usehl;
-    uint data = Read8(pc++);
-    Expand(dest, Inst[data]);
-    return pc;
+uint Z80Diag::Disassemble(uint _pc, char* dest) {
+  pc = _pc;
+  xmode = usehl;
+  uint data = Read8(pc++);
+  Expand(dest, Inst[data]);
+  return pc;
 }
 
 // ---------------------------------------------------------------------------
 //  1命令逆アセンブルする
 //
-uint Z80Diag::DisassembleS(uint _pc, char* dest)
-{
-    pc = _pc;
-    xmode = usehl;
-    uint data = Read8(pc++);
-    Expand(dest, Inst[data])[-1] = ' ';
-    return pc;
+uint Z80Diag::DisassembleS(uint _pc, char* dest) {
+  pc = _pc;
+  xmode = usehl;
+  uint data = Read8(pc++);
+  Expand(dest, Inst[data])[-1] = ' ';
+  return pc;
 }
 
 // ---------------------------------------------------------------------------
 //  展開する
 //
-char* Z80Diag::Expand(char* dest, const char* src)
-{
-    const char* text = "HLIXIY";
-    const char* text2 = "BCDEHL A";
-    char c;
-    do
-    {
-        c = *src++;
+char* Z80Diag::Expand(char* dest, const char* src) {
+  const char* text = "HLIXIY";
+  const char* text2 = "BCDEHL A";
+  char c;
+  do {
+    c = *src++;
 
-        if (c != '@')
-            *dest++ = c;
-        else
+    if (c != '@')
+      *dest++ = c;
+    else {
+      int i;
+      switch (*src++) {
+        case 'b':
+          i = Read8(pc++);
+          SetHex(dest, i);
+          break;
+
+        case 'w':
+          i = Read8(pc) + Read8(pc + 1) * 0x100;
+          pc += 2;
+          SetHex(dest, i);
+          break;
+
+        case 'r':
+          i = int8(Read8(pc++));
+          SetHex(dest, pc + i);
+          break;
+
+        case 'x':
+          *dest++ = text[xmode + 0];
+          *dest++ = text[xmode + 1];
+          break;
+
+        case 'm':
+          *dest++ = '(';
+          *dest++ = text[xmode + 0];
+          *dest++ = text[xmode + 1];
+          if (xmode != usehl) {
+            i = int8(Read8(pc++));
+            if (i) {
+              if (i > 0)
+                *dest++ = '+';
+              else
+                *dest++ = '-', i = -i;
+              SetHex(dest, i);
+            }
+          }
+          *dest++ = ')';
+          break;
+
+        case 'h':
+          if (xmode != usehl)
+            *dest++ = text[xmode + 1];
+          *dest++ = 'H';
+          break;
+
+        case 'l':
+          if (xmode != usehl)
+            *dest++ = text[xmode + 1];
+          *dest++ = 'L';
+          break;
+
+        case 'C':  // CBxx 系
         {
-            int i;
-            switch (*src++)
-            {
-            case 'b':
-                i = Read8(pc++);
-                SetHex(dest, i);
-                break;
-                
-            case 'w':
-                i = Read8(pc) + Read8(pc+1)*0x100; pc+=2;
-                SetHex(dest, i);
-                break;
-                
-            case 'r':
-                i = int8(Read8(pc++));
-                SetHex(dest, pc + i);
-                break;
-                
-            case 'x':
-                *dest++ = text[xmode+0];
-                *dest++ = text[xmode+1];
-                break;
+          int y;
+          if (xmode != usehl)
+            y = int8(Read8(pc++));
+          i = Read8(pc++);
 
-            case 'm':
-                *dest++ = '(';
-                *dest++ = text[xmode+0];
-                *dest++ = text[xmode+1];
-                if (xmode != usehl)
-                {
-                    i = int8(Read8(pc++));
-                    if (i)
-                    {
-                        if (i > 0)
-                            *dest++ = '+';
-                        else
-                            *dest++ = '-', i = -i;
-                        SetHex(dest, i);
-                    }
-                }
-                *dest++ = ')';
-                break;
+          for (const char* s = InstCB[i >> 3]; *s;)
+            *dest++ = *s++;
 
-            case 'h':
-                if (xmode != usehl)
-                    *dest++ = text[xmode + 1];
-                *dest++ = 'H';
-                break;
+          if ((i & 7) != 6) {
+            *dest++ = text2[i & 7];
+            if (xmode == usehl || (i & 0xc0) == 0x40)
+              break;
+            *dest++ = '=';
+          }
 
-            case 'l':
-                if (xmode != usehl)
-                    *dest++ = text[xmode + 1];
-                *dest++ = 'L';
-                break;
-
-            case 'C':       // CBxx 系
-            {
-                int y;
-                if (xmode != usehl)
-                    y = int8(Read8(pc++));
-                i = Read8(pc++);
-
-                for (const char* s = InstCB[i >> 3]; *s; )
-                    *dest++ = *s++;
-
-                if ((i & 7) != 6)
-                {
-                    *dest++ = text2[i & 7];
-                    if (xmode == usehl || (i & 0xc0) == 0x40)
-                        break;
-                    *dest++ = '=';
-                }
-
-                *dest++ = '(';
-                *dest++ = text[xmode+0];
-                *dest++ = text[xmode+1];
-                if (xmode != usehl)
-                {
-                    if (y)
-                    {
-                        if (y > 0)
-                            *dest++ = '+';
-                        else
-                            *dest++ = '-', y = -y;
-                        SetHex(dest, y);
-                    }
-                }
-                *dest++ = ')';
-                break;
+          *dest++ = '(';
+          *dest++ = text[xmode + 0];
+          *dest++ = text[xmode + 1];
+          if (xmode != usehl) {
+            if (y) {
+              if (y > 0)
+                *dest++ = '+';
+              else
+                *dest++ = '-', y = -y;
+              SetHex(dest, y);
             }
-
-            case 'D':       // DD 系
-                xmode = useix;
-                goto ddfd;
-            case 'F':       // FD 系
-                xmode = useiy;
-ddfd:
-                i = Read8(pc++);
-                if ((i & 0xdf) != 0xdd)
-                {
-                    dest = Expand(dest, Inst[i])-1;
-                }
-                else
-                {
-                    const char* t3 = "DB   ";
-                    while (*t3)
-                        *dest++ = *t3++;
-                    SetHex(dest, xmode == useix ? 0xdd : 0xfd);
-                    pc--;
-                }
-                break;
-
-            case 'E':       // ED 系
-                i = Read8(pc++);
-                if ((i & 0xc0) == 0x40)
-                {
-                    dest = Expand(dest, InstED1[i & 0x3f])-1;
-                }
-                else if ((i & 0xe4) == 0xa0)
-                {
-                    dest = Expand(dest, InstED2[((i & 0x18) >> 1) | (i & 3)])-1;
-                }
-                else
-                {
-                    const char* t4 = "DB   0EDH,";
-                    while (*t4)
-                        *dest++ = *t4++;
-                    SetHex(dest, i);
-                }
-                break;
-
-            default:
-                LOG1("unknown directive: @%c\n", src[-1]);
-                break;
-            }
+          }
+          *dest++ = ')';
+          break;
         }
-    } while (c);
-    return dest;
+
+        case 'D':  // DD 系
+          xmode = useix;
+          goto ddfd;
+        case 'F':  // FD 系
+          xmode = useiy;
+        ddfd:
+          i = Read8(pc++);
+          if ((i & 0xdf) != 0xdd) {
+            dest = Expand(dest, Inst[i]) - 1;
+          } else {
+            const char* t3 = "DB   ";
+            while (*t3)
+              *dest++ = *t3++;
+            SetHex(dest, xmode == useix ? 0xdd : 0xfd);
+            pc--;
+          }
+          break;
+
+        case 'E':  // ED 系
+          i = Read8(pc++);
+          if ((i & 0xc0) == 0x40) {
+            dest = Expand(dest, InstED1[i & 0x3f]) - 1;
+          } else if ((i & 0xe4) == 0xa0) {
+            dest = Expand(dest, InstED2[((i & 0x18) >> 1) | (i & 3)]) - 1;
+          } else {
+            const char* t4 = "DB   0EDH,";
+            while (*t4)
+              *dest++ = *t4++;
+            SetHex(dest, i);
+          }
+          break;
+
+        default:
+          LOG1("unknown directive: @%c\n", src[-1]);
+          break;
+      }
+    }
+  } while (c);
+  return dest;
 }
 
-void Z80Diag::SetHex(char*& dest, uint n)
-{
-    const char* table = "0123456789ABCDEF";
-    if (n < 10)
-    {
-        *dest++ = '0'+n;
-        return;
-    }
+void Z80Diag::SetHex(char*& dest, uint n) {
+  const char* table = "0123456789ABCDEF";
+  if (n < 10) {
+    *dest++ = '0' + n;
+    return;
+  }
 
-    int i, v;
-    for (i=12; !(v = n >> i) && i>0; i-=4)
-        ;
-    if (v >= 10)
-        *dest++ = '0';
-    do
-    {
-        *dest++ = table[(n >> i) & 0x0f];
-    } while (i-=4, i>=0);
-    *dest++ = 'H';
+  int i, v;
+  for (i = 12; !(v = n >> i) && i > 0; i -= 4)
+    ;
+  if (v >= 10)
+    *dest++ = '0';
+  do {
+    *dest++ = table[(n >> i) & 0x0f];
+  } while (i -= 4, i >= 0);
+  *dest++ = 'H';
 }
 
 // ---------------------------------------------------------------------------
 //  １命令後のアドレスを求める
 //
-uint Z80Diag::InstInc(uint ad)
-{
-    return ad + GetInstSize(ad);
+uint Z80Diag::InstInc(uint ad) {
+  return ad + GetInstSize(ad);
 }
 
 // ---------------------------------------------------------------------------
 //  １命令前のアドレスを求める
-//  
-uint Z80Diag::InstDec(uint ad)
-{
-    const int scandepth = 8;
+//
+uint Z80Diag::InstDec(uint ad) {
+  const int scandepth = 8;
 
-    uint r = InstDecSub(ad, scandepth);
-    if (r)
-        return ad - r;
-    for (int i=1; i<=4; i++)
-    {
-        if (GetInstSize(ad-i) > i)
-            return ad - i;
-    }
-    return ad-1;
+  uint r = InstDecSub(ad, scandepth);
+  if (r)
+    return ad - r;
+  for (int i = 1; i <= 4; i++) {
+    if (GetInstSize(ad - i) > i)
+      return ad - i;
+  }
+  return ad - 1;
 }
 
-uint Z80Diag::InstDecSub(uint ad, int depth)
-{
-    for (int i=1; i<=4; i++)
-    {
-        if (GetInstSize(ad-i) == i)
-        {
-            if (!depth || InstDecSub(ad-i, depth-1))
-                return i;
-        }
+uint Z80Diag::InstDecSub(uint ad, int depth) {
+  for (int i = 1; i <= 4; i++) {
+    if (GetInstSize(ad - i) == i) {
+      if (!depth || InstDecSub(ad - i, depth - 1))
+        return i;
     }
-    return 0;
+  }
+  return 0;
 }
 
-int Z80Diag::GetInstSize(uint ad)
-{
-    uint c;
-    int  size;
-    c = Read8(ad);
-    size = SizeTable[c];
-    if (size>0)
-        return size;
-    if (size == -1)
-        return 1;
-    if (c == 0xed)
-    {
-        c = Read8(ad+1);
-        return (c & 0xc7) == 0x43 ? 4 : 2;  
-    }
+int Z80Diag::GetInstSize(uint ad) {
+  uint c;
+  int size;
+  c = Read8(ad);
+  size = SizeTable[c];
+  if (size > 0)
+    return size;
+  if (size == -1)
+    return 1;
+  if (c == 0xed) {
+    c = Read8(ad + 1);
+    return (c & 0xc7) == 0x43 ? 4 : 2;
+  }
 
-    // DD/FD
-    c = Read8(ad+1);
-    if (c == 0xdd || c == 0xed || c == 0xfd)
-        return 1;
-    if (c == 0xcb)
-        return 4;
-    size = SizeTable[c];
-    if (size == -1)
-        return 3;
-    return 1+size;
+  // DD/FD
+  c = Read8(ad + 1);
+  if (c == 0xdd || c == 0xed || c == 0xfd)
+    return 1;
+  if (c == 0xcb)
+    return 4;
+  size = SizeTable[c];
+  if (size == -1)
+    return 3;
+  return 1 + size;
 }
 
-const char* Z80Diag::Inst[0x100] = 
-{
+const char* Z80Diag::Inst[0x100] = {
+    // clang-format off
     "NOP",          "LD   BC,@w",   "LD   (BC),A",  "INC  BC",      "INC  B",       "DEC  B",       "LD   B,@b",    "RLCA",
     "EX   AF,AF'",  "ADD  @x,BC",   "LD   A,(BC)",  "DEC  BC",      "INC  C",       "DEC  C",       "LD   C,@b",    "RRCA",
     "DJNZ @r",      "LD   DE,@w",   "LD   (DE),A",  "INC  DE",      "INC  D",       "DEC  D",       "LD   D,@b",    "RLA",
@@ -330,10 +298,11 @@ const char* Z80Diag::Inst[0x100] =
     "RET  PE",      "JP   (@x)",    "JP   PE,@w",   "EX   DE,HL",   "CALL PE,@w",   "@E",           "XOR  @b",      "RST  28H",
     "RET  P",       "POP  AF",      "JP   P,@w",    "DI",           "CALL P,@w",    "PUSH AF",      "OR   @b",      "RST  30H",
     "RET  M",       "LD   SP,@x",   "JP   M,@w",    "EI",           "CALL M,@w",    "@F",           "CP   @b",      "RST  38H",
+    // clang-format on
 };
 
-const char* Z80Diag::InstED1[0x40] =
-{
+const char* Z80Diag::InstED1[0x40] = {
+    // clang-format off
     "IN   B,(C)",   "OUT  (C),B",   "SBC  HL,BC",   "LD   (@w),BC", "NEG",          "RETN",         "IM   0",       "LD   I,A",
     "IN   C,(C)",   "OUT  (C),C",   "ADC  HL,BC",   "LD   BC,(@w)", "(NEG)",        "RETI",         "(IM  0)",      "LD   A,I",
     "IN   D,(C)",   "OUT  (C),D",   "SBC  HL,DE",   "LD   (@w),DE", "(NEG)",        "(RETN)",       "IM   1",       "LD   R,A",
@@ -342,24 +311,27 @@ const char* Z80Diag::InstED1[0x40] =
     "IN   L,(C)",   "OUT  (C),L",   "ADC  HL,HL",   "LD   HL,(@w)", "(NEG)",        "(RETN)",       "(IM  0)",      "RLD",
     "IN   (C)",     "OUT  (C),0",   "SBC  HL,SP",   "LD   (@w),SP", "(NEG)",        "(RETN)",       "(IM  0)",      "(NOP)",
     "IN   A,(C)",   "OUT  (C),A",   "ADC  HL,SP",   "LD   SP,(@w)", "(NEG)",        "(RETN)",       "(IM  0)",      "(NOP)",
+    // clang-format on
 };
 
-const char* Z80Diag::InstED2[16] = 
-{
+const char* Z80Diag::InstED2[16] = {
+    // clang-format off
     "LDI",  "CPI",  "INI",  "OUTI", "LDD",  "CPD",  "IND",  "OUTD",
     "LDIR", "CPIR", "INIR", "OTIR", "LDDR", "CPDR", "INDR", "OTDR",
+    // clang-format on
 };
 
-const char* Z80Diag::InstCB[32] = 
-{
+const char* Z80Diag::InstCB[32] = {
+    // clang-format off
     "RLC  ",    "RRC  ",    "RL   ",    "RR   ",    "SLA  ",    "SRA  ",    "SLL  ",    "SRL  ",
     "BIT  0,",  "BIT  1,",  "BIT  2,",  "BIT  3,",  "BIT  4,",  "BIT  5,",  "BIT  6,",  "BIT  7,",
     "RES  0,",  "RES  1,",  "RES  2,",  "RES  3,",  "RES  4,",  "RES  5,",  "RES  6,",  "RES  7,",
     "SET  0,",  "SET  1,",  "SET  2,",  "SET  3,",  "SET  4,",  "SET  5,",  "SET  6,",  "SET  7,",
+    // clang-format on
 };
 
-const int8 Z80Diag::SizeTable[256] =
-{
+const int8 Z80Diag::SizeTable[256] = {
+    // clang-format off
      1, 3, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1,
      2, 3, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1,
      2, 3, 3, 1, 1, 1, 2, 1, 2, 1, 3, 1, 1, 1, 2, 1,
@@ -376,10 +348,11 @@ const int8 Z80Diag::SizeTable[256] =
      1, 1, 3, 2, 3, 1, 2, 1, 1, 1, 3, 2, 3, 0, 2, 1,
      1, 1, 3, 1, 3, 1, 2, 1, 1, 1, 3, 1, 3, 0, 2, 1,
      1, 1, 3, 1, 3, 1, 2, 1, 1, 1, 3, 1, 3, 0, 2, 1,
+    // clang-format on
 };
 
-const int8 Z80Diag::SizeTableED[128] =
-{
+const int8 Z80Diag::SizeTableED[128] = {
+    // clang-format off
     2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2,
     2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2,
     2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2,
@@ -387,6 +360,6 @@ const int8 Z80Diag::SizeTableED[128] =
     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    // clang-format on
 };
-

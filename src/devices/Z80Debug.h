@@ -16,61 +16,59 @@
 
 // ----------------------------------------------------------------------------
 
-class Z80Debug : public Device
-{
-private:
-    typedef Z80_x86 CPU;
+class Z80Debug : public Device {
+ private:
+  typedef Z80_x86 CPU;
 
-public:
-    enum
-    {
-        reset = 0, irq, nmi,
-    };
+ public:
+  enum {
+    reset = 0,
+    irq,
+    nmi,
+  };
 
-public:
-    Z80Debug(const ID& id);
-    ~Z80Debug();
+ public:
+  Z80Debug(const ID& id);
+  ~Z80Debug();
 
-    bool Init(Bus* bus, int iack);
-    MemoryBus::Page* GetPages() { return 0; }
+  bool Init(Bus* bus, int iack);
+  MemoryBus::Page* GetPages() { return 0; }
 
-    int Exec(int);
-    static int ExecDual(Z80Debug*, Z80Debug*, int);
-    void Stop(int a) { cpu.Stop(a); } 
-//  static void StopDual(int a) { currentcpu->Stop(a); }
-    static void StopDual(int a) { CPU::StopDual(a); }
-    int GetCount() { return cpu.GetCount(); }
-    
-    static int GetCCount() { return 0; }
-    
-    void Reset(uint=0, uint=0);
-    void IRQ(uint, uint d);
-    void NMI(uint, uint);
-    void Wait(bool);
-    const Descriptor* GetDesc() const { return &descriptor; }
+  int Exec(int);
+  static int ExecDual(Z80Debug*, Z80Debug*, int);
+  void Stop(int a) { cpu.Stop(a); }
+  //  static void StopDual(int a) { currentcpu->Stop(a); }
+  static void StopDual(int a) { CPU::StopDual(a); }
+  int GetCount() { return cpu.GetCount(); }
 
-private:
-    CPU cpu;
-    static Z80Debug* currentcpu;
+  static int GetCCount() { return 0; }
 
-    Bus* bus;
-    Bus bus1;
+  void Reset(uint = 0, uint = 0);
+  void IRQ(uint, uint d);
+  void NMI(uint, uint);
+  void Wait(bool);
+  const Descriptor* GetDesc() const { return &descriptor; }
 
-    uint Read8(uint);
-    void Write8(uint, uint);
-    uint In(uint);
-    void Out(uint, uint);
+ private:
+  CPU cpu;
+  static Z80Debug* currentcpu;
 
-    int execcount;
-    int clockcount;
+  Bus* bus;
+  Bus bus1;
 
-    
-    static uint MEMCALL S_Read8(void*, uint);
-    static void MEMCALL S_Write8(void*, uint, uint);
+  uint Read8(uint);
+  void Write8(uint, uint);
+  uint In(uint);
+  void Out(uint, uint);
 
-    static const Descriptor descriptor;
-    static const OutFuncPtr outdef[];
+  int execcount;
+  int clockcount;
+
+  static uint MEMCALL S_Read8(void*, uint);
+  static void MEMCALL S_Write8(void*, uint, uint);
+
+  static const Descriptor descriptor;
+  static const OutFuncPtr outdef[];
 };
 
-
-#endif // Z80debug_h
+#endif  // Z80debug_h
