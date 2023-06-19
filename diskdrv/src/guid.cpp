@@ -3,5 +3,3 @@
 #define INITGUID
 #include <objbase.h>
 #include "if/ifguid.h"
-
-
