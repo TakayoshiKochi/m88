@@ -1,10 +1,10 @@
 // ---------------------------------------------------------------------------
-//	PC-8801 emulator
-//	Copyright (C) cisc 1999.
+//  PC-8801 emulator
+//  Copyright (C) cisc 1999.
 // ---------------------------------------------------------------------------
-//	割り込みコントローラ周り(μPD8214)
+//  割り込みコントローラ周り(μPD8214)
 // ---------------------------------------------------------------------------
-//	$Id: intc.h,v 1.7 1999/10/10 01:47:06 cisc Exp $
+//  $Id: intc.h,v 1.7 1999/10/10 01:47:06 cisc Exp $
 
 #pragma once
 
@@ -18,46 +18,46 @@ namespace PC8801
 class INTC : public Device
 {
 public:
-	enum
-	{
-		reset=0, request, setmask, setreg,
-		intack=0
-	};
+    enum
+    {
+        reset=0, request, setmask, setreg,
+        intack=0
+    };
 
 public:
-	INTC(const ID& id);
-	~INTC();
-	bool Init(IOBus* bus, uint irqport, uint ipbase);
-	
-	void IOCALL Reset(uint=0, uint=0);
-	void IOCALL Request(uint port, uint en);
-	void IOCALL SetMask(uint, uint data);
-	void IOCALL SetRegister(uint, uint data);
-	uint IOCALL IntAck(uint);
+    INTC(const ID& id);
+    ~INTC();
+    bool Init(IOBus* bus, uint irqport, uint ipbase);
+    
+    void IOCALL Reset(uint=0, uint=0);
+    void IOCALL Request(uint port, uint en);
+    void IOCALL SetMask(uint, uint data);
+    void IOCALL SetRegister(uint, uint data);
+    uint IOCALL IntAck(uint);
 
-	uint IFCALL GetStatusSize();
-	bool IFCALL SaveStatus(uint8* status);
-	bool IFCALL LoadStatus(const uint8* status);
+    uint IFCALL GetStatusSize();
+    bool IFCALL SaveStatus(uint8* status);
+    bool IFCALL LoadStatus(const uint8* status);
 
-	const Descriptor* IFCALL GetDesc() const { return &descriptor; } 
+    const Descriptor* IFCALL GetDesc() const { return &descriptor; } 
 
 private:
-	struct Status
-	{
-		uint mask;
-		uint mask2;
-		uint irq;
-	};
-	void IRQ(bool);
-	
-	IOBus* bus;
-	Status stat;
-	uint irqport;
-	uint iportbase;
+    struct Status
+    {
+        uint mask;
+        uint mask2;
+        uint irq;
+    };
+    void IRQ(bool);
+    
+    IOBus* bus;
+    Status stat;
+    uint irqport;
+    uint iportbase;
 
-	static const Descriptor descriptor;
-	static const InFuncPtr  indef[];
-	static const OutFuncPtr outdef[];
+    static const Descriptor descriptor;
+    static const InFuncPtr  indef[];
+    static const OutFuncPtr outdef[];
 };
 
 }

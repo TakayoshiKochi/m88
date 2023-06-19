@@ -1,8 +1,8 @@
 // ----------------------------------------------------------------------------
-//	diag.cpp
-//	Copyright (C) cisc 1999.
+//  diag.cpp
+//  Copyright (C) cisc 1999.
 // ----------------------------------------------------------------------------
-//	$Id: diag.cpp,v 1.11 1999/11/26 10:14:08 cisc Exp $
+//  $Id: diag.cpp,v 1.11 1999/11/26 10:14:08 cisc Exp $
 //
 #include "headers.h"
 
@@ -15,29 +15,29 @@
 
 Diag::Diag(const char* logname)
 {
-	file = fopen(logname, "w");
+    file = fopen(logname, "w");
 }
 
 Diag::~Diag()
 {
-	if (file)
-		fclose(file);
+    if (file)
+        fclose(file);
 }
 
 void Diag::Put(const char* arg, ...)
 {
-	va_list va;
-	va_start(va, arg);
+    va_list va;
+    va_start(va, arg);
 
-	if (file)
-		vfprintf(file, arg, va);
-	va_end(va);
+    if (file)
+        vfprintf(file, arg, va);
+    va_end(va);
 }
 
 int Diag::GetCPUTick()
 {
-	return 0;
-//	return cpu ? cpu->GetCount() : 0;
+    return 0;
+//  return cpu ? cpu->GetCount() : 0;
 }
 
 #endif

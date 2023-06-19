@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------
-//	M88 - PC-8801 Emulator
-//	Copyright (C) cisc 1998, 2001.
+//  M88 - PC-8801 Emulator
+//  Copyright (C) cisc 1998, 2001.
 // ---------------------------------------------------------------------------
-//	$Id: joypad.cpp,v 1.3 2003/05/19 01:10:31 cisc Exp $
+//  $Id: joypad.cpp,v 1.3 2003/05/19 01:10:31 cisc Exp $
 
 #include "headers.h"
 #include "joypad.h"
@@ -11,12 +11,12 @@
 using namespace PC8801;
 
 // ---------------------------------------------------------------------------
-//	構築・破棄
+//  構築・破棄
 //
 JoyPad::JoyPad()
 : Device(0), ui(0)
 {
-	SetButtonMode(NORMAL);
+    SetButtonMode(NORMAL);
 }
 
 JoyPad::~JoyPad()
@@ -28,88 +28,88 @@ JoyPad::~JoyPad()
 //
 bool JoyPad::Connect(IPadInput* u)
 {
-	ui = u;
+    ui = u;
 
-	return !!ui;
+    return !!ui;
 }
 
 // ---------------------------------------------------------------------------
-//	入力
+//  入力
 //
 uint IOCALL JoyPad::GetDirection(uint)
 {
-	if (!paravalid)
-		Update();
-	return data[0];
+    if (!paravalid)
+        Update();
+    return data[0];
 }
 
 uint IOCALL JoyPad::GetButton(uint)
 {
-	if (!paravalid)
-		Update();
-	return data[1];
+    if (!paravalid)
+        Update();
+    return data[1];
 }
 
 void JoyPad::Update()
 {
-	PadState ps;
-	if (ui)
-	{
-		ui->GetState(&ps);
-		data[0] = ~ps.direction | directionmask;
-		data[1] = 
-			  (ps.button & button1 ? 0 : 1) 
-			| (ps.button & button2 ? 0 : 2)
-			| 0xfc;
-	}
-	else
-	{
-		data[0] = data[1] = 0xff;
-	}
-	paravalid = true;
+    PadState ps;
+    if (ui)
+    {
+        ui->GetState(&ps);
+        data[0] = ~ps.direction | directionmask;
+        data[1] = 
+              (ps.button & button1 ? 0 : 1) 
+            | (ps.button & button2 ? 0 : 2)
+            | 0xfc;
+    }
+    else
+    {
+        data[0] = data[1] = 0xff;
+    }
+    paravalid = true;
 }
 
 void JoyPad::SetButtonMode(ButtonMode mode)
 {
-	button1 = 1 | 4;
-	button2 = 2 | 8;
-	directionmask = 0xf0;
+    button1 = 1 | 4;
+    button2 = 2 | 8;
+    directionmask = 0xf0;
 
-	switch (mode)
-	{
-	case SWAPPED:
-		swap(button1, button2);
-		break;
-	case DISABLED:
-		button1 = 0;
-		button2 = 0;
-		directionmask = 0xff;
-		break;
-	}
+    switch (mode)
+    {
+    case SWAPPED:
+        swap(button1, button2);
+        break;
+    case DISABLED:
+        button1 = 0;
+        button2 = 0;
+        directionmask = 0xff;
+        break;
+    }
 }
 
 // ---------------------------------------------------------------------------
-//	VSync たいみんぐ
+//  VSync たいみんぐ
 //
 void IOCALL JoyPad::VSync(uint, uint d)
 {
-	if (d)
-		paravalid = false;
+    if (d)
+        paravalid = false;
 }
-	
+    
 // ---------------------------------------------------------------------------
-//	device description
+//  device description
 //
 const Device::Descriptor JoyPad::descriptor = { indef, outdef };
 
 const Device::OutFuncPtr JoyPad::outdef[] = 
 {
-	STATIC_CAST(Device::OutFuncPtr, &VSync),
+    STATIC_CAST(Device::OutFuncPtr, &VSync),
 };
 
 const Device::InFuncPtr JoyPad::indef[] = 
 {
-	STATIC_CAST(Device::InFuncPtr, &GetDirection),
-	STATIC_CAST(Device::InFuncPtr, &GetButton),
+    STATIC_CAST(Device::InFuncPtr, &GetDirection),
+    STATIC_CAST(Device::InFuncPtr, &GetButton),
 };
 

@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------
-//	M88 - PC-8801 Emulator
-//	Copyright (C) cisc 1998, 1999.
+//  M88 - PC-8801 Emulator
+//  Copyright (C) cisc 1998, 1999.
 // ---------------------------------------------------------------------------
-//	$Id: WinJoy.h,v 1.5 2003/04/22 13:16:35 cisc Exp $
+//  $Id: WinJoy.h,v 1.5 2003/04/22 13:16:35 cisc Exp $
 
 #pragma once
 
@@ -12,14 +12,14 @@
 class WinPadIF : public IPadInput
 {
 public:
-	WinPadIF();
-	~WinPadIF();
+    WinPadIF();
+    ~WinPadIF();
 
-	bool Init();
-	
-	void IFCALL GetState(PadState*);
+    bool Init();
+    
+    void IFCALL GetState(PadState*);
 
 private:
-	bool enabled;
+    bool enabled;
 };
 

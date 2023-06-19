@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------
 //  M88 - PC-8801 emulator
-//	Copyright (C) cisc 2000.
+//  Copyright (C) cisc 2000.
 // ---------------------------------------------------------------------------
-//	$Id: basmon.h,v 1.1 2000/06/26 14:05:44 cisc Exp $
+//  $Id: basmon.h,v 1.1 2000/06/26 14:05:44 cisc Exp $
 
 #pragma once
 
@@ -20,30 +20,30 @@ namespace PC8801
 class BasicMonitor : public WinMonitor
 {
 public:
-	BasicMonitor();
-	~BasicMonitor();
+    BasicMonitor();
+    ~BasicMonitor();
 
-	bool Init(PC88*); 
+    bool Init(PC88*); 
 
 private:
-	void Decode(bool always);
-	BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
-	void UpdateText();
+    void Decode(bool always);
+    BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
+    void UpdateText();
 
-	char basictext[0x10000];
-	int line[0x4000];
-	int nlines;
-	
-	MemoryViewer mv;
-	MemoryBus* bus;
+    char basictext[0x10000];
+    int line[0x4000];
+    int nlines;
+    
+    MemoryViewer mv;
+    MemoryBus* bus;
 
-	uint Read8(uint adr);
-	uint Read16(uint adr);
-	uint Read32(uint adr);
+    uint Read8(uint adr);
+    uint Read16(uint adr);
+    uint Read32(uint adr);
 
-	uint prvs;
+    uint prvs;
 
-	static const char* rsvdword[];
+    static const char* rsvdword[];
 };
 
 }
