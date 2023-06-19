@@ -59,11 +59,11 @@ lsave_2:
 		or	e
 		jr	z,lsave_e
 		
-		push	de		; = Ÿ‚Ìs‚ÌŠJn“_
+		push	de		; = æ¬¡ã®è¡Œã®é–‹å§‹ç‚¹
 		ld	e,(hl)
 		inc	hl
 		ld	d,(hl)
-		inc	hl		; de = s”Ô†
+		inc	hl		; de = è¡Œç•ªå·
 		push	hl
 		ex	de,hl
 		ld	de,0e9b9h
@@ -84,7 +84,7 @@ lsave_4:
 		djnz	lsave_4
 		pop	hl
 		call	ROMCALL
-		dw	194ch		; ’†ŠÔŒ¾Œê -> ƒeƒLƒXƒg•ÏŠ·
+		dw	194ch		; ä¸­é–“è¨€èª -> ãƒ†ã‚­ã‚¹ãƒˆå¤‰æ›
 		ld	hl,0e9b9h
 		ld	c,DIODAT
 lsave_3:
@@ -99,7 +99,7 @@ lsave_5:
 		out	(c),d
 		out	(c),e
 		pop	hl
-		jr	lsave_2		; Ÿ‚Ìs
+		jr	lsave_2		; æ¬¡ã®è¡Œ
 		
 lsave_e:
 		ld	a,084h
@@ -124,9 +124,9 @@ LBSAVE:
 		
 
 ; ----------------------------------------------------------------------------
-;	ƒf[ƒ^‘—M
-;	hl	ŠJnƒAƒhƒŒƒX
-;	de	ƒf[ƒ^ƒTƒCƒY
+;	ãƒ‡ãƒ¼ã‚¿é€ä¿¡
+;	hl	é–‹å§‹ã‚¢ãƒ‰ãƒ¬ã‚¹
+;	de	ãƒ‡ãƒ¼ã‚¿ã‚µã‚¤ã‚º
 ;
 savedata:
 		push	de

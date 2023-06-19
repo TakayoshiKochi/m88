@@ -1,28 +1,28 @@
 ; ----------------------------------------------------------------------------
-;	�f�B�X�N�A�N�Z�X ROM
+;	ディスクアクセス ROM
 ;
-;	�g�p���郁�����̈�
-;	�풓:	f310-f31b	(�\�����荞�݃x�N�^��)
-;	��풓:	f04f-f086	(PAINT/CIRCLE ���[�N)
-;		e9b9-eaba	(�s���̓o�b�t�@)
+;	使用するメモリ領域
+;	常駐:	f310-f31b	(予備割り込みベクタ内)
+;	非常駐:	f04f-f086	(PAINT/CIRCLE ワーク)
+;		e9b9-eaba	(行入力バッファ)
 ;
-;	�g�p�\����
+;	使用可能命令
 ;
-;	CMD LOAD "�t�@�C����" [,R]
-;		�t�@�C�����Ŏw�肳�ꂽ BASIC �v���O������ǂݍ���
-;		ASCII/���ԃR�[�h�̂ǂ���̃t�@�C�����Ή����Ă���
+;	CMD LOAD "ファイル名" [,R]
+;		ファイル名で指定された BASIC プログラムを読み込む
+;		ASCII/中間コードのどちらのファイルも対応している
 ;
-;	CMD SAVE "�t�@�C����" [,A/B]
-;		BASIC �v���O�������w�肳�ꂽ�t�@�C�����ŕۑ�
-;		�I�v�V���������̏ꍇ ASCII �e�L�X�g�Ƃ��ĕۑ������D
-;		(,A �I�v�V���������l)
-;		���ԃR�[�h�̂܂܂ŕۑ�����ɂ� ,B �I�v�V����������
+;	CMD SAVE "ファイル名" [,A/B]
+;		BASIC プログラムを指定されたファイル名で保存
+;		オプション無しの場合 ASCII テキストとして保存される．
+;		(,A オプションも同様)
+;		中間コードのままで保存するには ,B オプションをつける
 ;
-;	CMD BLOAD "�t�@�C����" [,�ǂݍ��݃A�h���X] [,R]
-;		�@�B��t�@�C����ǂݍ���
+;	CMD BLOAD "ファイル名" [,読み込みアドレス] [,R]
+;		機械語ファイルを読み込む
 ;
-;	CMD BSAVE "�t�@�C����", �J�n�A�h���X, ����
-;		�@�B��t�@�C���̕ۑ�
+;	CMD BSAVE "ファイル名", 開始アドレス, 長さ
+;		機械語ファイルの保存
 ;
 
 SNERR		equ	0393h
@@ -56,7 +56,7 @@ RAMCodeArea	equ	0e9b9h
 eromid		db	'R4'
 
 ; ----------------------------------------------------------------------------
-;	����������
+;	初期化処理
 ;
 erominit:
 		jr	initialize
@@ -80,14 +80,14 @@ initialize:
 		in	a,(71h)
 		ld	(CMDStub+1),a
 
-;	CMD �t�b�N���g�p����Ă��邩�`�F�b�N
+;	CMD フックが使用されているかチェック
 		ld	hl,(0eeb7h)
 		ld	de,4dc1h
 		or	a
 		sbc	hl,de
 		jr	nz, init_err
 		
-;       �g���R�}���h�Ƀt�b�N
+;       拡張コマンドにフック
 		ld	hl,CMDStub
 		ld	(0eeb7h),hl
 		ret
@@ -102,7 +102,7 @@ InstallFailMsg	db	"CMD extention is alredy in use. Installation aborted.",13,10,
 	incl "stub.asm"
 
 ; ----------------------------------------------------------------------------
-;	�g���R�}���h�G���g��
+;	拡張コマンドエントリ
 ;
 CMDEntry:
 		call	SetupRAMRoutine
@@ -121,7 +121,7 @@ CMDEntry:
 		dw	SNERR
 
 ; ----------------------------------------------------------------------------
-;	�g���n�[�h���o
+;	拡張ハード検出
 ;
 DetectHW:
 		ld	a,80h
@@ -139,7 +139,7 @@ detecthw_e:
 		ret
 
 ; ----------------------------------------------------------------------------
-;	�t�@�C���l�[���̎擾
+;	ファイルネームの取得
 ;	
 getfilename:
 		call	ROMCALL
