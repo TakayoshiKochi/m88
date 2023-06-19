@@ -9,51 +9,45 @@
 #include "device.h"
 #include "if/ifui.h"
 
-namespace PC8801
-{
+namespace PC8801 {
 
-class JoyPad : public Device  
-{
-public:
-    enum
-    {
-        vsync = 0,
-        getdir = 0, getbutton = 1,
-    };
-    enum ButtonMode
-    {
-        NORMAL, SWAPPED, DISABLED
-    };
+class JoyPad : public Device {
+ public:
+  enum {
+    vsync = 0,
+    getdir = 0,
+    getbutton = 1,
+  };
+  enum ButtonMode { NORMAL, SWAPPED, DISABLED };
 
-public:
-    JoyPad();
-    ~JoyPad();
+ public:
+  JoyPad();
+  ~JoyPad();
 
-    bool Connect(IPadInput* ui);
-    const Descriptor* IFCALL GetDesc() const { return &descriptor; } 
-    
-    void IOCALL Reset() {}
-    uint IOCALL GetDirection(uint port);
-    uint IOCALL GetButton(uint port);
-    void IOCALL VSync(uint=0, uint=0);
-    void SetButtonMode(ButtonMode mode);
+  bool Connect(IPadInput* ui);
+  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
-private:
-    void Update();
+  void IOCALL Reset() {}
+  uint IOCALL GetDirection(uint port);
+  uint IOCALL GetButton(uint port);
+  void IOCALL VSync(uint = 0, uint = 0);
+  void SetButtonMode(ButtonMode mode);
 
-    IPadInput* ui;
-    bool paravalid;
-    uint8 data[2];
+ private:
+  void Update();
 
-    uint8 button1;
-    uint8 button2;
-    uint directionmask;
+  IPadInput* ui;
+  bool paravalid;
+  uint8 data[2];
 
-private:
-    static const Descriptor descriptor;
-    static const InFuncPtr indef[];
-    static const OutFuncPtr outdef[];
+  uint8 button1;
+  uint8 button2;
+  uint directionmask;
+
+ private:
+  static const Descriptor descriptor;
+  static const InFuncPtr indef[];
+  static const OutFuncPtr outdef[];
 };
 
-}
-
+}  // namespace PC8801
