@@ -23,6 +23,7 @@
     <ProjectName>diskdrv</ProjectName>
     <ProjectGuid>{68224585-4A7E-4D23-941F-B6714E1A1FA2}</ProjectGuid>
     <RootNamespace>diskdrv</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -73,8 +74,8 @@
     <_ProjectFileVersion>17.0.33626.349</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>.\Release\</OutDir>
-    <IntDir>.\Release\</IntDir>
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>.\x86\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -83,8 +84,8 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>.\Debug\</OutDir>
-    <IntDir>.\Debug\</IntDir>
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>.\x86\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -128,17 +129,17 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>../Release/diskdrv.m88</OutputFile>
+      <OutputFile>..\x86\Release\diskdrv.m88</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <ProgramDatabaseFile>.\Release/diskdrv.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(IntDir)/diskdrv.pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
-      <ImportLibrary>.\Release/diskdrv.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)/diskdrv.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>.\Release/diskdrv.bsc</OutputFile>
+      <OutputFile>$(IntDir)/diskdrv.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -177,17 +178,17 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>../x64/Release/diskdrv.m88</OutputFile>
+      <OutputFile>..\x64\Release\diskdrv.m88</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <ProgramDatabaseFile>.\x64/Release/diskdrv.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(IntDir)/diskdrv.pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
-      <ImportLibrary>.\x64/Release/diskdrv.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)/diskdrv.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>.\Release/diskdrv.bsc</OutputFile>
+      <OutputFile>$(IntDir)/diskdrv.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -225,18 +226,18 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>..\debug\diskdrv.m88</OutputFile>
+      <OutputFile>..\x86\Release\diskdrv.m88</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug/diskdrv.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(IntDir)/diskdrv.pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
-      <ImportLibrary>.\Debug/diskdrv.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)/diskdrv.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>.\Debug/diskdrv.bsc</OutputFile>
+      <OutputFile>$(IntDir)/diskdrv.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -274,18 +275,18 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>..\x64/Debug\diskdrv.m88</OutputFile>
+      <OutputFile>..\x64\Debug\diskdrv.m88</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\x64/Debug/diskdrv.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(IntDir)/diskdrv.pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
-      <ImportLibrary>.\x64/Debug/diskdrv.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)/diskdrv.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>.\Debug/diskdrv.bsc</OutputFile>
+      <OutputFile>$(IntDir)/diskdrv.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>

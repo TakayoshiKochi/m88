@@ -23,6 +23,7 @@
     <ProjectName>cdif</ProjectName>
     <ProjectGuid>{BFE8B45C-16F5-47C0-9470-83AD735CA5F1}</ProjectGuid>
     <RootNamespace>cdif</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -70,7 +71,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(Configuration)\</IntDir>
+    <IntDir>.\x86\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -80,7 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(Configuration)\</IntDir>
+    <IntDir>.\x86\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -123,17 +124,17 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>../Release/cdif.m88</OutputFile>
+      <OutputFile>..\x86\Release\cdif.m88</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <ProgramDatabaseFile>.\Release/cdif.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(IntDir)/cdif.pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
-      <ImportLibrary>.\Release/cdif.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)/cdif.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>.\Release/cdif.bsc</OutputFile>
+      <OutputFile>$(IntDir)/cdif.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -176,12 +177,12 @@
       <ProgramDatabaseFile>.\x64/Release/cdif.pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
-      <ImportLibrary>.\x64/Release/cdif.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)/cdif.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>.\Release/cdif.bsc</OutputFile>
+      <OutputFile>$(IntDir)/cdif.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -218,18 +219,18 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>..\debug\cdif.m88</OutputFile>
+      <OutputFile>..\x86\Debug\cdif.m88</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug/cdif.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(IntDir)/cdif.pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
-      <ImportLibrary>.\Debug/cdif.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)/cdif.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>.\Debug/cdif.bsc</OutputFile>
+      <OutputFile>$(IntDir)/cdif.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -272,12 +273,12 @@
       <ProgramDatabaseFile>.\x64/Debug/cdif.pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
-      <ImportLibrary>.\x64/Debug/cdif.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)/cdif.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>.\Debug/cdif.bsc</OutputFile>
+      <OutputFile>$(IntDir)/cdif.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
