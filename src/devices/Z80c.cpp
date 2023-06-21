@@ -4,14 +4,14 @@
 // ---------------------------------------------------------------------------
 //  $Id: Z80c.cpp,v 1.37 2003/04/22 13:11:19 cisc Exp $
 
-#include "headers.h"
-#include "Z80c.h"
-#include "device_i.h"
+#include "win32/headers.h"
+#include "devices/Z80c.h"
+#include "common/device_i.h"
 
 // #define NO_UNOFFICIALFLAGS
 
 // #define LOGNAME "Z80C"
-#include "diag.h"
+#include "win32/diag.h"
 
 // ---------------------------------------------------------------------------
 //  マクロ 1

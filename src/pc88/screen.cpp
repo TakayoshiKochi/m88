@@ -6,15 +6,15 @@
 // ---------------------------------------------------------------------------
 //  $Id: screen.cpp,v 1.26 2003/09/28 14:35:35 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 #include "pc88/screen.h"
 #include "pc88/memory.h"
 #include "pc88/config.h"
 #include "pc88/crtc.h"
-#include "status.h"
+#include "win32/status.h"
 
 #define LOGNAME "screen"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

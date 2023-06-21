@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "device.h"
-#include "opna.h"
+#include "common/device.h"
+#include "devices/opna.h"
 
 // ---------------------------------------------------------------------------
 

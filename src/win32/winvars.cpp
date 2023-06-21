@@ -1,7 +1,7 @@
 //  $Id: winvars.cpp,v 1.1 2000/11/02 12:43:52 cisc Exp $
 
-#include "headers.h"
-#include "winvars.h"
+#include "win32/headers.h"
+#include "win32/winvars.h"
 
 static WinVars winvars;
 

@@ -1,8 +1,8 @@
 // $Id: dderr.cpp,v 1.1 2000/02/09 10:47:38 cisc Exp $
 
-#include "headers.h"
-#include "types.h"
-#include "dderr.h"
+#include "win32/headers.h"
+#include "win32/types.h"
+#include "win32/dderr.h"
 
 #ifdef _DEBUG
 

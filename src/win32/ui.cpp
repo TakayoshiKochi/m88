@@ -6,27 +6,27 @@
 // ---------------------------------------------------------------------------
 //  $Id: ui.cpp,v 1.62 2003/09/28 14:35:35 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 #include <shellapi.h>
 #include <mbstring.h>
-#include "resource.h"
-#include "ui.h"
-#include "about.h"
-#include "misc.h"
-#include "file.h"
-#include "messages.h"
-#include "error.h"
-#include "88config.h"
-#include "status.h"
+#include "win32/resource.h"
+#include "win32/ui.h"
+#include "win32/about.h"
+#include "common/misc.h"
+#include "win32/file.h"
+#include "win32/messages.h"
+#include "common/error.h"
+#include "win32/88config.h"
+#include "win32/status.h"
 #include "pc88/opnif.h"
 #include "pc88/diskmgr.h"
 #include "pc88/tapemgr.h"
-#include "filetest.h"
-#include "winvars.h"
-#include "winexapi.h"
+#include "win32/filetest.h"
+#include "win32/winvars.h"
+#include "win32/winexapi.h"
 
 #define LOGNAME "ui"
-#include "diag.h"
+#include "win32/diag.h"
 
 extern char m88dir[MAX_PATH];
 extern char m88ini[MAX_PATH];

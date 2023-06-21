@@ -8,8 +8,8 @@
 
 // ---------------------------------------------------------------------------
 
-#include "types.h"
-#include "device.h"
+#include "win32/types.h"
+#include "common/device.h"
 
 namespace PC8801 {
 class WinKeyIF;

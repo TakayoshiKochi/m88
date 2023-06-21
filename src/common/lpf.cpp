@@ -4,9 +4,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: lpf.cpp,v 1.1 2002/04/07 05:40:08 cisc Exp $
 
-#include "headers.h"
-#include "lpf.h"
-#include "misc.h"
+#include "win32/headers.h"
+#include "common/lpf.h"
+#include "common/misc.h"
 
 // ---------------------------------------------------------------------------
 //  バタワース特性 IIR IIR_LPF

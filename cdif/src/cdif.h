@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "device.h"
+#include "common/device.h"
 #include "cdctrl.h"
 #include "cdrom.h"
 #include "if/ifpc88.h"

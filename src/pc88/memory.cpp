@@ -8,16 +8,16 @@
 
 //  MemoryPage size should be equal to or less than 0x400.
 
-#include "headers.h"
-#include "file.h"
-#include "device.h"
-#include "device_i.h"
-#include "memmgr.h"
+#include "win32/headers.h"
+#include "win32/file.h"
+#include "common/device.h"
+#include "common/device_i.h"
+#include "common/memmgr.h"
 #include "pc88/memory.h"
 #include "pc88/config.h"
 #include "pc88/crtc.h"
-#include "error.h"
-#include "status.h"
+#include "common/error.h"
+#include "win32/status.h"
 
 // using namespace std;
 using namespace PC8801;

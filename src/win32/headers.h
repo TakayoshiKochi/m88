@@ -42,7 +42,7 @@
 #include <utility>
 #include <algorithm>
 
-#include "types.h"
+#include "win32/types.h"
 
 using namespace std;
 

@@ -7,8 +7,8 @@
 #ifndef z80_x86_h
 #define z80_x86_h
 
-#include "device.h"
-#include "memmgr.h"
+#include "common/device.h"
+#include "common/memmgr.h"
 #include "Z80.h"
 
 #ifndef PTR_IDBIT

@@ -4,19 +4,19 @@
 // ---------------------------------------------------------------------------
 //  $Id: opnif.cpp,v 1.24 2003/09/28 14:35:35 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 #include "pc88/opnif.h"
 #include "pc88/config.h"
-#include "misc.h"
-#include "schedule.h"
-#include "status.h"
+#include "common/misc.h"
+#include "common/schedule.h"
+#include "win32/status.h"
 
-#include "romeo/piccolo.h"
+#include "win32/romeo/piccolo.h"
 
 // #include "romeo/juliet.h"
 
 #define LOGNAME "opnif"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

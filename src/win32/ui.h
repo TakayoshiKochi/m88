@@ -8,20 +8,20 @@
 
 #pragma once
 
-#include "types.h"
-#include "wincore.h"
-#include "WinDraw.h"
-#include "WinKeyIF.h"
-#include "88config.h"
-#include "wincfg.h"
-#include "newdisk.h"
-#include "soundmon.h"
-#include "memmon.h"
-#include "codemon.h"
-#include "basmon.h"
-#include "regmon.h"
-#include "loadmon.h"
-#include "iomon.h"
+#include "win32/types.h"
+#include "win32/wincore.h"
+#include "win32/windraw.h"
+#include "win32/winkeyif.h"
+#include "win32/88config.h"
+#include "win32/wincfg.h"
+#include "win32/newdisk.h"
+#include "win32/soundmon.h"
+#include "win32/memmon.h"
+#include "win32/codemon.h"
+#include "win32/basmon.h"
+#include "win32/regmon.h"
+#include "win32/loadmon.h"
+#include "win32/iomon.h"
 
 // ---------------------------------------------------------------------------
 

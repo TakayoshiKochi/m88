@@ -8,8 +8,8 @@
 
 //  bug:パレット〜(T-T
 
-#include "headers.h"
-#include "drawgdi.h"
+#include "win32/headers.h"
+#include "win32/drawgdi.h"
 
 // ---------------------------------------------------------------------------
 //  構築/消滅

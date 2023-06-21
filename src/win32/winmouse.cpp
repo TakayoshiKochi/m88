@@ -6,11 +6,11 @@
 // ---------------------------------------------------------------------------
 //  $Id: winmouse.cpp,v 1.9 2002/04/07 05:40:11 cisc Exp $
 
-#include "headers.h"
-#include "winmouse.h"
-#include "ui.h"
+#include "win32/headers.h"
+#include "win32/winmouse.h"
+#include "win32/ui.h"
 #include "if/ifguid.h"
-#include "messages.h"
+#include "win32/messages.h"
 
 WinMouseUI::WinMouseUI() : enable(false), ui(0), refcount(0) {
   activetime = 0;

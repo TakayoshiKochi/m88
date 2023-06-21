@@ -6,11 +6,11 @@
 // ---------------------------------------------------------------------------
 //  $Id: about.cpp,v 1.28 2003/09/28 14:35:35 cisc Exp $
 
-#include "headers.h"
-#include "resource.h"
-#include "about.h"
-#include "version.h"
-#include "filetest.h"
+#include "win32/headers.h"
+#include "win32/resource.h"
+#include "win32/about.h"
+#include "win32/version.h"
+#include "win32/filetest.h"
 
 // ---------------------------------------------------------------------------
 //  構築/消滅

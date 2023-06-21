@@ -21,10 +21,10 @@
 //      ほか掲示板等で様々なご助言，ご支援をお寄せいただいた皆様に
 // ---------------------------------------------------------------------------
 
-#include "headers.h"
-#include "misc.h"
-#include "fmgen.h"
-#include "fmgeninl.h"
+#include "win32/headers.h"
+#include "common/misc.h"
+#include "devices/fmgen.h"
+#include "devices/fmgeninl.h"
 
 #define LOGNAME "fmgen"
 
@@ -186,7 +186,7 @@ void MakeLFOTable() {
       // clang-format off
         { 31, 6, 4, 3 }, // OPNA
         { 31, 2, 1, 0 }, // OPM
-                        // clang-format on
+      // clang-format on
   };
 
   for (int type = 0; type < 2; type++) {

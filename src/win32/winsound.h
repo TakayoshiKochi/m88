@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "types.h"
+#include "win32/types.h"
 #include "pc88/sound.h"
-#include "sounddrv.h"
-#include "critsect.h"
+#include "win32/sounddrv.h"
+#include "win32/critsect.h"
 
 class PC88;
 class OPNMonitor;

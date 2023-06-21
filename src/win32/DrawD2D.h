@@ -11,7 +11,7 @@
 
 #include <d2d1.h>
 #include <d2d1helper.h>
-#include "windraw.h"
+#include "win32/windraw.h"
 
 class WinDrawD2D : public WinDrawSub {
  public:

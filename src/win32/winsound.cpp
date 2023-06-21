@@ -4,18 +4,18 @@
 // ---------------------------------------------------------------------------
 //  $Id: winsound.cpp,v 1.27 2003/05/12 22:26:36 cisc Exp $
 
-#include "headers.h"
-#include "WinSound.h"
-#include "misc.h"
+#include "win32/headers.h"
+#include "win32/winsound.h"
+#include "common/misc.h"
 #include "pc88/config.h"
-#include "status.h"
-#include "soundds.h"
-#include "soundds2.h"
-#include "soundwo.h"
-#include "soundmon.h"
+#include "win32/status.h"
+#include "win32/soundds.h"
+#include "win32/soundds2.h"
+#include "win32/soundwo.h"
+#include "win32/soundmon.h"
 
 // #define LOGNAME "winsound"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 using namespace WinSoundDriver;

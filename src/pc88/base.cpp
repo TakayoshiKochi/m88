@@ -4,16 +4,16 @@
 // ---------------------------------------------------------------------------
 //  $Id: base.cpp,v 1.19 2003/09/28 14:35:35 cisc Exp $
 
-#include "headers.h"
-#include "draw.h"
+#include "win32/headers.h"
+#include "common/draw.h"
 #include "pc88/base.h"
 #include "pc88/pc88.h"
 #include "pc88/config.h"
 #include "pc88/tapemgr.h"
-#include "status.h"
+#include "win32/status.h"
 
 #define LOGNAME "base"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

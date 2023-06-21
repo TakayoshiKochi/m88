@@ -4,13 +4,13 @@
 // ---------------------------------------------------------------------------
 //  $Id: codemon.cpp,v 1.8 2001/02/21 11:58:53 cisc Exp $
 
-#include "headers.h"
-#include "resource.h"
+#include "win32/headers.h"
+#include "win32/resource.h"
 #include "pc88/pc88.h"
-#include "codemon.h"
-#include "misc.h"
-#include "device_i.h"
-#include "winvars.h"
+#include "win32/codemon.h"
+#include "common/misc.h"
+#include "common/device_i.h"
+#include "win32/winvars.h"
 
 using namespace PC8801;
 

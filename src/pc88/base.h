@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "schedule.h"
-#include "device.h"
-#include "Z80C.h"
+#include "common/schedule.h"
+#include "common/device.h"
+#include "devices/Z80C.h"
 
 class PC88;
 class TapeManager;

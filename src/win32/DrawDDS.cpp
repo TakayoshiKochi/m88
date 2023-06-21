@@ -6,14 +6,14 @@
 // ---------------------------------------------------------------------------
 //  $Id: DrawDDS.cpp,v 1.16 2003/11/04 13:14:21 cisc Exp $
 
-#include "headers.h"
-#include "drawdds.h"
-#include "misc.h"
-#include "messages.h"
+#include "win32/headers.h"
+#include "win32/drawdds.h"
+#include "common/misc.h"
+#include "win32/messages.h"
 
 #define LOGNAME "drawdds"
-#include "diag.h"
-#include "dderr.h"
+#include "win32/diag.h"
+#include "win32/dderr.h"
 
 #define RELCOM(x)        \
   if (x)                 \

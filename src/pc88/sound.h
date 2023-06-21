@@ -6,10 +6,10 @@
 
 #pragma once
 
-#include "device.h"
-#include "sndbuf2.h"
-#include "srcbuf.h"
-#include "lpf.h"
+#include "common/device.h"
+#include "common/sndbuf2.h"
+#include "common/srcbuf.h"
+#include "common/lpf.h"
 
 // ---------------------------------------------------------------------------
 

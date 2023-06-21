@@ -4,11 +4,11 @@
 // ----------------------------------------------------------------------------
 //  $Id: memview.cpp,v 1.5 2001/02/21 11:57:57 cisc Exp $
 
-#include "headers.h"
-#include "device.h"
-#include "device_i.h"
+#include "win32/headers.h"
+#include "common/device.h"
+#include "common/device_i.h"
 #include "pc88/memory.h"
-#include "memview.h"
+#include "pc88/memview.h"
 
 using namespace PC8801;
 

@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "device.h"
-#include "fdc.h"
-#include "pio.h"
+#include "common/device.h"
+#include "pc88/fdc.h"
+#include "pc88/pio.h"
 
 class MemoryManager;
 

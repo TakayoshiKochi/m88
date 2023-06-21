@@ -1,6 +1,6 @@
 //  $Id: winexapi.cpp,v 1.1 2002/04/07 05:40:11 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 
 #define DECLARE_EXAPI(name, type, arg, dll, api, def) \
   static type WINAPI ef_##name arg {                  \
@@ -14,7 +14,7 @@
   }                                                   \
   ExtendedAPIAccess<type(WINAPI*) arg, ExternalDLLAccessBase> name(dll, api, ef_##name);
 
-#include "winexapi.h"
+#include "win32/winexapi.h"
 
 ExtendedAPIAccessBase::ExtendedAPIAccessBase(const char* dllname,
                                              const char* apiname,

@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "misc.h"
-#include "types.h"
+#include "win32/types.h"
+#include "common/misc.h"
 
 // ---------------------------------------------------------------------------
 

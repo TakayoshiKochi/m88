@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "types.h"
+#include "win32/types.h"
 
 class LZ77Dec {
  public:

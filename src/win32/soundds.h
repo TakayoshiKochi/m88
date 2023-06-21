@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "sounddrv.h"
+#include "win32/sounddrv.h"
 
 // ---------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 //  $Id: srcbuf.cpp,v 1.2 2003/05/12 22:26:34 cisc Exp $
 
-#include "headers.h"
-#include "srcbuf.h"
-#include "misc.h"
+#include "win32/headers.h"
+#include "common/srcbuf.h"
+#include "common/misc.h"
 
 #ifndef PI
 #define PI 3.14159265358979323846

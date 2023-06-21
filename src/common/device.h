@@ -6,8 +6,8 @@
 
 #pragma once
 
+#include "win32/types.h"
 #include "if/ifcommon.h"
-#include "types.h"
 
 // ---------------------------------------------------------------------------
 //  Device

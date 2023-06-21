@@ -9,7 +9,7 @@
 #if !defined(win32_drawddw_h)
 #define win32_drawddw_h
 
-#include "windraw.h"
+#include "win32/windraw.h"
 
 // ---------------------------------------------------------------------------
 

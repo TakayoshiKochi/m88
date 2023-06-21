@@ -4,15 +4,15 @@
 // ---------------------------------------------------------------------------
 //  $Id: iomon.cpp,v 1.1 2001/02/21 11:58:54 cisc Exp $
 
-#include "headers.h"
-#include "resource.h"
+#include "win32/headers.h"
+#include "win32/resource.h"
 #include "pc88/pc88.h"
 #include "pc88/ioview.h"
-#include "iomon.h"
-#include "misc.h"
-#include "device_i.h"
-#include "file.h"
-#include "winvars.h"
+#include "win32/iomon.h"
+#include "common/misc.h"
+#include "common/device_i.h"
+#include "win32/file.h"
+#include "win32/winvars.h"
 #include "if/ifguid.h"
 
 using namespace PC8801;

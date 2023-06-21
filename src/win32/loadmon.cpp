@@ -4,12 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: loadmon.cpp,v 1.1 2001/02/21 11:58:54 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 #include <algorithm>
 #include <numeric>
-#include "resource.h"
-#include "loadmon.h"
-#include "misc.h"
+#include "win32/resource.h"
+#include "win32/loadmon.h"
+#include "common/misc.h"
 
 #ifdef ENABLE_LOADMONITOR
 

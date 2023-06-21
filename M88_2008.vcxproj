@@ -138,12 +138,12 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\src;.\src\Win32;.\src\common;.\src\devices;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;ISOLATION_AWARE_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>headers.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>win32/headers.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\Release/M88.pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>AssemblyAndMachineCode</AssemblerOutput>
       <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
@@ -195,11 +195,11 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\src;.\src\Win32;.\src\common;.\src\devices;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN64;WIN32;NDEBUG;_WINDOWS;ISOLATION_AWARE_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>headers.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>win32/headers.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\x64/Release/M88.pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>AssemblyAndMachineCode</AssemblerOutput>
       <AssemblerListingLocation>.\x64/Release/</AssemblerListingLocation>
@@ -248,13 +248,13 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\src;.\src\Win32;.\src\PC88;.\src\common;.\src\devices;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>headers.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>win32/headers.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\Debug/M88.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
       <ObjectFileName>.\Debug/</ObjectFileName>
@@ -295,13 +295,13 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\src;.\src\Win32;.\src\PC88;.\src\common;.\src\devices;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN64;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>headers.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>win32/headers.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\x64/Debug/M88.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\x64/Debug/</AssemblerListingLocation>
       <ObjectFileName>.\x64/Debug/</ObjectFileName>
@@ -345,11 +345,11 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\src;.\src\Win32;.\src\common;.\src\devices;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>headers.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>win32/headers.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\Tuning/M88.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\Tuning/</AssemblerListingLocation>
       <ObjectFileName>.\Tuning/</ObjectFileName>
@@ -395,11 +395,11 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\src;.\src\Win32;.\src\common;.\src\devices;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>headers.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>win32/headers.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\Tuning/M88.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\Tuning/</AssemblerListingLocation>
       <ObjectFileName>.\Tuning/</ObjectFileName>
@@ -854,8 +854,8 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\win32\DrawD2D.cpp" />
-    <ClCompile Include="src\Win32\DrawDDS.cpp">
+    <ClCompile Include="src\win32\drawd2d.cpp" />
+    <ClCompile Include="src\Win32\drawdds.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -863,7 +863,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\DrawDDW.cpp">
+    <ClCompile Include="src\Win32\drawddw.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -871,7 +871,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\DrawGDI.cpp">
+    <ClCompile Include="src\Win32\drawgdi.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -887,7 +887,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\File.cpp">
+    <ClCompile Include="src\Win32\file.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1099,7 +1099,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\Ui.cpp">
+    <ClCompile Include="src\Win32\ui.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1141,7 +1141,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\WinJoy.cpp">
+    <ClCompile Include="src\Win32\winjoy.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1149,7 +1149,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\WinKeyIF.cpp">
+    <ClCompile Include="src\Win32\winkeyif.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1454,12 +1454,12 @@
     <ClInclude Include="src\Win32\CritSect.h" />
     <ClInclude Include="src\win32\dderr.h" />
     <ClInclude Include="src\Win32\diag.h" />
-    <ClInclude Include="src\win32\DrawD2D.h" />
-    <ClInclude Include="src\Win32\DrawDDS.h" />
-    <ClInclude Include="src\Win32\DrawDDW.h" />
-    <ClInclude Include="src\Win32\DrawGDI.h" />
+    <ClInclude Include="src\win32\drawd2d.h" />
+    <ClInclude Include="src\Win32\drawdds.h" />
+    <ClInclude Include="src\Win32\drawddw.h" />
+    <ClInclude Include="src\Win32\drawgdi.h" />
     <ClInclude Include="src\win32\extdev.h" />
-    <ClInclude Include="src\Win32\File.h" />
+    <ClInclude Include="src\Win32\file.h" />
     <ClInclude Include="src\win32\filetest.h" />
     <ClInclude Include="src\Win32\headers.h" />
     <ClInclude Include="src\win32\iomon.h" />
@@ -1492,8 +1492,8 @@
     <ClInclude Include="src\Win32\wincore.h" />
     <ClInclude Include="src\Win32\windraw.h" />
     <ClInclude Include="src\win32\winexapi.h" />
-    <ClInclude Include="src\Win32\WinJoy.h" />
-    <ClInclude Include="src\Win32\WinKeyIF.h" />
+    <ClInclude Include="src\Win32\winjoy.h" />
+    <ClInclude Include="src\Win32\winkeyif.h" />
     <ClInclude Include="src\win32\winmon.h" />
     <ClInclude Include="src\Win32\winmouse.h" />
     <ClInclude Include="src\Win32\winsound.h" />

@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "device.h"
-#include "winmon.h"
+#include "common/device.h"
+#include "win32/winmon.h"
 #include "pc88/pc88.h"
 
 class PC88;

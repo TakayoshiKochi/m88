@@ -6,9 +6,9 @@
 // ----------------------------------------------------------------------------
 //  $Id: Z80Debug.cpp,v 1.5 1999/07/29 14:35:23 cisc Exp $
 
-#include "headers.h"
-#include "Z80Debug.h"
-#include "device_i.h"
+#include "win32/headers.h"
+#include "devices/Z80Debug.h"
+#include "commondevice_i.h"
 
 Z80Debug* Z80Debug::currentcpu = 0;
 

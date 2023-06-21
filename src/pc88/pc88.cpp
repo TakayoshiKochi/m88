@@ -8,7 +8,7 @@
 
 //  Memory Bus Banksize <= 0x400
 
-#include "headers.h"
+#include "win32/headers.h"
 #include "pc88/pc88.h"
 #include "pc88/config.h"
 #include "pc88/memory.h"
@@ -26,14 +26,14 @@
 #include "pc88/tapemgr.h"
 #include "pc88/beep.h"
 #include "pc88/joypad.h"
-#include "calender.h"
-#include "loadmon.h"
+#include "pc88/calender.h"
+#include "win32/loadmon.h"
 
-#include "status.h"
-#include "device_i.h"
+#include "win32/status.h"
+#include "common/device_i.h"
 
 // #define LOGNAME "pc88"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

@@ -4,16 +4,16 @@
  * License : GNU General Public License
  */
 
-#include "headers.h"
+#include "win32/headers.h"
 #include <windows.h>
-#include "piccolo.h"
-#include "piccolo_gimic.h"
-#include "c86ctl.h"
-#include "misc.h"
-#include "status.h"
+#include "win32/romeo/piccolo.h"
+#include "win32/romeo/piccolo_gimic.h"
+#include "win32/romeo/c86ctl.h"
+#include "common/misc.h"
+#include "win32/status.h"
 
 #define LOGNAME "piccolo"
-#include "diag.h"
+#include "win32/diag.h"
 
 HMODULE         g_mod = 0;
 IRealChipBase   *g_chipbase = 0;

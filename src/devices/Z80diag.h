@@ -7,8 +7,8 @@
 #ifndef Z80DIAG_H
 #define Z80DIAG_H
 
-#include "types.h"
-#include "device.h"
+#include "win32/types.h"
+#include "common/device.h"
 
 // ---------------------------------------------------------------------------
 

@@ -4,9 +4,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: memmgr.cpp,v 1.4 1999/12/28 10:33:53 cisc Exp $
 
-#include "headers.h"
-#include "memmgr.h"
-#include "diag.h"
+#include "win32/headers.h"
+#include "common/memmgr.h"
+#include "win32/diag.h"
 
 // ---------------------------------------------------------------------------
 //  構築・破棄

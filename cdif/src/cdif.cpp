@@ -6,11 +6,11 @@
 // ----------------------------------------------------------------------------
 //  $Id: cdif.cpp,v 1.2 1999/10/10 01:39:00 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 #include "cdif.h"
 
 #define LOGNAME "cdif"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

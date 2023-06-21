@@ -11,8 +11,8 @@
 //  Memory 関数は __cdecl, IO 関数は __stdcall (IOCALL) を想定しています
 //
 
-#include "headers.h"
-#include "types.h"
+#include "win32/headers.h"
+#include "win32/types.h"
 
 #ifdef USE_Z80_X86
 

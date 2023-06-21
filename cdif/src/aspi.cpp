@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: aspi.cpp,v 1.1 1999/08/26 08:04:36 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 #include "aspi.h"
 #include "aspidef.h"
 

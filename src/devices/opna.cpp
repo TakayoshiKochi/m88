@@ -4,10 +4,10 @@
 // ---------------------------------------------------------------------------
 //  $Id: opna.cpp,v 1.70 2004/02/06 13:13:39 cisc Exp $
 
-#include "headers.h"
-#include "misc.h"
-#include "opna.h"
-#include "fmgeninl.h"
+#include "win32/headers.h"
+#include "common/misc.h"
+#include "devices/opna.h"
+#include "devices/fmgeninl.h"
 
 #define BUILD_OPN
 #define BUILD_OPNA
@@ -24,7 +24,7 @@
 // #define NO_BITTYPE_EMULATION
 
 #ifdef BUILD_OPNA
-#include "file.h"
+#include "win32/file.h"
 #endif
 
 namespace FM {

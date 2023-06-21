@@ -6,12 +6,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: sio.cpp,v 1.6 2001/02/21 11:57:57 cisc Exp $
 
-#include "headers.h"
-#include "schedule.h"
-#include "sio.h"
+#include "win32/headers.h"
+#include "common/schedule.h"
+#include "pc88/sio.h"
 
 #define LOGNAME "sio"
-#include "diag.h"
+#include "win32/diag.h"
 
 using namespace PC8801;
 

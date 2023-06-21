@@ -4,14 +4,14 @@
 // ---------------------------------------------------------------------------
 //  $Id: tapemgr.cpp,v 1.3 2000/08/06 09:58:51 cisc Exp $
 
-#include "headers.h"
-#include "tapemgr.h"
-#include "file.h"
-#include "status.h"
-#include "misc.h"
+#include "win32/headers.h"
+#include "pc88/tapemgr.h"
+#include "win32/file.h"
+#include "win32/status.h"
+#include "common/misc.h"
 
 #define LOGNAME "tape"
-#include "diag.h"
+#include "win32/diag.h"
 
 #define T88ID "PC-8801 Tape Image(T88)"
 

@@ -4,12 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: fdu.cpp,v 1.5 1999/07/29 14:35:31 cisc Exp $
 
-#include "headers.h"
+#include "win32/headers.h"
 
-#include "misc.h"
-#include "fdc.h"
-#include "fdu.h"
-#include "diskmgr.h"
+#include "common/misc.h"
+#include "pc88/fdc.h"
+#include "pc88/fdu.h"
+#include "pc88/diskmgr.h"
 
 using namespace PC8801;
 

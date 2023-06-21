@@ -7,7 +7,7 @@
 //  $Id: DrawDDS.h,v 1.10 2002/04/07 05:40:10 cisc Exp $
 
 #pragma once
-#include "windraw.h"
+#include "win32/windraw.h"
 
 // ---------------------------------------------------------------------------
 
