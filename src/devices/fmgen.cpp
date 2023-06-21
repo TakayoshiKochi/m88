@@ -186,7 +186,7 @@ void MakeLFOTable() {
       // clang-format off
         { 31, 6, 4, 3 }, // OPNA
         { 31, 2, 1, 0 }, // OPM
-                        // clang-format on
+      // clang-format on
   };
 
   for (int type = 0; type < 2; type++) {
