@@ -30,12 +30,6 @@
     <ClCompile Include="src\common\error.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\lpf.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="src\common\lz77d.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
     <ClCompile Include="src\common\memmgr.cpp">
       <Filter>common</Filter>
     </ClCompile>
@@ -333,12 +327,6 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\error.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\lpf.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\lz77d.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\memmgr.h">
