@@ -352,14 +352,14 @@ void Screen::UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool re
       BETable2[(a >> 16) & 15]
 
 #define WRITEC0F(o, a)                                                                  \
-  *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] =                                        \
+  *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] =                                      \
       (d[o] & ~PACK(GVRAMC_BIT)) | BETable0[(a >> 4) & 15] | BETable1[(a >> 12) & 15] | \
       BETable2[(a >> 20) & 15]
 
-#define WRITEC1F(o, a)                                                                           \
+#define WRITEC1F(o, a)                                                                             \
   *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = (d[o] & ~PACK(GVRAMC_BIT)) | BETable0[a & 15] | \
-                                                 BETable1[(a >> 8) & 15] |                       \
-                                                 BETable2[(a >> 16) & 15]
+                                                   BETable1[(a >> 8) & 15] |                       \
+                                                   BETable2[(a >> 16) & 15]
 
 // 640x200, 3 plane color
 void Screen::UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region) {
@@ -445,11 +445,11 @@ void Screen::UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region) {
 
 #define WRITEB1(d, a) d = (d & ~PACK(GVRAMM_BIT)) | BETable1[(a | (a >> 8) | (a >> 16)) & 15]
 
-#define WRITEB0F(o, a)                           \
+#define WRITEB0F(o, a)                             \
   *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = \
       (d[o] & ~PACK(GVRAMM_BIT)) | BETable1[((a >> 4) | (a >> 12) | (a >> 20)) & 15]
 
-#define WRITEB1F(o, a)                           \
+#define WRITEB1F(o, a)                             \
   *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = \
       (d[o] & ~PACK(GVRAMM_BIT)) | BETable1[(a | (a >> 8) | (a >> 16)) & 15]
 
@@ -614,7 +614,7 @@ void Screen::UpdateScreen400b(uint8_t* image, int bpl, Draw::Region& region) {
 
 #define WRITE80C1(d, a) d = (d & ~PACK(GVRAMC_BIT)) | E80Table[a & 15]
 
-#define WRITE80C0F(o, a)                         \
+#define WRITE80C0F(o, a)                           \
   *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = \
       (d[o] & ~PACK(GVRAMC_BIT)) | E80Table[(a >> 4) & 15]
 #define WRITE80C1F(o, a) \
@@ -703,7 +703,7 @@ void Screen::UpdateScreen80c(uint8_t* image, int bpl, Draw::Region& region) {
 
 #define WRITE80B1(d, a) d = (d & ~PACK(GVRAMM_BIT)) | BETable1[(a)&15]
 
-#define WRITE80B0F(o, a)                         \
+#define WRITE80B0F(o, a)                           \
   *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = \
       (d[o] & ~PACK(GVRAMM_BIT)) | BETable1[(a >> 4) & 15]
 
@@ -807,7 +807,7 @@ void Screen::UpdateScreen80b(uint8_t* image, int bpl, Draw::Region& region) {
       (E80SRTable[(bp2 & 0x03) | (rp2 & 0x0c) | (gp2 & 0x30)] & ~m);
 #define WRITEC320F(o)                                                \
   m = E80SRMask[(bp1 | rp1 >> 2 | gp1 >> 4) & 3];                    \
-  *((packed*)(((uint8_t*)(dest + o)) + bpl)) = dest[o] =               \
+  *((packed*)(((uint8_t*)(dest + o)) + bpl)) = dest[o] =             \
       (dest[o] & ~PACK(GVRAMC_BIT)) |                                \
       (E80SRTable[(bp1 & 0x03) | (rp1 & 0x0c) | (gp1 & 0x30)] & m) | \
       (E80SRTable[(bp2 & 0x03) | (rp2 & 0x0c) | (gp2 & 0x30)] & ~m);
@@ -975,7 +975,7 @@ void Screen::UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region) {
 //
 #define WRITEB320(d, a) d = (d & ~PACK(GVRAMM_BIT)) | BE80Table[a & 3]
 
-#define WRITEB320F(o, a)                               \
+#define WRITEB320F(o, a)                                 \
   *((packed*)(((uint8_t*)(dest + o)) + bpl)) = dest[o] = \
       (dest[o] & ~PACK(GVRAMM_BIT)) | BE80Table[a & 3]
 

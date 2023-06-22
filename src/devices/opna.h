@@ -176,14 +176,14 @@ class OPNABase : public OPNBase {
   uint fnum3[3];
 
   // ADPCM 関係
-  uint8_t* adpcmbuf;   // ADPCM RAM
-  uint adpcmmask;    // メモリアドレスに対するビットマスク
-  uint adpcmnotice;  // ADPCM 再生終了時にたつビット
-  uint startaddr;    // Start address
-  uint stopaddr;     // Stop address
-  uint memaddr;      // 再生中アドレス
-  uint limitaddr;    // Limit address/mask
-  int adpcmlevel;    // ADPCM 音量
+  uint8_t* adpcmbuf;  // ADPCM RAM
+  uint adpcmmask;     // メモリアドレスに対するビットマスク
+  uint adpcmnotice;   // ADPCM 再生終了時にたつビット
+  uint startaddr;     // Start address
+  uint stopaddr;      // Stop address
+  uint memaddr;       // 再生中アドレス
+  uint limitaddr;     // Limit address/mask
+  int adpcmlevel;     // ADPCM 音量
   int adpcmvolume;
   int adpcmvol;
   uint deltan;    // ⊿N
@@ -281,12 +281,12 @@ class OPNA : public OPNABase {
   struct Rhythm {
     uint8_t pan;      // ぱん
     int8_t level;     // おんりょう
-    int volume;     // おんりょうせってい
+    int volume;       // おんりょうせってい
     int16_t* sample;  // さんぷる
-    uint size;      // さいず
-    uint pos;       // いち
-    uint step;      // すてっぷち
-    uint rate;      // さんぷるのれーと
+    uint size;        // さいず
+    uint pos;         // いち
+    uint step;        // すてっぷち
+    uint rate;        // さんぷるのれーと
   };
 
   void RhythmMix(Sample* buffer, uint count);
@@ -330,9 +330,9 @@ class OPNB : public OPNABase {
   struct ADPCMA {
     uint8_t pan;   // ぱん
     int8_t level;  // おんりょう
-    int volume;  // おんりょうせってい
-    uint pos;    // いち
-    uint step;   // すてっぷち
+    int volume;    // おんりょうせってい
+    uint pos;      // いち
+    uint step;     // すてっぷち
 
     uint start;   // 開始
     uint stop;    // 終了

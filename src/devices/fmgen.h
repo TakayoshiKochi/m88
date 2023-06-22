@@ -105,10 +105,10 @@ class Operator {
   uint32_t PGCalc();
   uint32_t PGCalcL();
 
-  uint dp_;            // ΔP
-  uint detune_;        // Detune
-  uint detune2_;       // DT2
-  uint multiple_;      // Multiple
+  uint dp_;              // ΔP
+  uint detune_;          // Detune
+  uint detune2_;         // DT2
+  uint multiple_;        // Multiple
   uint32_t pg_count_;    // Phase 現在値
   uint32_t pg_diff_;     // Phase 差分値
   int32_t pg_diff_lfo_;  // Phase 差分値 >> x

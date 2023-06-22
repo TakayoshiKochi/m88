@@ -167,17 +167,17 @@ class Z80C : public Device {
   int startcount;
 
   enum index { USEHL, USEIX, USEIY };
-  index index_mode;  /* HL/IX/IY どれを参照するか */
+  index index_mode;    /* HL/IX/IY どれを参照するか */
   uint8_t uf;          /* 未計算フラグ */
   uint8_t nfa;         /* 最後の加減算の種類 */
   uint8_t xf;          /* 未定義フラグ(第3,5ビット) */
   uint32_t fx32, fy32; /* フラグ計算用のデータ */
   uint fx, fy;
 
-  uint8_t* ref_h[3];            /* H / XH / YH のテーブル */
-  uint8_t* ref_l[3];            /* L / YH / YL のテーブル */
+  uint8_t* ref_h[3];          /* H / XH / YH のテーブル */
+  uint8_t* ref_l[3];          /* L / YH / YL のテーブル */
   Z80Reg::wordreg* ref_hl[3]; /* HL/ IX / IY のテーブル */
-  uint8_t* ref_byte[8];         /* BCDEHL A のテーブル */
+  uint8_t* ref_byte[8];       /* BCDEHL A のテーブル */
   FILE* dumplog;
   Z80Diag diag;
 

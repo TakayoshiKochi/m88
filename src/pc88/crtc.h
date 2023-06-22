@@ -190,8 +190,8 @@ class CRTC : public Device {
   uint mode;
   bool widefont;
   bool pcgenable;
-  bool kanaenable;  // ひらカナ選択有効
-  uint8_t kanamode;   // b4 = ひらがなモード
+  bool kanaenable;   // ひらカナ選択有効
+  uint8_t kanamode;  // b4 = ひらがなモード
 
   uint8_t pcount[2];
   uint8_t param0[6];

@@ -127,9 +127,9 @@ class FDC : public Device {
     uint8_t eot;
     uint8_t seekstate;
     uint8_t result;
-    uint8_t status;        // ステータスレジスタ
-    uint8_t command;       // 現在処理中のコマンド
-    uint8_t data;          // データレジスタ
+    uint8_t status;      // ステータスレジスタ
+    uint8_t command;     // 現在処理中のコマンド
+    uint8_t data;        // データレジスタ
     bool int_requested;  // SENCEINTSTATUS の呼び出しを要求した
     bool accepttc;
 
