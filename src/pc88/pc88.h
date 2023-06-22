@@ -22,17 +22,17 @@
 // #define   CPU_DEBUG           // Z80 エンジンテスト用
 
 #ifdef CPU_Z80X86
-#include "devices/Z80_x86.h"
+#include "devices/z80_x86.h"
 #else
-#include "devices/Z80C.h"
+#include "devices/z80C.h"
 #endif
 
 #ifdef CPU_TEST
-#include "devices/Z80Test.h"
+#include "devices/z80test.h"
 #endif
 
 #ifdef CPU_DEBUG
-#include "devices/Z80Debug.h"
+#include "devices/z80debug.h"
 #endif
 
 // ---------------------------------------------------------------------------

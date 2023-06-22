@@ -9,9 +9,9 @@
 #define Z80Test_h
 
 #include "win32/device.h"
-#include "devices/Z80.h"
-#include "devices/Z80C.h"
-#include "devices/Z80_x86.h"
+#include "devices/z80.h"
+#include "devices/z80c.h"
+#include "devices/z80_x86.h"
 
 // ----------------------------------------------------------------------------
 

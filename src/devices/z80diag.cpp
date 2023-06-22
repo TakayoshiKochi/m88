@@ -5,7 +5,7 @@
 //  $Id: z80diag.cpp,v 1.6 2001/02/21 11:57:16 cisc Exp $
 
 #include "win32/headers.h"
-#include "devices/Z80diag.h"
+#include "devices/z80diag.h"
 #include "common/device_i.h"
 
 #include "win32/diag.h"

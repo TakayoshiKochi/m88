@@ -8,8 +8,8 @@
 
 #include "win32/headers.h"
 
-#include "pc88/FDC.h"
-#include "pc88/FDU.h"
+#include "pc88/fdc.h"
+#include "pc88/fdu.h"
 #include "common/misc.h"
 #include "win32/critsect.h"
 #include "pc88/diskmgr.h"

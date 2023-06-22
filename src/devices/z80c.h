@@ -10,8 +10,8 @@
 #include "win32/types.h"
 #include "common/device.h"
 #include "common/memmgr.h"
-#include "devices/Z80.h"
-#include "devices/Z80diag.h"
+#include "devices/z80.h"
+#include "devices/z80diag.h"
 
 class IOBus;
 

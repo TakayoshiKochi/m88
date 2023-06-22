@@ -7,13 +7,13 @@
     <Filter Include="devices">
       <UniqueIdentifier>{d9146124-9add-4c5d-b355-4c11ea737b5c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PC88">
+    <Filter Include="pc88">
       <UniqueIdentifier>{b1f82735-f6e4-465c-8436-19e5529f6f4a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Win32">
+    <Filter Include="win32">
       <UniqueIdentifier>{8186eae2-969a-4765-b60d-cccffd3061e4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Win32\romeo">
+    <Filter Include="win32\romeo">
       <UniqueIdentifier>{8c3f1d24-0961-442b-a90c-4ed91f9decf4}</UniqueIdentifier>
     </Filter>
     <Filter Include="interface">
@@ -66,19 +66,19 @@
     <ClCompile Include="src\devices\psg.cpp">
       <Filter>devices</Filter>
     </ClCompile>
-    <ClCompile Include="src\devices\Z80_x86.cpp">
+    <ClCompile Include="src\devices\z80_x86.cpp">
       <Filter>devices</Filter>
     </ClCompile>
-    <ClCompile Include="src\devices\Z80c.cpp">
+    <ClCompile Include="src\devices\z80c.cpp">
       <Filter>devices</Filter>
     </ClCompile>
-    <ClCompile Include="src\devices\Z80debug.cpp">
+    <ClCompile Include="src\devices\z80debug.cpp">
       <Filter>devices</Filter>
     </ClCompile>
-    <ClCompile Include="src\devices\Z80diag.cpp">
+    <ClCompile Include="src\devices\z80diag.cpp">
       <Filter>devices</Filter>
     </ClCompile>
-    <ClCompile Include="src\devices\Z80Test.cpp">
+    <ClCompile Include="src\devices\z80Test.cpp">
       <Filter>devices</Filter>
     </ClCompile>
     <ClCompile Include="src\pc88\base.cpp">
@@ -153,10 +153,10 @@
     <ClCompile Include="src\pc88\tapemgr.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\88config.cpp">
+    <ClCompile Include="src\win32\88config.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\about.cpp">
+    <ClCompile Include="src\win32\about.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\basmon.cpp">
@@ -171,25 +171,25 @@
     <ClCompile Include="src\win32\dderr.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\diag.cpp">
+    <ClCompile Include="src\win32\diag.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\DrawD2D.cpp">
+    <ClCompile Include="src\win32\drawd2d.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\DrawDDS.cpp">
+    <ClCompile Include="src\win32\drawdds.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\DrawDDW.cpp">
+    <ClCompile Include="src\win32\drawddw.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\DrawGDI.cpp">
+    <ClCompile Include="src\win32\drawgdi.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\extdev.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\File.cpp">
+    <ClCompile Include="src\win32\File.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\filetest.cpp">
@@ -207,7 +207,7 @@
     <ClCompile Include="src\win32\loadmon.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\main.cpp">
+    <ClCompile Include="src\win32\main.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\memmon.cpp">
@@ -219,7 +219,7 @@
     <ClCompile Include="src\win32\mvmon.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\newdisk.cpp">
+    <ClCompile Include="src\win32\newdisk.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\regmon.cpp">
@@ -234,62 +234,62 @@
     <ClCompile Include="src\win32\soundds2.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\soundmon.cpp">
+    <ClCompile Include="src\win32\soundmon.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\soundwo.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\status.cpp">
+    <ClCompile Include="src\win32\status.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\timekeep.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\Ui.cpp">
+    <ClCompile Include="src\win32\Ui.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\wincfg.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\wincore.cpp">
+    <ClCompile Include="src\win32\wincore.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\windraw.cpp">
+    <ClCompile Include="src\win32\windraw.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\winexapi.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\WinJoy.cpp">
+    <ClCompile Include="src\win32\winjoy.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\WinKeyIF.cpp">
+    <ClCompile Include="src\win32\winkeyif.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\winmon.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\winmouse.cpp">
+    <ClCompile Include="src\win32\winmouse.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\Win32\winsound.cpp">
+    <ClCompile Include="src\win32\winsound.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\winvars.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\romeo\juliet.cpp">
-      <Filter>Win32\romeo</Filter>
+      <Filter>win32\romeo</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\romeo\piccolo.cpp">
-      <Filter>Win32\romeo</Filter>
+      <Filter>win32\romeo</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\romeo\piccolo_gimic.cpp">
-      <Filter>Win32\romeo</Filter>
+      <Filter>win32\romeo</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\romeo\piccolo_romeo.cpp">
-      <Filter>Win32\romeo</Filter>
+      <Filter>win32\romeo</Filter>
     </ClCompile>
     <ClCompile Include="src\zlib\adler32.c">
       <Filter>zlib</Filter>
@@ -380,22 +380,22 @@
     <ClInclude Include="src\devices\psg.h">
       <Filter>devices</Filter>
     </ClInclude>
-    <ClInclude Include="src\devices\Z80.h">
+    <ClInclude Include="src\devices\z80.h">
       <Filter>devices</Filter>
     </ClInclude>
-    <ClInclude Include="src\devices\Z80_x86.h">
+    <ClInclude Include="src\devices\z80_x86.h">
       <Filter>devices</Filter>
     </ClInclude>
-    <ClInclude Include="src\devices\Z80c.h">
+    <ClInclude Include="src\devices\z80c.h">
       <Filter>devices</Filter>
     </ClInclude>
-    <ClInclude Include="src\devices\Z80debug.h">
+    <ClInclude Include="src\devices\z80debug.h">
       <Filter>devices</Filter>
     </ClInclude>
-    <ClInclude Include="src\devices\Z80diag.h">
+    <ClInclude Include="src\devices\z80diag.h">
       <Filter>devices</Filter>
     </ClInclude>
-    <ClInclude Include="src\devices\Z80Test.h">
+    <ClInclude Include="src\devices\z80Test.h">
       <Filter>devices</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\base.h">
@@ -449,7 +449,7 @@
     <ClInclude Include="src\pc88\opnif.h">
       <Filter>PC88</Filter>
     </ClInclude>
-    <ClInclude Include="src\PC88\pc88.h">
+    <ClInclude Include="src\pC88\pc88.h">
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\pcinfo.h">
@@ -476,10 +476,10 @@
     <ClInclude Include="src\pc88\tapemgr.h">
       <Filter>PC88</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\88config.h">
+    <ClInclude Include="src\win32\88config.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\about.h">
+    <ClInclude Include="src\win32\about.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\basmon.h">
@@ -491,37 +491,37 @@
     <ClInclude Include="src\win32\codemon.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\CritSect.h">
+    <ClInclude Include="src\win32\critsect.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\dderr.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\diag.h">
+    <ClInclude Include="src\win32\diag.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\DrawD2D.h">
+    <ClInclude Include="src\win32\drawd2d.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\DrawDDS.h">
+    <ClInclude Include="src\win32\drawdds.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\DrawDDW.h">
+    <ClInclude Include="src\win32\drawddw.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\DrawGDI.h">
+    <ClInclude Include="src\win32\drawgdi.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\extdev.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\File.h">
+    <ClInclude Include="src\win32\file.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\filetest.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\headers.h">
+    <ClInclude Include="src\win32\headers.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\iomon.h">
@@ -536,7 +536,7 @@
     <ClInclude Include="src\win32\memmon.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\messages.h">
+    <ClInclude Include="src\win32\messages.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\module.h">
@@ -545,13 +545,13 @@
     <ClInclude Include="src\win32\mvmon.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\newdisk.h">
+    <ClInclude Include="src\win32\newdisk.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\regmon.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\resource.h">
+    <ClInclude Include="src\win32\resource.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\sequence.h">
@@ -566,22 +566,22 @@
     <ClInclude Include="src\win32\soundds2.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\soundmon.h">
+    <ClInclude Include="src\win32\soundmon.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\soundwo.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\status.h">
+    <ClInclude Include="src\win32\status.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\timekeep.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\types.h">
+    <ClInclude Include="src\win32\types.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\ui.h">
+    <ClInclude Include="src\win32\ui.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\version.h">
@@ -590,47 +590,47 @@
     <ClInclude Include="src\win32\wincfg.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\wincore.h">
+    <ClInclude Include="src\win32\wincore.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\windraw.h">
+    <ClInclude Include="src\win32\windraw.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\winexapi.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\WinJoy.h">
+    <ClInclude Include="src\win32\winjoy.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\WinKeyIF.h">
+    <ClInclude Include="src\win32\winkeyif.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\winmon.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\winmouse.h">
+    <ClInclude Include="src\win32\winmouse.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\Win32\winsound.h">
+    <ClInclude Include="src\win32\winsound.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\winvars.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\romeo\juliet.h">
-      <Filter>Win32\romeo</Filter>
+      <Filter>win32\romeo</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\romeo\piccolo.h">
-      <Filter>Win32\romeo</Filter>
+      <Filter>win32\romeo</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\romeo\piccolo_gimic.h">
-      <Filter>Win32\romeo</Filter>
+      <Filter>win32\romeo</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\romeo\piccolo_romeo.h">
-      <Filter>Win32\romeo</Filter>
+      <Filter>win32\romeo</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\romeo\romeo.h">
-      <Filter>Win32\romeo</Filter>
+      <Filter>win32\romeo</Filter>
     </ClInclude>
     <ClInclude Include="src\if\ifcommon.h">
       <Filter>interface</Filter>
@@ -670,12 +670,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="src\Win32\M88.rc">
+    <ResourceCompile Include="src\win32\M88.rc">
       <Filter>Win32</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\Win32\M88.ico" />
+    <Image Include="src\win32\M88.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="m88dev.html" />

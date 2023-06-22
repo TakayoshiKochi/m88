@@ -9,7 +9,7 @@
 
 #include "common/device.h"
 #include "common/memmgr.h"
-#include "Z80.h"
+#include "z80.h"
 
 #ifndef PTR_IDBIT
 #error[Z80_x86] PTR_IDBIT definition is required

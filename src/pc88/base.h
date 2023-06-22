@@ -8,7 +8,7 @@
 
 #include "common/schedule.h"
 #include "common/device.h"
-#include "devices/Z80C.h"
+#include "devices/z80c.h"
 
 class PC88;
 class TapeManager;

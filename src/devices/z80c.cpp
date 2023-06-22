@@ -5,7 +5,7 @@
 //  $Id: Z80c.cpp,v 1.37 2003/04/22 13:11:19 cisc Exp $
 
 #include "win32/headers.h"
-#include "devices/Z80c.h"
+#include "devices/z80c.h"
 #include "common/device_i.h"
 
 // #define NO_UNOFFICIALFLAGS
