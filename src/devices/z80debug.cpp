@@ -8,7 +8,7 @@
 
 #include "win32/headers.h"
 #include "devices/z80Debug.h"
-#include "commondevice_i.h"
+#include "common/device_i.h"
 
 Z80Debug* Z80Debug::currentcpu = 0;
 
