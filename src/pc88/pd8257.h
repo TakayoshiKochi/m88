@@ -24,8 +24,8 @@ class PD8257 : public Device, public IDMAAccess {
   PD8257(const ID&);
   ~PD8257();
 
-  bool ConnectRd(uint8* mem, uint addr, uint length);
-  bool ConnectWr(uint8* mem, uint addr, uint length);
+  bool ConnectRd(uint8_t* mem, uint addr, uint length);
+  bool ConnectWr(uint8_t* mem, uint addr, uint length);
 
   void IOCALL Reset(uint = 0, uint = 0);
   void IOCALL SetAddr(uint port, uint data);
@@ -35,12 +35,12 @@ class PD8257 : public Device, public IDMAAccess {
   uint IOCALL GetCount(uint port);
   uint IOCALL GetStatus(uint);
 
-  uint IFCALL RequestRead(uint bank, uint8* data, uint nbytes);
-  uint IFCALL RequestWrite(uint bank, uint8* data, uint nbytes);
+  uint IFCALL RequestRead(uint bank, uint8_t* data, uint nbytes);
+  uint IFCALL RequestWrite(uint bank, uint8_t* data, uint nbytes);
 
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
@@ -49,22 +49,22 @@ class PD8257 : public Device, public IDMAAccess {
     ssrev = 1,
   };
   struct Status {
-    uint8 rev;
+    uint8_t rev;
     bool autoinit;
     bool ff;
-    uint8 status;
-    uint8 enabled;
+    uint8_t status;
+    uint8_t enabled;
     uint addr[4];
     int count[4];
     uint ptr[4];
-    uint8 mode[4];
+    uint8_t mode[4];
   };
 
   Status stat;
 
-  uint8* mread;
+  uint8_t* mread;
   uint mrbegin, mrend;
-  uint8* mwrite;
+  uint8_t* mwrite;
   uint mwbegin, mwend;
 
   static const Descriptor descriptor;

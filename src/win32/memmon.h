@@ -60,7 +60,7 @@ class MemoryMonitor : public MemViewMonitor {
   int editaddr;
 
   char line[0x100];
-  uint8 stat[0x10000];
+  uint8_t stat[0x10000];
   uint access[0x10000];
 
   static COLORREF col[0x100];

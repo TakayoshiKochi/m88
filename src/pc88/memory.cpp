@@ -122,7 +122,7 @@ void Memory::Reset(uint, uint newmode) {
 
     erambanks = 0;
     delete[] eram;
-    eram = new uint8[0x8000 * neweram];
+    eram = new uint8_t[0x8000 * neweram];
     if (eram) {
       erambanks = neweram;
       memset(eram, 0, 0x8000 * erambanks);
@@ -495,7 +495,7 @@ uint IOCALL Memory::Ine3(uint) {
 //  00-5f(r)*                       *  *  *  *
 //
 void Memory::Update00R() {
-  uint8* read;
+  uint8_t* read;
 
   if ((porte2 & 0x01) && (porte3 < erambanks)) {
     read = &eram[porte3 * 0x8000];
@@ -521,8 +521,8 @@ void Memory::Update00R() {
 //  00-7f(r)
 //
 void Memory::UpdateN80R() {
-  uint8* read;
-  uint8* read60;
+  uint8_t* read;
+  uint8_t* read60;
 
   if (((porte2 | (port31 >> 1)) & 1) && porte3 < erambanks) {
     read = &eram[porte3 * 0x8000];
@@ -551,7 +551,7 @@ void Memory::UpdateN80R() {
 //  60-7f(r)*  *              *     *  *  *  *
 //
 void Memory::Update60R() {
-  uint8* read;
+  uint8_t* read;
   if ((porte2 & 0x01) && (porte3 < erambanks)) {
     read = &eram[porte3 * 0x8000] + 0x6000;
   } else {
@@ -593,7 +593,7 @@ void Memory::Update60R() {
 //  00-7f(w)                        *  *
 //
 void Memory::Update00W() {
-  uint8* write;
+  uint8_t* write;
 
   if ((porte2 & 0x10) && (porte3 < erambanks)) {
     write = &eram[porte3 * 0x8000];
@@ -612,7 +612,7 @@ void Memory::Update00W() {
 //  00-7f(w)   *                    *  *
 //
 void Memory::UpdateN80W() {
-  uint8* write;
+  uint8_t* write;
 
   if (((porte2 & 0x10) || (port31 & 0x02)) && (porte3 < erambanks)) {
     write = &eram[porte3 * 0x8000];
@@ -660,7 +660,7 @@ uint MEMCALL Memory::RdWindow(void* inst, uint addr) {
 
 void Memory::SelectJisyo() {
   if (seldic) {
-    uint8* mem = dicrom + (portf0 & 0x1f) * 0x4000;
+    uint8_t* mem = dicrom + (portf0 & 0x1f) * 0x4000;
     if (mem != rc0) {
       rc0 = mem;
       mm->AllocR(mid, 0xc000, 0x4000, rc0);
@@ -718,7 +718,7 @@ void Memory::UpdateC0() {
 //
 void Memory::UpdateF0() {
   if (!selgvram && !seldic) {
-    uint8* mem;
+    uint8_t* mem;
 
     if (!(port32 & 0x10) && (sw31 & 0x40))
       mem = tvram;
@@ -883,11 +883,11 @@ void MEMCALL Memory::WrALUB(void* inst, uint addr, uint) {
 //
 bool Memory::InitMemory() {
   delete rom;
-  rom = new uint8[romsize];
+  rom = new uint8_t[romsize];
   delete ram;
-  ram = new uint8[0x10000];
+  ram = new uint8_t[0x10000];
   delete tvram;
-  tvram = new uint8[0x1000];
+  tvram = new uint8_t[0x1000];
 
   if (!(rom && ram && tvram)) {
     Error::SetError(Error::OutOfMemory);
@@ -912,12 +912,12 @@ bool Memory::InitMemory() {
 // ----------------------------------------------------------------------------
 //  必須でない ROM を読み込む
 //
-bool Memory::LoadOptROM(const char* name, uint8*& rom, int size) {
+bool Memory::LoadOptROM(const char* name, uint8_t*& rom, int size) {
   FileIO file;
   if (file.Open(name, FileIO::readonly)) {
     file.Seek(0, FileIO::begin);
     delete[] rom;
-    rom = new uint8[size];
+    rom = new uint8_t[size];
     if (rom) {
       int r = file.Read(rom, size);
       memset(rom + r, 0xff, size - r);
@@ -971,7 +971,7 @@ bool Memory::LoadROM() {
   return true;
 }
 
-bool Memory::LoadROMImage(uint8* dest, const char* filename, int size) {
+bool Memory::LoadROMImage(uint8_t* dest, const char* filename, int size) {
   FileIO file;
   if (!file.Open(filename, FileIO::readonly))
     return false;
@@ -984,10 +984,10 @@ bool Memory::LoadROMImage(uint8* dest, const char* filename, int size) {
 //  arg:    ram     RAM エリア
 //          length  RAM エリア長 (0x80 の倍数)
 //
-void Memory::SetRAMPattern(uint8* ram, uint length) {
+void Memory::SetRAMPattern(uint8_t* ram, uint length) {
   if (length > 0) {
     for (uint i = 0; i < length; i += 0x80, ram += 0x80) {
-      uint8 b = ((i >> 7) ^ i) & 0x100 ? 0x00 : 0xff;
+      uint8_t b = ((i >> 7) ^ i) & 0x100 ? 0x00 : 0xff;
       memset(ram, b, 0x40);
       memset(ram + 0x40, ~b, 0x40);
       ram[0x7f] = b;
@@ -1066,22 +1066,22 @@ uint IFCALL Memory::GetStatusSize() {
   return sizeof(Status) + erambanks * 0x8000 - 1;
 }
 
-bool IFCALL Memory::SaveStatus(uint8* s) {
+bool IFCALL Memory::SaveStatus(uint8_t* s) {
   Status* status = (Status*)s;
   status->rev = ssrev;
-  status->p31 = uint8(port31);
-  status->p32 = uint8(port32);
-  status->p33 = uint8(port33);
-  status->p34 = uint8(port34);
-  status->p35 = uint8(port35);
-  status->p40 = uint8(port40);
-  status->p5x = uint8(port5x);
-  status->p70 = uint8(In70(0));
-  status->p71 = uint8(port71);
-  status->p99 = uint8(port99);
-  status->pe2 = uint8(porte2);
-  status->pe3 = uint8(porte3);
-  status->pf0 = uint8(portf0);
+  status->p31 = uint8_t(port31);
+  status->p32 = uint8_t(port32);
+  status->p33 = uint8_t(port33);
+  status->p34 = uint8_t(port34);
+  status->p35 = uint8_t(port35);
+  status->p40 = uint8_t(port40);
+  status->p5x = uint8_t(port5x);
+  status->p70 = uint8_t(In70(0));
+  status->p71 = uint8_t(port71);
+  status->p99 = uint8_t(port99);
+  status->pe2 = uint8_t(porte2);
+  status->pe3 = uint8_t(porte3);
+  status->pf0 = uint8_t(portf0);
 
   memcpy(status->ram, ram, 0x10000);
   memcpy(status->tvram, tvram, 0x1000);
@@ -1092,7 +1092,7 @@ bool IFCALL Memory::SaveStatus(uint8* s) {
   return true;
 }
 
-bool IFCALL Memory::LoadStatus(const uint8* s) {
+bool IFCALL Memory::LoadStatus(const uint8_t* s) {
   const Status* status = (const Status*)s;
   if (status->rev != ssrev)
     return false;

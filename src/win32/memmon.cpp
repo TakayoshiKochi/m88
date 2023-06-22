@@ -346,7 +346,7 @@ bool MemoryMonitor::SaveImage() {
   if (!fio.GetFlags() & FileIO::open)
     return false;
 
-  uint8* img = new uint8[0x10000];
+  uint8_t* img = new uint8_t[0x10000];
   if (!img)
     return false;
 

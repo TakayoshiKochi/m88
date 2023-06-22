@@ -122,7 +122,7 @@ void Sequencer::ExecuteAsynchronus() {
     vm->TimeSync();
     Execute(clock, texec, clock * speed / 100);
 
-    int32 tcpu = keeper.GetTime() - time;
+    int32_t tcpu = keeper.GetTime() - time;
     if (tcpu < twork) {
       if (drawnextframe && ++refreshcount >= refreshtiming) {
         vm->UpdateScreen();
@@ -130,7 +130,7 @@ void Sequencer::ExecuteAsynchronus() {
         refreshcount = 0;
       }
 
-      int32 tdraw = keeper.GetTime() - time;
+      int32_t tdraw = keeper.GetTime() - time;
 
       if (tdraw > twork) {
         drawnextframe = false;

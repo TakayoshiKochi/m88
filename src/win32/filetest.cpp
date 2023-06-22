@@ -12,9 +12,9 @@
 //  自分自身の CRC をチェックする．
 //  身近で PE_CIH が大発生した記念につけてみた(^^;
 //
-bool SanityCheck(uint32* pcrc) {
-  uint32 crc = 0;
-  uint32 crctag = 0;
+bool SanityCheck(uint32_t* pcrc) {
+  uint32_t crc = 0;
+  uint32_t crctag = 0;
 
 #ifdef _WIN32
   char buf[MAX_PATH];
@@ -28,7 +28,7 @@ bool SanityCheck(uint32* pcrc) {
   fio.Seek(0, FileIO::end);
   uint len = fio.Tellp();
 
-  uint8* mod = new uint8[len];
+  uint8_t* mod = new uint8_t[len];
   if (!mod)
     return false;
 
@@ -36,9 +36,9 @@ bool SanityCheck(uint32* pcrc) {
   fio.Read(mod, len);
 
   const int tagpos = 0x7c;
-  crctag = *(uint32*)(mod + tagpos);
+  crctag = *(uint32_t*)(mod + tagpos);
 
-  *(uint32*)(mod + tagpos) = 0;
+  *(uint32_t*)(mod + tagpos) = 0;
 
   // CRC 計算
   uint crctable[256];

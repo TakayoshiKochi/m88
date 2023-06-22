@@ -24,5 +24,5 @@ class M88About {
   static INT_PTR CALLBACK DlgProcGate(HWND, UINT, WPARAM, LPARAM);
 
   static const char abouttext[];
-  uint32 crc;
+  uint32_t crc;
 };

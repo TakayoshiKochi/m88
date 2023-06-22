@@ -37,7 +37,7 @@ struct ISoundControl;
 struct ISoundSource {
   virtual bool IFCALL Connect(ISoundControl* sc) = 0;
   virtual bool IFCALL SetRate(uint rate) = 0;
-  virtual void IFCALL Mix(int32* s, int length) = 0;
+  virtual void IFCALL Mix(int32_t* s, int length) = 0;
 };
 
 // ----------------------------------------------------------------------------
@@ -58,12 +58,12 @@ struct IMemoryManager {
   virtual int IFCALL Connect(void* inst, bool highpriority = false) = 0;
   virtual bool IFCALL Disconnect(uint pid) = 0;
 
-  virtual bool IFCALL AllocR(uint pid, uint addr, uint length, uint8* ptr) = 0;
+  virtual bool IFCALL AllocR(uint pid, uint addr, uint length, uint8_t* ptr) = 0;
   virtual bool IFCALL AllocR(uint pid, uint addr, uint length, uint(MEMCALL*)(void*, uint)) = 0;
   virtual bool IFCALL ReleaseR(uint pid, uint addr, uint length) = 0;
   virtual uint IFCALL Read8P(uint pid, uint addr) = 0;
 
-  virtual bool IFCALL AllocW(uint pid, uint addr, uint length, uint8* ptr) = 0;
+  virtual bool IFCALL AllocW(uint pid, uint addr, uint length, uint8_t* ptr) = 0;
   virtual bool IFCALL AllocW(uint pid,
                              uint addr,
                              uint length,
@@ -92,7 +92,7 @@ struct IIOAccess {
 //  デバイスのインターフェース
 //
 struct IDevice {
-  typedef uint32 ID;
+  typedef uint32_t ID;
   typedef uint (IOCALL IDevice::*InFuncPtr)(uint port);
   typedef void (IOCALL IDevice::*OutFuncPtr)(uint port, uint data);
   typedef void (IOCALL IDevice::*TimeFunc)(uint arg);
@@ -104,8 +104,8 @@ struct IDevice {
   virtual const ID& IFCALL GetID() const = 0;
   virtual const Descriptor* IFCALL GetDesc() const = 0;
   virtual uint IFCALL GetStatusSize() = 0;
-  virtual bool IFCALL LoadStatus(const uint8* status) = 0;
-  virtual bool IFCALL SaveStatus(uint8* status) = 0;
+  virtual bool IFCALL LoadStatus(const uint8_t* status) = 0;
+  virtual bool IFCALL SaveStatus(uint8_t* status) = 0;
 };
 
 // ----------------------------------------------------------------------------
@@ -120,8 +120,8 @@ struct IIOBus {
   };
   struct Connector {
     ushort bank;
-    uint8 rule;
-    uint8 id;
+    uint8_t rule;
+    uint8_t id;
   };
 
   virtual bool IFCALL Connect(IDevice* device, const Connector* connector) = 0;

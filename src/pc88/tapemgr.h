@@ -47,8 +47,8 @@ class TapeManager : public Device {
   uint IOCALL In40(uint);
 
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
@@ -66,31 +66,31 @@ class TapeManager : public Device {
     T_MARK = 0x103,
   };
   struct TagHdr {
-    uint16 id;
-    uint16 length;
+    uint16_t id;
+    uint16_t length;
   };
   struct Tag {
     Tag* next;
     Tag* prev;
-    uint16 id;
-    uint16 length;
-    uint8 data[1];
+    uint16_t id;
+    uint16_t length;
+    uint8_t data[1];
   };
   struct BlankTag {
-    uint32 pos;
-    uint32 tick;
+    uint32_t pos;
+    uint32_t tick;
   };
   struct DataTag {
-    uint32 pos;
-    uint32 tick;
-    uint16 length;
-    uint16 type;
-    uint8 data[1];
+    uint32_t pos;
+    uint32_t tick;
+    uint16_t length;
+    uint16_t type;
+    uint8_t data[1];
   };
   struct Status {
-    uint8 rev;
+    uint8_t rev;
     bool motor;
-    uint32 pos;
+    uint32_t pos;
     uint offset;
   };
 
@@ -104,7 +104,7 @@ class TapeManager : public Device {
   Tag* tags;
   Tag* pos;
   int offset;
-  uint32 tick;
+  uint32_t tick;
   Mode mode;
   uint time;  // motor on: タイマー開始時間
   uint timercount;
@@ -114,7 +114,7 @@ class TapeManager : public Device {
   IOBus* bus;
   int pinput;
 
-  uint8* data;
+  uint8_t* data;
   int datasize;
   int datatype;
 

@@ -227,7 +227,7 @@ void WinDraw::SetPalette(uint index, uint nents, const Palette* pal) {
 // ---------------------------------------------------------------------------
 //  Lock
 //
-bool WinDraw::Lock(uint8** pimage, int* pbpl) {
+bool WinDraw::Lock(uint8_t** pimage, int* pbpl) {
   assert(pimage && pbpl);
 
   if (!locked) {
@@ -425,19 +425,19 @@ void WinDraw::SetGUIFlag(bool usegui) {
 //  dest    変換した BMP の置き場所、置けるだけの領域が必要。
 //  ret     巧くできたかどうか
 //
-int WinDraw::CaptureScreen(uint8* dest) {
+int WinDraw::CaptureScreen(uint8_t* dest) {
   const bool half = false;
   if (!draw)
     return false;
 
-  uint8* src = new uint8[640 * 400];
+  uint8_t* src = new uint8_t[640 * 400];
   if (!src)
     return false;
 
-  uint8* s;
+  uint8_t* s;
   int bpl;
   if (draw->Lock(&s, &bpl)) {
-    uint8* d = src;
+    uint8_t* d = src;
     for (int y = 0; y < 400; y++) {
       memcpy(d, s, 640);
       d += 640, s += bpl;
@@ -469,7 +469,7 @@ int WinDraw::CaptureScreen(uint8* dest) {
   RGBQUAD* pal = binfo->bmiColors;
   memset(pal, 0, sizeof(RGBQUAD) * 16);
 
-  uint8 ctable[256];
+  uint8_t ctable[256];
   memset(ctable, 0, sizeof(ctable));
 
   int colors = 0;
@@ -479,11 +479,11 @@ int WinDraw::CaptureScreen(uint8* dest) {
     rgb.rgbRed = palette[0x40 + index].peRed;
     rgb.rgbGreen = palette[0x40 + index].peGreen;
     //      LOG4("c[%.2x] = G:%.2x R:%.2x B:%.2x\n", index, rgb.rgbGreen, rgb.rgbRed, rgb.rgbBlue);
-    uint32 entry = *((uint32*)&rgb);
+    uint32_t entry = *((uint32_t*)&rgb);
 
     int k;
     for (k = 0; k < colors; k++) {
-      if (!((*((uint32*)&pal[k]) ^ entry) & 0xffffff))
+      if (!((*((uint32_t*)&pal[k]) ^ entry) & 0xffffff))
         goto match;
     }
     if (colors < 15) {
@@ -499,15 +499,15 @@ int WinDraw::CaptureScreen(uint8* dest) {
   binfo->bmiHeader.biClrImportant = colors;
 
   colors = 16;  // やっぱ固定じゃなきゃ駄目か？
-  uint8* image = ((uint8*)(binfo + 1)) + (colors - 1) * sizeof(RGBQUAD);
+  uint8_t* image = ((uint8_t*)(binfo + 1)) + (colors - 1) * sizeof(RGBQUAD);
   filehdr->bfSize = image + 640 * 400 / 2 - dest;
   binfo->bmiHeader.biClrUsed = colors;
   filehdr->bfOffBits = image - dest;
 
   // 色変換
-  uint8* d = image;
+  uint8_t* d = image;
   for (int y = 0; y < 400; y += half ? 2 : 1) {
-    uint8* s = src + 640 * (399 - y);
+    uint8_t* s = src + 640 * (399 - y);
 
     for (int x = 0; x < 320; x++, s += 2)
       *d++ = ctable[s[0]] * 16 + ctable[s[1]];

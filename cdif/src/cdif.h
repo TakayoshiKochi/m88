@@ -48,8 +48,8 @@ class CDIF : public Device {
   bool Enable(bool f);
 
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
   void IOCALL SystemReset(uint, uint d);
   void IOCALL Out90(uint, uint d);
@@ -112,29 +112,29 @@ class CDIF : public Device {
     ssrev = 1,
   };
   struct Snapshot {
-    uint8 rev;
-    uint8 phase;
-    uint8 status;
-    uint8 data;
-    uint8 playmode;
-    uint8 retrycount;
-    uint8 stillmode;
-    uint8 rslt;
-    uint8 stat;
+    uint8_t rev;
+    uint8_t phase;
+    uint8_t status;
+    uint8_t data;
+    uint8_t playmode;
+    uint8_t retrycount;
+    uint8_t stillmode;
+    uint8_t rslt;
+    uint8_t stat;
 
     uint sector;
-    uint16 ptr;
-    uint16 length;
+    uint16_t ptr;
+    uint16_t length;
     uint addrs;
 
-    uint8 buf[16 + 16 + 2340];
+    uint8_t buf[16 + 16 + 2340];
   };
 
   IDMAAccess* dmac;
 
   int phase;
 
-  uint8* ptr;  // 転送モード
+  uint8_t* ptr;  // 転送モード
   int length;
 
   uint addrs;  // 再生開始アドレス
@@ -146,17 +146,17 @@ class CDIF : public Device {
   uint readmode;
   uint sector;
 
-  uint8 stillmode;
+  uint8_t stillmode;
 
-  uint8 clk;
-  uint8 rslt;
-  uint8 stat;
+  uint8_t clk;
+  uint8_t rslt;
+  uint8_t stat;
   bool enable;
   bool active;
 
-  uint8 cmdbuf[16];  // バッファは連続して配置されること
-  uint8 datbuf[16];
-  uint8 tmpbuf[2340];
+  uint8_t cmdbuf[16];  // バッファは連続して配置されること
+  uint8_t datbuf[16];
+  uint8_t tmpbuf[2340];
   CDROM cdrom;
   CDControl cd;
 

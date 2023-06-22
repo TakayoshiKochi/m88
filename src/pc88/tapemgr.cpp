@@ -118,7 +118,7 @@ bool TapeManager::Rewind(bool timer) {
 
     // バージョン確認
     // 最初のタグはバージョンタグになるはず？
-    if (pos->id != T_VERSION || pos->length < 2 || *(uint16*)pos->data != T88VER)
+    if (pos->id != T_VERSION || pos->length < 2 || *(uint16_t*)pos->data != T88VER)
       return false;
 
     pos = pos->next;
@@ -343,7 +343,7 @@ uint IFCALL TapeManager::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL TapeManager::SaveStatus(uint8* s) {
+bool IFCALL TapeManager::SaveStatus(uint8_t* s) {
   Status* status = (Status*)s;
   status->rev = ssrev;
   status->motor = motor;
@@ -353,7 +353,7 @@ bool IFCALL TapeManager::SaveStatus(uint8* s) {
   return true;
 }
 
-bool IFCALL TapeManager::LoadStatus(const uint8* s) {
+bool IFCALL TapeManager::LoadStatus(const uint8_t* s) {
   const Status* status = (const Status*)s;
   if (status->rev != ssrev)
     return false;

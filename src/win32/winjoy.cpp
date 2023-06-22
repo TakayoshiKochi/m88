@@ -52,7 +52,7 @@ void IFCALL WinPadIF::GetState(PadState* d) {
                    | (joyinfo.wYpos > (32768 + threshold) ? 2 : 0)   // D
                    | (joyinfo.wXpos < (32768 - threshold) ? 4 : 0)   // L
                    | (joyinfo.wXpos > (32768 + threshold) ? 8 : 0);  // R
-    d->button = (uint8)joyinfo.wButtons;
+    d->button = (uint8_t)joyinfo.wButtons;
   } else
     d->direction = d->button = 0;
 }

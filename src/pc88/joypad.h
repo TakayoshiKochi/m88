@@ -38,10 +38,10 @@ class JoyPad : public Device {
 
   IPadInput* ui;
   bool paravalid;
-  uint8 data[2];
+  uint8_t data[2];
 
-  uint8 button1;
-  uint8 button2;
+  uint8_t button1;
+  uint8_t button2;
   uint directionmask;
 
  private:

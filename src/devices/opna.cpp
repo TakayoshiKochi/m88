@@ -34,7 +34,7 @@ namespace FM {
 
 #if defined(BUILD_OPN) || defined(BUILD_OPNA) || defined(BUILD_OPNB)
 
-uint32 OPNBase::lfotable[8];  // OPNA/B 用
+uint32_t OPNBase::lfotable[8];  // OPNA/B 用
 
 OPNBase::OPNBase() {
   prescale = 0;
@@ -43,7 +43,7 @@ OPNBase::OPNBase() {
 //  パラメータセット
 void OPNBase::SetParameter(Channel4* ch, uint addr, uint data) {
   const static uint slottable[4] = {0, 2, 1, 3};
-  const static uint8 sltable[16] = {
+  const static uint8_t sltable[16] = {
       0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 124,
   };
 
@@ -98,7 +98,7 @@ void OPNBase::Reset() {
 //  プリスケーラ設定
 void OPNBase::SetPrescaler(uint p) {
   static const char table[3][2] = {{6, 4}, {3, 2}, {2, 1}};
-  static const uint8 table2[8] = {108, 77, 71, 67, 62, 44, 8, 5};
+  static const uint8_t table2[8] = {108, 77, 71, 67, 62, 44, 8, 5};
   // 512
   if (prescale != p) {
     prescale = p;
@@ -272,7 +272,7 @@ void OPN::SetReg(uint addr, uint data) {
     case 0xa4:
     case 0xa5:
     case 0xa6:
-      fnum2[0] = uint8(data);
+      fnum2[0] = uint8_t(data);
       break;
 
     case 0xa8:
@@ -284,7 +284,7 @@ void OPN::SetReg(uint addr, uint data) {
     case 0xac:
     case 0xad:
     case 0xae:
-      fnum2[1] = uint8(data);
+      fnum2[1] = uint8_t(data);
       break;
 
     case 0xb0:
@@ -375,7 +375,7 @@ int OPNABase::amtable[FM_LFOENTS] = {
 };
 int OPNABase::pmtable[FM_LFOENTS];
 
-int32 OPNABase::tltable[FM_TLENTS + FM_TLPOS];
+int32_t OPNABase::tltable[FM_TLENTS + FM_TLPOS];
 bool OPNABase::tablehasmade = false;
 
 OPNABase::OPNABase() {
@@ -554,12 +554,12 @@ void OPNABase::SetReg(uint addr, uint data) {
     case 0x1a4:
     case 0x1a5:
     case 0x1a6:
-      fnum2[2] = uint8(data);
+      fnum2[2] = uint8_t(data);
       break;
     case 0xa4:
     case 0xa5:
     case 0xa6:
-      fnum2[0] = uint8(data);
+      fnum2[0] = uint8_t(data);
       break;
 
     case 0xa8:
@@ -571,7 +571,7 @@ void OPNABase::SetReg(uint addr, uint data) {
     case 0xac:
     case 0xad:
     case 0xae:
-      fnum2[1] = uint8(data);
+      fnum2[1] = uint8_t(data);
       break;
 
       // Algorithm -------------------------------------------------------------
@@ -776,26 +776,26 @@ void OPNABase::WriteRAM(uint data) {
     memaddr += 16;
   } else {
     // 8 bit mode
-    uint8* p = &adpcmbuf[(memaddr >> 4) & 0x7fff];
+    uint8_t* p = &adpcmbuf[(memaddr >> 4) & 0x7fff];
     uint bank = (memaddr >> 1) & 7;
-    uint8 mask = 1 << bank;
+    uint8_t mask = 1 << bank;
     data <<= bank;
 
-    p[0x00000] = (p[0x00000] & ~mask) | (uint8(data) & mask);
+    p[0x00000] = (p[0x00000] & ~mask) | (uint8_t(data) & mask);
     data >>= 1;
-    p[0x08000] = (p[0x08000] & ~mask) | (uint8(data) & mask);
+    p[0x08000] = (p[0x08000] & ~mask) | (uint8_t(data) & mask);
     data >>= 1;
-    p[0x10000] = (p[0x10000] & ~mask) | (uint8(data) & mask);
+    p[0x10000] = (p[0x10000] & ~mask) | (uint8_t(data) & mask);
     data >>= 1;
-    p[0x18000] = (p[0x18000] & ~mask) | (uint8(data) & mask);
+    p[0x18000] = (p[0x18000] & ~mask) | (uint8_t(data) & mask);
     data >>= 1;
-    p[0x20000] = (p[0x20000] & ~mask) | (uint8(data) & mask);
+    p[0x20000] = (p[0x20000] & ~mask) | (uint8_t(data) & mask);
     data >>= 1;
-    p[0x28000] = (p[0x28000] & ~mask) | (uint8(data) & mask);
+    p[0x28000] = (p[0x28000] & ~mask) | (uint8_t(data) & mask);
     data >>= 1;
-    p[0x30000] = (p[0x30000] & ~mask) | (uint8(data) & mask);
+    p[0x30000] = (p[0x30000] & ~mask) | (uint8_t(data) & mask);
     data >>= 1;
-    p[0x38000] = (p[0x38000] & ~mask) | (uint8(data) & mask);
+    p[0x38000] = (p[0x38000] & ~mask) | (uint8_t(data) & mask);
     memaddr += 2;
   }
 #else
@@ -827,9 +827,9 @@ uint OPNABase::ReadRAM() {
     memaddr += 16;
   } else {
     // 8 bit mode
-    uint8* p = &adpcmbuf[(memaddr >> 4) & 0x7fff];
+    uint8_t* p = &adpcmbuf[(memaddr >> 4) & 0x7fff];
     uint bank = (memaddr >> 1) & 7;
-    uint8 mask = 1 << bank;
+    uint8_t mask = 1 << bank;
 
     data = (p[0x38000] & mask);
     data = data * 2 + (p[0x30000] & mask);
@@ -886,9 +886,9 @@ int OPNABase::ReadRAMN() {
         return DecodeADPCMBSample(data >> 4);
       data &= 0x0f;
     } else {
-      uint8* p = &adpcmbuf[(memaddr >> 4) & 0x7fff] + ((~memaddr & 1) << 17);
+      uint8_t* p = &adpcmbuf[(memaddr >> 4) & 0x7fff] + ((~memaddr & 1) << 17);
       uint bank = (memaddr >> 1) & 7;
-      uint8 mask = 1 << bank;
+      uint8_t mask = 1 << bank;
 
       data = (p[0x18000] & mask);
       data = data * 2 + (p[0x10000] & mask);
@@ -1189,7 +1189,7 @@ bool OPNA::Init(uint c, uint r, bool ipflag, const char* path) {
   LoadRhythmSample(path);
 
   if (!adpcmbuf)
-    adpcmbuf = new uint8[0x40000];
+    adpcmbuf = new uint8_t[0x40000];
   if (!adpcmbuf)
     return false;
 
@@ -1245,7 +1245,7 @@ bool OPNA::LoadRhythmSample(const char* path) {
 
   for (i = 0; i < 6; i++) {
     FileIO file;
-    uint32 fsize;
+    uint32_t fsize;
     char buf[MAX_PATH] = "";
     if (path)
       strncpy(buf, path, MAX_PATH);
@@ -1264,20 +1264,20 @@ bool OPNA::LoadRhythmSample(const char* path) {
     }
 
     struct {
-      uint32 chunksize;
-      uint16 tag;
-      uint16 nch;
-      uint32 rate;
-      uint32 avgbytes;
-      uint16 align;
-      uint16 bps;
-      uint16 size;
+      uint32_t chunksize;
+      uint16_t tag;
+      uint16_t nch;
+      uint32_t rate;
+      uint32_t avgbytes;
+      uint16_t align;
+      uint16_t bps;
+      uint16_t size;
     } whdr;
 
     file.Seek(0x10, FileIO::begin);
     file.Read(&whdr, sizeof(whdr));
 
-    uint8 subchunkname[4];
+    uint8_t subchunkname[4];
     fsize = 4 + whdr.chunksize - sizeof(whdr);
     do {
       file.Seek(fsize, FileIO::current);
@@ -1291,7 +1291,7 @@ bool OPNA::LoadRhythmSample(const char* path) {
     fsize = Max(fsize, (1 << 31) / 1024);
 
     delete rhythm[i].sample;
-    rhythm[i].sample = new int16[fsize];
+    rhythm[i].sample = new int16_t[fsize];
     if (!rhythm[i].sample)
       break;
 
@@ -1490,9 +1490,9 @@ OPNB::~OPNB() {}
 bool OPNB::Init(uint c,
                 uint r,
                 bool ipflag,
-                uint8* _adpcma,
+                uint8_t* _adpcma,
                 int _adpcma_size,
-                uint8* _adpcmb,
+                uint8_t* _adpcmb,
                 int _adpcmb_size) {
   int i;
   if (!SetRate(c, r, ipflag))
@@ -1725,7 +1725,7 @@ uint OPNB::ReadStatusEx() {
 int OPNB::jedi_table[(48 + 1) * 16];
 
 void OPNB::InitADPCMATable() {
-  const static int8 table2[] = {
+  const static int8_t table2[] = {
       1, 3, 5, 7, 9, 11, 13, 15, -1, -3, -5, -7, -9, -11, -13, -15,
   };
 

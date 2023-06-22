@@ -43,7 +43,7 @@ class GimicIf : public PiccoloChip {
     gmcdrv.chip->reset();
     gmcdrv.gimic->setSSGVolume(opna ? 63 : 68);  // FM/PSG比 50%/55%
   }
-  bool SetReg(uint32 at, uint addr, uint data) {
+  bool SetReg(uint32_t at, uint addr, uint data) {
     if (gmcdrv.chip) {
       gmcdrv.chip->out(addr, data);
     }

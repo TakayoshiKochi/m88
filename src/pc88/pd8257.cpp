@@ -34,7 +34,7 @@ PD8257::~PD8257() {}
 //          addr    メモリのアドレス
 //          length  メモリの長さ
 //
-bool PD8257::ConnectRd(uint8* mem, uint addr, uint length) {
+bool PD8257::ConnectRd(uint8_t* mem, uint addr, uint length) {
   if (addr + length <= 0x10000) {
     mread = mem;
     mrbegin = addr;
@@ -52,7 +52,7 @@ bool PD8257::ConnectRd(uint8* mem, uint addr, uint length) {
 //          addr    メモリのアドレス
 //          length  メモリの長さ
 //
-bool PD8257::ConnectWr(uint8* mem, uint addr, uint length) {
+bool PD8257::ConnectWr(uint8_t* mem, uint addr, uint length) {
   if (addr + length <= 0x10000) {
     mwrite = mem;
     mwbegin = addr;
@@ -120,8 +120,8 @@ void IOCALL PD8257::SetMode(uint, uint d) {
   LOG1("Mode: %.2x\n", d);
   stat.autoinit = (d & 0x80) != 0;
 
-  uint8 pe = stat.enabled;
-  stat.enabled = (uint8)(d & 15);
+  uint8_t pe = stat.enabled;
+  stat.enabled = (uint8_t)(d & 15);
 
   stat.status &= ~stat.enabled;
   //  for (int i=0; i<4; i++)
@@ -171,7 +171,7 @@ inline uint IOCALL PD8257::GetStatus(uint) {
 //      nbytes  転送サイズ
 //  ret:        転送できたサイズ
 //
-uint IFCALL PD8257::RequestRead(uint bank, uint8* data, uint nbytes) {
+uint IFCALL PD8257::RequestRead(uint bank, uint8_t* data, uint nbytes) {
   uint n = nbytes;
   LOG0("Request ");
   if ((stat.enabled & (1 << bank)) && !(stat.mode[bank] & 0x40)) {
@@ -222,7 +222,7 @@ uint IFCALL PD8257::RequestRead(uint bank, uint8* data, uint nbytes) {
 //      nbytes  転送サイズ
 //  ret:        転送できたサイズ
 //
-uint IFCALL PD8257::RequestWrite(uint bank, uint8* data, uint nbytes) {
+uint IFCALL PD8257::RequestWrite(uint bank, uint8_t* data, uint nbytes) {
   uint n = nbytes;
   if ((stat.enabled & (1 << bank)) && !(stat.mode[bank] & 0x80)) {
     while (n > 0) {
@@ -268,14 +268,14 @@ uint IFCALL PD8257::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL PD8257::SaveStatus(uint8* s) {
+bool IFCALL PD8257::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   *st = stat;
   st->rev = ssrev;
   return true;
 }
 
-bool IFCALL PD8257::LoadStatus(const uint8* s) {
+bool IFCALL PD8257::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

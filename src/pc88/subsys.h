@@ -36,11 +36,11 @@ class SubSystem : public Device {
   bool Init(MemoryManager* mmgr);
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
-  uint8* GetRAM() { return ram; }
-  uint8* GetROM() { return rom; }
+  uint8_t* GetRAM() { return ram; }
+  uint8_t* GetROM() { return rom; }
 
   bool IsBusy();
 
@@ -69,10 +69,10 @@ class SubSystem : public Device {
   };
   struct Status {
     uint rev;
-    uint8 ps[3], cs;
-    uint8 pm[3], cm;
+    uint8_t ps[3], cs;
+    uint8_t pm[3], cm;
     uint idlecount;
-    uint8 ram[0x4000];
+    uint8_t ram[0x4000];
   };
 
   bool InitMemory();
@@ -81,9 +81,9 @@ class SubSystem : public Device {
 
   MemoryManager* mm;
   int mid;
-  uint8* rom;
-  uint8* ram;
-  uint8* dummy;
+  uint8_t* rom;
+  uint8_t* ram;
+  uint8_t* dummy;
   PIO piom, pios;
   uint cw_m, cw_s;
   uint idlecount;

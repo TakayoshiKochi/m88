@@ -17,13 +17,13 @@ class ASPI;
 class CDROM {
  public:
   struct Track {
-    uint32 addr;
+    uint32_t addr;
     uint control;  // b2 = data/~audio
   };
   struct MSF {
-    uint8 min;
-    uint8 sec;
-    uint8 frame;
+    uint8_t min;
+    uint8_t sec;
+    uint8_t frame;
   };
 
  public:
@@ -35,12 +35,12 @@ class CDROM {
   bool Init();
   bool PlayTrack(int tr, bool one = false);
   bool PlayAudio(uint begin, uint stop);
-  bool ReadSubCh(uint8* dest, bool msf);
+  bool ReadSubCh(uint8_t* dest, bool msf);
   bool Pause(bool pause);
   bool Stop();
-  bool Read(uint sector, uint8* dest, int length);
-  bool Read2(uint sector, uint8* dest, int length);
-  bool ReadCDDA(uint sector, uint8* dest, int length);
+  bool Read(uint sector, uint8_t* dest, int length);
+  bool Read2(uint sector, uint8_t* dest, int length);
+  bool ReadCDDA(uint sector, uint8_t* dest, int length);
   const Track* GetTrackInfo(int t);
   bool CheckMedia();
   MSF ToMSF(uint lba);

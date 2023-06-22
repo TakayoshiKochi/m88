@@ -103,8 +103,8 @@ class Z80C : public Device {
   void Wait(bool flag);
 
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
   uint GetPC();
   void SetPC(uint newpc);
@@ -135,19 +135,19 @@ class Z80C : public Device {
   };
   struct Status {
     Z80Reg reg;
-    uint8 intr;
-    uint8 wait;
-    uint8 xf;
-    uint8 rev;
+    uint8_t intr;
+    uint8_t wait;
+    uint8_t xf;
+    uint8_t rev;
     int execcount;
   };
 
   void DumpLog();
 
-  uint8* inst;      // PC の指すメモリのポインタ，または PC そのもの
-  uint8* instlim;   // inst の有効上限
-  uint8* instbase;  // inst - PC        (PC = inst - instbase)
-  uint8* instpage;
+  uint8_t* inst;      // PC の指すメモリのポインタ，または PC そのもの
+  uint8_t* instlim;   // inst の有効上限
+  uint8_t* instbase;  // inst - PC        (PC = inst - instbase)
+  uint8_t* instpage;
 
   Z80Reg reg;
   IOBus* bus;
@@ -167,17 +167,17 @@ class Z80C : public Device {
   int startcount;
 
   enum index { USEHL, USEIX, USEIY };
-  index index_mode;  /* HL/IX/IY どれを参照するか */
-  uint8 uf;          /* 未計算フラグ */
-  uint8 nfa;         /* 最後の加減算の種類 */
-  uint8 xf;          /* 未定義フラグ(第3,5ビット) */
-  uint32 fx32, fy32; /* フラグ計算用のデータ */
+  index index_mode;    /* HL/IX/IY どれを参照するか */
+  uint8_t uf;          /* 未計算フラグ */
+  uint8_t nfa;         /* 最後の加減算の種類 */
+  uint8_t xf;          /* 未定義フラグ(第3,5ビット) */
+  uint32_t fx32, fy32; /* フラグ計算用のデータ */
   uint fx, fy;
 
-  uint8* ref_h[3];            /* H / XH / YH のテーブル */
-  uint8* ref_l[3];            /* L / YH / YL のテーブル */
+  uint8_t* ref_h[3];          /* H / XH / YH のテーブル */
+  uint8_t* ref_l[3];          /* L / YH / YL のテーブル */
   Z80Reg::wordreg* ref_hl[3]; /* HL/ IX / IY のテーブル */
-  uint8* ref_byte[8];         /* BCDEHL A のテーブル */
+  uint8_t* ref_byte[8];       /* BCDEHL A のテーブル */
   FILE* dumplog;
   Z80Diag diag;
 
@@ -214,27 +214,27 @@ class Z80C : public Device {
   void PCDec(uint dec);
 
   void Call(), Jump(uint dest), JumpR();
-  uint8 GetCF(), GetZF(), GetSF();
-  uint8 GetHF(), GetPF();
+  uint8_t GetCF(), GetZF(), GetSF();
+  uint8_t GetHF(), GetPF();
   void SetM(uint n);
-  uint8 GetM();
+  uint8_t GetM();
   void Push(uint n);
   uint Pop();
-  void ADDA(uint8), ADCA(uint8), SUBA(uint8);
-  void SBCA(uint8), ANDA(uint8), ORA(uint8);
-  void XORA(uint8), CPA(uint8);
-  uint8 Inc8(uint8), Dec8(uint8);
+  void ADDA(uint8_t), ADCA(uint8_t), SUBA(uint8_t);
+  void SBCA(uint8_t), ANDA(uint8_t), ORA(uint8_t);
+  void XORA(uint8_t), CPA(uint8_t);
+  uint8_t Inc8(uint8_t), Dec8(uint8_t);
   uint ADD16(uint x, uint y);
   void ADCHL(uint y), SBCHL(uint y);
   uint GetAF();
   void SetAF(uint n);
-  void SetZS(uint8 a), SetZSP(uint8 a);
+  void SetZS(uint8_t a), SetZSP(uint8_t a);
   void CPI(), CPD();
   void CodeCB();
 
-  uint8 RLC(uint8), RRC(uint8), RL(uint8);
-  uint8 RR(uint8), SLA(uint8), SRA(uint8);
-  uint8 SLL(uint8), SRL(uint8);
+  uint8_t RLC(uint8_t), RRC(uint8_t), RL(uint8_t);
+  uint8_t RR(uint8_t), SLA(uint8_t), SRA(uint8_t);
+  uint8_t SLL(uint8_t), SRL(uint8_t);
 };
 
 // ---------------------------------------------------------------------------

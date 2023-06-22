@@ -53,7 +53,7 @@ bool SubSystem::InitMemory() {
   const uint pagesize = 1 << MemoryManagerBase::pagebits;
 
   if (!rom)
-    rom = new uint8[0x2000 + 0x4000 + 2 * pagesize];
+    rom = new uint8_t[0x2000 + 0x4000 + 2 * pagesize];
   ram = rom + 0x2000;
   dummy = ram + 0x4000;
   if (!rom)
@@ -240,12 +240,12 @@ uint IFCALL SubSystem::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL SubSystem::SaveStatus(uint8* s) {
+bool IFCALL SubSystem::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
   for (int i = 0; i < 3; i++) {
-    st->pm[i] = (uint8)piom.Port(i);
-    st->ps[i] = (uint8)pios.Port(i);
+    st->pm[i] = (uint8_t)piom.Port(i);
+    st->ps[i] = (uint8_t)pios.Port(i);
   }
   st->cm = cw_m;
   st->cs = cw_s;
@@ -256,7 +256,7 @@ bool IFCALL SubSystem::SaveStatus(uint8* s) {
   return true;
 }
 
-bool IFCALL SubSystem::LoadStatus(const uint8* s) {
+bool IFCALL SubSystem::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

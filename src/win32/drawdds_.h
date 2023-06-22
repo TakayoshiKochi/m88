@@ -25,7 +25,7 @@ class WinDrawDDS : public WinDrawSub {
   void SetPalette(PALETTEENTRY* pal);
   void QueryNewPalette();
   void DrawScreen(const RECT& rect, bool refresh);
-  bool Lock(uint8** pimage, int* pbpl);
+  bool Lock(uint8_t** pimage, int* pbpl);
   bool Unlock();
   void SetGUIMode(bool guimode);
   void Flip();

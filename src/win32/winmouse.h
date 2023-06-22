@@ -32,7 +32,7 @@ class WinMouseUI : public IMouseUI {
   WinUI* ui;
 
   POINT move;
-  int32 activetime;
+  int32_t activetime;
   bool enable;
   int orgmouseparams[3];
 

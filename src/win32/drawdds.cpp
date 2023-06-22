@@ -203,11 +203,11 @@ bool WinDrawDDS::Update(LPDIRECTDRAWSURFACE dds, const RECT& rect) {
   if (r != DD_OK)
     return false;
 
-  const uint8* src = image + rect.left + (rect.top * width);
-  uint8* dest = (uint8*)ddsd.lpSurface;
+  const uint8_t* src = image + rect.left + (rect.top * width);
+  uint8_t* dest = (uint8_t*)ddsd.lpSurface;
 
   for (int y = rect.top; y < rect.bottom; y++) {
-    uint8* d = dest;
+    uint8_t* d = dest;
     for (int x = 0; x < (rect.right - rect.left); x++) {
       *d++ = palentry[src[x]].peBlue;
       *d++ = palentry[src[x]].peGreen;
@@ -248,7 +248,7 @@ void WinDrawDDS::SetPalette(PALETTEENTRY* pe, int idx, int ent) {
 // ---------------------------------------------------------------------------
 //  画面イメージの使用要求
 //
-bool WinDrawDDS::Lock(uint8** pimage, int* pbpl) {
+bool WinDrawDDS::Lock(uint8_t** pimage, int* pbpl) {
   *pimage = image;
   *pbpl = width;
   return true;
@@ -299,7 +299,7 @@ bool WinDrawDDS::SetScreenMode() {
   ltc.y = Max(0, (lines - height) / 2);
 
   delete[] image;
-  image = new uint8[height * width];
+  image = new uint8_t[height * width];
   if (!image)
     return false;
 

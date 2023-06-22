@@ -26,7 +26,7 @@ class WinDrawSub {
   virtual void QueryNewPalette() {}
   virtual void DrawScreen(const RECT& rect, bool refresh) = 0;
 
-  virtual bool Lock(uint8** pimage, int* pbpl) { return false; }
+  virtual bool Lock(uint8_t** pimage, int* pbpl) { return false; }
   virtual bool Unlock() { return true; }
 
   virtual void SetGUIMode(bool gui) {}
@@ -51,7 +51,7 @@ class WinDraw : public Draw {
   bool Init(uint w, uint h, uint bpp);
   bool Cleanup();
 
-  bool Lock(uint8** pimage, int* pbpl);
+  bool Lock(uint8_t** pimage, int* pbpl);
   bool Unlock();
 
   void Resize(uint width, uint height);
@@ -78,7 +78,7 @@ class WinDraw : public Draw {
   void Refresh() { refresh = 1; }
   void WindowMoved(int cx, int cy);
 
-  int CaptureScreen(uint8* dest);
+  int CaptureScreen(uint8_t* dest);
 
  private:
   enum DisplayType { None, GDI, DDWin, DDFull, D2D };

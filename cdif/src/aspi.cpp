@@ -34,14 +34,14 @@ ASPI::~ASPI() {
 // --------------------------------------------------------------------------
 //  SendASPI32Command
 //
-inline uint32 ASPI::SendCommand(void* srb) {
+inline uint32_t ASPI::SendCommand(void* srb) {
   return (*psac)(srb);
 }
 
 // --------------------------------------------------------------------------
 //
-inline uint32 ASPI::SendCommandAndWait(void* srb) {
-  uint32 result = SendCommand(srb);
+inline uint32_t ASPI::SendCommandAndWait(void* srb) {
+  uint32_t result = SendCommand(srb);
 
   volatile SRB_Header* h = (SRB_Header*)srb;
   while (h->status == SS_PENDING)
@@ -60,8 +60,8 @@ bool ASPI::ConnectAPI() {
     return false;
   }
 
-  pgasi = (uint32(__cdecl*)())(GetProcAddress(hmod, "GetASPI32SupportInfo"));
-  psac = (uint32(__cdecl*)(void*))(GetProcAddress(hmod, "SendASPI32Command"));
+  pgasi = (uint32_t(__cdecl*)())(GetProcAddress(hmod, "GetASPI32SupportInfo"));
+  psac = (uint32_t(__cdecl*)(void*))(GetProcAddress(hmod, "SendASPI32Command"));
 
   return pgasi && psac;
 }
@@ -131,7 +131,7 @@ int ASPI::ExecuteSCSICommand(uint ha,
 
   srb.senselen = SENSE_LEN;
   if (dir & (SRB_DIR_IN | SRB_DIR_OUT)) {
-    srb.dataptr = (uint8*)data;
+    srb.dataptr = (uint8_t*)data;
     srb.datalen = datalen;
   }
   srb.CDBlen = cdblen;

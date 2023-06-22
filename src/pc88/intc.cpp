@@ -95,7 +95,7 @@ uint IOCALL INTC::IntAck(uint) {
 //  マスク設定(porte6)
 //
 void IOCALL INTC::SetMask(uint, uint data) {
-  static const int8 table[8] = {~7, ~3, ~5, ~1, ~6, ~2, ~4, ~0};
+  static const int8_t table[8] = {~7, ~3, ~5, ~1, ~6, ~2, ~4, ~0};
   stat.mask2 = table[data & 7];
   stat.irq &= stat.mask2;
   LOG2("p[e6] = %.2x (%.2x) : ", data, stat.mask2);
@@ -119,12 +119,12 @@ uint IFCALL INTC::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL INTC::SaveStatus(uint8* s) {
+bool IFCALL INTC::SaveStatus(uint8_t* s) {
   *(Status*)s = stat;
   return true;
 }
 
-bool IFCALL INTC::LoadStatus(const uint8* s) {
+bool IFCALL INTC::LoadStatus(const uint8_t* s) {
   stat = *(const Status*)s;
   return true;
 }

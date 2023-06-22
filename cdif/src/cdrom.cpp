@@ -237,7 +237,7 @@ bool CDROM::PlayAudio(uint begin, uint stop) {
 // --------------------------------------------------------------------------
 //  サブチャンネルの取得
 //
-bool CDROM::ReadSubCh(uint8* dest, bool msf) {
+bool CDROM::ReadSubCh(uint8_t* dest, bool msf) {
   CDB_ReadSubChannel cdb;
   memset(&cdb, 0, sizeof(cdb));
 
@@ -288,7 +288,7 @@ bool CDROM::Stop() {
 // --------------------------------------------------------------------------
 //  CD 上のセクタを読み出す
 //
-bool CDROM::Read(uint sector, uint8* dest, int length) {
+bool CDROM::Read(uint sector, uint8_t* dest, int length) {
   CDB_Read cdb;
 
   cdb.id = 0x28;
@@ -312,7 +312,7 @@ bool CDROM::Read(uint sector, uint8* dest, int length) {
 // --------------------------------------------------------------------------
 //  2340 バイト読む
 //
-bool CDROM::Read2(uint sector, uint8* dest, int length) {
+bool CDROM::Read2(uint sector, uint8_t* dest, int length) {
   CDB_ReadCD cdb;
   memset(&cdb, 0, sizeof(cdb));
 
@@ -336,7 +336,7 @@ bool CDROM::Read2(uint sector, uint8* dest, int length) {
 // --------------------------------------------------------------------------
 //  CD-DA セクタの読み込み
 //
-bool CDROM::ReadCDDA(uint sector, uint8* dest, int length) {
+bool CDROM::ReadCDDA(uint sector, uint8_t* dest, int length) {
   CDB_ReadCD cdb;
   memset(&cdb, 0, sizeof(cdb));
 

@@ -19,11 +19,11 @@
 
 struct Z80Reg {
 #ifdef Z80_WORDREG_IN_INT
-#define PAD(p) uint8 p[sizeof(uint) - sizeof(uint16)]
+#define PAD(p) uint8_t p[sizeof(uint) - sizeof(uint16_t)]
   typedef uint wordreg;
 #else
 #define PAD(p)
-  typedef uint16 wordreg;
+  typedef uint16_t wordreg;
 #endif
 
   union regs {
@@ -34,33 +34,33 @@ struct Z80Reg {
     struct words {
 #ifdef ENDIAN_IS_BIG
       PAD(p1);
-      uint8 a, flags;
+      uint8_t a, flags;
       PAD(p2);
-      uint8 h, l;
+      uint8_t h, l;
       PAD(p3);
-      uint8 d, e;
+      uint8_t d, e;
       PAD(p4);
-      uint8 b, c;
+      uint8_t b, c;
       PAD(p5);
-      uint8 xh, xl;
+      uint8_t xh, xl;
       PAD(p6);
-      uint8 yh, yl;
+      uint8_t yh, yl;
       PAD(p7);
-      uint8 sph, spl;
+      uint8_t sph, spl;
 #else
-      uint8 flags, a;
+      uint8_t flags, a;
       PAD(p1);
-      uint8 l, h;
+      uint8_t l, h;
       PAD(p2);
-      uint8 e, d;
+      uint8_t e, d;
       PAD(p3);
-      uint8 c, b;
+      uint8_t c, b;
       PAD(p4);
-      uint8 xl, xh;
+      uint8_t xl, xh;
       PAD(p5);
-      uint8 yl, yh;
+      uint8_t yl, yh;
       PAD(p6);
-      uint8 spl, sph;
+      uint8_t spl, sph;
       PAD(p7);
 #endif
     } b;
@@ -68,9 +68,9 @@ struct Z80Reg {
 
   wordreg r_af, r_hl, r_de, r_bc; /* 裏レジスタ */
   wordreg pc;
-  uint8 ireg;
-  uint8 rreg, rreg7; /* R(0-6 bit), R(7th bit) */
-  uint8 intmode;     /* 割り込みモード */
+  uint8_t ireg;
+  uint8_t rreg, rreg7; /* R(0-6 bit), R(7th bit) */
+  uint8_t intmode;     /* 割り込みモード */
   bool iff1, iff2;
 };
 

@@ -14,21 +14,21 @@
 namespace D88 {
 struct ImageHeader {
   char title[17];
-  uint8 reserved[9];
-  uint8 readonly;
-  uint8 disktype;
-  uint32 disksize;
-  uint32 trackptr[164];
+  uint8_t reserved[9];
+  uint8_t readonly;
+  uint8_t disktype;
+  uint32_t disksize;
+  uint32_t trackptr[164];
 };
 
 struct SectorHeader {
   FloppyDisk::IDR id;
-  uint16 sectors;
-  uint8 density;
-  uint8 deleted;
-  uint8 status;
-  uint8 reserved[5];
-  uint16 length;
+  uint16_t sectors;
+  uint8_t density;
+  uint8_t deleted;
+  uint8_t status;
+  uint8_t reserved[5];
+  uint16_t length;
 };
 }  // namespace D88
 
@@ -59,8 +59,8 @@ class DiskImageHolder {
  private:
   struct DiskInfo {
     char title[20];
-    int32 pos;
-    int32 size;
+    int32_t pos;
+    int32_t size;
   };
   bool ReadHeaders();
   void Close();
@@ -111,7 +111,7 @@ class DiskManager {
     int index;
     bool sizechanged;
 
-    uint32 trackpos[168];
+    uint32_t trackpos[168];
     int tracksize[168];
     bool modified[168];
   };

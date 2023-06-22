@@ -50,8 +50,8 @@ inline void Operator::KeyOn() {
     if (eg_phase_ == off || eg_phase_ == release) {
       if (ssg_type_ & 8) {
         //  フラグリセット
-        ssg_type_ &= (uint8)~0x10;
-        ssg_type_ |= (uint8)((ssg_type_ & 4) << 2);
+        ssg_type_ &= (uint8_t)~0x10;
+        ssg_type_ |= (uint8_t)((ssg_type_ & 4) << 2);
       }
 
       ShiftPhase(attack);
@@ -72,8 +72,8 @@ inline void Operator::KeyOnCsm() {
     {
       if (ssg_type_ & 8) {
         //  フラグリセット
-        ssg_type_ &= (uint8)~0x10;
-        ssg_type_ |= (uint8)((ssg_type_ & 4) << 2);
+        ssg_type_ &= (uint8_t)~0x10;
+        ssg_type_ |= (uint8_t)((ssg_type_ & 4) << 2);
       }
 
       ShiftPhase(attack);

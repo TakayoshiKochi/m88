@@ -14,18 +14,18 @@ struct DeviceInfo {
 
   int size;
   int rev;
-  uint32 id;
+  uint32_t id;
   int flags;
 
   const int* outporttable;
   const int* inporttable;
 
-  void (*soundmix)(void*, int32* s, int len);
+  void (*soundmix)(void*, int32_t* s, int len);
   bool (*setrate)(void*, uint rate);
   void (*outport)(void*, uint port, uint data);
   uint (*inport)(void*, uint port);
   void (*eventproc)(void*, uint arg);
-  uint (*snapshot)(void*, uint8* data, bool save);
+  uint (*snapshot)(void*, uint8_t* data, bool save);
 };
 
 struct PCInfo {
@@ -33,8 +33,8 @@ struct PCInfo {
 
   int size;
   // DMA
-  int (*DMARead)(void*, uint bank, uint8* data, uint nbytes);
-  int (*DMAWrite)(void*, uint bank, uint8* data, uint nbytes);
+  int (*DMARead)(void*, uint bank, uint8_t* data, uint nbytes);
+  int (*DMAWrite)(void*, uint bank, uint8_t* data, uint nbytes);
 
   // Page
   bool (*MemAcquire)(void*, uint page, uint npages, void* read, void* write, uint flags);

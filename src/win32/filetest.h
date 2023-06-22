@@ -3,6 +3,6 @@
 #ifndef incl_filetest_h
 #define incl_filetest_h
 
-bool SanityCheck(uint32* = 0);
+bool SanityCheck(uint32_t* = 0);
 
 #endif  // incl_filetest_h

@@ -34,8 +34,8 @@ class ExternalDevice : public Device, public ISoundSource {
   bool Cleanup();
 
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
  private:
   typedef void*(__cdecl* F_CONNECT)(void*, const PCInfo*, DeviceInfo*);
@@ -50,7 +50,7 @@ class ExternalDevice : public Device, public ISoundSource {
   void IOCALL Out(uint port, uint data);
 
   bool IFCALL SetRate(uint r);
-  void IFCALL Mix(int32* s, int len);
+  void IFCALL Mix(int32_t* s, int len);
   bool IFCALL Connect(ISoundControl* sound) { return false; }
 
   HMODULE hdll;
@@ -70,8 +70,8 @@ class ExternalDevice : public Device, public ISoundSource {
   static PCInfo pcinfo;
 
  private:
-  static int S_DMARead(void*, uint bank, uint8* data, uint nbytes);
-  static int S_DMAWrite(void*, uint bank, uint8* data, uint nbytes);
+  static int S_DMARead(void*, uint bank, uint8_t* data, uint nbytes);
+  static int S_DMAWrite(void*, uint bank, uint8_t* data, uint nbytes);
   static bool S_MemAcquire(void*, uint page, uint npages, void* read, void* write, uint flags);
   static bool S_MemRelease(void*, uint page, uint npages, uint flags);
   static void* S_AddEvent(void*, uint count, uint arg);

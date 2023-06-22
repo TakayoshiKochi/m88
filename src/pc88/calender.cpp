@@ -204,7 +204,7 @@ uint IFCALL Calender::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL Calender::SaveStatus(uint8* s) {
+bool IFCALL Calender::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
   st->t = time(&st->t) + diff;
@@ -219,7 +219,7 @@ bool IFCALL Calender::SaveStatus(uint8* s) {
   return true;
 }
 
-bool IFCALL Calender::LoadStatus(const uint8* s) {
+bool IFCALL Calender::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

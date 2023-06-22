@@ -35,14 +35,14 @@ class CRTC : public Device {
   bool Init(IOBus* bus, Scheduler* s, PD8257* dmac, Draw* draw);
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
-  void UpdateScreen(uint8* image, int bpl, Draw::Region& region, bool refresh);
+  void UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool refresh);
   void SetSize();
   void ApplyConfig(const Config* config);
   int GetFramePeriod();
 
   uint IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8* status);
-  bool IFCALL LoadStatus(const uint8* status);
+  bool IFCALL SaveStatus(uint8_t* status);
+  bool IFCALL LoadStatus(const uint8_t* status);
 
   // CRTC Control
   void IOCALL Reset(uint = 0, uint = 0);
@@ -88,26 +88,26 @@ class CRTC : public Device {
     ssrev = 2,
   };
   struct Status {
-    uint8 rev;
-    uint8 cmdm;
-    uint8 cmdc;
-    uint8 pcount[2];
-    uint8 param0[6];
-    uint8 param1;
-    uint8 cursor_x, cursor_y;
-    int8 cursor_t;
-    uint8 mode;
-    uint8 status;
-    uint8 column;
-    uint8 attr;
-    uint8 event;
+    uint8_t rev;
+    uint8_t cmdm;
+    uint8_t cmdc;
+    uint8_t pcount[2];
+    uint8_t param0[6];
+    uint8_t param1;
+    uint8_t cursor_x, cursor_y;
+    int8_t cursor_t;
+    uint8_t mode;
+    uint8_t status;
+    uint8_t column;
+    uint8_t attr;
+    uint8_t event;
     bool color;
   };
 
   void HotReset();
   bool LoadFontFile();
   void CreateTFont();
-  void CreateTFont(const uint8*, int, int);
+  void CreateTFont(const uint8_t*, int, int);
   void CreateKanaFont();
   void CreateGFont();
   uint Command(bool a0, uint data);
@@ -117,27 +117,27 @@ class CRTC : public Device {
   void IOCALL ExpandLineEnd(uint = 0);
   int ExpandLineSub();
 
-  void ClearText(uint8* image);
-  void ExpandImage(uint8* image, Draw::Region& region);
-  void ExpandAttributes(uint8* dest, const uint8* src, uint y);
-  void ChangeAttr(uint8 code);
+  void ClearText(uint8_t* image);
+  void ExpandImage(uint8_t* image, Draw::Region& region);
+  void ExpandAttributes(uint8_t* dest, const uint8_t* src, uint y);
+  void ChangeAttr(uint8_t code);
 
-  const uint8* GetFont(uint c);
-  const uint8* GetFontW(uint c);
+  const uint8_t* GetFont(uint c);
+  const uint8_t* GetFontW(uint c);
   void ModifyFont(uint off, uint d);
   void EnablePCG(bool);
 
-  void PutChar(packed* dest, uint8 c, uint8 a);
+  void PutChar(packed* dest, uint8_t c, uint8_t a);
   void PutNormal(packed* dest, const packed* src);
   void PutReversed(packed* dest, const packed* src);
-  void PutLineNormal(packed* dest, uint8 attr);
-  void PutLineReversed(packed* dest, uint8 attr);
+  void PutLineNormal(packed* dest, uint8_t attr);
+  void PutLineReversed(packed* dest, uint8_t attr);
 
-  void PutCharW(packed* dest, uint8 c, uint8 a);
+  void PutCharW(packed* dest, uint8_t c, uint8_t a);
   void PutNormalW(packed* dest, const packed* src);
   void PutReversedW(packed* dest, const packed* src);
-  void PutLineNormalW(packed* dest, uint8 attr);
-  void PutLineReversedW(packed* dest, uint8 attr);
+  void PutLineNormalW(packed* dest, uint8_t attr);
+  void PutLineReversedW(packed* dest, uint8_t attr);
 
   IOBus* bus;
   PD8257* dmac;
@@ -149,9 +149,9 @@ class CRTC : public Device {
   uint cursormode;
   uint linesize;
   bool line200;  // 15KHz モード
-  uint8 attr;
-  uint8 attr_cursor;
-  uint8 attr_blink;
+  uint8_t attr;
+  uint8_t attr_cursor;
+  uint8_t attr_blink;
   uint status;
   uint column;
   int linetime;
@@ -165,12 +165,12 @@ class CRTC : public Device {
   packed pat_rev;
   int underlineptr;
 
-  uint8* fontrom;
-  uint8* cg80rom;  // PC-8001mkIISR CGROM
-  uint8* font;
-  uint8* pcgram;
-  uint8* vram[2];
-  uint8* attrcache;
+  uint8_t* fontrom;
+  uint8_t* cg80rom;  // PC-8001mkIISR CGROM
+  uint8_t* font;
+  uint8_t* pcgram;
+  uint8_t* vram[2];
+  uint8_t* attrcache;
 
   uint bank;          // VRAM Cache のバンク
                       //  uint tvramsize;         // 1画面のテキストサイズ
@@ -190,13 +190,13 @@ class CRTC : public Device {
   uint mode;
   bool widefont;
   bool pcgenable;
-  bool kanaenable;  // ひらカナ選択有効
-  uint8 kanamode;   // b4 = ひらがなモード
+  bool kanaenable;   // ひらカナ選択有効
+  uint8_t kanamode;  // b4 = ひらがなモード
 
-  uint8 pcount[2];
-  uint8 param0[6];
-  uint8 param1;
-  uint8 event;
+  uint8_t pcount[2];
+  uint8_t param0[6];
+  uint8_t param1;
+  uint8_t event;
 
  private:
   static const Descriptor descriptor;

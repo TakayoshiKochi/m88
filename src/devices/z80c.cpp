@@ -113,16 +113,16 @@ void Z80C::SetPC(uint newpc) {
   {
     DEBUGCOUNT(4);
     // instruction is on memory
-    instpage = ((uint8*)page.ptr);
-    instbase = ((uint8*)page.ptr) - (newpc & ~pagemask & 0xffff);
-    instlim = ((uint8*)page.ptr) + (1 << pagebits);
-    inst = ((uint8*)page.ptr) + (newpc & pagemask);
+    instpage = ((uint8_t*)page.ptr);
+    instbase = ((uint8_t*)page.ptr) - (newpc & ~pagemask & 0xffff);
+    instlim = ((uint8_t*)page.ptr) + (1 << pagebits);
+    inst = ((uint8_t*)page.ptr) + (newpc & pagemask);
     return;
   } else {
     DEBUGCOUNT(5);
     instbase = instlim = 0;
-    instpage = (uint8*)~0;
-    inst = (uint8*)newpc;
+    instpage = (uint8_t*)~0;
+    inst = (uint8_t*)newpc;
     return;
   }
 }
@@ -163,7 +163,7 @@ inline void Z80C::Jump(uint dest) {
 
 // ninst = inst + rel
 inline void Z80C::JumpR() {
-  inst += int8(Fetch8());
+  inst += int8_t(Fetch8());
   CLK(5);
   if (inst >= instpage) {
     DEBUGCOUNT(17);
@@ -189,7 +189,7 @@ inline uint Z80C::Fetch16() {
   DEBUGCOUNT(3);
 #ifdef ALLOWBOUNDARYACCESS
   if (inst + 1 < instlim) {
-    uint r = *(uint16*)inst;
+    uint r = *(uint16_t*)inst;
     inst += 2;
     return r;
   } else
@@ -441,7 +441,7 @@ inline uint Z80C::Read8(uint addr) {
 #endif
   {
     DEBUGCOUNT(12);
-    return ((uint8*)page.ptr)[addr & pagemask];
+    return ((uint8_t*)page.ptr)[addr & pagemask];
   } else {
     DEBUGCOUNT(8);
     return (*MemoryManager::RdFunc(intpointer(page.ptr) & ~idbit))(page.inst, addr);
@@ -458,7 +458,7 @@ inline void Z80C::Write8(uint addr, uint data) {
 #endif
   {
     DEBUGCOUNT(14);
-    ((uint8*)page.ptr)[addr & pagemask] = data;
+    ((uint8_t*)page.ptr)[addr & pagemask] = data;
   } else {
     DEBUGCOUNT(16);
     (*MemoryManager::WrFunc(intpointer(page.ptr) & ~idbit))(page.inst, addr, data);
@@ -478,7 +478,7 @@ inline uint Z80C::Read16(uint addr) {
     DEBUGCOUNT(13);
     uint a = addr & pagemask;
     if (a < pagemask)
-      return *(uint16*)((uint8*)page.ptr + a);
+      return *(uint16_t*)((uint8_t*)page.ptr + a);
   }
 #endif
   return Read8(addr) + Read8(addr + 1) * 256;
@@ -497,7 +497,7 @@ inline void Z80C::Write16(uint addr, uint data) {
   {
     uint a = addr & pagemask;
     if (a < pagemask) {
-      *(uint16*)((uint8*)page.ptr + a) = data;
+      *(uint16_t*)((uint8_t*)page.ptr + a) = data;
       return;
     }
   }
@@ -519,14 +519,14 @@ inline void Z80C::Outp(uint port, uint data) {
 // ---------------------------------------------------------------------------
 //  フラグ定義 ---------------------------------------------------------------
 
-#define CF (uint8(1 << 0))
-#define NF (uint8(1 << 1))
-#define PF (uint8(1 << 2))
-#define HF (uint8(1 << 4))
-#define ZF (uint8(1 << 6))
-#define SF (uint8(1 << 7))
+#define CF (uint8_t(1 << 0))
+#define NF (uint8_t(1 << 1))
+#define PF (uint8_t(1 << 2))
+#define HF (uint8_t(1 << 4))
+#define ZF (uint8_t(1 << 6))
+#define SF (uint8_t(1 << 7))
 
-#define WF (uint8(1 << 3))
+#define WF (uint8_t(1 << 3))
 
 // ---------------------------------------------------------------------------
 //  マクロ群 -----------------------------------------------------------------
@@ -650,16 +650,16 @@ void Z80C::SetM(uint n) {
   if (index_mode == USEHL)
     Write8(RegHL, n);
   else {
-    Write8(RegXHL + int8(Fetch8()), n);
+    Write8(RegXHL + int8_t(Fetch8()), n);
     CLK(12);
   }
 }
 
-uint8 Z80C::GetM() {
+uint8_t Z80C::GetM() {
   if (index_mode == USEHL)
     return Read8(RegHL);
   else {
-    int r = Read8(RegXHL + int8(Fetch8()));
+    int r = Read8(RegXHL + int8_t(Fetch8()));
     CLK(12);
     return r;
   }
@@ -694,7 +694,7 @@ inline uint Z80C::Pop() {
 // ---------------------------------------------------------------------------
 //  算術演算関数 -------------------------------------------------------------
 
-void Z80C::ADDA(uint8 n) {
+void Z80C::ADDA(uint8_t n) {
   fx = uint(RegA) * 2;
   fy = uint(n) * 2;
   uf = SF | ZF | HF | PF | CF;
@@ -704,9 +704,9 @@ void Z80C::ADDA(uint8 n) {
   SetXF(RegA);
 }
 
-void Z80C::ADCA(uint8 n) {
-  uint8 a = RegA;
-  uint8 cy = GetCF();
+void Z80C::ADCA(uint8_t n) {
+  uint8_t a = RegA;
+  uint8_t cy = GetCF();
 
   RegA = a + n + cy;
   SetXF(RegA);
@@ -718,7 +718,7 @@ void Z80C::ADCA(uint8 n) {
   RegF &= ~NF;
 }
 
-void Z80C::SUBA(uint8 n) {
+void Z80C::SUBA(uint8_t n) {
   fx = RegA * 2;
   fy = n * 2;
   uf = SF | ZF | HF | PF | CF;
@@ -728,7 +728,7 @@ void Z80C::SUBA(uint8 n) {
   SetXF(RegA);
 }
 
-void Z80C::CPA(uint8 n) {
+void Z80C::CPA(uint8_t n) {
   fx = RegA * 2;
   fy = n * 2;
   SetXF(n);
@@ -737,9 +737,9 @@ void Z80C::CPA(uint8 n) {
   RegF |= NF;
 }
 
-void Z80C::SBCA(uint8 n) {
-  uint8 a = RegA;
-  uint8 cy = GetCF();
+void Z80C::SBCA(uint8_t n) {
+  uint8_t a = RegA;
+  uint8_t cy = GetCF();
   RegA = (a - n - cy);
 
   fx = a * 2;
@@ -750,31 +750,31 @@ void Z80C::SBCA(uint8 n) {
   SetXF(RegA);
 }
 
-void Z80C::ANDA(uint8 n) {
-  uint8 b = RegA & n;
+void Z80C::ANDA(uint8_t n) {
+  uint8_t b = RegA & n;
   SetZSP(b);
   SetFlags(HF | NF | CF, HF);
   RegA = (b);
   SetXF(RegA);
 }
 
-void Z80C::ORA(uint8 n) {
-  uint8 b = RegA | n;
+void Z80C::ORA(uint8_t n) {
+  uint8_t b = RegA | n;
   SetZSP(b);
   SetFlags(HF | NF | CF, 0);
   RegA = (b);
   SetXF(RegA);
 }
 
-void Z80C::XORA(uint8 n) {
-  uint8 b = RegA ^ n;
+void Z80C::XORA(uint8_t n) {
+  uint8_t b = RegA ^ n;
   SetZSP(b);
   SetFlags(HF | NF | CF, 0);
   RegA = (b);
   SetXF(RegA);
 }
 
-uint8 Z80C::Inc8(uint8 y) {
+uint8_t Z80C::Inc8(uint8_t y) {
   y++;
   SetFlags(SF | ZF | HF | PF | NF, ((y == 0) ? ZF : 0) | ((y & 0x80) ? SF : 0) |
                                        ((y == 0x80) ? PF : 0) | ((y & 0x0f) ? 0 : HF));
@@ -782,7 +782,7 @@ uint8 Z80C::Inc8(uint8 y) {
   return y;
 }
 
-uint8 Z80C::Dec8(uint8 y) {
+uint8_t Z80C::Dec8(uint8_t y) {
   y--;
   SetFlags(SF | ZF | HF | PF | NF, ((y == 0) ? ZF : 0) | ((y & 0x80) ? SF : 0) |
                                        ((y == 0x7f) ? PF : 0) | (((y & 0x0f) == 0xf) ? HF : 0) |
@@ -804,8 +804,8 @@ void Z80C::ADCHL(uint y) {
   uint cy = GetCF();
   uint x = RegHL;
 
-  fx32 = (uint32)(x & 0xffff) * 2 + 1;
-  fy32 = (uint32)(y & 0xffff) * 2 + cy;
+  fx32 = (uint32_t)(x & 0xffff) * 2 + 1;
+  fy32 = (uint32_t)(y & 0xffff) * 2 + cy;
   RegHL = x + y + cy;
   uf = SF | ZF | HF | PF | CF | WF;
   nfa = 0;
@@ -816,8 +816,8 @@ void Z80C::ADCHL(uint y) {
 void Z80C::SBCHL(uint y) {
   uint cy = GetCF();
 
-  fx32 = (uint32)(RegHL & 0xffff) * 2;
-  fy32 = (uint32)(y & 0xffff) * 2 + cy;
+  fx32 = (uint32_t)(RegHL & 0xffff) * 2;
+  fy32 = (uint32_t)(y & 0xffff) * 2 + cy;
   RegHL = RegHL - y - cy;
   uf = SF | ZF | HF | PF | CF | WF;
   nfa = 1;
@@ -828,8 +828,8 @@ void Z80C::SBCHL(uint y) {
 // ---------------------------------------------------------------------------
 //  ローテート・シフト命令 ---------------------------------------------------
 
-uint8 Z80C::RLC(uint8 d) {
-  uint8 f = (d & 0x80) ? CF : 0;
+uint8_t Z80C::RLC(uint8_t d) {
+  uint8_t f = (d & 0x80) ? CF : 0;
   d = (d << 1) + f; /* CF == 1 */
 
   SetZSP(d);
@@ -837,8 +837,8 @@ uint8 Z80C::RLC(uint8 d) {
   return d;
 }
 
-uint8 Z80C::RRC(uint8 d) {
-  uint8 f = d & 1;
+uint8_t Z80C::RRC(uint8_t d) {
+  uint8_t f = d & 1;
   d = (d >> 1) + (f ? 0x80 : 0);
 
   SetZSP(d);
@@ -846,8 +846,8 @@ uint8 Z80C::RRC(uint8 d) {
   return d;
 }
 
-uint8 Z80C::RL(uint8 d) {
-  uint8 f = (d & 0x80) ? CF : 0;
+uint8_t Z80C::RL(uint8_t d) {
+  uint8_t f = (d & 0x80) ? CF : 0;
   d = (d << 1) + GetCF();
 
   SetZSP(d);
@@ -855,8 +855,8 @@ uint8 Z80C::RL(uint8 d) {
   return d;
 }
 
-uint8 Z80C::RR(uint8 d) {
-  uint8 f = d & 1;
+uint8_t Z80C::RR(uint8_t d) {
+  uint8_t f = d & 1;
   d = (d >> 1) + (GetCF() ? 0x80 : 0);
 
   SetZSP(d);
@@ -864,28 +864,28 @@ uint8 Z80C::RR(uint8 d) {
   return d;
 }
 
-uint8 Z80C::SLA(uint8 d) {
+uint8_t Z80C::SLA(uint8_t d) {
   SetFlags(NF | HF | CF, (d & 0x80) ? CF : 0);
   d <<= 1;
   SetZSP(d);
   return d;
 }
 
-uint8 Z80C::SRA(uint8 d) {
+uint8_t Z80C::SRA(uint8_t d) {
   SetFlags(NF | HF | CF, d & 1);
-  d = int8(d) >> 1;
+  d = int8_t(d) >> 1;
   SetZSP(d);
   return d;
 }
 
-uint8 Z80C::SLL(uint8 d) {
+uint8_t Z80C::SLL(uint8_t d) {
   SetFlags(NF | HF | CF, (d & 0x80) ? CF : 0);
   d = (d << 1) + 1;
   SetZSP(d);
   return d;
 }
 
-uint8 Z80C::SRL(uint8 d) {
+uint8_t Z80C::SRL(uint8_t d) {
   SetFlags(NF | HF | CF, d & 1);
   d >>= 1;
   SetZSP(d);
@@ -895,7 +895,7 @@ uint8 Z80C::SRL(uint8 d) {
 // ---------------------------------------------------------------------------
 //   フラグテーブル
 //
-static const uint8 ZSPTable[256] = {
+static const uint8_t ZSPTable[256] = {
     ZF | PF, 0,       0,       PF,      0,       PF,      PF,      0,       0,       PF,
     PF,      0,       PF,      0,       0,       PF,      0,       PF,      PF,      0,
     PF,      0,       0,       PF,      PF,      0,       0,       PF,      0,       PF,
@@ -931,7 +931,7 @@ void Z80C::SingleStep(uint m) {
   reg.rreg++;
 
   switch (m) {
-    uint8 b;
+    uint8_t b;
     uint w;
 
       // ローテートシフト系
@@ -1762,7 +1762,7 @@ void Z80C::SingleStep(uint m) {
     case 0x34: /*M*/
       w = RegXHL;
       if (index_mode != USEHL) {
-        w += int8(Fetch8());
+        w += int8_t(Fetch8());
         CLK(23 - 11);
       }
       Write8(w, Inc8(Read8(w)));
@@ -1802,7 +1802,7 @@ void Z80C::SingleStep(uint m) {
     case 0x35: /*M*/
       w = RegXHL;
       if (index_mode != USEHL) {
-        w += (int8)(Fetch8());
+        w += (int8_t)(Fetch8());
         CLK(23 - 11);
       }
       Write8(w, Dec8(Read8(w)));
@@ -2145,7 +2145,7 @@ void Z80C::SingleStep(uint m) {
     case 0x36: /*n*/
       w = RegXHL;
       if (index_mode != USEHL) {
-        w += int8(Fetch8());
+        w += int8_t(Fetch8());
         CLK(19 - 10);
       }
       Write8(w, Fetch8());
@@ -2647,7 +2647,7 @@ void Z80C::SingleStep(uint m) {
 
         case 0x6f:  // RLD
         {
-          uint8 d, e;
+          uint8_t d, e;
 
           d = Read8(RegHL);
           e = RegA & 0x0f;
@@ -2662,7 +2662,7 @@ void Z80C::SingleStep(uint m) {
 
         case 0x67:  // RRD
         {
-          uint8 d, e;
+          uint8_t d, e;
 
           d = Read8(RegHL);
           e = RegA & 0x0f;
@@ -2759,18 +2759,18 @@ void Z80C::SingleStep(uint m) {
 //  CB 系
 //
 void Z80C::CodeCB() {
-  typedef uint8 (Z80C::*RotFuncPtr)(uint8);
+  typedef uint8_t (Z80C::*RotFuncPtr)(uint8_t);
 
   static const RotFuncPtr func[8] = {&Z80C::RLC, &Z80C::RRC, &Z80C::RL,  &Z80C::RR,
                                      &Z80C::SLA, &Z80C::SRA, &Z80C::SLL, &Z80C::SRL};
 
-  int8 ref = (index_mode == USEHL) ? 0 : int8(Fetch8());
-  uint8 fn = Fetch8();
+  int8_t ref = (index_mode == USEHL) ? 0 : int8_t(Fetch8());
+  uint8_t fn = Fetch8();
   uint rg = fn & 7;
   uint bit = (fn >> 3) & 7;
 
   if (rg != 6) {
-    uint8* p = ref_byte[rg]; /* 操作対象へのポインタ */
+    uint8_t* p = ref_byte[rg]; /* 操作対象へのポインタ */
     switch ((fn >> 6) & 3) {
       case 0:
         *p = (this->*func[bit])(*p);
@@ -2788,7 +2788,7 @@ void Z80C::CodeCB() {
     CLK(8);
   } else {
     uint b = *ref_hl[index_mode] + ref;
-    uint8 d = Read8(b);
+    uint8_t d = Read8(b);
     switch ((fn >> 6) & 3) {
       case 0:
         Write8(b, (this->*func[bit])(d));
@@ -2814,7 +2814,7 @@ void Z80C::CodeCB() {
 //  ブロック比較 -------------------------------------------------------------
 //
 void Z80C::CPI() {
-  uint8 n, f;
+  uint8_t n, f;
   n = Read8(RegHL++);
   RegBC = (RegBC - 1) & 0xffff;
   f = (((RegA & 0x0f) < (n & 0x0f)) ? HF : 0) | (RegBC ? PF : 0) | NF;
@@ -2825,7 +2825,7 @@ void Z80C::CPI() {
 }
 
 void Z80C::CPD() {
-  uint8 n, f;
+  uint8_t n, f;
   n = Read8(RegHL--);
   RegBC = (RegBC - 1) & 0xffff;
   f = (((RegA & 0x0f) < (n & 0x0f)) ? HF : 0) | (RegBC ? PF : 0) | NF;
@@ -2837,7 +2837,7 @@ void Z80C::CPD() {
 // ---------------------------------------------------------------------------
 //  フラグ関数 ---------------------------------------------------------------
 
-uint8 Z80C::GetCF() {
+uint8_t Z80C::GetCF() {
   if (uf & CF) {
     if (uf & WF) {
       if (nfa)
@@ -2854,7 +2854,7 @@ uint8 Z80C::GetCF() {
   return RegF & CF;
 }
 
-uint8 Z80C::GetZF() {
+uint8_t Z80C::GetZF() {
   if (uf & ZF) {
     if (uf & WF) {
       if (nfa)
@@ -2871,7 +2871,7 @@ uint8 Z80C::GetZF() {
   return RegF & ZF;
 }
 
-uint8 Z80C::GetSF() {
+uint8_t Z80C::GetSF() {
   if (uf & SF) {
     if (uf & WF) {
       if (nfa)
@@ -2888,7 +2888,7 @@ uint8 Z80C::GetSF() {
   return RegF & SF;
 }
 
-uint8 Z80C::GetHF() {
+uint8_t Z80C::GetHF() {
   if (uf & HF) {
     if (uf & WF) {
       if (nfa)
@@ -2905,7 +2905,7 @@ uint8 Z80C::GetHF() {
   return RegF & HF;
 }
 
-uint8 Z80C::GetPF() {
+uint8_t Z80C::GetPF() {
   if (uf & PF) {
     if (uf & WF) {
       if (nfa)
@@ -2922,12 +2922,12 @@ uint8 Z80C::GetPF() {
   return RegF & PF;
 }
 
-void Z80C::SetZS(uint8 a) {
+void Z80C::SetZS(uint8_t a) {
   SetFlags(ZF | SF, ZSPTable[a] & (ZF | SF));
   SetXF(a);
 }
 
-void Z80C::SetZSP(uint8 a) {
+void Z80C::SetZSP(uint8_t a) {
   SetFlags(ZF | SF | PF, ZSPTable[a]);
   SetXF(a);
 }
@@ -3037,7 +3037,7 @@ uint IFCALL Z80C::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL Z80C::SaveStatus(uint8* s) {
+bool IFCALL Z80C::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   GetAF();
   st->rev = ssrev;
@@ -3051,14 +3051,14 @@ bool IFCALL Z80C::SaveStatus(uint8* s) {
   return true;
 }
 
-bool IFCALL Z80C::LoadStatus(const uint8* s) {
+bool IFCALL Z80C::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;
   reg = st->reg;
   instbase = instlim = 0;
-  instpage = (uint8*)~0;
-  inst = (uint8*)reg.pc;
+  instpage = (uint8_t*)~0;
+  inst = (uint8_t*)reg.pc;
 
   intr = st->intr;
   waitstate = st->wait;

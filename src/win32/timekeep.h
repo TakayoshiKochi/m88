@@ -27,10 +27,10 @@ class TimeKeeper {
   TimeKeeper();
   ~TimeKeeper();
 
-  uint32 GetTime();
+  uint32_t GetTime();
 
  private:
-  uint32 freq;  // ソースクロックの周期
-  uint32 base;  // 最後の呼び出しの際の元クロックの値
-  uint32 time;  // 最後の呼び出しに返した値
+  uint32_t freq;  // ソースクロックの周期
+  uint32_t base;  // 最後の呼び出しの際の元クロックの値
+  uint32_t time;  // 最後の呼び出しに返した値
 };

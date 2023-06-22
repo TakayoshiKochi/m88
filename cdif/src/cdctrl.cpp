@@ -120,15 +120,15 @@ void CDControl::ExecCommand(uint cmd, uint arg1, uint arg2) {
       break;
 
     case readsubcodeq:
-      ret = cdrom->ReadSubCh((uint8*)arg1, true);
+      ret = cdrom->ReadSubCh((uint8_t*)arg1, true);
       break;
 
     case read1:
-      ret = cdrom->Read(arg1, (uint8*)arg2, 2048);
+      ret = cdrom->Read(arg1, (uint8_t*)arg2, 2048);
       break;
 
     case read2:
-      ret = cdrom->Read2(arg1, (uint8*)arg2, 2340);
+      ret = cdrom->Read2(arg1, (uint8_t*)arg2, 2340);
       break;
 
     default:
@@ -145,7 +145,7 @@ void CDControl::ExecCommand(uint cmd, uint arg1, uint arg2) {
 uint CDControl::GetTime() {
   if (diskpresent) {
     SubcodeQ sub;
-    cdrom->ReadSubCh((uint8*)&sub, false);
+    cdrom->ReadSubCh((uint8_t*)&sub, false);
 
     return sub.absaddr;
   }

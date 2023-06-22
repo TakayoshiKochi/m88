@@ -266,7 +266,7 @@ void WinDrawD2D::DrawScreen(const RECT& _rect, bool refresh) {
 // @param _pimage [out] image pointer
 // @param _pbpl   [out] width
 //
-bool WinDrawD2D::Lock(uint8** _pimage, int* _pbpl) {
+bool WinDrawD2D::Lock(uint8_t** _pimage, int* _pbpl) {
   *_pimage = m_image;
   *_pbpl = bpl;
   return m_image != 0;

@@ -23,7 +23,7 @@ class WinDrawGDI : public WinDrawSub {
   bool Cleanup();
   void SetPalette(PALETTEENTRY* pal, int index, int nentries);
   void DrawScreen(const RECT& rect, bool refresh);
-  bool Lock(uint8** pimage, int* pbpl);
+  bool Lock(uint8_t** pimage, int* pbpl);
   bool Unlock();
 
  private:
@@ -37,9 +37,9 @@ class WinDrawGDI : public WinDrawSub {
   bool MakeBitmap();
 
   HBITMAP hbitmap;
-  uint8* bitmapimage;
+  uint8_t* bitmapimage;
   HWND hwnd;
-  uint8* image;
+  uint8_t* image;
   int bpl;
   uint width;
   uint height;
