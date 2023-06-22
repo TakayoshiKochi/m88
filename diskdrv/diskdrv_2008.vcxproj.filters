@@ -9,7 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\diskio.h" />
-    <ClInclude Include="..\src\Win32\File.h" />
+    <ClInclude Include="..\src\win32\file.h" />
     <ClInclude Include="src\headers.h" />
   </ItemGroup>
 </Project>

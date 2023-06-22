@@ -559,7 +559,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\devices\Z80c.cpp">
+    <ClCompile Include="src\devices\z80c.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -568,7 +568,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\devices\Z80debug.cpp">
+    <ClCompile Include="src\devices\z80debug.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -582,7 +582,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">true</ExcludedFromBuild>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\devices\Z80diag.cpp">
+    <ClCompile Include="src\devices\z80diag.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -590,7 +590,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\devices\Z80Test.cpp">
+    <ClCompile Include="src\devices\z80test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -604,7 +604,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">true</ExcludedFromBuild>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\devices\Z80_x86.cpp">
+    <ClCompile Include="src\devices\z80_x86.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -811,7 +811,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\88config.cpp">
+    <ClCompile Include="src\win32\88config.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -819,7 +819,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\about.cpp">
+    <ClCompile Include="src\win32\about.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -859,7 +859,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\diag.cpp">
+    <ClCompile Include="src\win32\diag.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -868,7 +868,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="src\win32\drawd2d.cpp" />
-    <ClCompile Include="src\Win32\drawdds.cpp">
+    <ClCompile Include="src\win32\drawdds.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -876,7 +876,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\drawddw.cpp">
+    <ClCompile Include="src\win32\drawddw.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -884,7 +884,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\drawgdi.cpp">
+    <ClCompile Include="src\win32\drawgdi.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -900,7 +900,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\file.cpp">
+    <ClCompile Include="src\win32\file.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -970,7 +970,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\main.cpp">
+    <ClCompile Include="src\win32\main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1002,7 +1002,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\newdisk.cpp">
+    <ClCompile Include="src\win32\newdisk.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1066,7 +1066,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\soundmon.cpp">
+    <ClCompile Include="src\win32\soundmon.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1082,7 +1082,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\status.cpp">
+    <ClCompile Include="src\win32\status.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1098,7 +1098,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\ui.cpp">
+    <ClCompile Include="src\win32\ui.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1114,7 +1114,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\wincore.cpp">
+    <ClCompile Include="src\win32\wincore.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1122,7 +1122,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\windraw.cpp">
+    <ClCompile Include="src\win32\windraw.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1140,7 +1140,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\winjoy.cpp">
+    <ClCompile Include="src\win32\winjoy.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1148,7 +1148,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\winkeyif.cpp">
+    <ClCompile Include="src\win32\winkeyif.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1164,7 +1164,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\winmouse.cpp">
+    <ClCompile Include="src\win32\winmouse.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1172,7 +1172,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\Win32\winsound.cpp">
+    <ClCompile Include="src\win32\winsound.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1409,12 +1409,12 @@
     <ClInclude Include="src\devices\opm.h" />
     <ClInclude Include="src\devices\opna.h" />
     <ClInclude Include="src\devices\psg.h" />
-    <ClInclude Include="src\devices\Z80.h" />
-    <ClInclude Include="src\devices\Z80c.h" />
-    <ClInclude Include="src\devices\Z80debug.h" />
-    <ClInclude Include="src\devices\Z80diag.h" />
-    <ClInclude Include="src\devices\Z80Test.h" />
-    <ClInclude Include="src\devices\Z80_x86.h" />
+    <ClInclude Include="src\devices\z80.h" />
+    <ClInclude Include="src\devices\z80c.h" />
+    <ClInclude Include="src\devices\z80debug.h" />
+    <ClInclude Include="src\devices\z80diag.h" />
+    <ClInclude Include="src\devices\z80test.h" />
+    <ClInclude Include="src\devices\z80_x86.h" />
     <ClInclude Include="src\if\ifcommon.h" />
     <ClInclude Include="src\if\ifguid.h" />
     <ClInclude Include="src\if\ifpc88.h" />
@@ -1436,7 +1436,7 @@
     <ClInclude Include="src\pc88\memview.h" />
     <ClInclude Include="src\pc88\mouse.h" />
     <ClInclude Include="src\pc88\opnif.h" />
-    <ClInclude Include="src\PC88\pc88.h" />
+    <ClInclude Include="src\pc88\pc88.h" />
     <ClInclude Include="src\pc88\pcinfo.h" />
     <ClInclude Include="src\pc88\pd8257.h" />
     <ClInclude Include="src\pc88\pio.h" />
@@ -1445,32 +1445,32 @@
     <ClInclude Include="src\pc88\sound.h" />
     <ClInclude Include="src\pc88\subsys.h" />
     <ClInclude Include="src\pc88\tapemgr.h" />
-    <ClInclude Include="src\Win32\88config.h" />
-    <ClInclude Include="src\Win32\about.h" />
+    <ClInclude Include="src\win32\88config.h" />
+    <ClInclude Include="src\win32\about.h" />
     <ClInclude Include="src\win32\basmon.h" />
     <ClInclude Include="src\win32\cfgpage.h" />
     <ClInclude Include="src\win32\codemon.h" />
-    <ClInclude Include="src\Win32\CritSect.h" />
+    <ClInclude Include="src\win32\critsect.h" />
     <ClInclude Include="src\win32\dderr.h" />
-    <ClInclude Include="src\Win32\diag.h" />
+    <ClInclude Include="src\win32\diag.h" />
     <ClInclude Include="src\win32\drawd2d.h" />
-    <ClInclude Include="src\Win32\drawdds.h" />
-    <ClInclude Include="src\Win32\drawddw.h" />
-    <ClInclude Include="src\Win32\drawgdi.h" />
+    <ClInclude Include="src\win32\drawdds.h" />
+    <ClInclude Include="src\win32\drawddw.h" />
+    <ClInclude Include="src\win32\drawgdi.h" />
     <ClInclude Include="src\win32\extdev.h" />
-    <ClInclude Include="src\Win32\file.h" />
+    <ClInclude Include="src\win32\file.h" />
     <ClInclude Include="src\win32\filetest.h" />
-    <ClInclude Include="src\Win32\headers.h" />
+    <ClInclude Include="src\win32\headers.h" />
     <ClInclude Include="src\win32\iomon.h" />
     <ClInclude Include="src\win32\keybconn.h" />
     <ClInclude Include="src\win32\loadmon.h" />
     <ClInclude Include="src\win32\memmon.h" />
-    <ClInclude Include="src\Win32\messages.h" />
+    <ClInclude Include="src\win32\messages.h" />
     <ClInclude Include="src\win32\module.h" />
     <ClInclude Include="src\win32\mvmon.h" />
-    <ClInclude Include="src\Win32\newdisk.h" />
+    <ClInclude Include="src\win32\newdisk.h" />
     <ClInclude Include="src\win32\regmon.h" />
-    <ClInclude Include="src\Win32\resource.h" />
+    <ClInclude Include="src\win32\resource.h" />
     <ClInclude Include="src\win32\romeo\juliet.h" />
     <ClInclude Include="src\win32\romeo\piccolo.h" />
     <ClInclude Include="src\win32\romeo\piccolo_gimic.h" />
@@ -1480,22 +1480,22 @@
     <ClInclude Include="src\win32\sounddrv.h" />
     <ClInclude Include="src\win32\soundds.h" />
     <ClInclude Include="src\win32\soundds2.h" />
-    <ClInclude Include="src\Win32\soundmon.h" />
+    <ClInclude Include="src\win32\soundmon.h" />
     <ClInclude Include="src\win32\soundwo.h" />
-    <ClInclude Include="src\Win32\status.h" />
+    <ClInclude Include="src\win32\status.h" />
     <ClInclude Include="src\win32\timekeep.h" />
-    <ClInclude Include="src\Win32\types.h" />
-    <ClInclude Include="src\Win32\ui.h" />
+    <ClInclude Include="src\win32\types.h" />
+    <ClInclude Include="src\win32\ui.h" />
     <ClInclude Include="src\win32\version.h" />
     <ClInclude Include="src\win32\wincfg.h" />
-    <ClInclude Include="src\Win32\wincore.h" />
-    <ClInclude Include="src\Win32\windraw.h" />
+    <ClInclude Include="src\win32\wincore.h" />
+    <ClInclude Include="src\win32\windraw.h" />
     <ClInclude Include="src\win32\winexapi.h" />
-    <ClInclude Include="src\Win32\winjoy.h" />
-    <ClInclude Include="src\Win32\winkeyif.h" />
+    <ClInclude Include="src\win32\winjoy.h" />
+    <ClInclude Include="src\win32\winkeyif.h" />
     <ClInclude Include="src\win32\winmon.h" />
-    <ClInclude Include="src\Win32\winmouse.h" />
-    <ClInclude Include="src\Win32\winsound.h" />
+    <ClInclude Include="src\win32\winmouse.h" />
+    <ClInclude Include="src\win32\winsound.h" />
     <ClInclude Include="src\win32\winvars.h" />
     <ClInclude Include="src\zlib\deflate.h" />
     <ClInclude Include="src\zlib\inffast.h" />
@@ -1507,17 +1507,17 @@
     <ClInclude Include="src\zlib\zutil.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="src\Win32\M88.rc">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">src\Win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">src\Win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">src\Win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">src\Win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">src\Win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">src\Win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    <ResourceCompile Include="src\win32\M88.rc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\Win32\M88.ico" />
+    <Image Include="src\win32\M88.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="m88dev.html" />

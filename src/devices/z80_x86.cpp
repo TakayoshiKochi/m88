@@ -16,7 +16,7 @@
 
 #ifdef USE_Z80_X86
 
-#include "Z80_x86.h"
+#include "z80_x86.h"
 
 // #define NO_UNOFFICIALFLAGS
 
