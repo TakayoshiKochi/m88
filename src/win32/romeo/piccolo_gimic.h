@@ -4,14 +4,13 @@
 
 #include "win32/romeo/piccolo.h"
 
-class Piccolo_Gimic : public Piccolo
-{
-public:
-    Piccolo_Gimic();
-    virtual ~Piccolo_Gimic();
-    int Init();
-    int GetChip( PICCOLO_CHIPTYPE type, PiccoloChip** pc );
-    void SetReg( uint addr, uint data );
-private:
-};
+class Piccolo_Gimic : public Piccolo {
+ public:
+  Piccolo_Gimic();
+  virtual ~Piccolo_Gimic();
+  int Init();
+  int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc);
+  void SetReg(uint addr, uint data);
 
+ private:
+};

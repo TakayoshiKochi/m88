@@ -4,28 +4,26 @@
 
 #include "win32/romeo/piccolo.h"
 
-class Piccolo_Romeo : public Piccolo
-{
-public:
-    Piccolo_Romeo();
-    virtual ~Piccolo_Romeo();
-    int Init();
-    int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc);
-    void SetReg( uint addr, uint data );
+class Piccolo_Romeo : public Piccolo {
+ public:
+  Piccolo_Romeo();
+  virtual ~Piccolo_Romeo();
+  int Init();
+  int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc);
+  void SetReg(uint addr, uint data);
 
-    void Reset();
-    void Mute();
-    bool IsBusy();
-private:
-    enum
-    {
-        ADDR0 = 0x00,
-        DATA0 = 0x04,
-        ADDR1 = 0x08,
-        DATA1 = 0x0c,
-        CTRL  = 0x1c,
-    };
+  void Reset();
+  void Mute();
+  bool IsBusy();
 
-private:
+ private:
+  enum {
+    ADDR0 = 0x00,
+    DATA0 = 0x04,
+    ADDR1 = 0x08,
+    DATA1 = 0x0c,
+    CTRL = 0x1c,
+  };
+
+ private:
 };
-
