@@ -19,7 +19,7 @@
 #include "win32/status.h"
 
 // #define LOGNAME "crtc"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 using namespace PC8801;
 

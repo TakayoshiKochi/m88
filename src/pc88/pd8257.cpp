@@ -12,7 +12,7 @@
 #include "common/misc.h"
 
 // #define LOGNAME   "pd8257"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 using namespace PC8801;
 

@@ -162,9 +162,6 @@
     <ClCompile Include="src\win32\dderr.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\diag.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\drawd2d.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
@@ -311,6 +308,9 @@
     </ClCompile>
     <ClCompile Include="src\zlib\zutil.c">
       <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\diag.cpp">
+      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -479,9 +479,6 @@
     <ClInclude Include="src\win32\dderr.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\diag.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\drawd2d.h">
       <Filter>Win32</Filter>
     </ClInclude>
@@ -646,6 +643,9 @@
     </ClInclude>
     <ClInclude Include="src\zlib\zutil.h">
       <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\diag.h">
+      <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\diag.h">
       <Filter>common</Filter>

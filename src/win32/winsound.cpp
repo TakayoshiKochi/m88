@@ -17,7 +17,7 @@
 #include "win32/soundmon.h"
 
 // #define LOGNAME "winsound"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 using namespace PC8801;
 using namespace WinSoundDriver;

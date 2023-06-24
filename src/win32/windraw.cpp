@@ -22,7 +22,7 @@
 #include "win32/winexapi.h"
 
 #define LOGNAME "windraw"
-#include "win32/diag.h"
+#include "common/diag.h"
 // #define DRAW_THREAD
 
 // ---------------------------------------------------------------------------

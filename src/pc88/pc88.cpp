@@ -33,7 +33,7 @@
 #include "common/device_i.h"
 
 // #define LOGNAME "pc88"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 using namespace PC8801;
 

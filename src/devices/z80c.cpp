@@ -11,7 +11,7 @@
 // #define NO_UNOFFICIALFLAGS
 
 // #define LOGNAME "Z80C"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 // ---------------------------------------------------------------------------
 //  マクロ 1

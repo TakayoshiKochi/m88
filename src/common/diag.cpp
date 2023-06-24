@@ -7,7 +7,7 @@
 #include "win32/headers.h"
 
 #define INCLDIAG
-#include "win32/diag.h"
+#include "common/diag.h"
 
 #if defined(_DEBUG)
 

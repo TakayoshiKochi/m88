@@ -26,7 +26,7 @@ typedef struct {
 } SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER;
 
 #define LOGNAME "cdrom"
-#include "win32/diag.h"
+#include "common/diag.h"
 
 #define SHIFT
 

@@ -463,6 +463,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
+    <ClCompile Include="src\common\diag.cpp" />
     <ClCompile Include="src\common\error.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -835,14 +836,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="src\win32\dderr.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="src\win32\diag.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1375,6 +1368,7 @@
   <ItemGroup>
     <ClInclude Include="src\common\device.h" />
     <ClInclude Include="src\common\device_i.h" />
+    <ClInclude Include="src\common\diag.h" />
     <ClInclude Include="src\common\draw.h" />
     <ClInclude Include="src\common\error.h" />
     <ClInclude Include="src\common\memmgr.h" />
@@ -1432,7 +1426,6 @@
     <ClInclude Include="src\win32\codemon.h" />
     <ClInclude Include="src\win32\critsect.h" />
     <ClInclude Include="src\win32\dderr.h" />
-    <ClInclude Include="src\win32\diag.h" />
     <ClInclude Include="src\win32\drawd2d.h" />
     <ClInclude Include="src\win32\drawdds.h" />
     <ClInclude Include="src\win32\drawddw.h" />
