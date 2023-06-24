@@ -1,10 +1,16 @@
 # Compiled Object files
+out/
 x64/
+x86/
 Debug/
 Release/
 *.lib
 *.obj
 *.aps
+
+# IDE files
+.vs/
+.idea/
 
 # Work files
 *.ini
@@ -20,4 +26,8 @@ Release/
 *.m88
 *.exe
 *.rom
-
+*.ROM
+*.d88
+*.D88
+*.wav
+*.WAV
