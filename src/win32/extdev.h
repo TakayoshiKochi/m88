@@ -72,7 +72,12 @@ class ExternalDevice : public Device, public ISoundSource {
  private:
   static int S_DMARead(void*, uint32_t bank, uint8_t* data, uint32_t nbytes);
   static int S_DMAWrite(void*, uint32_t bank, uint8_t* data, uint32_t nbytes);
-  static bool S_MemAcquire(void*, uint32_t page, uint32_t npages, void* read, void* write, uint32_t flags);
+  static bool S_MemAcquire(void*,
+                           uint32_t page,
+                           uint32_t npages,
+                           void* read,
+                           void* write,
+                           uint32_t flags);
   static bool S_MemRelease(void*, uint32_t page, uint32_t npages, uint32_t flags);
   static void* S_AddEvent(void*, uint32_t count, uint32_t arg);
   static bool S_DelEvent(void*, void*);

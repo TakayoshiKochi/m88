@@ -191,7 +191,7 @@ class FDC : public Device {
   uint32_t status;  // ステータスレジスタ
   uint8_t* buffer;
   uint8_t* bufptr;
-  int count;     // Exec*Phase での転送残りバイト
+  int count;         // Exec*Phase での転送残りバイト
   uint32_t command;  // 現在処理中のコマンド
   uint32_t data;     // データレジスタ
   Phase phase, prevphase;

@@ -37,7 +37,8 @@ struct PCInfo {
   int (*DMAWrite)(void*, uint32_t bank, uint8_t* data, uint32_t nbytes);
 
   // Page
-  bool (*MemAcquire)(void*, uint32_t page, uint32_t npages, void* read, void* write, uint32_t flags);
+  bool (
+      *MemAcquire)(void*, uint32_t page, uint32_t npages, void* read, void* write, uint32_t flags);
   bool (*MemRelease)(void*, uint32_t page, uint32_t npages, uint32_t flags);
 
   // Timer

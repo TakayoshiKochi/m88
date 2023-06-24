@@ -105,10 +105,10 @@ class Operator {
   uint32_t PGCalc();
   uint32_t PGCalcL();
 
-  uint32_t dp_;            // ΔP
-  uint32_t detune_;        // Detune
-  uint32_t detune2_;       // DT2
-  uint32_t multiple_;      // Multiple
+  uint32_t dp_;          // ΔP
+  uint32_t detune_;      // Detune
+  uint32_t detune2_;     // DT2
+  uint32_t multiple_;    // Multiple
   uint32_t pg_count_;    // Phase 現在値
   uint32_t pg_diff_;     // Phase 差分値
   int32_t pg_diff_lfo_;  // Phase 差分値 >> x
@@ -126,7 +126,7 @@ class Operator {
   ISample LogToLin(uint32_t a);
 
   OpType type_;                 // OP の種類 (M, N...)
-  uint32_t bn_;                     // Block/Note
+  uint32_t bn_;                 // Block/Note
   int eg_level_;                // EG の出力値
   int eg_level_on_next_phase_;  // 次の eg_phase_ に移る値
   int eg_count_;                // EG の次の変移までの時間

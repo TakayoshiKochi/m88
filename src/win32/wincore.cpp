@@ -237,9 +237,9 @@ bool WinCore::LoadShapshot(const char* filename, const char* diskname) {
 
   // applyconfig
   const uint32_t fl1a = Config::subcpucontrol | Config::fullspeed | Config::enableopna |
-                    Config::enablepcg | Config::fv15k | Config::cpuburst | Config::cpuclockmode |
-                    Config::digitalpalette | Config::opnona8 | Config::opnaona8 |
-                    Config::enablewait;
+                        Config::enablepcg | Config::fv15k | Config::cpuburst |
+                        Config::cpuclockmode | Config::digitalpalette | Config::opnona8 |
+                        Config::opnaona8 | Config::enablewait;
   const uint32_t fl2a = Config::disableopn44;
 
   config.flags = (config.flags & ~fl1a) | (ssh.flags & fl1a);

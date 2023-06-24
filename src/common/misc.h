@@ -31,4 +31,3 @@ inline unsigned int NtoBCD(unsigned int a) {
 inline unsigned int BCDtoN(unsigned int v) {
   return (v >> 4) * 10 + (v & 15);
 }
-

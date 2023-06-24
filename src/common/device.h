@@ -42,8 +42,8 @@ class Device : public IDevice {
 //
 class MemoryBus : public IMemoryAccess {
  public:
-  typedef uint32_t(*ReadFuncPtr)(void* inst, uint32_t addr);
-  typedef void(*WriteFuncPtr)(void* inst, uint32_t addr, uint32_t data);
+  typedef uint32_t (*ReadFuncPtr)(void* inst, uint32_t addr);
+  typedef void (*WriteFuncPtr)(void* inst, uint32_t addr, uint32_t data);
 
   struct Page {
     void* read;
@@ -229,7 +229,8 @@ public:
 // ---------------------------------------------------------------------------
 
 // Assumes little endian
-#define DEV_ID(a, b, c, d) (Device::ID(a + (uint32_t(b) << 8) + (uint32_t(c) << 16) + (uint32_t(d) << 24)))
+#define DEV_ID(a, b, c, d) \
+  (Device::ID(a + (uint32_t(b) << 8) + (uint32_t(c) << 16) + (uint32_t(d) << 24)))
 
 // ---------------------------------------------------------------------------
 

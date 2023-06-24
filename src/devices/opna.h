@@ -176,28 +176,28 @@ class OPNABase : public OPNBase {
   uint32_t fnum3[3];
 
   // ADPCM 関係
-  uint8_t* adpcmbuf;   // ADPCM RAM
+  uint8_t* adpcmbuf;     // ADPCM RAM
   uint32_t adpcmmask;    // メモリアドレスに対するビットマスク
   uint32_t adpcmnotice;  // ADPCM 再生終了時にたつビット
   uint32_t startaddr;    // Start address
   uint32_t stopaddr;     // Stop address
   uint32_t memaddr;      // 再生中アドレス
   uint32_t limitaddr;    // Limit address/mask
-  int adpcmlevel;    // ADPCM 音量
+  int adpcmlevel;        // ADPCM 音量
   int adpcmvolume;
   int adpcmvol;
   uint32_t deltan;    // ⊿N
-  int adplc;      // 周波数変換用変数
-  int adpld;      // 周波数変換用変数差分値
+  int adplc;          // 周波数変換用変数
+  int adpld;          // 周波数変換用変数差分値
   uint32_t adplbase;  // adpld の元
-  int adpcmx;     // ADPCM 合成用 x
-  int adpcmd;     // ADPCM 合成用 ⊿
-  int adpcmout;   // ADPCM 合成後の出力
-  int apout0;     // out(t-2)+out(t-1)
-  int apout1;     // out(t-1)+out(t)
+  int adpcmx;         // ADPCM 合成用 x
+  int adpcmd;         // ADPCM 合成用 ⊿
+  int adpcmout;       // ADPCM 合成後の出力
+  int apout0;         // out(t-2)+out(t-1)
+  int apout1;         // out(t-1)+out(t)
 
   uint32_t adpcmreadbuf;  // ADPCM リード用バッファ
-  bool adpcmplay;     // ADPCM 再生中
+  bool adpcmplay;         // ADPCM 再生中
   int8_t granuality;
   bool adpcmmask_;
 
@@ -283,10 +283,10 @@ class OPNA : public OPNABase {
     int8_t level;     // おんりょう
     int volume;       // おんりょうせってい
     int16_t* sample;  // さんぷる
-    uint32_t size;      // さいず
-    uint32_t pos;       // いち
-    uint32_t step;      // すてっぷち
-    uint32_t rate;      // さんぷるのれーと
+    uint32_t size;    // さいず
+    uint32_t pos;     // いち
+    uint32_t step;    // すてっぷち
+    uint32_t rate;    // さんぷるのれーと
   };
 
   void RhythmMix(Sample* buffer, uint32_t count);
@@ -328,17 +328,17 @@ class OPNB : public OPNABase {
 
  private:
   struct ADPCMA {
-    uint8_t pan;   // ぱん
-    int8_t level;  // おんりょう
-    int volume;  // おんりょうせってい
-    uint32_t pos;    // いち
-    uint32_t step;   // すてっぷち
+    uint8_t pan;    // ぱん
+    int8_t level;   // おんりょう
+    int volume;     // おんりょうせってい
+    uint32_t pos;   // いち
+    uint32_t step;  // すてっぷち
 
     uint32_t start;   // 開始
     uint32_t stop;    // 終了
     uint32_t nibble;  // 次の 4 bit
-    int adpcmx;   // 変換用
-    int adpcmd;   // 変換用
+    int adpcmx;       // 変換用
+    int adpcmd;       // 変換用
   };
 
   int DecodeADPCMASample(uint32_t);

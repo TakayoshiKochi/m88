@@ -173,8 +173,8 @@ class CRTC : public Device {
   uint8_t* attrcache;
 
   uint32_t bank;          // VRAM Cache のバンク
-                      //  uint32_t tvramsize;         // 1画面のテキストサイズ
-                      //  uint32_t screenwidth;       // 画面の幅
+                          //  uint32_t tvramsize;         // 1画面のテキストサイズ
+                          //  uint32_t screenwidth;       // 画面の幅
   uint32_t screenheight;  // 画面の高さ
 
   uint32_t cursor_x;  // カーソル位置
@@ -185,7 +185,7 @@ class CRTC : public Device {
   uint32_t width;          // テキスト画面の幅
   uint32_t height;         // テキスト画面の高さ
   uint32_t blinkrate;      // ブリンクの速度
-  int cursor_type;     // b0:blink, b1:underline (-1=none)
+  int cursor_type;         // b0:blink, b1:underline (-1=none)
   uint32_t vretrace;       //
   uint32_t mode;
   bool widefont;

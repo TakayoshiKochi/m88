@@ -62,7 +62,10 @@ struct IMemoryManager {
   virtual bool IFCALL Disconnect(uint32_t pid) = 0;
 
   virtual bool IFCALL AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) = 0;
-  virtual bool IFCALL AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint32_t(*)(void*, uint32_t)) = 0;
+  virtual bool IFCALL AllocR(uint32_t pid,
+                             uint32_t addr,
+                             uint32_t length,
+                             uint32_t (*)(void*, uint32_t)) = 0;
   virtual bool IFCALL ReleaseR(uint32_t pid, uint32_t addr, uint32_t length) = 0;
   virtual uint32_t IFCALL Read8P(uint32_t pid, uint32_t addr) = 0;
 
@@ -70,7 +73,7 @@ struct IMemoryManager {
   virtual bool IFCALL AllocW(uint32_t pid,
                              uint32_t addr,
                              uint32_t length,
-                             void(*)(void*, uint32_t, uint32_t)) = 0;
+                             void (*)(void*, uint32_t, uint32_t)) = 0;
   virtual bool IFCALL ReleaseW(uint32_t pid, uint32_t addr, uint32_t length) = 0;
   virtual void IFCALL Write8P(uint32_t pid, uint32_t addr, uint32_t data) = 0;
 };

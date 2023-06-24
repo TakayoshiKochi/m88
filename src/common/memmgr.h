@@ -65,7 +65,7 @@ class MemoryManagerBase {
 
 class ReadMemManager : public MemoryManagerBase {
  public:
-  typedef uint32_t(*RdFunc)(void* inst, uint32_t addr);
+  typedef uint32_t (*RdFunc)(void* inst, uint32_t addr);
 
   bool Init(uint32_t sas, Page* pages = 0);
   bool AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr);
@@ -82,7 +82,7 @@ class ReadMemManager : public MemoryManagerBase {
 
 class WriteMemManager : public MemoryManagerBase {
  public:
-  typedef void(*WrFunc)(void* inst, uint32_t addr, uint32_t data);
+  typedef void (*WrFunc)(void* inst, uint32_t addr, uint32_t data);
 
  public:
   bool Init(uint32_t sas, Page* pages = 0);
@@ -137,7 +137,9 @@ class MemoryManager : public IMemoryManager,
     return WriteMemManager::ReleaseW(pid, addr, length);
   }
   void IFCALL Write8(uint32_t addr, uint32_t data) { WriteMemManager::Write8(addr, data); }
-  void IFCALL Write8P(uint32_t pid, uint32_t addr, uint32_t data) { WriteMemManager::Write8P(pid, addr, data); }
+  void IFCALL Write8P(uint32_t pid, uint32_t addr, uint32_t data) {
+    WriteMemManager::Write8P(pid, addr, data);
+  }
 };
 
 // ---------------------------------------------------------------------------
