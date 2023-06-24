@@ -7,8 +7,10 @@
 //  $Id: DrawDDS.cpp,v 1.16 2003/11/04 13:14:21 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "win32/drawdds.h"
-#include "common/misc.h"
 #include "win32/messages.h"
 
 #define LOGNAME "drawdds"
@@ -296,7 +298,7 @@ bool WinDrawDDS::SetScreenMode() {
     return false;
 
   ltc.x = 0;
-  ltc.y = Max(0, (lines - height) / 2);
+  ltc.y = std::max(0U, (lines - height) / 2);
 
   delete[] image;
   image = new uint8_t[height * width];

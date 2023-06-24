@@ -7,8 +7,10 @@
 #include <algorithm>
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "win32/winsound.h"
-#include "common/misc.h"
 #include "pc88/config.h"
 #include "win32/status.h"
 #include "win32/soundds.h"
@@ -260,7 +262,7 @@ int SoundDumpPipe::Get(Sample* dest, int samples) {
 
   int avail = source_->GetAvail();
 
-  int actual_samples = source_->Get(dest, Min(avail, samples));
+  int actual_samples = source_->Get(dest, std::min(avail, samples));
 
   int nch = GetChannels();
   std::fill(dest + actual_samples * nch, dest + samples * nch, 0);

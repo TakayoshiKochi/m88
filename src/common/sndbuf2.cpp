@@ -1,7 +1,8 @@
 //  $Id: sndbuf2.cpp,v 1.2 2003/05/12 22:26:34 cisc Exp $
 
 #include "common/sndbuf2.h"
-#include "common/misc.h"
+
+#include <algorithm>
 
 // ---------------------------------------------------------------------------
 //  Sound Buffer
@@ -64,7 +65,7 @@ int SoundBuffer2::FillMain(int samples) {
   int free = buffersize - GetAvail();
 
   if (!fillwhenempty && (samples > free - 1)) {
-    int skip = Min(samples - free + 1, buffersize - free);
+    int skip = std::min(samples - free + 1, buffersize - free);
     free += skip;
     read += skip;
     if (read > buffersize)
@@ -72,7 +73,7 @@ int SoundBuffer2::FillMain(int samples) {
   }
 
   // 書きこむべきデータ量を計算
-  samples = Min(samples, free - 1);
+  samples = std::min(samples, free - 1);
   if (samples > 0) {
     // 書きこむ
     if (buffersize - write >= samples) {
@@ -99,7 +100,7 @@ int SoundBuffer2::Get(Sample* dest, int samples) {
     return 0;
 
   for (int s = samples; s > 0;) {
-    int xsize = Min(s, buffersize - read);
+    int xsize = std::min(s, buffersize - read);
 
     int avail = GetAvail();
 

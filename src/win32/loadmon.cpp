@@ -9,7 +9,6 @@
 #include <numeric>
 #include "win32/resource.h"
 #include "win32/loadmon.h"
-#include "common/misc.h"
 
 #ifdef ENABLE_LOADMONITOR
 

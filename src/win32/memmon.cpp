@@ -5,11 +5,12 @@
 //  $Id: memmon.cpp,v 1.15 2003/05/19 02:33:56 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "win32/resource.h"
 #include "pc88/pc88.h"
 #include "win32/memmon.h"
-#include "common/misc.h"
-#include "common/device_i.h"
 #include "win32/file.h"
 #include "win32/winvars.h"
 #include "if/ifguid.h"
@@ -33,7 +34,7 @@ MemoryMonitor::MemoryMonitor() {
     for (int i = 1; i < 256; i++) {
       int r = 0x40 + static_cast<int>(0xbf * pow((i / 256.), 8.0));
       int g = 0x20 + static_cast<int>(0xdf * pow((i / 256.), 24.0));
-      col[0xff - i] = RGB(Min(r, 0xff), Min(g, 0xff), 0xff);
+      col[0xff - i] = RGB(std::min(r, 0xff), std::min(g, 0xff), 0xff);
     }
   }
 }
@@ -64,7 +65,7 @@ void MemoryMonitor::SetWatch(uint32_t addr, uint32_t range) {
   core->Lock();
   if (mid >= 0) {
     Log("SetWatch: %p %.4x - %.4x\n", mm, addr, range);
-    range = Min(range, 0x10000 - addr);
+    range = std::min(range, 0x10000 - addr);
 
     mm->ReleaseR(mid, 0, 0x10000);
     if (watchflag & 1)

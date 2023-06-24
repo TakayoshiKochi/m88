@@ -7,10 +7,10 @@
 #include <assert.h>
 #include <math.h>
 
+#include <algorithm>
+
 #include "win32/headers.h"
-#include "common/misc.h"
 #include "devices/opna.h"
-#include "devices/fmgeninl.h"
 
 #define BUILD_OPN
 #define BUILD_OPNA
@@ -136,7 +136,7 @@ bool OPNBase::Init(uint32_t c, uint32_t r) {
 
 //  音量設定
 void OPNBase::SetVolumeFM(int db) {
-  db = Min(db, 20);
+  db = std::min(db, 20);
   if (db > -192)
     fmvolume = int(16384.0 * pow(10.0, db / 40.0));
   else
@@ -690,7 +690,7 @@ void OPNABase::SetADPCMBReg(uint32_t addr, uint32_t data) {
     case 0x0a:  // delta-N H
       adpcmreg[addr - 0x09 + 4] = data;
       deltan = adpcmreg[5] * 256 + adpcmreg[4];
-      deltan = Max(256, deltan);
+      deltan = std::max(256U, deltan);
       adpld = deltan * adplbase >> 16;
       break;
 
@@ -1006,7 +1006,7 @@ void OPNABase::ADPCMBMix(Sample* dest, uint32_t count) {
           DecodeADPCMB();
           if (!adpcmplay)
             goto stop;
-          s -= apout0 * Max(adplc, t);
+          s -= apout0 * std::max(adplc, t);
           adplc -= t;
         }
         adplc -= 8192;
@@ -1291,7 +1291,7 @@ bool OPNA::LoadRhythmSample(const char* path) {
     fsize /= 2;
     if (fsize >= 0x100000 || whdr.tag != 1 || whdr.nch != 1)
       break;
-    fsize = Max(fsize, (1 << 31) / 1024);
+    fsize = std::max(fsize, (1U << 31) / 1024);
 
     delete rhythm[i].sample;
     rhythm[i].sample = new int16_t[fsize];
@@ -1417,17 +1417,17 @@ void OPNA::RhythmMix(Sample* buffer, uint32_t count) {
 //  音量設定
 //
 void OPNA::SetVolumeRhythmTotal(int db) {
-  db = Min(db, 20);
+  db = std::min(db, 20);
   rhythmtvol = -(db * 2 / 3);
 }
 
 void OPNA::SetVolumeRhythm(int index, int db) {
-  db = Min(db, 20);
+  db = std::min(db, 20);
   rhythm[index].volume = -(db * 2 / 3);
 }
 
 void OPNA::SetVolumeADPCM(int db) {
-  db = Min(db, 20);
+  db = std::min(db, 20);
   if (db > -192)
     adpcmvol = int(65536.0 * pow(10.0, db / 40.0));
   else
@@ -1683,7 +1683,7 @@ void OPNB::SetReg(uint32_t addr, uint32_t data) {
     case 0x1a:  // delta-N H
       adpcmreg[addr - 0x19 + 4] = data;
       deltan = adpcmreg[5] * 256 + adpcmreg[4];
-      deltan = Max(256, deltan);
+      deltan = std::max(256U, deltan);
       adpld = deltan * adplbase >> 16;
       break;
 
@@ -1799,17 +1799,17 @@ void OPNB::ADPCMAMix(Sample* buffer, uint32_t count) {
 //  音量設定
 //
 void OPNB::SetVolumeADPCMATotal(int db) {
-  db = Min(db, 20);
+  db = std::min(db, 20);
   adpcmatvol = -(db * 2 / 3);
 }
 
 void OPNB::SetVolumeADPCMA(int index, int db) {
-  db = Min(db, 20);
+  db = std::min(db, 20);
   adpcma[index].volume = -(db * 2 / 3);
 }
 
 void OPNB::SetVolumeADPCMB(int db) {
-  db = Min(db, 20);
+  db = std::min(db, 20);
   if (db > -192)
     adpcmvol = int(65536.0 * pow(10.0, db / 40.0));
   else

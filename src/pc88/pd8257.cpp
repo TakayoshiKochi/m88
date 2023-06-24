@@ -7,9 +7,10 @@
 //  $Id: pd8257.cpp,v 1.14 1999/10/10 01:47:09 cisc Exp $
 
 #include "win32/headers.h"
-// #include <stdio.h>
+
+#include <algorithm>
+
 #include "pc88/pd8257.h"
-#include "common/misc.h"
 
 // #define LOGNAME   "pd8257"
 #include "common/diag.h"
@@ -176,21 +177,21 @@ uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* data, uint32_t nbyte
   LOG0("Request ");
   if ((stat.enabled & (1 << bank)) && !(stat.mode[bank] & 0x40)) {
     while (n > 0) {
-      uint32_t size = Min(n, stat.count[bank] + 1);
+      uint32_t size = std::min(n, (uint32_t)stat.count[bank] + 1);
       if (!size)
         break;
 
       if (mread && mrbegin <= stat.ptr[bank] && stat.ptr[bank] < mrend) {
         // 存在するメモリのアクセス
-        size = Min(size, mrend - stat.ptr[bank]);
+        size = std::min(size, mrend - stat.ptr[bank]);
         memcpy(data, mread + stat.ptr[bank] - mrbegin, size);
         LOG3("READ ch[%d] (%.4x - %.4x bytes)\n", bank, stat.ptr[bank], size);
       } else {
         // 存在しないメモリへのアクセス
         if (stat.ptr[bank] - mrbegin)
-          size = Min(size, mrbegin - stat.ptr[bank]);
+          size = std::min(size, mrbegin - stat.ptr[bank]);
         else
-          size = Min(size, 0x10000 - stat.ptr[bank]);
+          size = std::min(size, 0x10000 - stat.ptr[bank]);
 
         memset(data, 0xff, size);
       }
@@ -226,21 +227,21 @@ uint32_t IFCALL PD8257::RequestWrite(uint32_t bank, uint8_t* data, uint32_t nbyt
   uint32_t n = nbytes;
   if ((stat.enabled & (1 << bank)) && !(stat.mode[bank] & 0x80)) {
     while (n > 0) {
-      uint32_t size = Min(n, stat.count[bank] + 1);
+      uint32_t size = std::min(n, (uint32_t)stat.count[bank] + 1);
       if (!size)
         break;
 
       if (mwrite && mwbegin <= stat.ptr[bank] && stat.ptr[bank] < mwend) {
         // 存在するメモリのアクセス
-        size = Min(size, mwend - stat.ptr[bank]);
+        size = std::min(size, mwend - stat.ptr[bank]);
         memcpy(mwrite + stat.ptr[bank] - mwbegin, data, size);
         LOG3("WRIT ch[%d] (%.4x - %.4x bytes)\n", bank, stat.ptr[bank], size);
       } else {
         // 存在しないメモリへのアクセス
         if (stat.ptr[bank] - mwbegin)
-          size = Min(size, mwbegin - stat.ptr[bank]);
+          size = std::min(size, mwbegin - stat.ptr[bank]);
         else
-          size = Min(size, 0x10000 - stat.ptr[bank]);
+          size = std::min(size, 0x10000 - stat.ptr[bank]);
       }
 
       stat.ptr[bank] = (stat.ptr[bank] + size) & 0xffff;

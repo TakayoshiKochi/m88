@@ -7,7 +7,6 @@
 #include <assert.h>
 
 #include "common/schedule.h"
-#include "common/misc.h"
 
 // ---------------------------------------------------------------------------
 

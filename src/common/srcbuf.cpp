@@ -4,8 +4,10 @@
 #include <math.h>
 #include <string.h>
 
-#include "common/srcbuf.h"
+#include <algorithm>
+
 #include "common/misc.h"
+#include "common/srcbuf.h"
 
 #ifndef PI
 #define PI 3.14159265358979323846
@@ -108,7 +110,7 @@ int SamplingRateConverter::FillMain(int samples) {
   int free = buffersize - Avail();
 
   if (!fillwhenempty && (samples > free - 1)) {
-    int skip = Min(samples - free + 1, buffersize - free);
+    int skip = std::min(samples - free + 1, buffersize - free);
     free += skip;
     read += skip;
     if (read > buffersize)
@@ -116,7 +118,7 @@ int SamplingRateConverter::FillMain(int samples) {
   }
 
   // 書きこむべきデータ量を計算
-  samples = Min(samples, free - 1);
+  samples = std::min(samples, free - 1);
   if (samples > 0) {
     // 書きこむ
     if (buffersize - write >= samples) {
@@ -162,7 +164,7 @@ void SamplingRateConverter::MakeFilter(uint32_t out) {
   double r = ic * in;  // r = lpf かける時のレート
 
   // カットオフ 周波数
-  double c = .95 * PI / Max(ic, oc);  // c = カットオフ
+  double c = .95 * PI / std::max(ic, oc);  // c = カットオフ
   double fc = c * r / (2 * PI);
 
   // フィルタを作ってみる
@@ -243,7 +245,7 @@ int SamplingRateConverter::Get(Sample* dest, int samples) {
       if (read == buffersize)
         read = 0;
       if (Avail() < 2 * M + 1)
-        FillMain(Max(ss, count));
+        FillMain(std::max(ss, count));
       ss = 0;
       oo += ic;
     }

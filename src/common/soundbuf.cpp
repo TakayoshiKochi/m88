@@ -5,7 +5,8 @@
 //  $Id: soundbuf.cpp,v 1.5 1999/11/26 10:13:25 cisc Exp $
 
 #include "common/soundbuf.h"
-#include "common/misc.h"
+
+#include <algorithm>
 
 // ---------------------------------------------------------------------------
 //  Sound Buffer
@@ -64,7 +65,7 @@ void SoundBuffer::PutMain(int samples) {
     free = read - write;
 
   if (!fillwhenempty && (samples > free - 1)) {
-    int skip = Min(samples - free + 1, buffersize - free);
+    int skip = std::min(samples - free + 1, buffersize - free);
     free += skip;
     read += skip;
     if (read > buffersize)
@@ -72,7 +73,7 @@ void SoundBuffer::PutMain(int samples) {
   }
 
   // 書きこむべきデータ量を計算
-  samples = Min(samples, free - 1);
+  samples = std::min(samples, free - 1);
   if (samples > 0) {
     // 書きこむ
     if (buffersize - write >= samples) {
@@ -95,7 +96,7 @@ void SoundBuffer::Get(Sample* dest, int samples) {
   CriticalSection::Lock lock(cs);
   if (buffer) {
     while (samples > 0) {
-      int xsize = Min(samples, buffersize - read);
+      int xsize = std::min(samples, buffersize - read);
 
       int avail;
       if (write >= read)

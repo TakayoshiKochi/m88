@@ -9,6 +9,9 @@
 //  Memory Bus Banksize <= 0x400
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "pc88/pc88.h"
 #include "pc88/config.h"
 #include "pc88/memory.h"
@@ -30,7 +33,6 @@
 #include "win32/loadmon.h"
 
 #include "win32/status.h"
-#include "common/device_i.h"
 
 // #define LOGNAME "pc88"
 #include "common/diag.h"
@@ -136,8 +138,8 @@ void PC88::DeInit() {
 //  1 tick = 10μs
 //
 int PC88::Proceed(uint32_t ticks, uint32_t clk, uint32_t ecl) {
-  clock = Max(1, clk);
-  eclock = Max(1, ecl);
+  clock = std::max(1U, clk);
+  eclock = std::max(1U, ecl);
   return Scheduler::Proceed(ticks);
 }
 

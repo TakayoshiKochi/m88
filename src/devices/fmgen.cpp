@@ -24,10 +24,10 @@
 #include <assert.h>
 #include <math.h>
 
+#include <algorithm>
+
 #include "win32/headers.h"
-#include "common/misc.h"
 #include "devices/fmgen.h"
-#include "devices/fmgeninl.h"
 
 #define LOGNAME "fmgen"
 
@@ -356,17 +356,17 @@ void Operator::Prepare() {
 
     switch (eg_phase_) {
       case attack:
-        SetEGRate(ar_ ? Min(63, ar_ + key_scale_rate_) : 0);
+        SetEGRate(ar_ ? std::min(63U, ar_ + key_scale_rate_) : 0);
         break;
       case decay:
-        SetEGRate(dr_ ? Min(63, dr_ + key_scale_rate_) : 0);
+        SetEGRate(dr_ ? std::min(63U, dr_ + key_scale_rate_) : 0);
         eg_level_on_next_phase_ = sl_ * 8;
         break;
       case sustain:
-        SetEGRate(sr_ ? Min(63, sr_ + key_scale_rate_) : 0);
+        SetEGRate(sr_ ? std::min(63U, sr_ + key_scale_rate_) : 0);
         break;
       case release:
-        SetEGRate(Min(63, rr_ + key_scale_rate_));
+        SetEGRate(std::min(63U, rr_ + key_scale_rate_));
         break;
     }
 
@@ -387,7 +387,7 @@ void Operator::ShiftPhase(EGPhase nextphase) {
     case attack:  // Attack Phase
       tl_ = tl_latch_;
       if ((ar_ + key_scale_rate_) < 62) {
-        SetEGRate(ar_ ? Min(63, ar_ + key_scale_rate_) : 0);
+        SetEGRate(ar_ ? std::min(63U, ar_ + key_scale_rate_) : 0);
         eg_phase_ = attack;
         break;
       }
@@ -396,7 +396,7 @@ void Operator::ShiftPhase(EGPhase nextphase) {
         eg_level_ = 0;
         eg_level_on_next_phase_ = sl_ * 8;
 
-        SetEGRate(dr_ ? Min(63, dr_ + key_scale_rate_) : 0);
+        SetEGRate(dr_ ? std::min(63U, dr_ + key_scale_rate_) : 0);
         eg_phase_ = decay;
         break;
       }
@@ -409,7 +409,7 @@ void Operator::ShiftPhase(EGPhase nextphase) {
         eg_level_ = sl_ * 8;
         eg_level_on_next_phase_ = 0x400;
 
-        SetEGRate(sr_ ? Min(63, sr_ + key_scale_rate_) : 0);
+        SetEGRate(sr_ ? std::min(63U, sr_ + key_scale_rate_) : 0);
         eg_phase_ = sustain;
         break;
       }
@@ -424,7 +424,7 @@ void Operator::ShiftPhase(EGPhase nextphase) {
         }
 
         eg_level_on_next_phase_ = 0x400;
-        SetEGRate(Min(63, rr_ + key_scale_rate_));
+        SetEGRate(std::min(63U, rr_ + key_scale_rate_));
         eg_phase_ = release;
         break;
       } else if (ssg_type_ & 8) {
@@ -438,7 +438,7 @@ void Operator::ShiftPhase(EGPhase nextphase) {
           eg_phase_ = hold;
         } else {
           //  repeat
-          SetEGRate(ar_ ? Min(63, ar_ + key_scale_rate_) : 0);
+          SetEGRate(ar_ ? std::min(63U, ar_ + key_scale_rate_) : 0);
           eg_phase_ = attack;
         }
         if (ssg_type_ & 2) {
@@ -488,7 +488,7 @@ inline FM::ISample Operator::LogToLin(uint32_t a) {
 
 inline void Operator::EGUpdate() {
   if (!(ssg_type_ & 8)) {
-    eg_out_ = Min(tl_out_ + eg_level_, 0x3ff) << (1 + 2);
+    eg_out_ = std::min(tl_out_ + eg_level_, 0x3ff) << (1 + 2);
   } else {
     //  波形反転
     if (ssg_type_ & 0x10) {
@@ -498,7 +498,7 @@ inline void Operator::EGUpdate() {
       ssg_vector_ = 1;
       ssg_offset_ = 0;
     }
-    eg_out_ = Max(0, Min(tl_out_ + eg_level_ * ssg_vector_ + ssg_offset_, 0x3ff)) << (1 + 2);
+    eg_out_ = std::max(0, std::min(tl_out_ + eg_level_ * ssg_vector_ + ssg_offset_, 0x3ff)) << (1 + 2);
   }
 }
 
@@ -601,7 +601,7 @@ inline FM::ISample FM::Operator::CalcL(ISample in) {
 inline FM::ISample FM::Operator::CalcN(uint32_t noise) {
   EGStep();
 
-  int lv = Max(0, 0x3ff - (tl_out_ + eg_level_)) << 1;
+  int lv = std::max(0, 0x3ff - (tl_out_ + eg_level_)) << 1;
 
   // noise & 1 ? lv : -lv と等価
   noise = (noise & 1) - 1;

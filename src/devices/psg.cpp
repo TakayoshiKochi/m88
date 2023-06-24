@@ -7,8 +7,11 @@
 #include <math.h>
 
 #include "win32/headers.h"
-#include "common/misc.h"
 #include "devices/psg.h"
+
+inline int Limit(int v, int max, int min) {
+  return v > max ? max : (v < min ? min : v);
+}
 
 // ---------------------------------------------------------------------------
 //  コンストラクタ・デストラクタ

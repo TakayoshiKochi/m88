@@ -5,10 +5,12 @@
 //  $Id: tapemgr.cpp,v 1.3 2000/08/06 09:58:51 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "pc88/tapemgr.h"
 #include "win32/file.h"
 #include "win32/status.h"
-#include "common/misc.h"
 
 #define LOGNAME "tape"
 #include "common/diag.h"
@@ -143,7 +145,7 @@ bool TapeManager::Motor(bool s) {
   } else {
     if (timercount) {
       int td = (scheduler->GetTime() - time) * 6 / 125;
-      timerremain = Max(10, timerremain - td);
+      timerremain = std::max(10U, timerremain - td);
       scheduler->DelEvent(event), event = 0;
       statusdisplay.Show(10, 2000, "Motor off: %d %d", timerremain, timercount);
     }

@@ -7,7 +7,6 @@
 #include "win32/headers.h"
 #include "win32/wincore.h"
 #include "win32/winkeyif.h"
-#include "common/misc.h"
 #include "pc88/config.h"
 #include "win32/status.h"
 #include "common/device.h"

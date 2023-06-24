@@ -1367,7 +1367,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h" />
-    <ClInclude Include="src\common\device_i.h" />
     <ClInclude Include="src\common\diag.h" />
     <ClInclude Include="src\common\draw.h" />
     <ClInclude Include="src\common\error.h" />
@@ -1379,7 +1378,6 @@
     <ClInclude Include="src\common\soundsrc.h" />
     <ClInclude Include="src\common\srcbuf.h" />
     <ClInclude Include="src\devices\fmgen.h" />
-    <ClInclude Include="src\devices\fmgeninl.h" />
     <ClInclude Include="src\devices\fmtimer.h" />
     <ClInclude Include="src\devices\opm.h" />
     <ClInclude Include="src\devices\opna.h" />

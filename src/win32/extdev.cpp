@@ -6,7 +6,6 @@
 
 #include "win32/headers.h"
 #include "win32/extdev.h"
-#include "common/device_i.h"
 #include "pc88/pc88.h"
 #include "pc88/pd8257.h"
 #include "pc88/memory.h"

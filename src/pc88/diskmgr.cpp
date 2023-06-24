@@ -5,9 +5,11 @@
 //  $Id: diskmgr.cpp,v 1.13 1999/11/26 10:13:46 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "pc88/diskmgr.h"
 #include "win32/status.h"
-#include "common/misc.h"
 
 using namespace D88;
 
@@ -466,7 +468,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
   }
   if (t < 164)
     memset(&ih.trackptr[t], 0, (164 - t) * 4);
-  if (t < (uint32_t)Min(160, disk.GetNumTracks()))
+  if (t < (uint32_t)std::min(160U, disk.GetNumTracks()))
     statusdisplay.Show(80, 3000, "ヘッダーに無効なデータが含まれています");
 
   // trackptr のごみそうじ

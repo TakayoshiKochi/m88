@@ -7,10 +7,10 @@
 #include <assert.h>
 #include <math.h>
 
+#include <algorithm>
+
 #include "win32/headers.h"
-#include "common/misc.h"
 #include "devices/opm.h"
-#include "devices/fmgeninl.h"
 
 // #define LOGNAME "opm"
 
@@ -122,7 +122,7 @@ void OPM::TimerA() {
 //  音量設定
 //
 void OPM::SetVolume(int db) {
-  db = Min(db, 20);
+  db = std::min(db, 20);
   if (db > -192)
     fmvolume = int(16384.0 * pow(10, db / 40.0));
   else

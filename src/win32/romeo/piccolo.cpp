@@ -8,7 +8,6 @@
 #include "win32/romeo/piccolo_romeo.h"
 #include "win32/romeo/piccolo_gimic.h"
 #include "win32/romeo/romeo.h"
-#include "common/misc.h"
 #include "win32/status.h"
 #include "../../piccolo/piioctl.h"
 

@@ -6,10 +6,11 @@
 
 #include <process.h>
 
+#include <algorithm>
+
 #include "win32/headers.h"
 #include "win32/sequence.h"
 #include "pc88/pc88.h"
-#include "common/misc.h"
 
 #define LOGNAME "sequence"
 #include "common/diag.h"
@@ -117,7 +118,7 @@ void Sequencer::ExecuteAsynchronus() {
     } while (ms < 1000);
     vm->UpdateScreen();
 
-    effclock = Min((Min(1000, eclk) * effclock * 100 / ms) + 1, 10000);
+    effclock = std::min((std::min(1000, eclk) * effclock * 100 / ms) + 1, 10000UL);
   } else {
     int texec = vm->GetFramePeriod();
     int twork = texec * 100 / speed;

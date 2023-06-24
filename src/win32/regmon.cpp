@@ -5,9 +5,11 @@
 //  $Id: regmon.cpp,v 1.1 2000/11/02 12:43:51 cisc Exp $
 
 #include "win32/headers.h"
+
+#include <algorithm>
+
 #include "win32/resource.h"
 #include "win32/regmon.h"
-#include "common/misc.h"
 #include "pc88/pc88.h"
 
 using namespace PC8801;
@@ -49,7 +51,7 @@ BOOL Z80RegMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
   /*  switch (msg)
       {
   //  case WM_SIZE:
-  //      width = Min(LOWORD(lp) + 128, bufsize);
+  //      width = std::min(LOWORD(lp) + 128, bufsize);
   //      SetFont(hdlg, Limit(HIWORD(lp) / 11, 24, 8));
           break;
       }
