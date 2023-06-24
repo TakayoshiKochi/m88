@@ -6,19 +6,13 @@
 //
 
 #pragma once
-
-#define STRICT
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-
-// #define DIRECTSOUND_VERSION 0x500  // for pre-DirectX7 environment
-
 // #pragma warning(disable : 4786)
 // #pragma warning(disable : 4996)
 
 #include <windows.h>
+
+#include <commctrl.h>
 #include <commdlg.h>
 #include <mmsystem.h>
 #include <ddraw.h>
 #include <dsound.h>
-#include <commctrl.h>
