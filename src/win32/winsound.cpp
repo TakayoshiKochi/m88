@@ -38,7 +38,7 @@ WinSound::~WinSound() {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool WinSound::Init(PC88* pc, HWND hwindow, uint rate, uint buflen) {
+bool WinSound::Init(PC88* pc, HWND hwindow, uint32_t rate, uint32_t buflen) {
   currentrate = 100;
   currentbuflen = 0;
   hwnd = hwindow;
@@ -65,7 +65,7 @@ void WinSound::Cleanup() {
 // ---------------------------------------------------------------------------
 //  合成・再生レート変更
 //
-bool WinSound::ChangeRate(uint rate, uint buflen, bool waveout) {
+bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
   if (currentrate != rate || currentbuflen != buflen || wodrv != waveout) {
     if (IsDumping()) {
       statusdisplay.Show(70, 3000, "wav 書き出し時の音設定の変更はできません");

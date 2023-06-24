@@ -16,7 +16,7 @@
 //  OPM に良く似た(?)音を生成する音源ユニット
 //
 //  interface:
-//  bool Init(uint clock, uint rate, bool);
+//  bool Init(uint32_t clock, uint32_t rate, bool);
 //      初期化．このクラスを使用する前にかならず呼んでおくこと．
 //      注意: 線形補完モードは廃止されました
 //
@@ -27,7 +27,7 @@
 //
 //      返値  初期化に成功すれば true
 //
-//  bool SetRate(uint clock, uint rate, bool)
+//  bool SetRate(uint32_t clock, uint32_t rate, bool)
 //      クロックや PCM レートを変更する
 //      引数等は Init と同様．
 //
@@ -44,10 +44,10 @@
 //  void Reset()
 //      音源をリセット(初期化)する
 //
-//  void SetReg(uint reg, uint data)
+//  void SetReg(uint32_t reg, uint32_t data)
 //      音源のレジスタ reg に data を書き込む
 //
-//  uint ReadStatus()
+//  uint32_t ReadStatus()
 //      音源のステータスレジスタを読み出す
 //      busy フラグは常に 0
 //
@@ -78,19 +78,19 @@ class OPM : public Timer {
   OPM();
   ~OPM() {}
 
-  bool Init(uint c, uint r, bool = false);
-  bool SetRate(uint c, uint r, bool);
-  void SetLPFCutoff(uint freq);
+  bool Init(uint32_t c, uint32_t r, bool = false);
+  bool SetRate(uint32_t c, uint32_t r, bool);
+  void SetLPFCutoff(uint32_t freq);
   void Reset();
 
-  void SetReg(uint addr, uint data);
-  uint GetReg(uint addr);
-  uint ReadStatus() { return status & 0x03; }
+  void SetReg(uint32_t addr, uint32_t data);
+  uint32_t GetReg(uint32_t addr);
+  uint32_t ReadStatus() { return status & 0x03; }
 
   void Mix(Sample* buffer, int nsamples);
 
   void SetVolume(int db);
-  void SetChannelMask(uint mask);
+  void SetChannelMask(uint32_t mask);
 
  private:
   virtual void Intr(bool) {}
@@ -100,35 +100,35 @@ class OPM : public Timer {
     OPM_LFOENTS = 512,
   };
 
-  void SetStatus(uint bit);
-  void ResetStatus(uint bit);
-  void SetParameter(uint addr, uint data);
+  void SetStatus(uint32_t bit);
+  void ResetStatus(uint32_t bit);
+  void SetParameter(uint32_t addr, uint32_t data);
   void TimerA();
   void RebuildTimeTable();
   void MixSub(int activech, ISample**);
   void MixSubL(int activech, ISample**);
   void LFO();
-  uint Noise();
+  uint32_t Noise();
 
   int fmvolume;
 
-  uint clock;
-  uint rate;
-  uint pcmrate;
+  uint32_t clock;
+  uint32_t rate;
+  uint32_t pcmrate;
 
-  uint pmd;
-  uint amd;
-  uint lfocount;
-  uint lfodcount;
+  uint32_t pmd;
+  uint32_t amd;
+  uint32_t lfocount;
+  uint32_t lfodcount;
 
-  uint lfo_count_;
-  uint lfo_count_diff_;
-  uint lfo_step_;
-  uint lfo_count_prev_;
+  uint32_t lfo_count_;
+  uint32_t lfo_count_diff_;
+  uint32_t lfo_step_;
+  uint32_t lfo_count_prev_;
 
-  uint lfowaveform;
-  uint rateratio;
-  uint noise;
+  uint32_t lfowaveform;
+  uint32_t rateratio;
+  uint32_t noise;
   int32_t noisecount;
   uint32_t noisedelta;
 

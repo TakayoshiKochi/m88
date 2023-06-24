@@ -28,9 +28,9 @@ class JoyPad : public Device {
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
   void IOCALL Reset() {}
-  uint IOCALL GetDirection(uint port);
-  uint IOCALL GetButton(uint port);
-  void IOCALL VSync(uint = 0, uint = 0);
+  uint32_t IOCALL GetDirection(uint32_t port);
+  uint32_t IOCALL GetButton(uint32_t port);
+  void IOCALL VSync(uint32_t = 0, uint32_t = 0);
   void SetButtonMode(ButtonMode mode);
 
  private:
@@ -42,7 +42,7 @@ class JoyPad : public Device {
 
   uint8_t button1;
   uint8_t button2;
-  uint directionmask;
+  uint32_t directionmask;
 
  private:
   static const Descriptor descriptor;

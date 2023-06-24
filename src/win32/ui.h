@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "win32/types.h"
+#include <stdint.h>
 #include "win32/wincore.h"
 #include "win32/windraw.h"
 #include "win32/winkeyif.h"
@@ -32,7 +32,7 @@ class WinUI {
 
   bool InitWindow(int nwinmode);
   int Main(const char* cmdline);
-  uint GetMouseButton() { return mousebutton; }
+  uint32_t GetMouseButton() { return mousebutton; }
   HWND GetHWnd() { return hwnd; }
 
  private:
@@ -65,14 +65,14 @@ class WinUI {
   void ChangeDiskImage(HWND hwnd, int drive);
   bool OpenDiskImage(int drive, const char* filename, bool readonly, int id, bool create);
   void OpenDiskImage(const char* filename);
-  bool SelectDisk(uint drive, int id, bool menuonly);
-  bool CreateDiskMenu(uint drive);
+  bool SelectDisk(uint32_t drive, int id, bool menuonly);
+  bool CreateDiskMenu(uint32_t drive);
 
   void ChangeTapeImage();
   void OpenTapeImage(const char* filename);
 
   void ShowStatusWindow();
-  void ResizeWindow(uint width, uint height);
+  void ResizeWindow(uint32_t width, uint32_t height);
   void SetGUIFlag(bool);
 
   void SaveSnapshot(int n);
@@ -102,8 +102,8 @@ class WinUI {
   // ウインドウの状態
   bool background;
   bool fullscreen;
-  uint displaychangedtime;
-  uint resetwindowsize;
+  uint32_t displaychangedtime;
+  uint32_t resetwindowsize;
   DWORD wstyle;
   POINT point;
   int clipmode;
@@ -120,7 +120,7 @@ class WinUI {
 
   // PC88
   bool capturemouse;
-  uint mousebutton;
+  uint32_t mousebutton;
 
   WinCore core;
   WinDraw draw;

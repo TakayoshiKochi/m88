@@ -38,7 +38,7 @@ DriverWO::~DriverWO() {
 //  ch          チャネル数(2 以外は未テスト)
 //  buflen      バッファ長(単位: ms)
 //
-bool DriverWO::Init(SoundSource* s, HWND, uint rate, uint ch, uint buflen) {
+bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t buflen) {
   int i;
 
   if (playing)
@@ -197,7 +197,7 @@ void DriverWO::BlockDone(WAVEHDR* whdr) {
 //  スレッド
 //  再生が終わったブロックを送り直すだけ
 //
-uint __stdcall DriverWO::ThreadEntry(LPVOID arg) {
+uint32_t __stdcall DriverWO::ThreadEntry(LPVOID arg) {
   DriverWO* dw = reinterpret_cast<DriverWO*>(arg);
   MSG msg;
 

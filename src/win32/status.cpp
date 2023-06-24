@@ -231,7 +231,7 @@ void StatusDisplay::Clean() {
 // ---------------------------------------------------------------------------
 //
 //
-void StatusDisplay::FDAccess(uint dr, bool hd, bool active) {
+void StatusDisplay::FDAccess(uint32_t dr, bool hd, bool active) {
   dr &= 1;
   if (!(litstat[dr] & 4)) {
     litstat[dr] = (hd ? 0x22 : 0) | (active ? 0x11 : 0) | 4;

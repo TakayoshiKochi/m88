@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "win32/types.h"
+#include <stdint.h>
 #include "pc88/sound.h"
 #include "win32/sounddrv.h"
 #include "win32/critsect.h"
@@ -25,7 +25,7 @@ class SoundDumpPipe : public SoundSource {
   SoundDumpPipe();
 
   void SetSource(SoundSource* source) { source_ = source; }
-  ulong GetRate() { return source_ ? source_->GetRate() : 0; }
+  uint32_t GetRate() { return source_ ? source_->GetRate() : 0; }
   int GetChannels() { return source_ ? source_->GetChannels() : 0; }
   int Get(Sample* dest, int samples);
   int GetAvail() { return INT_MAX; }
@@ -48,7 +48,7 @@ class SoundDumpPipe : public SoundSource {
 
   DumpState dumpstate_;
   int dumpedsample_;
-  ulong dumprate_;
+  uint32_t dumprate_;
 
   CriticalSection cs_;
 };
@@ -61,8 +61,8 @@ class WinSound : public Sound {
   WinSound();
   ~WinSound();
 
-  bool Init(PC88* pc, HWND hwnd, uint rate, uint buflen);
-  bool ChangeRate(uint rate, uint buflen, bool wo);
+  bool Init(PC88* pc, HWND hwnd, uint32_t rate, uint32_t buflen);
+  bool ChangeRate(uint32_t rate, uint32_t buflen, bool wo);
 
   void ApplyConfig(const Config* config);
 
@@ -73,16 +73,16 @@ class WinSound : public Sound {
   void SetSoundMonitor(OPNMonitor* mon) { soundmon = mon; }
 
  private:
-  bool InitSoundBuffer(LPDIRECTSOUND lpds, uint rate);
+  bool InitSoundBuffer(LPDIRECTSOUND lpds, uint32_t rate);
   void Cleanup();
   //  int Get(Sample* dest, int samples);
 
   WinSoundDriver::Driver* driver;
 
   HWND hwnd;
-  uint currentrate;
-  uint currentbuflen;
-  uint samprate;
+  uint32_t currentrate;
+  uint32_t currentbuflen;
+  uint32_t samprate;
 
   OPNMonitor* soundmon;
   bool wodrv;

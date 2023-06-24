@@ -8,9 +8,10 @@
 
 #pragma once
 
+#include <Windows.h>
 #include <commdlg.h>
 
-#include "win32/types.h"
+#include <stdint.h>
 
 #ifndef IFCALL
 #define IFCALL __stdcall
@@ -28,8 +29,8 @@
 //
 interface IUnk {
   virtual long IFCALL QueryInterface(REFIID, void**) = 0;
-  virtual ulong IFCALL AddRef() = 0;
-  virtual ulong IFCALL Release() = 0;
+  virtual uint32_t IFCALL AddRef() = 0;
+  virtual uint32_t IFCALL Release() = 0;
 };
 
 // ----------------------------------------------------------------------------
@@ -38,7 +39,7 @@ interface IUnk {
 struct ISoundControl;
 struct ISoundSource {
   virtual bool IFCALL Connect(ISoundControl* sc) = 0;
-  virtual bool IFCALL SetRate(uint rate) = 0;
+  virtual bool IFCALL SetRate(uint32_t rate) = 0;
   virtual void IFCALL Mix(int32_t* s, int length) = 0;
 };
 
@@ -58,36 +59,39 @@ struct ISoundControl {
 //
 struct IMemoryManager {
   virtual int IFCALL Connect(void* inst, bool highpriority = false) = 0;
-  virtual bool IFCALL Disconnect(uint pid) = 0;
+  virtual bool IFCALL Disconnect(uint32_t pid) = 0;
 
-  virtual bool IFCALL AllocR(uint pid, uint addr, uint length, uint8_t* ptr) = 0;
-  virtual bool IFCALL AllocR(uint pid, uint addr, uint length, uint(MEMCALL*)(void*, uint)) = 0;
-  virtual bool IFCALL ReleaseR(uint pid, uint addr, uint length) = 0;
-  virtual uint IFCALL Read8P(uint pid, uint addr) = 0;
+  virtual bool IFCALL AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) = 0;
+  virtual bool IFCALL AllocR(uint32_t pid,
+                             uint32_t addr,
+                             uint32_t length,
+                             uint32_t (*)(void*, uint32_t)) = 0;
+  virtual bool IFCALL ReleaseR(uint32_t pid, uint32_t addr, uint32_t length) = 0;
+  virtual uint32_t IFCALL Read8P(uint32_t pid, uint32_t addr) = 0;
 
-  virtual bool IFCALL AllocW(uint pid, uint addr, uint length, uint8_t* ptr) = 0;
-  virtual bool IFCALL AllocW(uint pid,
-                             uint addr,
-                             uint length,
-                             void(MEMCALL*)(void*, uint, uint)) = 0;
-  virtual bool IFCALL ReleaseW(uint pid, uint addr, uint length) = 0;
-  virtual void IFCALL Write8P(uint pid, uint addr, uint data) = 0;
+  virtual bool IFCALL AllocW(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) = 0;
+  virtual bool IFCALL AllocW(uint32_t pid,
+                             uint32_t addr,
+                             uint32_t length,
+                             void (*)(void*, uint32_t, uint32_t)) = 0;
+  virtual bool IFCALL ReleaseW(uint32_t pid, uint32_t addr, uint32_t length) = 0;
+  virtual void IFCALL Write8P(uint32_t pid, uint32_t addr, uint32_t data) = 0;
 };
 
 // ----------------------------------------------------------------------------
 //  メモリ空間にアクセスするためのインターフェース
 //
 struct IMemoryAccess {
-  virtual uint IFCALL Read8(uint addr) = 0;
-  virtual void IFCALL Write8(uint addr, uint data) = 0;
+  virtual uint32_t IFCALL Read8(uint32_t addr) = 0;
+  virtual void IFCALL Write8(uint32_t addr, uint32_t data) = 0;
 };
 
 // ----------------------------------------------------------------------------
 //  IO 空間にアクセスするためのインターフェース
 //
 struct IIOAccess {
-  virtual uint IFCALL In(uint port) = 0;
-  virtual void IFCALL Out(uint port, uint data) = 0;
+  virtual uint32_t IFCALL In(uint32_t port) = 0;
+  virtual void IFCALL Out(uint32_t port, uint32_t data) = 0;
 };
 
 // ----------------------------------------------------------------------------
@@ -95,9 +99,9 @@ struct IIOAccess {
 //
 struct IDevice {
   typedef uint32_t ID;
-  typedef uint (IOCALL IDevice::*InFuncPtr)(uint port);
-  typedef void (IOCALL IDevice::*OutFuncPtr)(uint port, uint data);
-  typedef void (IOCALL IDevice::*TimeFunc)(uint arg);
+  typedef uint32_t (IOCALL IDevice::*InFuncPtr)(uint32_t port);
+  typedef void (IOCALL IDevice::*OutFuncPtr)(uint32_t port, uint32_t data);
+  typedef void (IOCALL IDevice::*TimeFunc)(uint32_t arg);
   struct Descriptor {
     const InFuncPtr* indef;
     const OutFuncPtr* outdef;
@@ -105,7 +109,7 @@ struct IDevice {
 
   virtual const ID& IFCALL GetID() const = 0;
   virtual const Descriptor* IFCALL GetDesc() const = 0;
-  virtual uint IFCALL GetStatusSize() = 0;
+  virtual uint32_t IFCALL GetStatusSize() = 0;
   virtual bool IFCALL LoadStatus(const uint8_t* status) = 0;
   virtual bool IFCALL SaveStatus(uint8_t* status) = 0;
 };
@@ -121,7 +125,7 @@ struct IIOBus {
     sync = 4,
   };
   struct Connector {
-    ushort bank;
+    uint16_t bank;
     uint8_t rule;
     uint8_t id;
   };
@@ -161,8 +165,8 @@ struct ITime {
 //  より精度の高い時間を取得するためのインターフェース
 //
 struct ICPUTime {
-  virtual uint IFCALL GetCPUTick() = 0;
-  virtual uint IFCALL GetCPUSpeed() = 0;
+  virtual uint32_t IFCALL GetCPUTick() = 0;
+  virtual uint32_t IFCALL GetCPUSpeed() = 0;
 };
 
 // ----------------------------------------------------------------------------
@@ -207,7 +211,7 @@ struct IConfigPropSheet {
 //
 struct IWinUIExtention {
   virtual bool IFCALL WinProc(HWND, UINT, WPARAM, LPARAM) = 0;
-  virtual bool IFCALL Connect(HWND hwnd, uint index) = 0;
+  virtual bool IFCALL Connect(HWND hwnd, uint32_t index) = 0;
   virtual bool IFCALL Disconnect() = 0;
 };
 
@@ -233,6 +237,6 @@ struct ILockCore {
 //  現在アクティブになっているメモリの種類を取得
 //
 struct IGetMemoryBank {
-  virtual uint IFCALL GetRdBank(uint) = 0;
-  virtual uint IFCALL GetWrBank(uint) = 0;
+  virtual uint32_t IFCALL GetRdBank(uint32_t) = 0;
+  virtual uint32_t IFCALL GetWrBank(uint32_t) = 0;
 };

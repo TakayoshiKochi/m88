@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "win32/types.h"
+#include <stdint.h>
 #include "if/ifcommon.h"
 
 #ifndef IFCALL
@@ -15,7 +15,7 @@
 interface IMouseUI : public IUnk {
   virtual bool IFCALL Enable(bool en) = 0;
   virtual bool IFCALL GetMovement(POINT*) = 0;
-  virtual uint IFCALL GetButton() = 0;
+  virtual uint32_t IFCALL GetButton() = 0;
 };
 
 struct PadState {

@@ -18,8 +18,8 @@ class WinDrawDDW : public WinDrawSub {
   WinDrawDDW();
   ~WinDrawDDW();
 
-  bool Init(HWND hwnd, uint w, uint h, GUID*);
-  bool Resize(uint width, uint height);
+  bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID*);
+  bool Resize(uint32_t width, uint32_t height);
   bool Cleanup();
 
   void SetPalette(PALETTEENTRY* pal, int index, int nentries);
@@ -57,8 +57,8 @@ class WinDrawDDW : public WinDrawSub {
   bool palchanged;
   bool locked;
 
-  uint width;
-  uint height;
+  uint32_t width;
+  uint32_t height;
 
   PALETTEENTRY palentry[256];
 };

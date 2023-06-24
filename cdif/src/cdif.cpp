@@ -47,7 +47,7 @@ bool CDIF::Enable(bool f) {
 //  M88 のリセット
 //  BASICMODE の bit 6 で判定
 //
-void IOCALL CDIF::SystemReset(uint, uint d) {
+void IOCALL CDIF::SystemReset(uint32_t, uint32_t d) {
   Enable((d & 0x40) != 0);
 }
 
@@ -169,7 +169,7 @@ void CDIF::ResultPhase(int res, int st) {
 // ----------------------------------------------------------------------------
 //
 //
-void CDIF::SendCommand(uint a, uint b, uint c) {
+void CDIF::SendCommand(uint32_t a, uint32_t b, uint32_t c) {
   phase = waitphase;
   cd.SendCommand(a, b, c);
 }
@@ -237,7 +237,7 @@ void CDIF::ReadSector() {
       if (!rslt) {
         if (length-- > 0) {
           LOG2("(%2d) Read#%d\n", rslt, retrycount - length + 1);
-          SendCommand(readmode ? CDControl::read2 : CDControl::read1, sector, (uint)tmpbuf);
+          SendCommand(readmode ? CDControl::read2 : CDControl::read1, sector, (uint32_t)tmpbuf);
           break;
         }
         ResultPhase(0, 0);
@@ -273,7 +273,7 @@ void CDIF::SetReadMode() {
 //
 void CDIF::TrackSearch() {
   switch (phase) {
-    uint addre;
+    uint32_t addre;
 
     case execphase:
       addrs = GetPlayAddress();
@@ -305,7 +305,7 @@ void CDIF::TrackSearch() {
 //
 void CDIF::PlayStart() {
   switch (phase) {
-    uint addre;
+    uint32_t addre;
 
     case execphase:
       addre = GetPlayAddress();
@@ -345,7 +345,7 @@ void CDIF::ReadSubcodeQ() {
   switch (phase) {
     case execphase:
       LOG0("Read Subcode-Q\n");
-      SendCommand(CDControl::readsubcodeq, (uint)tmpbuf);
+      SendCommand(CDControl::readsubcodeq, (uint32_t)tmpbuf);
       break;
 
     case waitphase:
@@ -459,7 +459,7 @@ void CDIF::ReadTOC() {
 // ----------------------------------------------------------------------------
 //  再生コマンドのアドレスを取得
 //
-uint CDIF::GetPlayAddress() {
+uint32_t CDIF::GetPlayAddress() {
   switch (cmdbuf[9] & 0xc0) {
     CDROM::MSF msf;
     int t;
@@ -485,7 +485,7 @@ uint CDIF::GetPlayAddress() {
 // ----------------------------------------------------------------------------
 //  I/O
 //
-void IOCALL CDIF::Out90(uint, uint d) {
+void IOCALL CDIF::Out90(uint32_t, uint32_t d) {
   LOG1("O[90] <- %.2x\n", d);
   if (d & 1) {
     if (active && data == 0x81) {
@@ -504,7 +504,7 @@ void IOCALL CDIF::Out90(uint, uint d) {
   }
 }
 
-uint IOCALL CDIF::In90(uint) {
+uint32_t IOCALL CDIF::In90(uint32_t) {
   //  LOG1("I[90] -> %.2x\n", status);
   return status;
 }
@@ -512,38 +512,38 @@ uint IOCALL CDIF::In90(uint) {
 // ----------------------------------------------------------------------------
 //  データポート
 //
-void IOCALL CDIF::Out91(uint, uint d) {
+void IOCALL CDIF::Out91(uint32_t, uint32_t d) {
   //  LOG1("O[91] <- %.2x (DATA)\n", d);
   data = d;
   if (status & 0x80)
     DataOut();
 }
 
-uint IOCALL CDIF::In91(uint) {
+uint32_t IOCALL CDIF::In91(uint32_t) {
   LOG1("I[91] -> %.2x\n", data);
-  uint r = data;
+  uint32_t r = data;
   if (status & 0x80)
     DataIn();
   return r;
 }
 
-void IOCALL CDIF::Out94(uint, uint d) {
+void IOCALL CDIF::Out94(uint32_t, uint32_t d) {
   LOG1("O[94] <- %.2x\n", d);
   if (d & 0x80) {
     Reset();
   }
 }
 
-void IOCALL CDIF::Out97(uint, uint d) {
+void IOCALL CDIF::Out97(uint32_t, uint32_t d) {
   //  cd.SendCommand(CDControl::playtrack, d);
   LOG1("O[97] <- %.2x\n", d);
 }
 
-void IOCALL CDIF::Out99(uint, uint d) {
+void IOCALL CDIF::Out99(uint32_t, uint32_t d) {
   //  LOG1("O[99] <- %.2x\n", d);
 }
 
-void IOCALL CDIF::Out9f(uint, uint d) {
+void IOCALL CDIF::Out9f(uint32_t, uint32_t d) {
   //  cd.SendCommand(CDControl::readtoc);
   LOG1("O[9f] <- %.2x", d);
   if (enable) {
@@ -552,32 +552,32 @@ void IOCALL CDIF::Out9f(uint, uint d) {
   }
 }
 
-uint IOCALL CDIF::In92(uint) {
+uint32_t IOCALL CDIF::In92(uint32_t) {
   LOG1("I[92] -> %.2x\n", 0);
   return 0;
 }
 
-uint IOCALL CDIF::In93(uint) {
+uint32_t IOCALL CDIF::In93(uint32_t) {
   LOG1("I[93] -> %.2x\n", 0);
   return 0;
 }
 
-uint IOCALL CDIF::In96(uint) {
+uint32_t IOCALL CDIF::In96(uint32_t) {
   LOG1("I[96] -> %.2x\n", 0);
   return 0;
 }
 
-uint IOCALL CDIF::In99(uint) {
+uint32_t IOCALL CDIF::In99(uint32_t) {
   LOG1("I[99] -> %.2x\n", 0);
   return 0;
 }
 
-uint IOCALL CDIF::In9b(uint) {
+uint32_t IOCALL CDIF::In9b(uint32_t) {
   //  LOG1("I[9b] -> %.2x\n", 0);
   return 60;
 }
 
-uint IOCALL CDIF::In9d(uint) {
+uint32_t IOCALL CDIF::In9d(uint32_t) {
   //  LOG1("I[9d] -> %.2x\n", 0);
   return 60;
 }
@@ -585,16 +585,16 @@ uint IOCALL CDIF::In9d(uint) {
 // ---------------------------------------------------------------------------
 //  再生モード
 //
-void IOCALL CDIF::Out98(uint, uint d) {
+void IOCALL CDIF::Out98(uint32_t, uint32_t d) {
   LOG1("O[98] <- %.2x\n", d);
   playmode = d;
 }
 
-uint IOCALL CDIF::In98(uint) {
+uint32_t IOCALL CDIF::In98(uint32_t) {
   if (enable)
     clk = ~clk;
 
-  uint r = (clk & 0x80) | (playmode & 0x7f);
+  uint32_t r = (clk & 0x80) | (playmode & 0x7f);
   LOG1("I[98] -> %.2x\n", r);
   return r;
 }
@@ -602,7 +602,7 @@ uint IOCALL CDIF::In98(uint) {
 // ---------------------------------------------------------------------------
 //  状態データのサイズ
 //
-uint IFCALL CDIF::GetStatusSize() {
+uint32_t IFCALL CDIF::GetStatusSize() {
   return sizeof(Snapshot);
 }
 

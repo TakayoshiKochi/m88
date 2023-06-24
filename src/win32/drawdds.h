@@ -16,8 +16,8 @@ class WinDrawDDS : public WinDrawSub {
   WinDrawDDS(bool force480 = true);
   ~WinDrawDDS();
 
-  bool Init(HWND hwnd, uint w, uint h, GUID* drv);
-  bool Resize(uint w, uint h);
+  bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID* drv);
+  bool Resize(uint32_t w, uint32_t h);
   bool Cleanup();
 
   void SetPalette(PALETTEENTRY* pal, int index, int nentries);
@@ -46,9 +46,9 @@ class WinDrawDDS : public WinDrawSub {
   LPDIRECTDRAWSURFACE ddsback;
   LPDIRECTDRAWCLIPPER ddcscrn;
 
-  uint lines;  // 400 or 480
-  uint width;
-  uint height;
+  uint32_t lines;  // 400 or 480
+  uint32_t width;
+  uint32_t height;
   POINT ltc;
 
   uint8_t* image;

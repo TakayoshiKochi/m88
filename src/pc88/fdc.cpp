@@ -88,7 +88,7 @@ void FDC::ApplyConfig(const Config* cfg) {
 //          0: 48TPI (2D)
 //          1: 96TPI (2DD/2HD)
 //
-void IOCALL FDC::DriveControl(uint, uint data) {
+void IOCALL FDC::DriveControl(uint32_t, uint32_t data) {
   int hdprev;
   LOG1("Drive control (%.2x) ", data);
 
@@ -119,7 +119,7 @@ inline void FDC::Intr(bool i) {
 // ---------------------------------------------------------------------------
 //  Reset
 //
-void IOCALL FDC::Reset(uint, uint) {
+void IOCALL FDC::Reset(uint32_t, uint32_t) {
   LOG0("Reset\n");
   ShiftToIdlePhase();
   int_requested = false;
@@ -145,7 +145,7 @@ void IOCALL FDC::Reset(uint, uint) {
 //  DIO = 0 なら CPU->FDC (Put)  1 なら FDC->CPU (Get)
 //  RQM = データの送信・受信の用意ができた
 //
-uint IOCALL FDC::Status(uint) {
+uint32_t IOCALL FDC::Status(uint32_t) {
   return seekstate | status;
 }
 
@@ -153,7 +153,7 @@ uint IOCALL FDC::Status(uint) {
 //  FDC::SetData
 //  CPU から FDC にデータを送る
 //
-void IOCALL FDC::SetData(uint, uint d) {
+void IOCALL FDC::SetData(uint32_t, uint32_t d) {
   // 受け取れる状況かチェック
   if ((status & (S_RQM | S_DIO)) == S_RQM) {
     data = d;
@@ -215,7 +215,7 @@ void IOCALL FDC::SetData(uint, uint d) {
 //  FDC::GetData
 //  FDC -> CPU
 //
-uint IOCALL FDC::GetData(uint) {
+uint32_t IOCALL FDC::GetData(uint32_t) {
   if ((status & (S_RQM | S_DIO)) == (S_RQM | S_DIO)) {
     Intr(false);
     status &= ~S_RQM;
@@ -254,7 +254,7 @@ uint IOCALL FDC::GetData(uint) {
 // ---------------------------------------------------------------------------
 //  TC (転送終了)
 //
-uint IOCALL FDC::TC(uint) {
+uint32_t IOCALL FDC::TC(uint32_t) {
   if (accepttc) {
     LOG0(" <TC>");
     prevphase = phase;
@@ -418,7 +418,7 @@ void FDC::DelTimer() {
   timerhandle = 0;
 }
 
-void IOCALL FDC::PhaseTimer(uint p) {
+void IOCALL FDC::PhaseTimer(uint32_t p) {
   timerhandle = 0;
   phase = Phase(p);
   (this->*CommandTable[command & 31])();
@@ -557,8 +557,8 @@ void FDC::ReadData(bool deleted, bool scan) {
     return;
   }
 
-  uint dr = hdu & 3;
-  uint flags = ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80);
+  uint32_t dr = hdu & 3;
+  uint32_t flags = ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80);
 
   result = diskmgr->GetFDU(dr)->ReadSector(flags, idr, buffer);
 
@@ -624,7 +624,7 @@ void FDC::CmdRecalibrate() {
 // ---------------------------------------------------------------------------
 //  指定のドライブをシークする
 //
-void FDC::Seek(uint dr, uint cy) {
+void FDC::Seek(uint32_t dr, uint32_t cy) {
   dr &= 3;
 
   cy <<= drive[dr].dd;
@@ -650,7 +650,7 @@ void FDC::Seek(uint dr, uint cy) {
   }
 }
 
-void IOCALL FDC::SeekEvent(uint dr) {
+void IOCALL FDC::SeekEvent(uint32_t dr) {
   LOG1("\tSeek (%d) ", dr);
   CriticalSection::Lock lock(diskmgr->GetCS());
 
@@ -748,7 +748,7 @@ void FDC::CmdSenceDeviceStatus() {
   }
 }
 
-uint FDC::GetDeviceStatus(uint dr) {
+uint32_t FDC::GetDeviceStatus(uint32_t dr) {
   CriticalSection::Lock lock(diskmgr->GetCS());
   hdu = (hdu & ~3) | (dr & 3);
   if (dr < num_drives)
@@ -783,7 +783,7 @@ void FDC::CmdWriteData() {
           return;
         }
         if (!result) {
-          uint dr = hdu & 3;
+          uint32_t dr = hdu & 3;
           result = diskmgr->GetFDU(dr)->FindID(
               ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80), idr);
         }
@@ -849,8 +849,8 @@ void FDC::WriteData(bool deleted) {
     return;
   }
 
-  uint dr = hdu & 3;
-  uint flags = ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80);
+  uint32_t dr = hdu & 3;
+  uint32_t flags = ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80);
   result = diskmgr->GetFDU(dr)->WriteSector(flags, idr, buffer, deleted);
   return;
 }
@@ -891,8 +891,8 @@ void FDC::ReadID() {
   CriticalSection::Lock lock(diskmgr->GetCS());
   result = CheckCondition(false);
   if (!result) {
-    uint dr = hdu & 3;
-    uint flags = ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80);
+    uint32_t dr = hdu & 3;
+    uint32_t flags = ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80);
     result = diskmgr->GetFDU(dr)->ReadID(flags, &idr);
     if (showstatus)
       statusdisplay.Show(85, 0, "ReadID (%d:%.2x) %.2x %.2x %.2x %.2x", dr, flags, idr.c, idr.h,
@@ -963,8 +963,8 @@ void FDC::WriteID() {
     return;
   }
 
-  uint dr = hdu & 3;
-  uint flags = ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80);
+  uint32_t dr = hdu & 3;
+  uint32_t flags = ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80);
   result = diskmgr->GetFDU(dr)->WriteID(flags, &wid);
   if (showstatus)
     statusdisplay.Show(85, 0, "WriteID dr:%d tr:%d sec:%.2d N:%.2x", dr,
@@ -1053,9 +1053,9 @@ void FDC::ReadDiagnostic() {
       return;
     }
 
-    uint dr = hdu & 3;
-    uint flags = ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80);
-    uint size;
+    uint32_t dr = hdu & 3;
+    uint32_t flags = ((hdu >> 2) & 1) | (command & 0x40) | (drive[dr].hd & 0x80);
+    uint32_t size;
     int tr = (drive[dr].cyrinder >> drive[dr].dd) * 2 + ((hdu >> 2) & 1);
     statusdisplay.Show(84, showstatus ? 1000 : 2000, "ReadDiagnostic (Dr%d Tr%d)", dr, tr);
 
@@ -1075,8 +1075,8 @@ void FDC::ReadDiagnostic() {
 // ---------------------------------------------------------------------------
 //  Read/Write 操作が実行可能かどうかを確認
 //
-uint FDC::CheckCondition(bool write) {
-  uint dr = hdu & 3;
+uint32_t FDC::CheckCondition(bool write) {
+  uint32_t dr = hdu & 3;
   hdue = hdu;
   if (dr >= num_drives) {
     return ST0_AT | ST0_NR;
@@ -1107,7 +1107,7 @@ void FDC::GetSectorParameters() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint IFCALL FDC::GetStatusSize() {
+uint32_t IFCALL FDC::GetStatusSize() {
   return sizeof(Snapshot);
 }
 

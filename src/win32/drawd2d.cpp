@@ -39,7 +39,7 @@ WinDrawD2D::~WinDrawD2D() {
 // ---------------------------------------------------------------------------
 //  初期化処理
 //
-bool WinDrawD2D::Init(HWND _hWnd, uint _width, uint _height, GUID*) {
+bool WinDrawD2D::Init(HWND _hWnd, uint32_t _width, uint32_t _height, GUID*) {
   m_hWnd = _hWnd;
 
   if (CreateD2D() == false) {
@@ -100,7 +100,7 @@ bool WinDrawD2D::CreateD2D() {
 
 //! 画面有効範囲を変更
 //
-bool WinDrawD2D::Resize(uint _width, uint _height) {
+bool WinDrawD2D::Resize(uint32_t _width, uint32_t _height) {
   m_width = _width;
   m_height = _height;
 

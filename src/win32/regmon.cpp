@@ -66,7 +66,7 @@ void Z80RegMonitor::UpdateText() {
   const Z80Reg& r1 = c1->GetReg();
   const Z80Reg& r2 = c2->GetReg();
 
-  const uint m = 0xffff;
+  const uint32_t m = 0xffff;
 
   Putf("PC:%.4x SP:%.4x   PC:%.4x SP:%.4x\n", c1->GetPC() & m, r1.r.w.sp & m, c2->GetPC() & m,
        r2.r.w.sp & m);

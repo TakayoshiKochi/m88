@@ -65,7 +65,7 @@ bool Sequencer::Cleanup() {
 // ---------------------------------------------------------------------------
 //  Core Thread
 //
-uint Sequencer::ThreadMain() {
+uint32_t Sequencer::ThreadMain() {
   time = keeper.GetTime();
   effclock = 100;
 
@@ -83,7 +83,7 @@ uint Sequencer::ThreadMain() {
 // ---------------------------------------------------------------------------
 //  サブスレッド開始点
 //
-uint CALLBACK Sequencer::ThreadEntry(void* arg) {
+uint32_t CALLBACK Sequencer::ThreadEntry(void* arg) {
   return reinterpret_cast<Sequencer*>(arg)->ThreadMain();
 }
 
@@ -93,7 +93,7 @@ uint CALLBACK Sequencer::ThreadEntry(void* arg) {
 //  length  実行する時間 (0.01ms)
 //  eff     実効クロック
 //
-inline void Sequencer::Execute(long clk, long length, long eff) {
+inline void Sequencer::Execute(int32_t clk, int32_t length, int32_t eff) {
   CriticalSection::Lock lock(cs);
   execcount += clk * vm->Proceed(length, clk, eff);
 }
@@ -157,7 +157,7 @@ void Sequencer::ExecuteAsynchronus() {
 // ---------------------------------------------------------------------------
 //  実行クロックカウントの値を返し、カウンタをリセット
 //
-long Sequencer::GetExecCount() {
+int32_t Sequencer::GetExecCount() {
   //  CriticalSection::Lock lock(cs); // 正確な値が必要なときは有効にする
 
   int i = execcount;

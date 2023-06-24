@@ -17,23 +17,23 @@ public:
     };
 
 public:
-    Sine();
-    ~Sine();
-    
-    bool Init();
-    void Cleanup(); 
-    
-    // ISoundSource method
-    bool IFCALL Connect(ISoundControl* sc);
-    bool IFCALL SetRate(uint rate);
-    void IFCALL Mix(int32*, int);
-        
-    // IDevice Method
-    const Descriptor* IFCALL GetDesc() const { return &descriptor; }
-    
-    // I/O port functions
-    void IOCALL SetVolume(uint, uint data);
-    void IOCALL SetPitch(uint, uint data);
+	Sine();
+	~Sine();
+
+	bool Init();
+	void Cleanup();
+
+	// ISoundSource method
+	bool IFCALL Connect(ISoundControl* sc);
+	bool IFCALL SetRate(uint32_t rate);
+	void IFCALL Mix(int32*, int);
+
+	// IDevice Method
+	const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+
+	// I/O port functions
+	void IOCALL SetVolume(uint32_t, uint32_t data);
+	void IOCALL SetPitch(uint32_t, uint32_t data);
 
 private:
     ISoundControl* sc;
@@ -45,7 +45,7 @@ private:
     int step;
 
     static const int table[];
-    
+
     static const Descriptor descriptor;
     static const InFuncPtr  indef[];
     static const OutFuncPtr outdef[];

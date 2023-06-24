@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "win32/types.h"
+#include <stdint.h>
 
 // ---------------------------------------------------------------------------
 //  TimeKeeper

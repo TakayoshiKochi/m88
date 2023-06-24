@@ -17,22 +17,22 @@ public:
     };
 
 public:
-    GVRAMReverse();
-    ~GVRAMReverse();
-    
-    bool Init(IMemoryManager* mm);
-    void Cleanup(); 
-            
-    // IDevice Method
-    const Descriptor* IFCALL GetDesc() const { return &descriptor; }
-    
-    // I/O port functions
-    void IOCALL Out32(uint, uint data);
-    void IOCALL Out35(uint, uint data);
-    void IOCALL Out5x(uint, uint data);
+	GVRAMReverse();
+	~GVRAMReverse();
 
-    static uint MEMCALL MRead(void*, uint);
-    static void MEMCALL MWrite(void*, uint, uint);
+	bool Init(IMemoryManager* mm);
+	void Cleanup();
+
+	// IDevice Method
+	const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+
+	// I/O port functions
+	void IOCALL Out32(uint32_t, uint32_t data);
+	void IOCALL Out35(uint32_t, uint32_t data);
+	void IOCALL Out5x(uint32_t, uint32_t data);
+
+	static uint32_t MRead(void*, uint32_t);
+	static void MWrite(void*, uint32_t, uint32_t);
 
 private:
     void Update();
@@ -40,8 +40,8 @@ private:
     IMemoryManager* mm;
     int mid;
 
-    uint p32, p35, p5x;
-    bool gvram;
+	uint32_t p32, p35, p5x;
+	bool gvram;
 
     static const Descriptor descriptor;
 //  static const InFuncPtr  indef[];

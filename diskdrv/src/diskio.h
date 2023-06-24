@@ -22,11 +22,11 @@ class DiskIO : public Device {
   ~DiskIO();
   bool Init();
 
-  void IOCALL Reset(uint = 0, uint = 0);
-  void IOCALL SetCommand(uint, uint);
-  void IOCALL SetData(uint, uint);
-  uint IOCALL GetStatus(uint = 0);
-  uint IOCALL GetData(uint = 0);
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
+  void IOCALL SetCommand(uint32_t, uint32_t);
+  void IOCALL SetData(uint32_t, uint32_t);
+  uint32_t IOCALL GetStatus(uint32_t = 0);
+  uint32_t IOCALL GetData(uint32_t = 0);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 

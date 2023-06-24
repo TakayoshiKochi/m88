@@ -33,10 +33,10 @@ class Mouse : public Device {
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
-  uint IOCALL GetMove(uint);
-  uint IOCALL GetButton(uint);
-  void IOCALL Strobe(uint, uint data);
-  void IOCALL VSync(uint, uint);
+  uint32_t IOCALL GetMove(uint32_t);
+  uint32_t IOCALL GetButton(uint32_t);
+  void IOCALL Strobe(uint32_t, uint32_t data);
+  void IOCALL VSync(uint32_t, uint32_t);
 
   void ApplyConfig(const Config* config);
 

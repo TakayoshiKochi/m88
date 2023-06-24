@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "win32/types.h"
+#include <stdint.h>
 #include "common/device.h"
 #include "common/draw.h"
 #include "pc88/config.h"
@@ -39,23 +39,23 @@ class Screen : public Device {
   ~Screen();
 
   bool Init(IOBus* bus, Memory* memory, CRTC* crtc);
-  void IOCALL Reset(uint = 0, uint = 0);
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
   bool UpdatePalette(Draw* draw);
   void UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool refresh);
   void ApplyConfig(const Config* config);
 
-  void IOCALL Out30(uint port, uint data);
-  void IOCALL Out31(uint port, uint data);
-  void IOCALL Out32(uint port, uint data);
-  void IOCALL Out33(uint port, uint data);
-  void IOCALL Out52(uint port, uint data);
-  void IOCALL Out53(uint port, uint data);
-  void IOCALL Out54(uint port, uint data);
-  void IOCALL Out55to5b(uint port, uint data);
+  void IOCALL Out30(uint32_t port, uint32_t data);
+  void IOCALL Out31(uint32_t port, uint32_t data);
+  void IOCALL Out32(uint32_t port, uint32_t data);
+  void IOCALL Out33(uint32_t port, uint32_t data);
+  void IOCALL Out52(uint32_t port, uint32_t data);
+  void IOCALL Out53(uint32_t port, uint32_t data);
+  void IOCALL Out54(uint32_t port, uint32_t data);
+  void IOCALL Out55to5b(uint32_t port, uint32_t data);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
@@ -67,7 +67,7 @@ class Screen : public Device {
     ssrev = 1,
   };
   struct Status {
-    uint rev;
+    uint32_t rev;
     Pal pal[8], bgpal;
     uint8_t p30, p31, p32, p33, p53;
   };

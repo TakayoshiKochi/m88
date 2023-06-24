@@ -380,26 +380,26 @@ inline LRESULT WinUI::M88SendKeyState(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  if ((uint)wparam == VK_F12 && !(config.flags & Config::disablef12reset))
+  if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::disablef12reset))
     ;
   else
-    keyif.KeyDown((uint)wparam, (uint32_t)lparam);
+    keyif.KeyDown((uint32_t)wparam, (uint32_t)lparam);
 
   return 0;
 }
 
 inline LRESULT WinUI::WmKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  if ((uint)wparam == VK_F12 && !(config.flags & Config::disablef12reset))
+  if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::disablef12reset))
     Reset();
   else
-    keyif.KeyUp((uint)wparam, (uint32_t)lparam);
+    keyif.KeyUp((uint32_t)wparam, (uint32_t)lparam);
 
   return 0;
 }
 
 inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   if (config.flags & Config::suppressmenu) {
-    keyif.KeyDown((uint)wparam, (uint32_t)lparam);
+    keyif.KeyDown((uint32_t)wparam, (uint32_t)lparam);
     return 0;
   }
   return DefWindowProc(hwnd, WM_SYSKEYDOWN, wparam, lparam);
@@ -407,7 +407,7 @@ inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 
 inline LRESULT WinUI::WmSysKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   if (config.flags & Config::suppressmenu) {
-    keyif.KeyUp((uint)wparam, (uint32_t)lparam);
+    keyif.KeyUp((uint32_t)wparam, (uint32_t)lparam);
     return 0;
   }
   return DefWindowProc(hwnd, WM_SYSKEYUP, wparam, lparam);
@@ -462,7 +462,7 @@ LRESULT WinUI::WmPaletteChanged(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WM_COMMAND ハンドラ
 //
 LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  uint wid = LOWORD(wparam);
+  uint32_t wid = LOWORD(wparam);
   switch (wid) {
     case IDM_EXIT:
       PostMessage(hwnd, WM_CLOSE, 0, 0);
@@ -791,7 +791,7 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM lparam) {
     if (report) {
       if (active) {
         char buf[64];
-        uint freq = icount / 10000;
+        uint32_t freq = icount / 10000;
         wsprintf(buf, "M88 - %d fps.  %d.%.2d MHz", fcount, freq / 100, freq % 100);
         SetWindowText(hwnd, buf);
       } else
@@ -1075,10 +1075,10 @@ void WinUI::OpenDiskImage(const char* path) {
 //
 static void GetFileNameTitle(char* title, size_t tlen, const char* name) {
   if (name) {
-    uchar* ptr;
-    ptr = _mbsrchr((uchar*)name, '\\');
-    _mbscpy_s((uchar*)title, tlen, ptr ? ptr + 1 : (uchar*)(name));
-    ptr = _mbschr((uchar*)title, '.');
+    uint8_t* ptr;
+    ptr = _mbsrchr((uint8_t*)name, '\\');
+    _mbscpy_s((uint8_t*)title, tlen, ptr ? ptr + 1 : (uint8_t*)(name));
+    ptr = _mbschr((uint8_t*)title, '.');
     if (ptr)
       *ptr = 0;
   }
@@ -1109,7 +1109,7 @@ bool WinUI::OpenDiskImage(int drive, const char* name, bool readonly, int id, bo
 //  SelectDisk
 //  ディスクセット
 //
-bool WinUI::SelectDisk(uint drive, int id, bool menuonly) {
+bool WinUI::SelectDisk(uint32_t drive, int id, bool menuonly) {
   DiskInfo& dinfo = diskinfo[drive];
   if (drive >= 2 || id >= 64)
     return false;
@@ -1133,7 +1133,7 @@ bool WinUI::SelectDisk(uint drive, int id, bool menuonly) {
 //  CreateDiskMenu
 //  マルチディスクイメージ用メニューの作成
 //
-bool WinUI::CreateDiskMenu(uint drive) {
+bool WinUI::CreateDiskMenu(uint32_t drive) {
   char buf[MAX_PATH + 16];
 
   DiskInfo& dinfo = diskinfo[drive];
@@ -1258,7 +1258,7 @@ void WinUI::OpenTapeImage(const char* filename) {
 //  WinUI::ResizeWindow
 //  ウィンドウの大きさを変える
 //
-void WinUI::ResizeWindow(uint width, uint height) {
+void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
   RECT rect;
   rect.left = 0;
   rect.right = width;
@@ -1300,7 +1300,7 @@ LRESULT WinUI::WmDrawItem(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  全画面・ウィンドウ表示切替  (ALT+ENTER)
 //
 void WinUI::ToggleDisplayMode() {
-  uint tick = GetTickCount();
+  uint32_t tick = GetTickCount();
   if ((tick - displaychangedtime) < 1000)
     return;
 
@@ -1610,7 +1610,7 @@ LRESULT WinUI::WmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp) {
       {
           POINTS p;
           p = MAKEPOINTS(lp);
-          uint menu = p.y < 8;
+          uint32_t menu = p.y < 8;
           if (!guimodebymouse)
           {
               if (menu)
@@ -1634,7 +1634,7 @@ LRESULT WinUI::WmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp) {
 
 LRESULT WinUI::WmSetCursor(HWND hwnd, WPARAM wp, LPARAM lp) {
   if (fullscreen) {
-    uint menu = LOWORD(lp) == HTMENU;
+    uint32_t menu = LOWORD(lp) == HTMENU;
     if (!guimodebymouse) {
       if (menu) {
         guimodebymouse = true;
@@ -1717,7 +1717,7 @@ void WinUI::LoadSnapshot(int n) {
     statusdisplay.Show(80, 2500, "%s から復元しました", name);
   else
     statusdisplay.Show(80, 2500, "%s から復元できません", name);
-  for (uint i = 0; i < 2; i++)
+  for (uint32_t i = 0; i < 2; i++)
     CreateDiskMenu(i);
   currentsnapshot = n;
   snapshotchanged = true;

@@ -65,7 +65,7 @@ bool DiskImageHolder::Open(const char* filename, bool ro, bool create) {
 //  新しいディスクイメージを加える
 //  type:   2D 0 / 2DD 1 / 2HD 2
 //
-bool DiskImageHolder::AddDisk(const char* title, uint type) {
+bool DiskImageHolder::AddDisk(const char* title, uint32_t type) {
   if (ndisks >= max_disks)
     return false;
 
@@ -190,12 +190,12 @@ bool DiskImageHolder::IsValidHeader(ImageHeader& ih) {
     return false;
 
   // 条件: trackptr[0-159] < disksize
-  uint trackstart = sizeof(ImageHeader);
+  uint32_t trackstart = sizeof(ImageHeader);
   for (int t = 0; t < 160; t++) {
     if (ih.trackptr[t] >= ih.disksize)
       break;
     if (ih.trackptr[t] && ih.trackptr[t] < trackstart)
-      trackstart = uint(ih.trackptr[t]);
+      trackstart = uint32_t(ih.trackptr[t]);
   }
 
   // 条件: 32+4*84 <= trackstart
@@ -318,7 +318,7 @@ bool DiskManager::IsImageOpen(const char* diskname) {
 //      readonly    読み込みのみ
 //      index       mount するディスクイメージの番号 (-1 == no disk)
 //
-bool DiskManager::Mount(uint dr, const char* diskname, bool readonly, int index, bool create) {
+bool DiskManager::Mount(uint32_t dr, const char* diskname, bool readonly, int index, bool create) {
   int i;
 
   Unmount(dr);
@@ -331,7 +331,7 @@ bool DiskManager::Mount(uint dr, const char* diskname, bool readonly, int index,
       h = &holder[i];
       // これから開くディスクが既に開かれていないことを確認する
       if (index >= 0) {
-        for (uint d = 0; d < max_drives; d++) {
+        for (uint32_t d = 0; d < max_drives; d++) {
           if ((d != dr) && (drive[d].holder == h) && (drive[d].index == index)) {
             index = -1;  // no disk
             statusdisplay.Show(90, 3000, "このディスクは使用中です");
@@ -389,7 +389,7 @@ bool DiskManager::Mount(uint dr, const char* diskname, bool readonly, int index,
 // ---------------------------------------------------------------------------
 //  ディスクを取り外す
 //
-bool DiskManager::Unmount(uint dr) {
+bool DiskManager::Unmount(uint32_t dr) {
   CriticalSection::Lock lock(cs);
 
   bool ret = true;
@@ -423,7 +423,7 @@ bool DiskManager::Unmount(uint dr) {
 //  ディスクイメージを読み込む
 //
 bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
-  uint t;
+  uint32_t t;
   ImageHeader ih;
   fio->Read(&ih, sizeof(ImageHeader));
   if (!memcmp(ih.title, "M88 RawDiskImage", 16))
@@ -431,7 +431,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
 
   // ディスクのタイプチェック
   FloppyDisk::DiskType type;
-  uint hd = 0;
+  uint32_t hd = 0;
   switch (ih.disktype) {
     case 0x00:
       type = FloppyDisk::MD2D;
@@ -466,14 +466,14 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
   }
   if (t < 164)
     memset(&ih.trackptr[t], 0, (164 - t) * 4);
-  if (t < (uint)Min(160, disk.GetNumTracks()))
+  if (t < (uint32_t)Min(160, disk.GetNumTracks()))
     statusdisplay.Show(80, 3000, "ヘッダーに無効なデータが含まれています");
 
   // trackptr のごみそうじ
-  uint trackstart = sizeof(ImageHeader);
+  uint32_t trackstart = sizeof(ImageHeader);
   for (t = 0; t < 84; t++) {
     if (ih.trackptr[t] && ih.trackptr[t] < trackstart)
-      trackstart = (uint)ih.trackptr[t];
+      trackstart = (uint32_t)ih.trackptr[t];
   }
   if (trackstart < sizeof(ImageHeader))
     memset(((char*)&ih) + trackstart, 0, sizeof(ImageHeader) - trackstart);
@@ -592,8 +592,8 @@ bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive) {
 // ---------------------------------------------------------------------------
 //  ディスクイメージのサイズを計算する
 //
-uint DiskManager::GetDiskImageSize(Drive* drv) {
-  uint disksize = sizeof(ImageHeader);
+uint32_t DiskManager::GetDiskImageSize(Drive* drv) {
+  uint32_t disksize = sizeof(ImageHeader);
 
   for (int t = drv->disk.GetNumTracks() - 1; t >= 0; t--) {
     int tr = (drv->disk.GetType() == FloppyDisk::MD2D) ? t & ~1 : t >> 1;
@@ -689,7 +689,7 @@ bool DiskManager::WriteTrackImage(FileIO* fio, Drive* drv, int t) {
     }
     if (fio->Write(&sh, sizeof(SectorHeader)) != sizeof(SectorHeader))
       return false;
-    if (uint(fio->Write(sec->image, sec->size)) != sec->size)
+    if (uint32_t(fio->Write(sec->image, sec->size)) != sec->size)
       return false;
     ;
   }
@@ -754,7 +754,7 @@ void DiskManager::UpdateDrive(Drive* drv) {
 // ---------------------------------------------------------------------------
 //  イメージタイトル取得
 //
-const char* DiskManager::GetImageTitle(uint dr, uint index) {
+const char* DiskManager::GetImageTitle(uint32_t dr, uint32_t index) {
   if (dr < max_drives && drive[dr].holder) {
     return drive[dr].holder->GetTitle(index);
   }
@@ -764,7 +764,7 @@ const char* DiskManager::GetImageTitle(uint dr, uint index) {
 // ---------------------------------------------------------------------------
 //  イメージの数取得
 //
-uint DiskManager::GetNumDisks(uint dr) {
+uint32_t DiskManager::GetNumDisks(uint32_t dr) {
   if (dr < max_drives) {
     if (drive[dr].holder)
       return drive[dr].holder->GetNumDisks();
@@ -775,7 +775,7 @@ uint DiskManager::GetNumDisks(uint dr) {
 // ---------------------------------------------------------------------------
 //  現在選択されているディスクの番号を取得
 //
-int DiskManager::GetCurrentDisk(uint dr) {
+int DiskManager::GetCurrentDisk(uint32_t dr) {
   if (dr < max_drives) {
     if (drive[dr].holder)
       return drive[dr].index;
@@ -790,7 +790,7 @@ int DiskManager::GetCurrentDisk(uint dr) {
 //  type    b1-0    ディスクのメディアタイプ
 //                  00 = 2D, 01 = 2DD, 10 = 2HD
 //
-bool DiskManager::AddDisk(uint dr, const char* title, uint type) {
+bool DiskManager::AddDisk(uint32_t dr, const char* title, uint32_t type) {
   if (dr < max_drives) {
     if (drive[dr].holder && drive[dr].holder->AddDisk(title, type))
       return true;
@@ -802,7 +802,7 @@ bool DiskManager::AddDisk(uint dr, const char* title, uint type) {
 //  N88-BASIC 標準フォーマットを掛ける
 //  豪快な方法で(^^;
 //
-bool DiskManager::FormatDisk(uint dr) {
+bool DiskManager::FormatDisk(uint32_t dr) {
   if (!drive[dr].holder || drive[dr].disk.GetType() != FloppyDisk::MD2D)
     return false;
   //  statusdisplay.Show(10, 5000, "Format drive : %d", dr);

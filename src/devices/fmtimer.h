@@ -9,8 +9,6 @@
 
 #include <stdint.h>
 
-#include "win32/types.h"
-
 // ---------------------------------------------------------------------------
 
 namespace FM {
@@ -21,13 +19,13 @@ class Timer {
   int32_t GetNextEvent();
 
  protected:
-  virtual void SetStatus(uint bit) = 0;
-  virtual void ResetStatus(uint bit) = 0;
+  virtual void SetStatus(uint32_t bit) = 0;
+  virtual void ResetStatus(uint32_t bit) = 0;
 
-  void SetTimerBase(uint clock);
-  void SetTimerA(uint addr, uint data);
-  void SetTimerB(uint data);
-  void SetTimerControl(uint data);
+  void SetTimerBase(uint32_t clock);
+  void SetTimerA(uint32_t addr, uint32_t data);
+  void SetTimerB(uint32_t data);
+  void SetTimerControl(uint32_t data);
 
   uint8_t status;
   uint8_t regtc;

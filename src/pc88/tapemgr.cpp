@@ -73,7 +73,7 @@ bool TapeManager::Open(const char* file) {
     TagHdr hdr;
     fio.Read(&hdr, 4);
 
-    Tag* tag = (Tag*)new uchar[sizeof(Tag) - 1 + hdr.length];
+    Tag* tag = (Tag*)new uint8_t[sizeof(Tag) - 1 + hdr.length];
     if (!tag) {
       Close();
       return false;
@@ -154,7 +154,7 @@ bool TapeManager::Motor(bool s) {
 
 // ---------------------------------------------------------------------------
 
-uint TapeManager::GetPos() {
+uint32_t TapeManager::GetPos() {
   if (motor) {
     if (timercount)
       return tick + (scheduler->GetTime() - time) * 6 / 125;
@@ -224,7 +224,7 @@ void TapeManager::Proceed(bool timer) {
 // ---------------------------------------------------------------------------
 //
 //
-void IOCALL TapeManager::Timer(uint) {
+void IOCALL TapeManager::Timer(uint32_t) {
   tick += timercount;
   statusdisplay.Show(50, 0, "tape: %d", tick);
 
@@ -271,7 +271,7 @@ void TapeManager::SetTimer(int count) {
 // ---------------------------------------------------------------------------
 //  バイト転送
 //
-inline void TapeManager::Send(uint byte) {
+inline void TapeManager::Send(uint32_t byte) {
   LOG1("%.2x ", byte);
   bus->Out(pinput, byte);
 }
@@ -279,7 +279,7 @@ inline void TapeManager::Send(uint byte) {
 // ---------------------------------------------------------------------------
 //  即座にデータを要求する
 //
-void TapeManager::RequestData(uint, uint) {
+void TapeManager::RequestData(uint32_t, uint32_t) {
   if (mode == T_DATA) {
     scheduler->SetEvent(event, 1, this, static_cast<TimeFunc>(&TapeManager::Timer));
   }
@@ -288,7 +288,7 @@ void TapeManager::RequestData(uint, uint) {
 // ---------------------------------------------------------------------------
 //  シークする
 //
-bool TapeManager::Seek(uint newpos, uint off) {
+bool TapeManager::Seek(uint32_t newpos, uint32_t off) {
   if (!Rewind(false))
     return false;
 
@@ -328,18 +328,18 @@ bool TapeManager::Seek(uint newpos, uint off) {
 
 // ---------------------------------------------------------------------------
 
-void IOCALL TapeManager::Out30(uint, uint d) {
+void IOCALL TapeManager::Out30(uint32_t, uint32_t d) {
   Motor(!!(d & 8));
 }
 
-uint IOCALL TapeManager::In40(uint) {
+uint32_t IOCALL TapeManager::In40(uint32_t) {
   return IOBus::Active(Carrier() ? 4 : 0, 4);
 }
 
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint IFCALL TapeManager::GetStatusSize() {
+uint32_t IFCALL TapeManager::GetStatusSize() {
   return sizeof(Status);
 }
 

@@ -16,7 +16,7 @@ ASPI::ASPI() {
 
   nhostadapters = 0;
   if (ConnectAPI()) {
-    uint s = (*pgasi)();
+    uint32_t s = (*pgasi)();
     if ((s & 0xff00) == 0x0100) {
       nhostadapters = s & 0xff;
     }
@@ -69,7 +69,7 @@ bool ASPI::ConnectAPI() {
 // --------------------------------------------------------------------------
 //  HA_INQUIRY test
 //
-bool ASPI::InquiryAdapter(uint ha, uint* maxid, uint* maxxfer) {
+bool ASPI::InquiryAdapter(uint32_t ha, uint32_t* maxid, uint32_t* maxxfer) {
   if (ha < nhostadapters) {
     SRB_HAInquiry srb;
     memset(&srb, 0, sizeof(srb));
@@ -91,7 +91,7 @@ bool ASPI::InquiryAdapter(uint ha, uint* maxid, uint* maxxfer) {
 // --------------------------------------------------------------------------
 //  SC_GET_DEV_TYPE
 //
-int ASPI::GetDeviceType(uint ha, uint id, uint lun) {
+int ASPI::GetDeviceType(uint32_t ha, uint32_t id, uint32_t lun) {
   SRB_GetDeviceBlock srb;
   memset(&srb, 0, sizeof(srb));
 
@@ -109,14 +109,14 @@ int ASPI::GetDeviceType(uint ha, uint id, uint lun) {
 // --------------------------------------------------------------------------
 //  SC_EXEC_SCSI_CMD
 //
-int ASPI::ExecuteSCSICommand(uint ha,
-                             uint id,
-                             uint lun,
+int ASPI::ExecuteSCSICommand(uint32_t ha,
+                             uint32_t id,
+                             uint32_t lun,
                              void* cdb,
-                             uint cdblen,
-                             uint dir,
+                             uint32_t cdblen,
+                             uint32_t dir,
                              void* data,
-                             uint datalen) {
+                             uint32_t datalen) {
   SRB_ExecuteIO srb;
   memset(&srb, 0, sizeof(srb));
 
@@ -157,7 +157,7 @@ int ASPI::ExecuteSCSICommand(uint ha,
 // --------------------------------------------------------------------------
 //  SC_ABORT_SRB
 //
-void ASPI::AbortService(uint ha, void* asrb) {
+void ASPI::AbortService(uint32_t ha, void* asrb) {
   SRB_Abort srb;
   memset(&srb, 0, sizeof(srb));
 

@@ -17,7 +17,7 @@ FileIO::FileIO() {
   flags = 0;
 }
 
-FileIO::FileIO(const char* filename, uint flg) {
+FileIO::FileIO(const char* filename, uint32_t flg) {
   flags = 0;
   Open(filename, flg);
 }
@@ -30,7 +30,7 @@ FileIO::~FileIO() {
 //  ファイルを開く
 // ---------------------------------------------------------------------------
 
-bool FileIO::Open(const char* filename, uint flg) {
+bool FileIO::Open(const char* filename, uint32_t flg) {
   Close();
 
   strncpy_s(path, sizeof(path), filename, _TRUNCATE);
@@ -85,7 +85,7 @@ bool FileIO::CreateNew(const char* filename) {
 //  ファイルを作り直す
 // ---------------------------------------------------------------------------
 
-bool FileIO::Reopen(uint flg) {
+bool FileIO::Reopen(uint32_t flg) {
   if (!(flags & open))
     return false;
   if ((flags & readonly) && (flg & create))

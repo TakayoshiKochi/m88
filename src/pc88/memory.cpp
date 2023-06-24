@@ -99,7 +99,7 @@ bool Memory::Init(MemoryManager* _mm, IOBus* _bus, CRTC* _crtc, int* wt) {
 // ----------------------------------------------------------------------------
 //  Reset
 //
-void Memory::Reset(uint, uint newmode) {
+void Memory::Reset(uint32_t, uint32_t newmode) {
   sw31 = bus->In(0x31);
   bool high = !(bus->In(0x6e) & 0x80);
 
@@ -217,7 +217,7 @@ const Memory::WaitDesc Memory::waittable[48] = {
 //  1  0    N80
 //  x  1    RAM
 //
-void IOCALL Memory::Out31(uint, uint data) {
+void IOCALL Memory::Out31(uint32_t, uint32_t data) {
   if (!n80mode) {
     if ((data ^ port31) & 6) {
       port31 = data & 6;
@@ -240,9 +240,9 @@ void IOCALL Memory::Out31(uint, uint data) {
 //  b4      RAM/~TVRAM (V1S 無効)
 //  b1 b0   N88 EROM bank select
 //
-void IOCALL Memory::Out32(uint, uint data) {
+void IOCALL Memory::Out32(uint32_t, uint32_t data) {
   if (!n80mode) {
-    uint mod = data ^ port32;
+    uint32_t mod = data ^ port32;
     port32 = data;
     if (mod & 0x03)
       Update60R();
@@ -258,9 +258,9 @@ void IOCALL Memory::Out32(uint, uint data) {
 //  b7      0...N/N80mode   1...N80V2mode
 //  b6      ALU Enable (port5x=RAM)
 //
-void IOCALL Memory::Out33(uint, uint data) {
+void IOCALL Memory::Out33(uint32_t, uint32_t data) {
   if (n80mode) {
-    uint mod = data ^ port33;
+    uint32_t mod = data ^ port33;
     port33 = data;
     if (mod & 0x80)
       UpdateN80R();
@@ -272,10 +272,10 @@ void IOCALL Memory::Out33(uint, uint data) {
 // ----------------------------------------------------------------------------
 //  Port34  ALU Operation
 //
-void IOCALL Memory::Out34(uint, uint data) {
+void IOCALL Memory::Out34(uint32_t, uint32_t data) {
   if (!n80mode || n80srmode) {
     port34 = data;
-    for (uint i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < 3; i++) {
       switch (data & 0x11) {
         case 0x00:
           maskr.byte[i] = 0xff;
@@ -309,7 +309,7 @@ void IOCALL Memory::Out34(uint, uint data) {
 //  b5-b4   ALU Write Control
 //  b2-b0   ALU Read MUX
 //
-void IOCALL Memory::Out35(uint, uint data) {
+void IOCALL Memory::Out35(uint32_t, uint32_t data) {
   if (!n80mode || n80srmode) {
     port35 = data;
     aluread.byte[0] = (data & 1) ? 0xff : 0x00;
@@ -334,7 +334,7 @@ void IOCALL Memory::Out35(uint, uint data) {
 //  port5e  GVRAM2
 //  port5f  RAM
 //
-void IOCALL Memory::Out5x(uint bank, uint) {
+void IOCALL Memory::Out5x(uint32_t bank, uint32_t) {
   bank &= 3;
   if (n80mode) {
     if (!n80srmode) {
@@ -353,7 +353,7 @@ void IOCALL Memory::Out5x(uint bank, uint) {
 // ----------------------------------------------------------------------------
 //  Port70  TextWindow (N88 時有効)
 //
-void IOCALL Memory::Out70(uint, uint data) {
+void IOCALL Memory::Out70(uint32_t, uint32_t data) {
   if (!n80mode)  // 80SR では port70 が hold されないってことかな？
   {
     txtwnd = data * 0x100;
@@ -367,7 +367,7 @@ void IOCALL Memory::Out70(uint, uint data) {
 //  Port71
 //  b0      N88ROM/~EROM
 //
-void IOCALL Memory::Out71(uint, uint data) {
+void IOCALL Memory::Out71(uint32_t, uint32_t data) {
   port71 = (data | erommask) & 0xff;
   if (!n80mode) {
     if ((port31 & 6) == 0) {
@@ -382,7 +382,7 @@ void IOCALL Memory::Out71(uint, uint data) {
 // ----------------------------------------------------------------------------
 //  Port78  ++Port70
 //
-void IOCALL Memory::Out78(uint, uint) {
+void IOCALL Memory::Out78(uint32_t, uint32_t) {
   txtwnd = (txtwnd + 0x100) & 0xff00;
   if ((port31 & 6) == 0) {
     Update80();
@@ -394,7 +394,7 @@ void IOCALL Memory::Out78(uint, uint) {
 //  b4      CD-BIOS/other
 //  b0      CD-EROM
 //
-void IOCALL Memory::Out99(uint, uint data) {
+void IOCALL Memory::Out99(uint32_t, uint32_t data) {
   if (cdbios && !n80mode) {
     port99 = data & 0x11;
     Update00R();
@@ -409,7 +409,7 @@ void IOCALL Memory::Out99(uint, uint data) {
 //  b4      erom write enable (pe4 < ERAM Pages)
 //  b0      erom read enable
 //
-void IOCALL Memory::Oute2(uint, uint data) {
+void IOCALL Memory::Oute2(uint32_t, uint32_t data) {
   porte2 = data;
   if (!n80mode) {
     Update00R();
@@ -424,7 +424,7 @@ void IOCALL Memory::Oute2(uint, uint data) {
 // ----------------------------------------------------------------------------
 //  Porte4  erom page select
 //
-void IOCALL Memory::Oute3(uint, uint data) {
+void IOCALL Memory::Oute3(uint32_t, uint32_t data) {
   porte3 = data;
   if (!n80mode) {
     Update00R();
@@ -439,7 +439,7 @@ void IOCALL Memory::Oute3(uint, uint data) {
 // ----------------------------------------------------------------------------
 //  Port F0 辞書ROMバンク選択
 //
-void IOCALL Memory::Outf0(uint, uint data) {
+void IOCALL Memory::Outf0(uint32_t, uint32_t data) {
   portf0 = data;
   if (dicrom && !n80mode) {
     UpdateC0();
@@ -450,7 +450,7 @@ void IOCALL Memory::Outf0(uint, uint data) {
 // ----------------------------------------------------------------------------
 //  Port F0 辞書ROMバンク選択
 //
-void IOCALL Memory::Outf1(uint, uint data) {
+void IOCALL Memory::Outf1(uint32_t, uint32_t data) {
   if (dicrom && !n80mode) {
     seldic = !(data & 1);
     UpdateC0();
@@ -461,32 +461,32 @@ void IOCALL Memory::Outf1(uint, uint data) {
 // ----------------------------------------------------------------------------
 //  In xx
 //
-uint IOCALL Memory::In32(uint) {
+uint32_t IOCALL Memory::In32(uint32_t) {
   return port32;
 }
 
-uint IOCALL Memory::In33(uint) {
+uint32_t IOCALL Memory::In33(uint32_t) {
   return n80mode ? port33 : 0xff;
 }
 
-uint IOCALL Memory::In5c(uint) {
-  static const uint res[4] = {0xf9, 0xfa, 0xfc, 0xf8};
+uint32_t IOCALL Memory::In5c(uint32_t) {
+  static const uint32_t res[4] = {0xf9, 0xfa, 0xfc, 0xf8};
   return res[port5x & 3];
 }
 
-uint IOCALL Memory::In70(uint) {
+uint32_t IOCALL Memory::In70(uint32_t) {
   return txtwnd >> 8;
 }
 
-uint IOCALL Memory::In71(uint) {
+uint32_t IOCALL Memory::In71(uint32_t) {
   return port71;
 }
 
-uint IOCALL Memory::Ine2(uint) {
+uint32_t IOCALL Memory::Ine2(uint32_t) {
   return (~porte2) | 0xee;
 }
 
-uint IOCALL Memory::Ine3(uint) {
+uint32_t IOCALL Memory::Ine3(uint32_t) {
   return porte3;
 }
 
@@ -648,12 +648,12 @@ void Memory::Update80() {
 // ----------------------------------------------------------------------------
 //  テキストウィンドウ(ラップアラウンド)のアクセス
 //
-void MEMCALL Memory::WrWindow(void* inst, uint addr, uint data) {
+void Memory::WrWindow(void* inst, uint32_t addr, uint32_t data) {
   Memory* m = static_cast<Memory*>(inst);
   m->ram[(m->txtwnd + (addr & 0x3ff)) & 0xffff] = data;
 }
 
-uint MEMCALL Memory::RdWindow(void* inst, uint addr) {
+uint32_t Memory::RdWindow(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
   return m->ram[(m->txtwnd + (addr & 0x3ff)) & 0xffff];
 }
@@ -764,7 +764,7 @@ void Memory::UpdateN80G() {
 //  Select GVRAM
 //  port 5c-5e
 //
-void Memory::SelectGVRAM(uint gvtop) {
+void Memory::SelectGVRAM(uint32_t gvtop) {
   static const MemoryManager::RdFunc rf[3] = {RdGVRAM0, RdGVRAM1, RdGVRAM2};
   mm->AllocR(mid, gvtop, 0x4000, rf[port5x & 3]);
 
@@ -787,35 +787,35 @@ void Memory::SelectGVRAM(uint gvtop) {
   else                     \
     m->dirty[addr >> 4] = 1;
 
-void MEMCALL Memory::WrGVRAM0(void* inst, uint addr, uint data) {
+void Memory::WrGVRAM0(void* inst, uint32_t addr, uint32_t data) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff].byte[0] = data;
   SETDIRTY(addr);
 }
 
-void MEMCALL Memory::WrGVRAM1(void* inst, uint addr, uint data) {
+void Memory::WrGVRAM1(void* inst, uint32_t addr, uint32_t data) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff].byte[1] = data;
   SETDIRTY(addr);
 }
 
-void MEMCALL Memory::WrGVRAM2(void* inst, uint addr, uint data) {
+void Memory::WrGVRAM2(void* inst, uint32_t addr, uint32_t data) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff].byte[2] = data;
   SETDIRTY(addr);
 }
 
-uint MEMCALL Memory::RdGVRAM0(void* inst, uint addr) {
+uint32_t Memory::RdGVRAM0(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
   return m->gvram[addr & 0x3fff].byte[0];
 }
 
-uint MEMCALL Memory::RdGVRAM1(void* inst, uint addr) {
+uint32_t Memory::RdGVRAM1(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
   return m->gvram[addr & 0x3fff].byte[1];
 }
 
-uint MEMCALL Memory::RdGVRAM2(void* inst, uint addr) {
+uint32_t Memory::RdGVRAM2(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
   return m->gvram[addr & 0x3fff].byte[2];
 }
@@ -823,7 +823,7 @@ uint MEMCALL Memory::RdGVRAM2(void* inst, uint addr) {
 // ----------------------------------------------------------------------------
 //  Select ALU
 //
-void Memory::SelectALU(uint gvtop) {
+void Memory::SelectALU(uint32_t gvtop) {
   static const MemoryBus::WriteFuncPtr funcs[4] = {WrALUSet, WrALURGB, WrALUB, WrALUR};
 
   mm->AllocR(mid, gvtop, 0x4000, RdALU);
@@ -839,7 +839,7 @@ void Memory::SelectALU(uint gvtop) {
 // ----------------------------------------------------------------------------
 //  GVRAM R/W thru ALU
 //
-uint MEMCALL Memory::RdALU(void* inst, uint addr) {
+uint32_t Memory::RdALU(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
   quadbyte q;
   m->alureg = m->gvram[addr & 0x3fff];
@@ -847,7 +847,7 @@ uint MEMCALL Memory::RdALU(void* inst, uint addr) {
   return ~(q.byte[0] | q.byte[1] | q.byte[2]) & 0xff;
 }
 
-void MEMCALL Memory::WrALUSet(void* inst, uint addr, uint data) {
+void Memory::WrALUSet(void* inst, uint32_t addr, uint32_t data) {
   Memory* m = static_cast<Memory*>(inst);
 
   quadbyte q;
@@ -860,19 +860,19 @@ void MEMCALL Memory::WrALUSet(void* inst, uint addr, uint data) {
   SETDIRTY(addr);
 }
 
-void MEMCALL Memory::WrALURGB(void* inst, uint addr, uint) {
+void Memory::WrALURGB(void* inst, uint32_t addr, uint32_t) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff] = m->alureg;
   SETDIRTY(addr);
 }
 
-void MEMCALL Memory::WrALUR(void* inst, uint addr, uint) {
+void Memory::WrALUR(void* inst, uint32_t addr, uint32_t) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff].byte[1] = m->alureg.byte[0];
   SETDIRTY(addr);
 }
 
-void MEMCALL Memory::WrALUB(void* inst, uint addr, uint) {
+void Memory::WrALUB(void* inst, uint32_t addr, uint32_t) {
   Memory* m = static_cast<Memory*>(inst);
   m->gvram[addr &= 0x3fff].byte[0] = m->alureg.byte[1];
   SETDIRTY(addr);
@@ -984,9 +984,9 @@ bool Memory::LoadROMImage(uint8_t* dest, const char* filename, int size) {
 //  arg:    ram     RAM エリア
 //          length  RAM エリア長 (0x80 の倍数)
 //
-void Memory::SetRAMPattern(uint8_t* ram, uint length) {
+void Memory::SetRAMPattern(uint8_t* ram, uint32_t length) {
   if (length > 0) {
-    for (uint i = 0; i < length; i += 0x80, ram += 0x80) {
+    for (uint32_t i = 0; i < length; i += 0x80, ram += 0x80) {
       uint8_t b = ((i >> 7) ^ i) & 0x100 ? 0x00 : 0xff;
       memset(ram, b, 0x40);
       memset(ram + 0x40, ~b, 0x40);
@@ -1017,7 +1017,7 @@ void Memory::SetWait() {
 // ----------------------------------------------------------------------------
 //  VRTC(ウェイト変更)
 //
-void Memory::VRTC(uint, uint d) {
+void Memory::VRTC(uint32_t, uint32_t d) {
   waittype = (waittype & ~3) | (d & 1) | (crtc->GetStatus() & 0x10 ? 0 : 2);
   SetWait();
 }
@@ -1025,7 +1025,7 @@ void Memory::VRTC(uint, uint d) {
 // ----------------------------------------------------------------------------
 //  Out40
 //
-void IOCALL Memory::Out40(uint, uint data) {
+void IOCALL Memory::Out40(uint32_t, uint32_t data) {
   data &= 0x10;
   if (data ^ port40) {
     port40 = data;
@@ -1050,10 +1050,10 @@ void Memory::ApplyConfig(const Config* cfg) {
 
 // ---------------------------------------------------------------------------
 
-inline void Memory::SetWaits(uint a, uint s, uint v) {
+inline void Memory::SetWaits(uint32_t a, uint32_t s, uint32_t v) {
   if (waits) {
-    uint p = a >> MemoryManager::pagebits;
-    uint t = (a + s + MemoryManager::pagemask) >> MemoryManager::pagebits;
+    uint32_t p = a >> MemoryManager::pagebits;
+    uint32_t t = (a + s + MemoryManager::pagemask) >> MemoryManager::pagebits;
     for (; p < t; p++)
       waits[p] = v;
   }
@@ -1062,7 +1062,7 @@ inline void Memory::SetWaits(uint a, uint s, uint v) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint IFCALL Memory::GetStatusSize() {
+uint32_t IFCALL Memory::GetStatusSize() {
   return sizeof(Status) + erambanks * 0x8000 - 1;
 }
 
@@ -1149,7 +1149,7 @@ const Device::InFuncPtr Memory::indef[] = {
 //          31 32 34 35 5x 70 71 78 e2 e3
 //  00-5f(r)*                       *  *  *  *
 //
-inline uint Memory::GetHiBank(uint addr) {
+inline uint32_t Memory::GetHiBank(uint32_t addr) {
   if (port32 & 0x40) {
     if (port35 & 0x80)
       return mALU;
@@ -1166,7 +1166,7 @@ inline uint Memory::GetHiBank(uint addr) {
   return mRAM;
 }
 
-uint IFCALL Memory::GetRdBank(uint addr) {
+uint32_t IFCALL Memory::GetRdBank(uint32_t addr) {
   if (addr < 0x8000) {
     if ((porte2 & 0x01) && (porte3 < erambanks))
       return mERAM + porte3;
@@ -1201,7 +1201,7 @@ uint IFCALL Memory::GetRdBank(uint addr) {
   return GetHiBank(addr);
 }
 
-uint IFCALL Memory::GetWrBank(uint addr) {
+uint32_t IFCALL Memory::GetWrBank(uint32_t addr) {
   if (addr < 0x8000) {
     if ((porte2 & 0x10) && (porte3 < erambanks))
       return mERAM + porte3;

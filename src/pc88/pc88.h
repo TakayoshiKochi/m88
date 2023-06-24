@@ -84,13 +84,13 @@ class PC88 : public Scheduler, public ICPUTime {
   void DeInit();
 
   void Reset();
-  int Proceed(uint us, uint clock, uint eff);
+  int Proceed(uint32_t us, uint32_t clock, uint32_t eff);
   void ApplyConfig(PC8801::Config*);
   void SetVolume(PC8801::Config*);
 
-  uint IFCALL GetCPUTick() { return cpu1.GetCount(); }
-  uint IFCALL GetCPUSpeed() { return clock; }
-  uint GetEffectiveSpeed() { return eclock; }
+  uint32_t IFCALL GetCPUTick() { return cpu1.GetCount(); }
+  uint32_t IFCALL GetCPUSpeed() { return clock; }
+  uint32_t GetEffectiveSpeed() { return eclock; }
   void TimeSync();
 
   void UpdateScreen(bool refresh = false);
@@ -164,8 +164,8 @@ class PC88 : public Scheduler, public ICPUTime {
   int dexc;
   int eclock;
 
-  uint cfgflags;
-  uint cfgflag2;
+  uint32_t cfgflags;
+  uint32_t cfgflag2;
   bool updated;
 
   PC8801::Memory* mem1;

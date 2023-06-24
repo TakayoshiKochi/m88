@@ -54,7 +54,7 @@ void Base::SetSwitch(const Config* cfg) {
 // ---------------------------------------------------------------------------
 //  りせっと
 //
-void IOCALL Base::Reset(uint, uint) {
+void IOCALL Base::Reset(uint32_t, uint32_t) {
   port40 = 0xc0 + (fv15k ? 2 : 0) + ((dipsw & (1 << 11)) || !autoboot ? 8 : 0);
   sw6e = (sw6e & 0x7f) | ((!clock || Abs(clock) >= 60) ? 0 : 0x80);
   sw31 = ((dipsw >> 5) & 0x3f) | (bmode & 1 ? 0x40 : 0) | (bmode & 0x10 ? 0 : 0x80);
@@ -99,7 +99,7 @@ void IOCALL Base::Reset(uint, uint) {
 // ---------------------------------------------------------------------------
 //  Real Time Clock Interrupt (600Hz)
 //
-void IOCALL Base::RTC(uint) {
+void IOCALL Base::RTC(uint32_t) {
   pc->bus1.Out(PC88::pint2, 1);
   //  LOG0("RTC\n");
 }
@@ -107,7 +107,7 @@ void IOCALL Base::RTC(uint) {
 // ---------------------------------------------------------------------------
 //  Vertical Retrace Interrupt
 //
-void IOCALL Base::VRTC(uint, uint en) {
+void IOCALL Base::VRTC(uint32_t, uint32_t en) {
   if (en) {
     pc->VSync();
     pc->bus1.Out(PC88::pint1, 1);
@@ -122,19 +122,19 @@ void IOCALL Base::VRTC(uint, uint en) {
 // ---------------------------------------------------------------------------
 //  In
 //
-uint IOCALL Base::In30(uint) {
+uint32_t IOCALL Base::In30(uint32_t) {
   return sw30;
 }
 
-uint IOCALL Base::In31(uint) {
+uint32_t IOCALL Base::In31(uint32_t) {
   return sw31;
 }
 
-uint IOCALL Base::In40(uint) {
+uint32_t IOCALL Base::In40(uint32_t) {
   return IOBus::Active(port40, 0x2a);
 }
 
-uint IOCALL Base::In6e(uint) {
+uint32_t IOCALL Base::In6e(uint32_t) {
   return sw6e | 0x7f;
 }
 

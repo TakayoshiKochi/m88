@@ -47,7 +47,7 @@ bool IFCALL Beep::Connect(ISoundControl* control) {
 // ---------------------------------------------------------------------------
 //  レート設定
 //
-bool Beep::SetRate(uint rate) {
+bool Beep::SetRate(uint32_t rate) {
   pslice = 0;
   bslice = 0;
   bcount = 0;
@@ -69,7 +69,7 @@ void IFCALL Beep::Mix(int32_t* dest, int nsamples) {
   int p = port40 & 0x80 ? 0 : 0x10000;
   int b = port40 & 0x20 ? 0 : 0x10000;
 
-  uint ps = pslice, bs = bslice;
+  uint32_t ps = pslice, bs = bslice;
   pslice = bslice = 0;
 
   int sample = 0;
@@ -105,7 +105,7 @@ void IFCALL Beep::Mix(int32_t* dest, int nsamples) {
 // ---------------------------------------------------------------------------
 //  BEEP Port への Out
 //
-void IOCALL Beep::Out40(uint, uint data) {
+void IOCALL Beep::Out40(uint32_t, uint32_t data) {
   data &= p40mask;
   int i = data ^ port40;
   if (i & 0xa0) {
@@ -125,7 +125,7 @@ void IOCALL Beep::Out40(uint, uint data) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint IFCALL Beep::GetStatusSize() {
+uint32_t IFCALL Beep::GetStatusSize() {
   return sizeof(Status);
 }
 

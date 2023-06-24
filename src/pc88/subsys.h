@@ -35,7 +35,7 @@ class SubSystem : public Device {
 
   bool Init(MemoryManager* mmgr);
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
@@ -44,34 +44,34 @@ class SubSystem : public Device {
 
   bool IsBusy();
 
-  void IOCALL Reset(uint = 0, uint = 0);
-  uint IOCALL IntAck(uint);
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
+  uint32_t IOCALL IntAck(uint32_t);
 
-  void IOCALL M_Set0(uint, uint data);
-  void IOCALL M_Set1(uint, uint data);
-  void IOCALL M_Set2(uint, uint data);
-  void IOCALL M_SetCW(uint, uint data);
-  uint IOCALL M_Read0(uint);
-  uint IOCALL M_Read1(uint);
-  uint IOCALL M_Read2(uint);
+  void IOCALL M_Set0(uint32_t, uint32_t data);
+  void IOCALL M_Set1(uint32_t, uint32_t data);
+  void IOCALL M_Set2(uint32_t, uint32_t data);
+  void IOCALL M_SetCW(uint32_t, uint32_t data);
+  uint32_t IOCALL M_Read0(uint32_t);
+  uint32_t IOCALL M_Read1(uint32_t);
+  uint32_t IOCALL M_Read2(uint32_t);
 
-  void IOCALL S_Set0(uint, uint data);
-  void IOCALL S_Set1(uint, uint data);
-  void IOCALL S_Set2(uint, uint data);
-  void IOCALL S_SetCW(uint, uint data);
-  uint IOCALL S_Read0(uint);
-  uint IOCALL S_Read1(uint);
-  uint IOCALL S_Read2(uint);
+  void IOCALL S_Set0(uint32_t, uint32_t data);
+  void IOCALL S_Set1(uint32_t, uint32_t data);
+  void IOCALL S_Set2(uint32_t, uint32_t data);
+  void IOCALL S_SetCW(uint32_t, uint32_t data);
+  uint32_t IOCALL S_Read0(uint32_t);
+  uint32_t IOCALL S_Read1(uint32_t);
+  uint32_t IOCALL S_Read2(uint32_t);
 
  private:
   enum {
     ssrev = 1,
   };
   struct Status {
-    uint rev;
+    uint32_t rev;
     uint8_t ps[3], cs;
     uint8_t pm[3], cm;
-    uint idlecount;
+    uint32_t idlecount;
     uint8_t ram[0x4000];
   };
 
@@ -85,8 +85,8 @@ class SubSystem : public Device {
   uint8_t* ram;
   uint8_t* dummy;
   PIO piom, pios;
-  uint cw_m, cw_s;
-  uint idlecount;
+  uint32_t cw_m, cw_s;
+  uint32_t idlecount;
 
  private:
   static const Descriptor descriptor;

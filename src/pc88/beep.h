@@ -38,15 +38,15 @@ class Beep : public Device, public ISoundSource {
   }
 
   bool IFCALL Connect(ISoundControl* sc);
-  bool IFCALL SetRate(uint rate);
+  bool IFCALL SetRate(uint32_t rate);
   void IFCALL Mix(int32_t*, int);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
-  void IOCALL Out40(uint, uint data);
+  void IOCALL Out40(uint32_t, uint32_t data);
 
  private:
   enum {
@@ -64,8 +64,8 @@ class Beep : public Device, public ISoundSource {
   int bcount;
   int bperiod;
 
-  uint port40;
-  uint p40mask;
+  uint32_t port40;
+  uint32_t p40mask;
 
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];

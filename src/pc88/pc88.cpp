@@ -135,7 +135,7 @@ void PC88::DeInit() {
 //  執行
 //  1 tick = 10μs
 //
-int PC88::Proceed(uint ticks, uint clk, uint ecl) {
+int PC88::Proceed(uint32_t ticks, uint32_t clk, uint32_t ecl) {
   clock = Max(1, clk);
   eclock = Max(1, ecl);
   return Scheduler::Proceed(ticks);

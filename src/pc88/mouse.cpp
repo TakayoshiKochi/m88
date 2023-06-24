@@ -45,7 +45,7 @@ bool Mouse::Connect(IUnk* unk) {
 // ---------------------------------------------------------------------------
 //  入力
 //
-uint IOCALL Mouse::GetMove(uint) {
+uint32_t IOCALL Mouse::GetMove(uint32_t) {
   Log("%c", 'w' + phase);
   if (joymode) {
     if (data == -1) {
@@ -81,14 +81,14 @@ uint IOCALL Mouse::GetMove(uint) {
   }
 }
 
-uint IOCALL Mouse::GetButton(uint) {
+uint32_t IOCALL Mouse::GetButton(uint32_t) {
   return ui ? (~ui->GetButton()) | 0xfc : 0xff;
 }
 
 // ---------------------------------------------------------------------------
 //  ストローブ信号
 //
-void IOCALL Mouse::Strobe(uint, uint data) {
+void IOCALL Mouse::Strobe(uint32_t, uint32_t data) {
   data &= 0x40;
   if (port40 ^ data) {
     port40 = data;
@@ -114,7 +114,7 @@ void IOCALL Mouse::Strobe(uint, uint data) {
 // ---------------------------------------------------------------------------
 //
 //
-void IOCALL Mouse::VSync(uint, uint) {
+void IOCALL Mouse::VSync(uint32_t, uint32_t) {
   data = -1;
 }
 

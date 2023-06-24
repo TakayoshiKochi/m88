@@ -96,7 +96,7 @@ void Piccolo::Cleanup() {
 // ---------------------------------------------------------------------------
 //  Core Thread
 //
-uint Piccolo::ThreadMain() {
+uint32_t Piccolo::ThreadMain() {
   ::SetThreadPriority(hthread, THREAD_PRIORITY_TIME_CRITICAL);
   while (!shouldterminate) {
     Event* ev;
@@ -153,14 +153,14 @@ void Piccolo::Pop() {
 // ---------------------------------------------------------------------------
 //  サブスレッド開始点
 //
-uint CALLBACK Piccolo::ThreadEntry(void* arg) {
+uint32_t CALLBACK Piccolo::ThreadEntry(void* arg) {
   return reinterpret_cast<Piccolo*>(arg)->ThreadMain();
 }
 
 // ---------------------------------------------------------------------------
 //
 //
-bool Piccolo::SetLatencyBufferSize(uint entries) {
+bool Piccolo::SetLatencyBufferSize(uint32_t entries) {
   CriticalSection::Lock lock(cs);
   Event* ne = new Event[entries];
   if (!ne)
@@ -174,7 +174,7 @@ bool Piccolo::SetLatencyBufferSize(uint entries) {
   return true;
 }
 
-bool Piccolo::SetMaximumLatency(uint nanosec) {
+bool Piccolo::SetMaximumLatency(uint32_t nanosec) {
   maxlatency = nanosec;
   return true;
 }
@@ -193,7 +193,7 @@ void Piccolo::DrvReset() {
   evwrite = 0;
 }
 
-bool Piccolo::DrvSetReg(uint32_t at, uint addr, uint data) {
+bool Piccolo::DrvSetReg(uint32_t at, uint32_t addr, uint32_t data) {
   if (int32_t(at - GetCurrentTime()) > maxlatency) {
     //      statusdisplay.Show(100, 0, "Piccolo: Time %.6d", at - GetCurrentTime());
     return false;

@@ -60,9 +60,6 @@
     <ClCompile Include="src\devices\psg.cpp">
       <Filter>devices</Filter>
     </ClCompile>
-    <ClCompile Include="src\devices\z80_x86.cpp">
-      <Filter>devices</Filter>
-    </ClCompile>
     <ClCompile Include="src\devices\z80c.cpp">
       <Filter>devices</Filter>
     </ClCompile>
@@ -371,9 +368,6 @@
     <ClInclude Include="src\devices\z80.h">
       <Filter>devices</Filter>
     </ClInclude>
-    <ClInclude Include="src\devices\z80_x86.h">
-      <Filter>devices</Filter>
-    </ClInclude>
     <ClInclude Include="src\devices\z80c.h">
       <Filter>devices</Filter>
     </ClInclude>
@@ -566,10 +560,7 @@
     <ClInclude Include="src\win32\timekeep.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\types.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\ui.h">
+    <ClInclude Include="src\Win32\ui.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\version.h">
@@ -655,6 +646,9 @@
     </ClInclude>
     <ClInclude Include="src\zlib\zutil.h">
       <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\diag.h">
+      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

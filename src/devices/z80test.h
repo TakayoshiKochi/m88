@@ -43,14 +43,14 @@ class Z80Test : public Device {
 
   static int GetCCount() { return 0; }
 
-  void Reset(uint = 0, uint = 0);
-  void IRQ(uint, uint d);
-  void NMI(uint, uint);
+  void Reset(uint32_t = 0, uint32_t = 0);
+  void IRQ(uint32_t, uint32_t d);
+  void NMI(uint32_t, uint32_t);
   void Wait(bool);
   const Descriptor* GetDesc() const { return &descriptor; }
 
  private:
-  uint codesize;
+  uint32_t codesize;
   CPURef cpu1;
   CPUTarget cpu2;
   Z80Reg reg;
@@ -59,12 +59,12 @@ class Z80Test : public Device {
   int execcount;
   int clockcount;
 
-  uint pc;
+  uint32_t pc;
   uint8_t code[4];
-  uint readptr[8], writeptr[8], inptr, outptr;
+  uint32_t readptr[8], writeptr[8], inptr, outptr;
   uint8_t readdat[8], writedat[8], indat, outdat;
-  uint readcount, writecount;
-  uint readcountt, writecountt;
+  uint32_t readcount, writecount;
+  uint32_t readcountt, writecountt;
   int intr;
 
   FILE* fp;
@@ -75,15 +75,15 @@ class Z80Test : public Device {
   void Test();
   void Error(const char*);
 
-  uint Read8R(uint), Read8T(uint);
-  void Write8R(uint, uint), Write8T(uint, uint);
-  uint InR(uint), InT(uint);
-  void OutR(uint, uint), OutT(uint, uint);
+  uint32_t Read8R(uint32_t), Read8T(uint32_t);
+  void Write8R(uint32_t, uint32_t), Write8T(uint32_t, uint32_t);
+  uint32_t InR(uint32_t), InT(uint32_t);
+  void OutR(uint32_t, uint32_t), OutT(uint32_t, uint32_t);
 
-  static uint MEMCALL S_Read8R(void*, uint);
-  static uint MEMCALL S_Read8T(void*, uint);
-  static void MEMCALL S_Write8R(void*, uint, uint);
-  static void MEMCALL S_Write8T(void*, uint, uint);
+  static uint32_t S_Read8R(void*, uint32_t);
+  static uint32_t S_Read8T(void*, uint32_t);
+  static void S_Write8R(void*, uint32_t, uint32_t);
+  static void S_Write8T(void*, uint32_t, uint32_t);
 
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];

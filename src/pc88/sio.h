@@ -28,17 +28,17 @@ class SIO : public Device {
  public:
   SIO(const ID& id);
   ~SIO();
-  bool Init(IOBus* bus, uint prxrdy, uint prequest);
+  bool Init(IOBus* bus, uint32_t prxrdy, uint32_t prequest);
 
-  void IOCALL Reset(uint = 0, uint = 0);
-  void IOCALL SetControl(uint, uint d);
-  void IOCALL SetData(uint, uint d);
-  uint IOCALL GetStatus(uint = 0);
-  uint IOCALL GetData(uint = 0);
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
+  void IOCALL SetControl(uint32_t, uint32_t d);
+  void IOCALL SetData(uint32_t, uint32_t d);
+  uint32_t IOCALL GetStatus(uint32_t = 0);
+  uint32_t IOCALL GetData(uint32_t = 0);
 
-  void IOCALL AcceptData(uint, uint);
+  void IOCALL AcceptData(uint32_t, uint32_t);
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* s);
   bool IFCALL LoadStatus(const uint8_t* s);
 
@@ -49,15 +49,15 @@ class SIO : public Device {
   enum Parity { none = 'N', odd = 'O', even = 'E' };
 
   IOBus* bus;
-  uint prxrdy;
-  uint prequest;
+  uint32_t prxrdy;
+  uint32_t prequest;
 
-  uint baseclock;
-  uint clock;
-  uint datalen;
-  uint stop;
-  uint status;
-  uint data;
+  uint32_t baseclock;
+  uint32_t clock;
+  uint32_t datalen;
+  uint32_t stop;
+  uint32_t status;
+  uint32_t data;
   Mode mode;
   Parity parity;
   bool rxen;
@@ -81,12 +81,12 @@ class SIO : public Device {
     bool rxen;
     bool txen;
 
-    uint baseclock;
-    uint clock;
-    uint datalen;
-    uint stop;
-    uint status;
-    uint data;
+    uint32_t baseclock;
+    uint32_t clock;
+    uint32_t datalen;
+    uint32_t stop;
+    uint32_t status;
+    uint32_t data;
     Mode mode;
     Parity parity;
   };

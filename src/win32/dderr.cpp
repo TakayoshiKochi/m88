@@ -1,7 +1,7 @@
 // $Id: dderr.cpp,v 1.1 2000/02/09 10:47:38 cisc Exp $
 
 #include "win32/headers.h"
-#include "win32/types.h"
+#include <stdint.h>
 #include "win32/dderr.h"
 
 #ifdef _DEBUG
@@ -13,7 +13,7 @@
 
 const char* GetDDERR(HRESULT hr) {
   const char* err = 0;
-  switch ((uint)hr) {
+  switch ((uint32_t)hr) {
     ERR(DDERR_ALREADYINITIALIZED);
     ERR(DDERR_CANNOTATTACHSURFACE);
     ERR(DDERR_CANNOTDETACHSURFACE);

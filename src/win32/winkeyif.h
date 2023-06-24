@@ -30,14 +30,14 @@ class WinKeyIF : public Device {
   bool Init(HWND);
   void ApplyConfig(const Config* config);
 
-  uint IOCALL In(uint port);
-  void IOCALL VSync(uint, uint data);
-  void IOCALL Reset(uint = 0, uint = 0);
+  uint32_t IOCALL In(uint32_t port);
+  void IOCALL VSync(uint32_t, uint32_t data);
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
 
   void Activate(bool);
   void Disable(bool);
-  void KeyDown(uint, uint32_t);
-  void KeyUp(uint, uint32_t);
+  void KeyDown(uint32_t, uint32_t);
+  void KeyUp(uint32_t, uint32_t);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
@@ -63,7 +63,7 @@ class WinKeyIF : public Device {
     uint8_t k, f;
   };
 
-  uint GetKey(const Key* key);
+  uint32_t GetKey(const Key* key);
 
   static const Key KeyTable98[16 * 8][8];
   static const Key KeyTable106[16 * 8][8];
@@ -77,7 +77,7 @@ class WinKeyIF : public Device {
   bool pc80mode;
   HWND hwnd;
   HANDLE hevent;
-  uint basicmode;
+  uint32_t basicmode;
   int keyport[16];
   uint8_t keyboard[256];
   uint8_t keystate[512];

@@ -65,7 +65,7 @@ void IOMonitor::Stop() {
   pc->Unlock();
 }
 
-inline static void ToHex(char** p, uint d) {
+inline static void ToHex(char** p, uint32_t d) {
   static const char hex[] = "0123456789abcdef";
 
   *(*p)++ = hex[d >> 4];
@@ -83,7 +83,7 @@ void IOMonitor::UpdateText() {
       Putf("%.2x: ", (a & 0xff));
 
       for (int x = 0; x < 16; x++) {
-        uint d = iov.Read(a & 0xff);
+        uint32_t d = iov.Read(a & 0xff);
         int c = d >> 24;
 
         SetTxCol(ctbl[c]);

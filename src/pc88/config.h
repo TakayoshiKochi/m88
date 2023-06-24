@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "win32/types.h"
+#include <stdint.h>
 
 // ---------------------------------------------------------------------------
 
@@ -98,11 +98,11 @@ class Config {
   int volfm, volssg, voladpcm, volrhythm;
   int volbd, volsd, voltop, volhh, voltom, volrim;
   int dipsw;
-  uint soundbuffer;
-  uint mousesensibility;
+  uint32_t soundbuffer;
+  uint32_t mousesensibility;
   int cpumode;
-  uint lpffc;  // LPF のカットオフ周波数 (Hz)
-  uint lpforder;
+  uint32_t lpffc;  // LPF のカットオフ周波数 (Hz)
+  uint32_t lpforder;
   int romeolatency;
   int winposx;
   int winposy;

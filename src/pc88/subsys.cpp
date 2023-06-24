@@ -50,7 +50,7 @@ bool SubSystem::Init(MemoryManager* _mm) {
 //  メモリ初期化
 //
 bool SubSystem::InitMemory() {
-  const uint pagesize = 1 << MemoryManagerBase::pagebits;
+  const uint32_t pagesize = 1 << MemoryManagerBase::pagebits;
 
   if (!rom)
     rom = new uint8_t[0x2000 + 0x4000 + 2 * pagesize];
@@ -113,7 +113,7 @@ void SubSystem::PatchROM() {
 // ---------------------------------------------------------------------------
 //  Reset
 //
-void IOCALL SubSystem::Reset(uint, uint) {
+void IOCALL SubSystem::Reset(uint32_t, uint32_t) {
   piom.Reset();
   pios.Reset();
   idlecount = 0;
@@ -122,31 +122,31 @@ void IOCALL SubSystem::Reset(uint, uint) {
 // ---------------------------------------------------------------------------
 //  割り込み受理
 //
-uint IOCALL SubSystem::IntAck(uint) {
+uint32_t IOCALL SubSystem::IntAck(uint32_t) {
   return 0x00;
 }
 
 // ---------------------------------------------------------------------------
 //  Main 側 PIO
 //
-void IOCALL SubSystem::M_Set0(uint, uint data) {
+void IOCALL SubSystem::M_Set0(uint32_t, uint32_t data) {
   idlecount = 0;
   LOG1(".%.2x ", data);
   piom.SetData(0, data);
 }
 
-void IOCALL SubSystem::M_Set1(uint, uint data) {
+void IOCALL SubSystem::M_Set1(uint32_t, uint32_t data) {
   idlecount = 0;
   LOG1(" %.2x ", data);
   piom.SetData(1, data);
 }
 
-void IOCALL SubSystem::M_Set2(uint, uint data) {
+void IOCALL SubSystem::M_Set2(uint32_t, uint32_t data) {
   idlecount = 0;
   piom.SetData(2, data);
 }
 
-void IOCALL SubSystem::M_SetCW(uint, uint data) {
+void IOCALL SubSystem::M_SetCW(uint32_t, uint32_t data) {
   idlecount = 0;
   if (data == 0x0f)
     LOG0("\ncmd: ");
@@ -155,21 +155,21 @@ void IOCALL SubSystem::M_SetCW(uint, uint data) {
   piom.SetCW(data);
 }
 
-uint IOCALL SubSystem::M_Read0(uint) {
+uint32_t IOCALL SubSystem::M_Read0(uint32_t) {
   idlecount = 0;
-  uint d = piom.Read0();
+  uint32_t d = piom.Read0();
   LOG1(">%.2x ", d);
   return d;
 }
 
-uint IOCALL SubSystem::M_Read1(uint) {
+uint32_t IOCALL SubSystem::M_Read1(uint32_t) {
   idlecount = 0;
-  uint d = piom.Read1();
+  uint32_t d = piom.Read1();
   LOG1(")%.2x ", d);
   return d;
 }
 
-uint IOCALL SubSystem::M_Read2(uint) {
+uint32_t IOCALL SubSystem::M_Read2(uint32_t) {
   statusdisplay.WaitSubSys();
   idlecount = 0;
   return piom.Read2();
@@ -178,48 +178,48 @@ uint IOCALL SubSystem::M_Read2(uint) {
 // ---------------------------------------------------------------------------
 //  Sub 側 PIO
 //
-void IOCALL SubSystem::S_Set0(uint, uint data) {
+void IOCALL SubSystem::S_Set0(uint32_t, uint32_t data) {
   idlecount = 0;
   //  LOG1("<a %.2x> ", data);
   pios.SetData(0, data);
 }
 
-void IOCALL SubSystem::S_Set1(uint, uint data) {
+void IOCALL SubSystem::S_Set1(uint32_t, uint32_t data) {
   idlecount = 0;
   //  LOG1("<b %.2x> ", data);
   pios.SetData(1, data);
 }
 
-void IOCALL SubSystem::S_Set2(uint, uint data) {
+void IOCALL SubSystem::S_Set2(uint32_t, uint32_t data) {
   idlecount = 0;
   //  LOG1("<c %.2x> ", data);
   pios.SetData(2, data);
 }
 
-void IOCALL SubSystem::S_SetCW(uint, uint data) {
+void IOCALL SubSystem::S_SetCW(uint32_t, uint32_t data) {
   idlecount = 0;
   if (data & 0x80)
     cw_s = data;
   pios.SetCW(data);
 }
 
-uint IOCALL SubSystem::S_Read0(uint) {
+uint32_t IOCALL SubSystem::S_Read0(uint32_t) {
   idlecount = 0;
-  uint d = pios.Read0();
+  uint32_t d = pios.Read0();
   //  LOG1("(a %.2x) ", d);
   return d;
 }
 
-uint IOCALL SubSystem::S_Read1(uint) {
+uint32_t IOCALL SubSystem::S_Read1(uint32_t) {
   idlecount = 0;
-  uint d = pios.Read1();
+  uint32_t d = pios.Read1();
   //  LOG1("(b %.2x) ", d);
   return d;
 }
 
-uint IOCALL SubSystem::S_Read2(uint) {
+uint32_t IOCALL SubSystem::S_Read2(uint32_t) {
   idlecount++;
-  uint d = pios.Read2();
+  uint32_t d = pios.Read2();
   //  LOG1("(c %.2x) ", d);
   return d;
 }
@@ -236,7 +236,7 @@ bool SubSystem::IsBusy() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint IFCALL SubSystem::GetStatusSize() {
+uint32_t IFCALL SubSystem::GetStatusSize() {
   return sizeof(Status);
 }
 

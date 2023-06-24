@@ -18,8 +18,8 @@ class WinDrawD2D : public WinDrawSub {
   WinDrawD2D();
   ~WinDrawD2D();
 
-  bool Init(HWND hwnd, uint w, uint h, GUID*);
-  bool Resize(uint width, uint height);
+  bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID*);
+  bool Resize(uint32_t width, uint32_t height);
   bool Cleanup();
   void SetPalette(PALETTEENTRY* pal, int index, int nentries);
   void SetGUIMode(bool guimode);
@@ -45,8 +45,8 @@ class WinDrawD2D : public WinDrawSub {
   bool m_UpdatePal;
   HWND m_hWnd;
   HWND m_hCWnd;
-  uint m_width;
-  uint m_height;
+  uint32_t m_width;
+  uint32_t m_height;
   BYTE* m_image;  // 画像Bitmap
   BI256 m_bmpinfo;
   HBITMAP m_hBitmap;

@@ -3,7 +3,7 @@
 #ifndef incl_romeo_piccolo_h
 #define incl_romeo_piccolo_h
 
-#include "win32/types.h"
+#include <stdint.h>
 #include "win32/timekeep.h"
 #include "win32/critsect.h"
 
@@ -12,10 +12,10 @@
 class PiccoloChip {
  public:
   virtual ~PiccoloChip(){};
-  virtual int Init(uint c) = 0;
+  virtual int Init(uint32_t c) = 0;
   virtual void Reset(bool) = 0;
-  virtual bool SetReg(uint32_t at, uint addr, uint data) = 0;
-  virtual void SetChannelMask(uint mask) = 0;
+  virtual bool SetReg(uint32_t at, uint32_t addr, uint32_t data) = 0;
+  virtual void SetChannelMask(uint32_t mask) = 0;
   virtual void SetVolume(int ch, int value) = 0;
 };
 
@@ -40,32 +40,32 @@ class Piccolo {
   static void DeleteInstance();
 
   // 遅延バッファのサイズを設定
-  bool SetLatencyBufferSize(uint entry);
+  bool SetLatencyBufferSize(uint32_t entry);
 
   // 遅延時間の最大値を設定
   // SetReg が呼び出されたとき、nanosec 後以降のレジスタ書き込みを指示する at の値を指定した場合
   // 呼び出しは却下されるかもしれない。
-  bool SetMaximumLatency(uint nanosec);
+  bool SetMaximumLatency(uint32_t nanosec);
 
   // メソッド呼び出し時点での時間を渡す(単位は nanosec)
   uint32_t GetCurrentTime();
 
   //
   virtual int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc) = 0;
-  virtual void SetReg(uint addr, uint data) = 0;
+  virtual void SetReg(uint32_t addr, uint32_t data) = 0;
 
   int IsDriverBased() { return avail; }
 
  public:
-  bool DrvSetReg(uint32_t at, uint addr, uint data);
+  bool DrvSetReg(uint32_t at, uint32_t addr, uint32_t data);
   void DrvReset();
   void DrvRelease();
 
  protected:
   struct Event {
-    uint at;
-    uint addr;
-    uint data;
+    uint32_t at;
+    uint32_t addr;
+    uint32_t data;
   };
 
   static Piccolo* instance;
@@ -73,8 +73,8 @@ class Piccolo {
   Piccolo();
   virtual int Init();
   void Cleanup();
-  static uint CALLBACK ThreadEntry(void* arg);
-  uint ThreadMain();
+  static uint32_t CALLBACK ThreadEntry(void* arg);
+  uint32_t ThreadMain();
 
   TimeKeeper timekeeper;
   CriticalSection cs;
@@ -96,7 +96,7 @@ class Piccolo {
   volatile bool shouldterminate;
   volatile bool active;
   HANDLE hthread;
-  uint idthread;
+  uint32_t idthread;
 
   int avail;
 };

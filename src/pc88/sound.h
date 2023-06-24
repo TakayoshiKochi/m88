@@ -24,13 +24,13 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
   Sound();
   ~Sound();
 
-  bool Init(PC88* pc, uint rate, int bufsize);
+  bool Init(PC88* pc, uint32_t rate, int bufsize);
   void Cleanup();
 
   void ApplyConfig(const Config* config);
-  bool SetRate(uint rate, int bufsize);
+  bool SetRate(uint32_t rate, int bufsize);
 
-  void IOCALL UpdateCounter(uint);
+  void IOCALL UpdateCounter(uint32_t);
 
   bool IFCALL Connect(ISoundSource* src);
   bool IFCALL Disconnect(ISoundSource* src);
@@ -43,15 +43,15 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
 
   int Get(Sample* dest, int size);
   int Get(SampleL* dest, int size);
-  ulong GetRate() { return mixrate; }
+  uint32_t GetRate() { return mixrate; }
   int GetChannels() { return 2; }
 
   int GetAvail() { return INT_MAX; }
 
  protected:
-  uint mixrate;
-  uint samplingrate;  // サンプリングレート
-  uint rate50;        // samplingrate / 50
+  uint32_t mixrate;
+  uint32_t samplingrate;  // サンプリングレート
+  uint32_t rate50;        // samplingrate / 50
 
  private:
   struct SSNode {
@@ -70,7 +70,7 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
   uint32_t prevtime;
   uint32_t cfgflg;
   int tdiff;
-  uint mixthreshold;
+  uint32_t mixthreshold;
 
   bool enabled;
 

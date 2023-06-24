@@ -31,7 +31,7 @@ Calender::~Calender() {}
 // ---------------------------------------------------------------------------
 //  入・出力
 //
-void IOCALL Calender::Reset(uint, uint) {
+void IOCALL Calender::Reset(uint32_t, uint32_t) {
   datain = 0;
   dataoutmode = 0;
   strobe = 0;
@@ -42,7 +42,7 @@ void IOCALL Calender::Reset(uint, uint) {
 }
 
 // Bit4 : CDI
-uint IOCALL Calender::In40(uint) {
+uint32_t IOCALL Calender::In40(uint32_t) {
   if (dataoutmode)
     return IOBus::Active((reg[0] & 1) << 4, 0x10);
   else {
@@ -55,15 +55,15 @@ uint IOCALL Calender::In40(uint) {
 
 // Bit3   : CD0
 // Bit0~2 : C0-C2
-void IOCALL Calender::Out10(uint, uint data) {
+void IOCALL Calender::Out10(uint32_t, uint32_t data) {
   pcmd = data & 7;
   datain = (data >> 3) & 1;
 }
 
 // Bit2 : CCLK (0:off / 1:on)
 // Bit1 : CSTB (0:on / 1:off)
-void IOCALL Calender::Out40(uint, uint data) {
-  uint modified;
+void IOCALL Calender::Out40(uint32_t, uint32_t data) {
+  uint32_t modified;
   modified = strobe ^ data;
   strobe = data;
   if (modified & data & 2)
@@ -202,7 +202,7 @@ void Calender::SetTime() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint IFCALL Calender::GetStatusSize() {
+uint32_t IFCALL Calender::GetStatusSize() {
   return sizeof(Status);
 }
 

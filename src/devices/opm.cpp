@@ -37,7 +37,7 @@ OPM::OPM() {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool OPM::Init(uint c, uint rf, bool ip) {
+bool OPM::Init(uint32_t c, uint32_t rf, bool ip) {
   if (!SetRate(c, rf, ip))
     return false;
 
@@ -51,7 +51,7 @@ bool OPM::Init(uint c, uint rf, bool ip) {
 // ---------------------------------------------------------------------------
 //  再設定
 //
-bool OPM::SetRate(uint c, uint r, bool) {
+bool OPM::SetRate(uint32_t c, uint32_t r, bool) {
   clock = c;
   pcmrate = r;
   rate = r;
@@ -64,7 +64,7 @@ bool OPM::SetRate(uint c, uint r, bool) {
 // ---------------------------------------------------------------------------
 //  チャンネルマスクの設定
 //
-void OPM::SetChannelMask(uint mask) {
+void OPM::SetChannelMask(uint32_t mask) {
   for (int i = 0; i < 8; i++)
     ch[i].Mute(!!(mask & (1 << i)));
 }
@@ -91,7 +91,7 @@ void OPM::Reset() {
 //  設定に依存するテーブルの作成
 //
 void OPM::RebuildTimeTable() {
-  uint fmclock = clock / 64;
+  uint32_t fmclock = clock / 64;
 
   assert(fmclock < (0x80000000 >> FM_RATIOBITS));
   rateratio = ((fmclock << FM_RATIOBITS) + rate / 2) / rate;
@@ -132,7 +132,7 @@ void OPM::SetVolume(int db) {
 // ---------------------------------------------------------------------------
 //  ステータスフラグ設定
 //
-void OPM::SetStatus(uint bits) {
+void OPM::SetStatus(uint32_t bits) {
   if (!(status & bits)) {
     status |= bits;
     Intr(true);
@@ -142,7 +142,7 @@ void OPM::SetStatus(uint bits) {
 // ---------------------------------------------------------------------------
 //  ステータスフラグ解除
 //
-void OPM::ResetStatus(uint bits) {
+void OPM::ResetStatus(uint32_t bits) {
   if (status & bits) {
     status &= ~bits;
     if (!status)
@@ -153,7 +153,7 @@ void OPM::ResetStatus(uint bits) {
 // ---------------------------------------------------------------------------
 //  レジスタアレイにデータを設定
 //
-void OPM::SetReg(uint addr, uint data) {
+void OPM::SetReg(uint32_t addr, uint32_t data) {
   if (addr >= 0x100)
     return;
 
@@ -280,13 +280,13 @@ void OPM::SetReg(uint addr, uint data) {
 // ---------------------------------------------------------------------------
 //  パラメータセット
 //
-void OPM::SetParameter(uint addr, uint data) {
+void OPM::SetParameter(uint32_t addr, uint32_t data) {
   const static uint8_t sltable[16] = {
       0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 124,
   };
   const static uint8_t slottable[4] = {0, 2, 1, 3};
 
-  uint slot = slottable[(addr >> 3) & 3];
+  uint32_t slot = slottable[(addr >> 3) & 3];
   Operator* op = &ch[addr & 7].op[slot];
 
   switch ((addr >> 5) & 7) {
@@ -390,7 +390,7 @@ inline void OPM::LFO() {
   }
 }
 
-inline uint OPM::Noise() {
+inline uint32_t OPM::Noise() {
   noisecount += 2 * rateratio;
   if (noisecount >= (32 << FM_RATIOBITS)) {
     int n = 32 - (noisedelta & 0x1f);
@@ -462,7 +462,7 @@ void OPM::Mix(Sample* buffer, int nsamples) {
   // #define IStoSample(s) ((s * fmvolume) >> 14)
 
   // odd bits - active, even bits - lfo
-  uint activech = 0;
+  uint32_t activech = 0;
   for (int i = 0; i < 8; i++)
     activech = (activech << 2) | ch[i].Prepare();
 

@@ -50,10 +50,10 @@ class MemoryViewer {
   void SelectBank(Type a0, Type a6, Type a8, Type ac, Type af);
 
   void StatClear();
-  uint StatExec(uint pc);
-  uint* StatExecBuf();
+  uint32_t StatExec(uint32_t pc);
+  uint32_t* StatExecBuf();
 
-  uint GetCurrentBank(uint addr);
+  uint32_t GetCurrentBank(uint32_t addr);
 
  private:
   Memory* mem1;
@@ -71,7 +71,7 @@ class MemoryViewer {
 #endif
 };
 
-inline uint MemoryViewer::GetCurrentBank(uint addr) {
+inline uint32_t MemoryViewer::GetCurrentBank(uint32_t addr) {
   static const int ref[16] = {0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4};
   return bank[ref[addr >> 12]];
 }
@@ -83,7 +83,7 @@ inline void MemoryViewer::StatClear() {
 #endif
 }
 
-inline uint MemoryViewer::StatExec(uint pc) {
+inline uint32_t MemoryViewer::StatExec(uint32_t pc) {
 #ifdef Z80C_STATISTICS
   if (stat)
     return stat->execute[pc];
@@ -91,7 +91,7 @@ inline uint MemoryViewer::StatExec(uint pc) {
   return 0;
 }
 
-inline uint* MemoryViewer::StatExecBuf() {
+inline uint32_t* MemoryViewer::StatExecBuf() {
 #ifdef Z80C_STATISTICS
   if (stat)
     return stat->execute;

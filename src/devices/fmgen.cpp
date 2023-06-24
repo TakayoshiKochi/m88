@@ -155,7 +155,7 @@ const int8_t Operator::attacktable[64][8] = {
 
 // fixed equasion-based tables
 int pmtable[2][8][FM_LFOENTS];
-uint amtable[2][4][FM_LFOENTS];
+uint32_t amtable[2][4][FM_LFOENTS];
 
 static bool tablemade = false;
 }  // namespace FM
@@ -220,7 +220,7 @@ void MakeLFOTable() {
 Chip::Chip() : ratio_(0), aml_(0), pml_(0), pmv_(0), optype_(typeN) {}
 
 //  クロック・サンプリングレート比に依存するテーブルを作成
-void Chip::SetRatio(uint ratio) {
+void Chip::SetRatio(uint32_t ratio) {
   if (ratio_ != ratio) {
     ratio_ = ratio;
     MakeTable();
@@ -237,7 +237,7 @@ void Chip::MakeTable() {
     double rr = dt2lv[h] * double(ratio_);
     for (l = 0; l < 16; l++) {
       int mul = l ? l * 2 : 1;
-      multable_[h][l] = uint(mul * rr);
+      multable_[h][l] = uint32_t(mul * rr);
     }
   }
 }
@@ -246,7 +246,7 @@ void Chip::MakeTable() {
 //  Operator
 //
 bool FM::Operator::tablehasmade = false;
-uint FM::Operator::sinetable[1024];
+uint32_t FM::Operator::sinetable[1024];
 int32_t FM::Operator::cltable[FM_CLENTS];
 
 //  構築
@@ -317,7 +317,7 @@ void Operator::MakeTable() {
   for (i = 0; i < FM_OPSINENTS / 2; i++) {
     double r = (i * 2 + 1) * FM_PI / FM_OPSINENTS;
     double q = -256 * log(sin(r)) / log2;
-    uint s = (int)(floor(q + 0.5)) + 1;
+    uint32_t s = (int)(floor(q + 0.5)) + 1;
     //      printf("%d, %d\n", s, cltable[s * 2] / 8);
     sinetable[i] = s * 2;
     sinetable[FM_OPSINENTS / 2 + i] = s * 2 + 1;
@@ -328,7 +328,7 @@ void Operator::MakeTable() {
   tablehasmade = true;
 }
 
-inline void FM::Operator::SetDPBN(uint dp, uint bn) {
+inline void FM::Operator::SetDPBN(uint32_t dp, uint32_t bn) {
   dp_ = dp, bn_ = bn;
   param_changed_ = true;
   PARAMCHANGE(1);
@@ -462,7 +462,7 @@ void Operator::ShiftPhase(EGPhase nextphase) {
 }
 
 //  Block/F-Num
-void Operator::SetFNum(uint f) {
+void Operator::SetFNum(uint32_t f) {
   dp_ = (f & 2047) << ((f >> 11) & 7);
   bn_ = notetable[(f >> 7) & 127];
   param_changed_ = true;
@@ -478,7 +478,7 @@ void Operator::SetFNum(uint f) {
 #define Sine(s) sinetable[((s) >> (20 + FM_PGBITS - FM_OPSINBITS)) & (FM_OPSINENTS - 1)]
 #define SINE(s) sinetable[(s) & (FM_OPSINENTS - 1)]
 
-inline FM::ISample Operator::LogToLin(uint a) {
+inline FM::ISample Operator::LogToLin(uint32_t a) {
 #if 1  // FM_CLENTS < 0xc00      // 400 for TL, 400 for ENV, 400 for LFO.
   return (a < FM_CLENTS) ? cltable[a] : 0;
 #else
@@ -502,7 +502,7 @@ inline void Operator::EGUpdate() {
   }
 }
 
-inline void Operator::SetEGRate(uint rate) {
+inline void Operator::SetEGRate(uint32_t rate) {
   eg_rate_ = rate;
   eg_count_diff_ = decaytable2[rate / 4] * chip_->GetRatio();
 }
@@ -598,7 +598,7 @@ inline FM::ISample FM::Operator::CalcL(ISample in) {
   return out_;
 }
 
-inline FM::ISample FM::Operator::CalcN(uint noise) {
+inline FM::ISample FM::Operator::CalcN(uint32_t noise) {
   EGStep();
 
   int lv = Max(0, 0x3ff - (tl_out_ + eg_level_)) << 1;
@@ -613,7 +613,7 @@ inline FM::ISample FM::Operator::CalcN(uint noise) {
 
 //  OP (FB) 計算
 //  Self Feedback の変調最大 = 4π
-inline FM::ISample FM::Operator::CalcFB(uint fb) {
+inline FM::ISample FM::Operator::CalcFB(uint32_t fb) {
   EGStep();
 
   ISample in = out_ + out2_;
@@ -629,7 +629,7 @@ inline FM::ISample FM::Operator::CalcFB(uint fb) {
   return out2_;
 }
 
-inline FM::ISample FM::Operator::CalcFBL(uint fb) {
+inline FM::ISample FM::Operator::CalcFBL(uint32_t fb) {
   EGStep();
 
   ISample in = out_ + out2_;
@@ -693,14 +693,14 @@ int Channel4::Prepare() {
 }
 
 //  F-Number/BLOCK を設定
-void Channel4::SetFNum(uint f) {
+void Channel4::SetFNum(uint32_t f) {
   for (int i = 0; i < 4; i++)
     op[i].SetFNum(f);
 }
 
 //  KC/KF を設定
-void Channel4::SetKCKF(uint kc, uint kf) {
-  const static uint kctable[16] = {
+void Channel4::SetKCKF(uint32_t kc, uint32_t kf) {
+  const static uint32_t kctable[16] = {
       // clang-format off
         5197, 5506, 5833, 6180, 6180, 6547, 6937, 7349,
         7349, 7786, 8249, 8740, 8740, 9259, 9810, 10394,
@@ -710,15 +710,15 @@ void Channel4::SetKCKF(uint kc, uint kf) {
   int oct = 19 - ((kc >> 4) & 7);
 
   // printf("%p", this);
-  uint kcv = kctable[kc & 0x0f];
+  uint32_t kcv = kctable[kc & 0x0f];
   kcv = (kcv + 2) / 4 * 4;
   // printf(" %.4x", kcv);
-  uint dp = kcv * kftable[kf & 0x3f];
+  uint32_t dp = kcv * kftable[kf & 0x3f];
   // printf(" %.4x %.4x %.8x", kcv, kftable[kf & 0x3f], dp >> oct);
   dp >>= 16 + 3;
   dp <<= 16 + 3;
   dp >>= oct;
-  uint bn = (kc >> 2) & 31;
+  uint32_t bn = (kc >> 2) & 31;
   op[0].SetDPBN(dp, bn);
   op[1].SetDPBN(dp, bn);
   op[2].SetDPBN(dp, bn);
@@ -727,7 +727,7 @@ void Channel4::SetKCKF(uint kc, uint kf) {
 }
 
 //  キー制御
-void Channel4::KeyControl(uint key) {
+void Channel4::KeyControl(uint32_t key) {
   if (key & 0x1)
     op[0].KeyOn();
   else
@@ -747,7 +747,7 @@ void Channel4::KeyControl(uint key) {
 }
 
 //  キーオン(CSM専用)
-void Channel4::KeyOnCsm(uint key) {
+void Channel4::KeyOnCsm(uint32_t key) {
   if (key & 0x1)
     op[0].KeyOnCsm();
   if (key & 0x2)
@@ -759,7 +759,7 @@ void Channel4::KeyOnCsm(uint key) {
 }
 
 //  キーオフ(CSM専用)
-void Channel4::KeyOffCsm(uint key) {
+void Channel4::KeyOffCsm(uint32_t key) {
   if (key & 0x1)
     op[0].KeyOffCsm();
   if (key & 0x2)
@@ -771,7 +771,7 @@ void Channel4::KeyOffCsm(uint key) {
 }
 
 //  アルゴリズムを設定
-void Channel4::SetAlgorithm(uint algo) {
+void Channel4::SetAlgorithm(uint32_t algo) {
   static const uint8_t table1[8][6] = {
       // clang-format off
         { 0, 1, 1, 2, 2, 3 },   { 1, 0, 0, 1, 1, 2 },
@@ -907,7 +907,7 @@ ISample Channel4::CalcL() {
 }
 
 //  合成
-ISample Channel4::CalcN(uint noise) {
+ISample Channel4::CalcN(uint32_t noise) {
   buf[1] = buf[2] = buf[3] = 0;
 
   buf[0] = op[0].out_;
@@ -920,7 +920,7 @@ ISample Channel4::CalcN(uint noise) {
 }
 
 //  合成
-ISample Channel4::CalcLN(uint noise) {
+ISample Channel4::CalcLN(uint32_t noise) {
   chip_->SetPMV(pms[chip_->GetPML()]);
   buf[1] = buf[2] = buf[3] = 0;
 

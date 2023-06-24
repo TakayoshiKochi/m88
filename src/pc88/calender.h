@@ -28,14 +28,14 @@ class Calender : public Device {
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
-  void IOCALL Out10(uint, uint data);
-  void IOCALL Out40(uint, uint data);
-  uint IOCALL In40(uint);
-  void IOCALL Reset(uint = 0, uint = 0);
+  void IOCALL Out10(uint32_t, uint32_t data);
+  void IOCALL Out40(uint32_t, uint32_t data);
+  uint32_t IOCALL In40(uint32_t);
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
 
  private:
   enum { ssrev = 1 };

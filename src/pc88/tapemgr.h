@@ -37,16 +37,16 @@ class TapeManager : public Device {
   bool Motor(bool on);
   bool Carrier();
 
-  bool Seek(uint pos, uint offset);
-  uint GetPos();
+  bool Seek(uint32_t pos, uint32_t offset);
+  uint32_t GetPos();
 
-  uint ReadByte();
-  void IOCALL RequestData(uint = 0, uint = 0);
+  uint32_t ReadByte();
+  void IOCALL RequestData(uint32_t = 0, uint32_t = 0);
 
-  void IOCALL Out30(uint, uint en);
-  uint IOCALL In40(uint);
+  void IOCALL Out30(uint32_t, uint32_t en);
+  uint32_t IOCALL In40(uint32_t);
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
@@ -91,12 +91,12 @@ class TapeManager : public Device {
     uint8_t rev;
     bool motor;
     uint32_t pos;
-    uint offset;
+    uint32_t offset;
   };
 
   void Proceed(bool timer = true);
-  void IOCALL Timer(uint = 0);
-  void Send(uint);
+  void IOCALL Timer(uint32_t = 0);
+  void Send(uint32_t);
   void SetTimer(int t);
 
   Scheduler* scheduler;
@@ -106,9 +106,9 @@ class TapeManager : public Device {
   int offset;
   uint32_t tick;
   Mode mode;
-  uint time;  // motor on: タイマー開始時間
-  uint timercount;
-  uint timerremain;  // タイマー残り
+  uint32_t time;  // motor on: タイマー開始時間
+  uint32_t timercount;
+  uint32_t timerremain;  // タイマー残り
   bool motor;
 
   IOBus* bus;

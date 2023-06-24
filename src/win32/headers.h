@@ -13,8 +13,8 @@
 
 // #define DIRECTSOUND_VERSION 0x500  // for pre-DirectX7 environment
 
-//#pragma warning(disable : 4786)
-//#pragma warning(disable : 4996)
+// #pragma warning(disable : 4786)
+// #pragma warning(disable : 4996)
 
 #include <windows.h>
 #include <commdlg.h>

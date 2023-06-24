@@ -122,7 +122,7 @@ bool ExternalDevice::LoadDLL(const char* dllname) {
 // ---------------------------------------------------------------------------
 //  DMARead
 //
-int ExternalDevice::S_DMARead(void* h, uint b, uint8_t* d, uint l) {
+int ExternalDevice::S_DMARead(void* h, uint32_t b, uint8_t* d, uint32_t l) {
   ExternalDevice* e = reinterpret_cast<ExternalDevice*>(h);
   return e->dmac->RequestRead(b, d, l);
 }
@@ -130,7 +130,7 @@ int ExternalDevice::S_DMARead(void* h, uint b, uint8_t* d, uint l) {
 // ---------------------------------------------------------------------------
 //  DMAWrite
 //
-int ExternalDevice::S_DMAWrite(void* h, uint b, uint8_t* d, uint l) {
+int ExternalDevice::S_DMAWrite(void* h, uint32_t b, uint8_t* d, uint32_t l) {
   ExternalDevice* e = reinterpret_cast<ExternalDevice*>(h);
   return e->dmac->RequestWrite(b, d, l);
 }
@@ -138,7 +138,7 @@ int ExternalDevice::S_DMAWrite(void* h, uint b, uint8_t* d, uint l) {
 // ---------------------------------------------------------------------------
 //  MemAcquire
 //
-bool ExternalDevice::S_MemAcquire(void* h, uint p, uint n, void* r, void* w, uint f) {
+bool ExternalDevice::S_MemAcquire(void* h, uint32_t p, uint32_t n, void* r, void* w, uint32_t f) {
   ExternalDevice* e = reinterpret_cast<ExternalDevice*>(h);
   if (e->mid == -1) {
     e->mid = e->mm->Connect(e);
@@ -160,7 +160,7 @@ bool ExternalDevice::S_MemAcquire(void* h, uint p, uint n, void* r, void* w, uin
 // ---------------------------------------------------------------------------
 //  MemRelease
 //
-bool ExternalDevice::S_MemRelease(void* h, uint p, uint n, uint) {
+bool ExternalDevice::S_MemRelease(void* h, uint32_t p, uint32_t n, uint32_t) {
   ExternalDevice* e = reinterpret_cast<ExternalDevice*>(h);
   if (e->mid != -1) {
     e->mm->ReleaseR(e->mid, p, n);
@@ -173,7 +173,7 @@ bool ExternalDevice::S_MemRelease(void* h, uint p, uint n, uint) {
 // ---------------------------------------------------------------------------
 //  AddEvent
 //
-void* ExternalDevice::S_AddEvent(void* h, uint c, uint f) {
+void* ExternalDevice::S_AddEvent(void* h, uint32_t c, uint32_t f) {
   ExternalDevice* e = reinterpret_cast<ExternalDevice*>(h);
   return e->pc->AddEvent(c, e, static_cast<TimeFunc>(&ExternalDevice::EventProc), f);
 }
@@ -192,14 +192,14 @@ bool ExternalDevice::S_DelEvent(void* h, void* ev) {
 // ---------------------------------------------------------------------------
 //  Timer Event
 //
-void IOCALL ExternalDevice::EventProc(uint arg) {
+void IOCALL ExternalDevice::EventProc(uint32_t arg) {
   (*devinfo.eventproc)(dev, arg);
 }
 
 // ---------------------------------------------------------------------------
 //  GetTime
 //
-uint ExternalDevice::S_GetTime(void* h) {
+uint32_t ExternalDevice::S_GetTime(void* h) {
   ExternalDevice* e = reinterpret_cast<ExternalDevice*>(h);
   return e->pc->GetTime();
 }
@@ -215,21 +215,21 @@ void ExternalDevice::S_SoundUpdate(void* h) {
 // ---------------------------------------------------------------------------
 //  Out
 //
-void IOCALL ExternalDevice::Out(uint port, uint data) {
+void IOCALL ExternalDevice::Out(uint32_t port, uint32_t data) {
   (*devinfo.outport)(dev, port, data);
 }
 
 // ---------------------------------------------------------------------------
 //  In
 //
-uint IOCALL ExternalDevice::In(uint port) {
+uint32_t IOCALL ExternalDevice::In(uint32_t port) {
   return (*devinfo.inport)(dev, port);
 }
 
 // ---------------------------------------------------------------------------
 //  SetRate
 //
-bool IFCALL ExternalDevice::SetRate(uint rate) {
+bool IFCALL ExternalDevice::SetRate(uint32_t rate) {
   return (*devinfo.setrate)(dev, rate);
 }
 
@@ -246,7 +246,7 @@ void ExternalDevice::Mix(int32_t* s, int l) {
 
 // ---------------------------------------------------------------------------
 
-uint IFCALL ExternalDevice::GetStatusSize() {
+uint32_t IFCALL ExternalDevice::GetStatusSize() {
   if (devinfo.snapshot)
     return (*devinfo.snapshot)(dev, 0, 0);
   return 0;

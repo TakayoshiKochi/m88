@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "win32/types.h"
+#include <stdint.h>
 #include "win32/critsect.h"
 #include "pc88/pc88.h"
 #include "pc88/config.h"
@@ -73,8 +73,8 @@ class WinCore : public PC88, public ISystem, public ILockCore {
     uint16_t erambanks;
     uint16_t cpumode;
     uint16_t mainsubratio;
-    uint flags;
-    uint flag2;
+    uint32_t flags;
+    uint32_t flag2;
   };
 
   class LockObj {

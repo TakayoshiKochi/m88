@@ -29,21 +29,21 @@ bool IFCALL Sine::Connect(ISoundControl* _sc)
     return true;
 }
 
-bool IFCALL Sine::SetRate(uint r)
+bool IFCALL Sine::SetRate(uint32_t r)
 {
     rate = r;
     step = 4000 * 128 * pitch / rate;
     return true;
 }
 
-void IOCALL Sine::SetPitch(uint, uint data)
+void IOCALL Sine::SetPitch(uint32_t, uint32_t data)
 {
     sc->Update(this);
     pitch = data;
     step = 4000 * 128 * pitch / rate;
 }
 
-void IOCALL Sine::SetVolume(uint, uint data)
+void IOCALL Sine::SetVolume(uint32_t, uint32_t data)
 {
     sc->Update(this);
     volume = data;

@@ -34,7 +34,7 @@ PD8257::~PD8257() {}
 //          addr    メモリのアドレス
 //          length  メモリの長さ
 //
-bool PD8257::ConnectRd(uint8_t* mem, uint addr, uint length) {
+bool PD8257::ConnectRd(uint8_t* mem, uint32_t addr, uint32_t length) {
   if (addr + length <= 0x10000) {
     mread = mem;
     mrbegin = addr;
@@ -52,7 +52,7 @@ bool PD8257::ConnectRd(uint8_t* mem, uint addr, uint length) {
 //          addr    メモリのアドレス
 //          length  メモリの長さ
 //
-bool PD8257::ConnectWr(uint8_t* mem, uint addr, uint length) {
+bool PD8257::ConnectWr(uint8_t* mem, uint32_t addr, uint32_t length) {
   if (addr + length <= 0x10000) {
     mwrite = mem;
     mwbegin = addr;
@@ -67,7 +67,7 @@ bool PD8257::ConnectWr(uint8_t* mem, uint addr, uint length) {
 // ---------------------------------------------------------------------------
 //  Reset
 //
-void IOCALL PD8257::Reset(uint, uint) {
+void IOCALL PD8257::Reset(uint32_t, uint32_t) {
   stat.autoinit = 0;
   stat.ff = false;
   stat.enabled = 0;
@@ -83,7 +83,7 @@ void IOCALL PD8257::Reset(uint, uint) {
 // ---------------------------------------------------------------------------
 //  アドレスレジスタをセット
 //
-void IOCALL PD8257::SetAddr(uint d, uint p) {
+void IOCALL PD8257::SetAddr(uint32_t d, uint32_t p) {
   int bank = (d / 2) & 3;
   if (!stat.ff)
     stat.ptr[bank] = (stat.ptr[bank] & 0xff00) | p;
@@ -99,7 +99,7 @@ void IOCALL PD8257::SetAddr(uint d, uint p) {
 // ---------------------------------------------------------------------------
 //  カウンタレジスタをセット
 //
-void IOCALL PD8257::SetCount(uint d, uint p) {
+void IOCALL PD8257::SetCount(uint32_t d, uint32_t p) {
   int bank = (d / 2) & 3;
   if (!stat.ff)
     stat.count[bank] = (stat.count[bank] & 0xff00) | p;
@@ -116,7 +116,7 @@ void IOCALL PD8257::SetCount(uint d, uint p) {
 // ---------------------------------------------------------------------------
 //  モードレジスタをセット
 //
-void IOCALL PD8257::SetMode(uint, uint d) {
+void IOCALL PD8257::SetMode(uint32_t, uint32_t d) {
   LOG1("Mode: %.2x\n", d);
   stat.autoinit = (d & 0x80) != 0;
 
@@ -135,7 +135,7 @@ void IOCALL PD8257::SetMode(uint, uint d) {
 // ---------------------------------------------------------------------------
 //  アドレスレジスタを読み込む
 //
-uint IOCALL PD8257::GetAddr(uint p) {
+uint32_t IOCALL PD8257::GetAddr(uint32_t p) {
   int bank = (p / 2) & 3;
   stat.ff = !stat.ff;
   if (stat.ff)
@@ -147,7 +147,7 @@ uint IOCALL PD8257::GetAddr(uint p) {
 // ---------------------------------------------------------------------------
 //  カウンタレジスタを読み込む
 //
-uint IOCALL PD8257::GetCount(uint p) {
+uint32_t IOCALL PD8257::GetCount(uint32_t p) {
   int bank = (p / 2) & 3;
   stat.ff = !stat.ff;
   if (stat.ff)
@@ -159,7 +159,7 @@ uint IOCALL PD8257::GetCount(uint p) {
 // ---------------------------------------------------------------------------
 //  ステータスを取得
 //
-inline uint IOCALL PD8257::GetStatus(uint) {
+inline uint32_t IOCALL PD8257::GetStatus(uint32_t) {
   //  stat.ff = false;
   return stat.status;
 }
@@ -171,12 +171,12 @@ inline uint IOCALL PD8257::GetStatus(uint) {
 //      nbytes  転送サイズ
 //  ret:        転送できたサイズ
 //
-uint IFCALL PD8257::RequestRead(uint bank, uint8_t* data, uint nbytes) {
-  uint n = nbytes;
+uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* data, uint32_t nbytes) {
+  uint32_t n = nbytes;
   LOG0("Request ");
   if ((stat.enabled & (1 << bank)) && !(stat.mode[bank] & 0x40)) {
     while (n > 0) {
-      uint size = Min(n, stat.count[bank] + 1);
+      uint32_t size = Min(n, stat.count[bank] + 1);
       if (!size)
         break;
 
@@ -222,11 +222,11 @@ uint IFCALL PD8257::RequestRead(uint bank, uint8_t* data, uint nbytes) {
 //      nbytes  転送サイズ
 //  ret:        転送できたサイズ
 //
-uint IFCALL PD8257::RequestWrite(uint bank, uint8_t* data, uint nbytes) {
-  uint n = nbytes;
+uint32_t IFCALL PD8257::RequestWrite(uint32_t bank, uint8_t* data, uint32_t nbytes) {
+  uint32_t n = nbytes;
   if ((stat.enabled & (1 << bank)) && !(stat.mode[bank] & 0x80)) {
     while (n > 0) {
-      uint size = Min(n, stat.count[bank] + 1);
+      uint32_t size = Min(n, stat.count[bank] + 1);
       if (!size)
         break;
 
@@ -264,7 +264,7 @@ uint IFCALL PD8257::RequestWrite(uint bank, uint8_t* data, uint nbytes) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint IFCALL PD8257::GetStatusSize() {
+uint32_t IFCALL PD8257::GetStatusSize() {
   return sizeof(Status);
 }
 

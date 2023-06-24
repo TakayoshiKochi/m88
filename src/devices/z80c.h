@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 
-#include "win32/types.h"
+#include <stdint.h>
 #include "common/device.h"
 #include "common/memmgr.h"
 #include "devices/z80.h"
@@ -32,7 +32,7 @@ class IOBus;
 //  in:     bus     CPU をつなぐ Bus
 //  out:            問題なければ true
 //
-//  uint Exec(uint clk)
+//  uint32_t Exec(uint32_t clk)
 //  指定したクロック分だけ命令を実行する
 //  in:     clk     実行するクロック数
 //  out:            実際に実行したクロック数
@@ -41,7 +41,7 @@ class IOBus;
 //  実行残りクロック数を変更する
 //  in:     clk
 //
-//  uint GetCount()
+//  uint32_t GetCount()
 //  通算実行クロックカウントを取得
 //  out:
 //
@@ -70,7 +70,7 @@ class Z80C : public Device {
   };
 
   struct Statistics {
-    uint execute[0x10000];
+    uint32_t execute[0x10000];
 
     void Clear() { memset(execute, 0, sizeof(execute)); }
   };
@@ -99,17 +99,17 @@ class Z80C : public Device {
     return currentcpu ? currentcpu->GetCount() - currentcpu->startcount : 0;
   }
 
-  void IOCALL Reset(uint = 0, uint = 0);
-  void IOCALL IRQ(uint, uint d) { intr = d; }
-  void IOCALL NMI(uint = 0, uint = 0);
+  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
+  void IOCALL IRQ(uint32_t, uint32_t d) { intr = d; }
+  void IOCALL NMI(uint32_t = 0, uint32_t = 0);
   void Wait(bool flag);
 
-  uint IFCALL GetStatusSize();
+  uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);
   bool IFCALL LoadStatus(const uint8_t* status);
 
-  uint GetPC();
-  void SetPC(uint newpc);
+  uint32_t GetPC();
+  void SetPC(uint32_t newpc);
   const Z80Reg& GetReg() { return reg; }
 
   bool GetPages(MemoryPage** rd, MemoryPage** wr) {
@@ -174,7 +174,7 @@ class Z80C : public Device {
   uint8_t nfa;         /* 最後の加減算の種類 */
   uint8_t xf;          /* 未定義フラグ(第3,5ビット) */
   uint32_t fx32, fy32; /* フラグ計算用のデータ */
-  uint fx, fy;
+  uint32_t fx, fy;
 
   uint8_t* ref_h[3];          /* H / XH / YH のテーブル */
   uint8_t* ref_l[3];          /* L / YH / YL のテーブル */
@@ -192,18 +192,18 @@ class Z80C : public Device {
 
   // 内部インターフェース
  private:
-  uint Read8(uint addr);
-  uint Read16(uint a);
-  uint Fetch8();
-  uint Fetch16();
-  void Write8(uint addr, uint data);
-  void Write16(uint a, uint d);
-  uint Inp(uint port);
-  void Outp(uint port, uint data);
-  uint Fetch8B();
-  uint Fetch16B();
+  uint32_t Read8(uint32_t addr);
+  uint32_t Read16(uint32_t a);
+  uint32_t Fetch8();
+  uint32_t Fetch16();
+  void Write8(uint32_t addr, uint32_t data);
+  void Write16(uint32_t a, uint32_t d);
+  uint32_t Inp(uint32_t port);
+  void Outp(uint32_t port, uint32_t data);
+  uint32_t Fetch8B();
+  uint32_t Fetch16B();
 
-  void SingleStep(uint inst);
+  void SingleStep(uint32_t inst);
   void SingleStep();
   void Init();
   int Exec0(int stop, int d);
@@ -211,25 +211,25 @@ class Z80C : public Device {
   bool Sync();
   void OutTestIntr();
 
-  void SetPCi(uint newpc);
-  void PCInc(uint inc);
-  void PCDec(uint dec);
+  void SetPCi(uint32_t newpc);
+  void PCInc(uint32_t inc);
+  void PCDec(uint32_t dec);
 
-  void Call(), Jump(uint dest), JumpR();
+  void Call(), Jump(uint32_t dest), JumpR();
   uint8_t GetCF(), GetZF(), GetSF();
   uint8_t GetHF(), GetPF();
-  void SetM(uint n);
+  void SetM(uint32_t n);
   uint8_t GetM();
-  void Push(uint n);
-  uint Pop();
+  void Push(uint32_t n);
+  uint32_t Pop();
   void ADDA(uint8_t), ADCA(uint8_t), SUBA(uint8_t);
   void SBCA(uint8_t), ANDA(uint8_t), ORA(uint8_t);
   void XORA(uint8_t), CPA(uint8_t);
   uint8_t Inc8(uint8_t), Dec8(uint8_t);
-  uint ADD16(uint x, uint y);
-  void ADCHL(uint y), SBCHL(uint y);
-  uint GetAF();
-  void SetAF(uint n);
+  uint32_t ADD16(uint32_t x, uint32_t y);
+  void ADCHL(uint32_t y), SBCHL(uint32_t y);
+  uint32_t GetAF();
+  void SetAF(uint32_t n);
   void SetZS(uint8_t a), SetZSP(uint8_t a);
   void CPI(), CPD();
   void CodeCB();
@@ -246,8 +246,8 @@ inline int Z80C::GetCount() {
   return execcount + (clockcount << eshift);
 }
 
-inline uint Z80C::GetPC() {
-  return (uint)(inst - instbase);
+inline uint32_t Z80C::GetPC() {
+  return (uint32_t)(inst - instbase);
 }
 
 inline Z80C::Statistics* Z80C::GetStatistics() {

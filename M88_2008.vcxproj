@@ -598,17 +598,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">true</ExcludedFromBuild>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\devices\z80_x86.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">true</ExcludedFromBuild>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
-    </ClCompile>
     <ClCompile Include="src\pc88\base.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -1406,7 +1395,6 @@
     <ClInclude Include="src\devices\z80debug.h" />
     <ClInclude Include="src\devices\z80diag.h" />
     <ClInclude Include="src\devices\z80test.h" />
-    <ClInclude Include="src\devices\z80_x86.h" />
     <ClInclude Include="src\if\ifcommon.h" />
     <ClInclude Include="src\if\ifguid.h" />
     <ClInclude Include="src\if\ifpc88.h" />
@@ -1476,7 +1464,6 @@
     <ClInclude Include="src\win32\soundwo.h" />
     <ClInclude Include="src\win32\status.h" />
     <ClInclude Include="src\win32\timekeep.h" />
-    <ClInclude Include="src\win32\types.h" />
     <ClInclude Include="src\win32\ui.h" />
     <ClInclude Include="src\win32\version.h" />
     <ClInclude Include="src\win32\wincfg.h" />
