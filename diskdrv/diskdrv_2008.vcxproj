@@ -314,7 +314,6 @@
   <ItemGroup>
     <ClInclude Include="..\src\win32\file.h" />
     <ClInclude Include="src\diskio.h" />
-    <ClInclude Include="src\headers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <stdio.h>
+
 class Diag {
  public:
   Diag(const char* logname);

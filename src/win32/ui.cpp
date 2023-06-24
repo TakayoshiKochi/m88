@@ -7,6 +7,7 @@
 //  $Id: ui.cpp,v 1.62 2003/09/28 14:35:35 cisc Exp $
 
 #include "win32/headers.h"
+#include <commdlg.h>
 #include <shellapi.h>
 #include <mbstring.h>
 #include "win32/resource.h"
@@ -996,7 +997,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
                MB_ICONERROR | MB_OK);
   }
 
-  OFNV5 ofn;
+  OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
   ofn.lStructSize = WINVAR(OFNSIZE);
   ofn.FlagsEx = config.flag2 & Config::showplacesbar ? 0 : OFN_EX_NOPLACESBAR;
@@ -1205,7 +1206,7 @@ void WinUI::ChangeTapeImage() {
 
   tapemgr->Close();
 
-  OFNV5 ofn;
+  OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
   ofn.lStructSize = WINVAR(OFNSIZE);
   ofn.FlagsEx = config.flag2 & Config::showplacesbar ? 0 : OFN_EX_NOPLACESBAR;
@@ -1487,7 +1488,7 @@ void WinUI::CaptureScreen() {
     } else {
       filename[0] = 0;
 
-      OFNV5 ofn;
+      OPENFILENAME ofn;
       memset(&ofn, 0, sizeof(ofn));
       ofn.lStructSize = WINVAR(OFNSIZE);
       ofn.hwndOwner = hwnd;

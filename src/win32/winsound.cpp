@@ -4,6 +4,8 @@
 // ---------------------------------------------------------------------------
 //  $Id: winsound.cpp,v 1.27 2003/05/12 22:26:36 cisc Exp $
 
+#include <algorithm>
+
 #include "win32/headers.h"
 #include "win32/winsound.h"
 #include "common/misc.h"
@@ -261,7 +263,7 @@ int SoundDumpPipe::Get(Sample* dest, int samples) {
   int actual_samples = source_->Get(dest, Min(avail, samples));
 
   int nch = GetChannels();
-  fill(dest + actual_samples * nch, dest + samples * nch, 0);
+  std::fill(dest + actual_samples * nch, dest + samples * nch, 0);
 
   CriticalSection::Lock lock(cs_);
   if (dumpstate_ != IDLE) {

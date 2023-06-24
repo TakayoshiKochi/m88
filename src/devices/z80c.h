@@ -7,6 +7,8 @@
 #ifndef Z80C_h
 #define Z80C_h
 
+#include <stdio.h>
+
 #include "win32/types.h"
 #include "common/device.h"
 #include "common/memmgr.h"

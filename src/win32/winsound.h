@@ -8,6 +8,10 @@
 
 #pragma once
 
+#include <dsound.h>
+
+#include <string>
+
 #include "win32/types.h"
 #include "pc88/sound.h"
 #include "win32/sounddrv.h"
@@ -36,7 +40,7 @@ class SoundDumpPipe : public SoundSource {
   void Dump(Sample* dest, int samples);
 
   SoundSource* source_;
-  string dumpfile_;
+  std::string dumpfile_;
 
   HMMIO hmmio_;        // mmio handle
   MMCKINFO ckparent_;  // RIFF チャンク

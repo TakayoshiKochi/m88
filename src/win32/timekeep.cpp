@@ -4,6 +4,8 @@
 // ---------------------------------------------------------------------------
 //  $Id: timekeep.cpp,v 1.1 2002/04/07 05:40:11 cisc Exp $
 
+#include <assert.h>
+
 #include "win32/headers.h"
 #include "win32/timekeep.h"
 

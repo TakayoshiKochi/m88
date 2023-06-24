@@ -4,6 +4,8 @@
 // ---------------------------------------------------------------------------
 //  $Id: cdctrl.cpp,v 1.1 1999/08/26 08:04:36 cisc Exp $
 
+#include <process.h>
+
 #include "win32/headers.h"
 #include "aspi.h"
 #include "cdrom.h"

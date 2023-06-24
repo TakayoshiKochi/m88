@@ -21,6 +21,9 @@
 //      ほか掲示板等で様々なご助言，ご支援をお寄せいただいた皆様に
 // ---------------------------------------------------------------------------
 
+#include <assert.h>
+#include <math.h>
+
 #include "win32/headers.h"
 #include "common/misc.h"
 #include "devices/fmgen.h"

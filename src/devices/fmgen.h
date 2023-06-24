@@ -7,7 +7,9 @@
 #ifndef FM_GEN_H
 #define FM_GEN_H
 
-// #include "win32/types.h"
+#include <stdint.h>
+
+#include "win32/types.h"
 
 // ---------------------------------------------------------------------------
 //  出力サンプルの型

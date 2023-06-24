@@ -4,6 +4,8 @@
 // ---------------------------------------------------------------------------
 //  $Id: psg.cpp,v 1.10 2002/05/15 21:38:01 cisc Exp $
 
+#include <math.h>
+
 #include "win32/headers.h"
 #include "common/misc.h"
 #include "devices/psg.h"

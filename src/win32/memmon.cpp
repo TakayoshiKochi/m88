@@ -320,7 +320,7 @@ void MemoryMonitor::Search(uint key, int bytes) {
 //
 bool MemoryMonitor::SaveImage() {
   // ダイアログ
-  OFNV5 ofn;
+  OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
   ofn.lStructSize = WINVAR(OFNSIZE);
   ofn.FlagsEx = OFN_EX_NOPLACESBAR;

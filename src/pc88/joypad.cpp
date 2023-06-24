@@ -4,6 +4,8 @@
 // ---------------------------------------------------------------------------
 //  $Id: joypad.cpp,v 1.3 2003/05/19 01:10:31 cisc Exp $
 
+#include <utility>
+
 #include "win32/headers.h"
 #include "pc88/joypad.h"
 #include "if/ifguid.h"
@@ -62,7 +64,7 @@ void JoyPad::SetButtonMode(ButtonMode mode) {
 
   switch (mode) {
     case SWAPPED:
-      swap(button1, button2);
+      std::swap(button1, button2);
       break;
     case DISABLED:
       button1 = 0;

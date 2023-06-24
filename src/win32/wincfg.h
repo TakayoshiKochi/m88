@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include "if/ifcommon.h"
 #include "pc88/config.h"
 #include "win32/cfgpage.h"
@@ -41,7 +43,7 @@ class WinConfig : public IConfigPropBase {
   static WinConfig* instance;
 
   PPNode* pplist;
-  typedef vector<IConfigPropSheet*> PropSheets;
+  typedef std::vector<IConfigPropSheet*> PropSheets;
   PropSheets propsheets;
 
   HWND hwndparent;

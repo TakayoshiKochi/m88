@@ -7,6 +7,10 @@
 #ifndef FM_TIMER_H
 #define FM_TIMER_H
 
+#include <stdint.h>
+
+#include "win32/types.h"
+
 // ---------------------------------------------------------------------------
 
 namespace FM {
