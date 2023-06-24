@@ -121,10 +121,10 @@ bool IOBus::Init(uint nbanks, DeviceList* dl) {
 
   for (uint i = 0; i < nbanks; i++) {
     ins[i].device = &dummyio;
-    ins[i].func = STATIC_CAST(InFuncPtr, &DummyIO::dummyin);
+    ins[i].func = static_cast<InFuncPtr>(&DummyIO::dummyin);
     ins[i].next = 0;
     outs[i].device = &dummyio;
-    outs[i].func = STATIC_CAST(OutFuncPtr, &DummyIO::dummyout);
+    outs[i].func = static_cast<OutFuncPtr>(&DummyIO::dummyout);
     outs[i].next = 0;
   }
 
@@ -218,7 +218,7 @@ bool IOBus::Disconnect(IDevice* device) {
             continue;
           } else {
             // このアイテムが唯一のアイテムだった場合
-            current->func = STATIC_CAST(InFuncPtr, &DummyIO::dummyin);
+            current->func = static_cast<InFuncPtr>(&DummyIO::dummyin);
           }
         }
       }
@@ -245,7 +245,7 @@ bool IOBus::Disconnect(IDevice* device) {
             continue;
           } else {
             // このアイテムが唯一のアイテムだった場合
-            current->func = STATIC_CAST(OutFuncPtr, &DummyIO::dummyout);
+            current->func = static_cast<OutFuncPtr>(&DummyIO::dummyout);
           }
         }
       }

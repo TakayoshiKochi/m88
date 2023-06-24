@@ -32,8 +32,8 @@ bool Z80Debug::Init(Bus* bus_, int iack) {
 
   bus1.SetFuncs(0, 0x10000, this, S_Read8, S_Write8);
   for (int p = 0; p < 0x120; p++) {
-    bus1.ConnectIn(p, this, STATIC_CAST(InFuncPtr, &Z80Debug::In));
-    bus1.ConnectOut(p, this, STATIC_CAST(OutFuncPtr, &Z80Debug::Out));
+    bus1.ConnectIn(p, this, static_cast<InFuncPtr>(&Z80Debug::In));
+    bus1.ConnectOut(p, this, static_cast<OutFuncPtr>(&Z80Debug::Out));
   }
   execcount = clockcount = 0;
   return true;
@@ -122,7 +122,7 @@ void MEMCALL Z80Debug::S_Write8(void* inst, uint a, uint d) {
 const Device::Descriptor Z80Debug::descriptor = {0, outdef};
 
 const Device::OutFuncPtr Z80Debug::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, Reset),
-    STATIC_CAST(Device::OutFuncPtr, IRQ),
-    STATIC_CAST(Device::OutFuncPtr, NMI),
+    static_cast<Device::OutFuncPtr>(Reset),
+    static_cast<Device::OutFuncPtr>(IRQ),
+    static_cast<Device::OutFuncPtr>(NMI),
 };

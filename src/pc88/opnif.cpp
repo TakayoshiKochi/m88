@@ -346,7 +346,7 @@ void OPNIF::UpdateTimer() {
   nextcount = opn.GetNextEvent();
   if (nextcount) {
     nextcount = (nextcount + 9) / 10;
-    scheduler->AddEvent(nextcount, this, STATIC_CAST(TimeFunc, &OPNIF::TimeEvent), 1);
+    scheduler->AddEvent(nextcount, this, static_cast<TimeFunc>(&OPNIF::TimeEvent), 1);
   }
 }
 
@@ -476,15 +476,15 @@ void IOCALL OPNIF::Sync(uint, uint) {
 const Device::Descriptor OPNIF::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr OPNIF::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &Reset),      STATIC_CAST(Device::OutFuncPtr, &SetIndex0),
-    STATIC_CAST(Device::OutFuncPtr, &SetIndex1),  STATIC_CAST(Device::OutFuncPtr, &WriteData0),
-    STATIC_CAST(Device::OutFuncPtr, &WriteData1), STATIC_CAST(Device::OutFuncPtr, &SetIntrMask),
-    STATIC_CAST(Device::OutFuncPtr, &Sync),
+    static_cast<Device::OutFuncPtr>(&Reset),      static_cast<Device::OutFuncPtr>(&SetIndex0),
+    static_cast<Device::OutFuncPtr>(&SetIndex1),  static_cast<Device::OutFuncPtr>(&WriteData0),
+    static_cast<Device::OutFuncPtr>(&WriteData1), static_cast<Device::OutFuncPtr>(&SetIntrMask),
+    static_cast<Device::OutFuncPtr>(&Sync),
 };
 
 const Device::InFuncPtr OPNIF::indef[] = {
-    STATIC_CAST(Device::InFuncPtr, &ReadStatus),
-    STATIC_CAST(Device::InFuncPtr, &ReadStatusEx),
-    STATIC_CAST(Device::InFuncPtr, &ReadData0),
-    STATIC_CAST(Device::InFuncPtr, &ReadData1),
+    static_cast<Device::InFuncPtr>(&ReadStatus),
+    static_cast<Device::InFuncPtr>(&ReadStatusEx),
+    static_cast<Device::InFuncPtr>(&ReadData0),
+    static_cast<Device::InFuncPtr>(&ReadData1),
 };

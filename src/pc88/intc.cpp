@@ -135,12 +135,12 @@ bool IFCALL INTC::LoadStatus(const uint8_t* s) {
 const Device::Descriptor INTC::descriptor = {INTC::indef, INTC::outdef};
 
 const Device::OutFuncPtr INTC::outdef[] = {
-    STATIC_CAST(Device::OutFuncPtr, &Reset),
-    STATIC_CAST(Device::OutFuncPtr, &Request),
-    STATIC_CAST(Device::OutFuncPtr, &SetMask),
-    STATIC_CAST(Device::OutFuncPtr, &SetRegister),
+    static_cast<Device::OutFuncPtr>(&Reset),
+    static_cast<Device::OutFuncPtr>(&Request),
+    static_cast<Device::OutFuncPtr>(&SetMask),
+    static_cast<Device::OutFuncPtr>(&SetRegister),
 };
 
 const Device::InFuncPtr INTC::indef[] = {
-    STATIC_CAST(Device::InFuncPtr, &IntAck),
+    static_cast<Device::InFuncPtr>(&IntAck),
 };
