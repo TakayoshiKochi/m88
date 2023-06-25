@@ -4,7 +4,6 @@
 // ---------------------------------------------------------------------------
 //  $Id: z80diag.cpp,v 1.6 2001/02/21 11:57:16 cisc Exp $
 
-#include "win32/headers.h"
 #include "devices/z80diag.h"
 
 #include "common/diag.h"
@@ -175,7 +174,7 @@ char* Z80Diag::Expand(char* dest, const char* src) {
           break;
 
         default:
-          LOG1("unknown directive: @%c\n", src[-1]);
+          Log("unknown directive: @%c\n", src[-1]);
           break;
       }
     }

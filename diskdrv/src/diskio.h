@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <windows.h>
+
 #include "common/device.h"
 #include "win32/file.h"
 

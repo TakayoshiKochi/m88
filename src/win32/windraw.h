@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stdint.h>
+
 #include "common/draw.h"
 #include "win32/critsect.h"
 

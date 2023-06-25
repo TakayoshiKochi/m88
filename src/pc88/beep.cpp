@@ -4,7 +4,6 @@
 // ---------------------------------------------------------------------------
 //  $Id: beep.cpp,v 1.2 1999/10/10 01:47:04 cisc Exp $
 
-#include "win32/headers.h"
 #include "pc88/beep.h"
 
 using namespace PC8801;

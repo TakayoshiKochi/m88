@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stdint.h>
+
 #include "common/device.h"
 #include "common/draw.h"
 #include "pc88/config.h"

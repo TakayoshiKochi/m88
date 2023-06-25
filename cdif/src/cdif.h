@@ -8,9 +8,11 @@
 
 #pragma once
 
-#include "common/device.h"
+#include <windows.h>
+
 #include "cdctrl.h"
 #include "cdrom.h"
+#include "common/device.h"
 #include "if/ifpc88.h"
 
 namespace PC8801 {

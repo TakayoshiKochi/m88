@@ -10,8 +10,8 @@
 
 #include "common/device.h"
 #include "pc88/memory.h"
-#include "pc88/subsys.h"
 #include "pc88/pc88.h"
+#include "pc88/subsys.h"
 
 namespace PC8801 {
 // ----------------------------------------------------------------------------

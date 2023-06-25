@@ -4,13 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: base.cpp,v 1.19 2003/09/28 14:35:35 cisc Exp $
 
-#include "win32/headers.h"
+#include "pc88/pc88.h"
 
 #include <stdlib.h>
 
 #include "common/draw.h"
 #include "pc88/base.h"
-#include "pc88/pc88.h"
 #include "pc88/config.h"
 #include "pc88/tapemgr.h"
 #include "win32/status.h"
@@ -104,7 +103,7 @@ void IOCALL Base::Reset(uint32_t, uint32_t) {
 //
 void IOCALL Base::RTC(uint32_t) {
   pc->bus1.Out(PC88::pint2, 1);
-  //  LOG0("RTC\n");
+  //  Log("RTC\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -115,10 +114,10 @@ void IOCALL Base::VRTC(uint32_t, uint32_t en) {
     pc->VSync();
     pc->bus1.Out(PC88::pint1, 1);
     port40 |= 0x20;
-    //      LOG0("CRTC: Retrace\n");
+    //      Log("CRTC: Retrace\n");
   } else {
     port40 &= ~0x20;
-    //      LOG0("CRTC: Display\n");
+    //      Log("CRTC: Display\n");
   }
 }
 

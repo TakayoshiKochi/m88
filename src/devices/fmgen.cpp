@@ -21,13 +21,12 @@
 //      ほか掲示板等で様々なご助言，ご支援をお寄せいただいた皆様に
 // ---------------------------------------------------------------------------
 
+#include "devices/fmgen.h"
+
 #include <assert.h>
 #include <math.h>
 
 #include <algorithm>
-
-#include "win32/headers.h"
-#include "devices/fmgen.h"
 
 #define LOGNAME "fmgen"
 
@@ -498,7 +497,8 @@ inline void Operator::EGUpdate() {
       ssg_vector_ = 1;
       ssg_offset_ = 0;
     }
-    eg_out_ = std::max(0, std::min(tl_out_ + eg_level_ * ssg_vector_ + ssg_offset_, 0x3ff)) << (1 + 2);
+    eg_out_ = std::max(0, std::min(tl_out_ + eg_level_ * ssg_vector_ + ssg_offset_, 0x3ff))
+              << (1 + 2);
   }
 }
 

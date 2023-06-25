@@ -7,6 +7,7 @@
 #pragma once
 
 #include <stdint.h>
+
 #include "win32/critsect.h"
 
 class StatusDisplay {

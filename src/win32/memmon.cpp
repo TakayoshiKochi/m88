@@ -4,16 +4,14 @@
 // ---------------------------------------------------------------------------
 //  $Id: memmon.cpp,v 1.15 2003/05/19 02:33:56 cisc Exp $
 
-#include "win32/headers.h"
+#include "win32/memmon.h"
 
 #include <algorithm>
 
-#include "win32/resource.h"
-#include "pc88/pc88.h"
-#include "win32/memmon.h"
-#include "win32/file.h"
-#include "win32/winvars.h"
 #include "if/ifguid.h"
+#include "pc88/pc88.h"
+#include "win32/file.h"
+#include "win32/resource.h"
 
 #define LOGNAME "memmon"
 #include "common/diag.h"
@@ -323,7 +321,7 @@ bool MemoryMonitor::SaveImage() {
   // ダイアログ
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
-  ofn.lStructSize = WINVAR(OFNSIZE);
+  ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.FlagsEx = OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];

@@ -6,9 +6,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: sio.cpp,v 1.6 2001/02/21 11:57:57 cisc Exp $
 
-#include "win32/headers.h"
-#include "common/schedule.h"
 #include "pc88/sio.h"
+
+#include "common/schedule.h"
 
 #define LOGNAME "sio"
 #include "common/diag.h"
@@ -27,7 +27,7 @@ SIO::~SIO() {}
 //
 bool SIO::Init(IOBus* _bus, uint32_t _prxrdy, uint32_t _preq) {
   bus = _bus, prxrdy = _prxrdy, prequest = _preq;
-  LOG0("SIO::Init\n");
+  Log("SIO::Init\n");
 
   return true;
 }
@@ -45,7 +45,7 @@ void SIO::Reset(uint32_t, uint32_t) {
 //  こんとろーるぽーと
 //
 void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
-  LOG1("[%.2x] ", d);
+  Log("[%.2x] ", d);
 
   switch (mode) {
     case clear:
@@ -60,16 +60,16 @@ void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
         datalen = 5 + ((d >> 2) & 3);
         parity = d & 0x10 ? (d & 0x20 ? even : odd) : none;
         stop = (d >> 6) & 3;
-        LOG4("Async: %d baud, Parity:%c Data:%d Stop:%s\n", clock, parity, datalen,
-             stop == 3   ? "2"
-             : stop == 2 ? "1.5"
-                         : "1");
+        Log("Async: %d baud, Parity:%c Data:%d Stop:%s\n", clock, parity, datalen,
+            stop == 3   ? "2"
+            : stop == 2 ? "1.5"
+                        : "1");
       } else {
         // Synchronus mode
         mode = sync1;
         clock = 0;
         parity = d & 0x10 ? (d & 0x20 ? even : odd) : none;
-        LOG2("Sync: %d baud, Parity:%c / ", clock, parity);
+        Log("Sync: %d baud, Parity:%c / ", clock, parity);
       }
       break;
 
@@ -79,7 +79,7 @@ void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
 
     case sync2:
       mode = sync;
-      LOG0("\n");
+      Log("\n");
       break;
 
     case async:
@@ -89,19 +89,19 @@ void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
       // b6 - internal reset
       if (d & 0x40) {
         // Reset!
-        LOG0(" Internal Reset!\n");
+        Log(" Internal Reset!\n");
         mode = clear;
         break;
       }
       // b5 - request to send
       // b4 - error reset
       if (d & 0x10) {
-        LOG0(" ERRCLR");
+        Log(" ERRCLR");
         status &= ~(PE | OE | FE);
       }
       // b3 - send break charactor
       if (d & 8) {
-        LOG0(" SNDBRK");
+        Log(" SNDBRK");
       }
       // b2 - receive enable
       rxen = (d & 4) != 0;
@@ -109,10 +109,10 @@ void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
       // b0 - send enable
       txen = (d & 1) != 0;
 
-      LOG2(" RxE:%d TxE:%d\n", rxen, txen);
+      Log(" RxE:%d TxE:%d\n", rxen, txen);
       break;
     default:
-      LOG1("internal error? <%d>\n", mode);
+      Log("internal error? <%d>\n", mode);
       break;
   }
 }
@@ -121,14 +121,14 @@ void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
 //  でーたせっと
 //
 void IOCALL SIO::SetData(uint32_t, uint32_t d) {
-  LOG1("<%.2x ", d);
+  Log("<%.2x ", d);
 }
 
 // ---------------------------------------------------------------------------
 //  じょうたいしゅとく
 //
 uint32_t IOCALL SIO::GetStatus(uint32_t) {
-  //  LOG1("!%.2x ", status      );
+  //  Log("!%.2x ", status      );
   return status;
 }
 
@@ -136,7 +136,7 @@ uint32_t IOCALL SIO::GetStatus(uint32_t) {
 //  でーたしゅとく
 //
 uint32_t IOCALL SIO::GetData(uint32_t) {
-  LOG1(">%.2x ", data);
+  Log(">%.2x ", data);
 
   int f = status & RXRDY;
   status &= ~RXRDY;
@@ -148,18 +148,18 @@ uint32_t IOCALL SIO::GetData(uint32_t) {
 }
 
 void IOCALL SIO::AcceptData(uint32_t, uint32_t d) {
-  LOG1("Accept: [%.2x]", d);
+  Log("Accept: [%.2x]", d);
   if (rxen) {
     data = d;
     if (status & RXRDY) {
       status |= OE;
-      LOG0(" - overrun");
+      Log(" - overrun");
     }
     status |= RXRDY;
     bus->Out(prxrdy, 1);  // 割り込み
-    LOG0("\n");
+    Log("\n");
   } else {
-    LOG0(" - ignored\n");
+    Log(" - ignored\n");
   }
 }
 

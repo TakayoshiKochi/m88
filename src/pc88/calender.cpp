@@ -7,10 +7,9 @@
 //  $Id: calender.cpp,v 1.4 1999/10/10 01:47:04 cisc Exp $
 //  ・TP, 1Hz 機能が未実装
 
-#include <time.h>
-
-#include "win32/headers.h"
 #include "pc88/calender.h"
+
+#include <time.h>
 
 // #define LOGNAME "calender"
 #include "common/diag.h"
@@ -88,7 +87,7 @@ void Calender::Command() {
   else
     cmd = pcmd;
 
-  LOG1("Command = %.2x\n", cmd);
+  Log("Command = %.2x\n", cmd);
   switch (cmd & 15) {
     case 0x00:  // register hold
       hold = true;
@@ -136,10 +135,10 @@ void Calender::ShiftData() {
   if (hold) {
     if (cmd & 0x80) {
       // shift sreg only
-      LOG1("Shift HS %d\n", datain);
+      Log("Shift HS %d\n", datain);
       scmd = (scmd >> 1) | (datain << 3);
     } else {
-      LOG1("Shift HP -\n", datain);
+      Log("Shift HP -\n", datain);
     }
   } else {
     if (cmd & 0x80) {
@@ -150,14 +149,14 @@ void Calender::ShiftData() {
       reg[4] = (reg[4] >> 1) | (reg[5] << 7);
       reg[5] = (reg[5] >> 1) | (scmd << 7);
       scmd = (scmd >> 1) | (datain << 3);
-      LOG1("Shift -S %d\n", datain);
+      Log("Shift -S %d\n", datain);
     } else {
       reg[0] = (reg[0] >> 1) | (reg[1] << 7);
       reg[1] = (reg[1] >> 1) | (reg[2] << 7);
       reg[2] = (reg[2] >> 1) | (reg[3] << 7);
       reg[3] = (reg[3] >> 1) | (reg[4] << 7);
       reg[4] = (reg[4] >> 1) | (datain << 7);
-      LOG1("Shift -P %d\n", datain);
+      Log("Shift -P %d\n", datain);
     }
   }
 }

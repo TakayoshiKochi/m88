@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stdint.h>
+
 #include "common/sndbuf2.h"
 
 // ---------------------------------------------------------------------------

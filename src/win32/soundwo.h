@@ -8,6 +8,10 @@
 
 #pragma once
 
+#include <windows.h>
+
+#include <mmeapi.h>
+
 #include "win32/sounddrv.h"
 #include "win32/critsect.h"
 

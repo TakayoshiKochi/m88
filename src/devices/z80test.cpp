@@ -5,7 +5,6 @@
 //  Z80 エミュレーションパッケージ比較実行用クラス
 //  $Id: Z80Test.cpp,v 1.6 1999/08/14 14:45:06 cisc Exp $
 
-#include "win32/headers.h"
 #include "devices/z80Test.h"
 
 Z80Test* Z80Test::currentcpu = 0;

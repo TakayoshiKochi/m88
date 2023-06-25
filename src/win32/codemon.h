@@ -8,10 +8,10 @@
 
 #include <stdio.h>
 
-#include "win32/mvmon.h"
 #include "common/device.h"
-#include "pc88/memview.h"
 #include "devices/z80diag.h"
+#include "pc88/memview.h"
+#include "win32/mvmon.h"
 
 // ---------------------------------------------------------------------------
 

@@ -6,11 +6,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: pd8257.cpp,v 1.14 1999/10/10 01:47:09 cisc Exp $
 
-#include "win32/headers.h"
+#include "pc88/pd8257.h"
 
 #include <algorithm>
-
-#include "pc88/pd8257.h"
 
 // #define LOGNAME   "pd8257"
 #include "common/diag.h"
@@ -40,7 +38,7 @@ bool PD8257::ConnectRd(uint8_t* mem, uint32_t addr, uint32_t length) {
     mread = mem;
     mrbegin = addr;
     mrend = addr + length;
-    LOG2("Connect(read) %.4x - %.4x bytes\n", addr, length);
+    Log("Connect(read) %.4x - %.4x bytes\n", addr, length);
     return true;
   } else
     mread = 0;
@@ -58,7 +56,7 @@ bool PD8257::ConnectWr(uint8_t* mem, uint32_t addr, uint32_t length) {
     mwrite = mem;
     mwbegin = addr;
     mwend = addr + length;
-    LOG2("Connect(write) %.4x - %.4x bytes\n", addr, length);
+    Log("Connect(write) %.4x - %.4x bytes\n", addr, length);
     return true;
   } else
     mread = 0;
@@ -94,7 +92,7 @@ void IOCALL PD8257::SetAddr(uint32_t d, uint32_t p) {
     stat.ptr[3] = stat.ptr[2];
 
   stat.ff = !stat.ff;
-  LOG2("Bank %d: addr  = %.4x\n", bank, stat.ptr[bank]);
+  Log("Bank %d: addr  = %.4x\n", bank, stat.ptr[bank]);
 }
 
 // ---------------------------------------------------------------------------
@@ -111,14 +109,14 @@ void IOCALL PD8257::SetCount(uint32_t d, uint32_t p) {
   if (stat.autoinit && bank == 2)
     stat.count[3] = stat.count[2], stat.mode[3] = stat.mode[3];
   stat.ff = !stat.ff;
-  LOG3("Bank %d: count = %.4x  flag = %.4x\n", bank, stat.count[bank] & 0x3fff, stat.mode[bank]);
+  Log("Bank %d: count = %.4x  flag = %.4x\n", bank, stat.count[bank] & 0x3fff, stat.mode[bank]);
 }
 
 // ---------------------------------------------------------------------------
 //  モードレジスタをセット
 //
 void IOCALL PD8257::SetMode(uint32_t, uint32_t d) {
-  LOG1("Mode: %.2x\n", d);
+  Log("Mode: %.2x\n", d);
   stat.autoinit = (d & 0x80) != 0;
 
   uint8_t pe = stat.enabled;
@@ -174,7 +172,7 @@ inline uint32_t IOCALL PD8257::GetStatus(uint32_t) {
 //
 uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* data, uint32_t nbytes) {
   uint32_t n = nbytes;
-  LOG0("Request ");
+  Log("Request ");
   if ((stat.enabled & (1 << bank)) && !(stat.mode[bank] & 0x40)) {
     while (n > 0) {
       uint32_t size = std::min(n, (uint32_t)stat.count[bank] + 1);
@@ -185,7 +183,7 @@ uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* data, uint32_t nbyte
         // 存在するメモリのアクセス
         size = std::min(size, mrend - stat.ptr[bank]);
         memcpy(data, mread + stat.ptr[bank] - mrbegin, size);
-        LOG3("READ ch[%d] (%.4x - %.4x bytes)\n", bank, stat.ptr[bank], size);
+        Log("READ ch[%d] (%.4x - %.4x bytes)\n", bank, stat.ptr[bank], size);
       } else {
         // 存在しないメモリへのアクセス
         if (stat.ptr[bank] - mrbegin)
@@ -202,16 +200,16 @@ uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* data, uint32_t nbyte
         if (bank == 2 && stat.autoinit) {
           stat.ptr[2] = stat.ptr[3];
           stat.count[2] = stat.count[3];
-          LOG3("DMA READ: Bank%d auto init (%.4x:%.4x).\n", bank, stat.ptr[2], stat.count[2] + 1);
+          Log("DMA READ: Bank%d auto init (%.4x:%.4x).\n", bank, stat.ptr[2], stat.count[2] + 1);
         } else {
           stat.status |= 1 << bank;  // TC
-          LOG1("DMA READ: Bank%d end transmittion.\n", bank);
+          Log("DMA READ: Bank%d end transmittion.\n", bank);
         }
       }
       n -= size;
     }
   } else
-    LOG0("\n");
+    Log("\n");
 
   return nbytes - n;
 }
@@ -235,7 +233,7 @@ uint32_t IFCALL PD8257::RequestWrite(uint32_t bank, uint8_t* data, uint32_t nbyt
         // 存在するメモリのアクセス
         size = std::min(size, mwend - stat.ptr[bank]);
         memcpy(mwrite + stat.ptr[bank] - mwbegin, data, size);
-        LOG3("WRIT ch[%d] (%.4x - %.4x bytes)\n", bank, stat.ptr[bank], size);
+        Log("WRIT ch[%d] (%.4x - %.4x bytes)\n", bank, stat.ptr[bank], size);
       } else {
         // 存在しないメモリへのアクセス
         if (stat.ptr[bank] - mwbegin)
@@ -250,10 +248,10 @@ uint32_t IFCALL PD8257::RequestWrite(uint32_t bank, uint8_t* data, uint32_t nbyt
         if (bank == 2 && stat.autoinit) {
           stat.ptr[2] = stat.ptr[3];
           stat.count[2] = stat.count[3];
-          LOG3("DMA WRITE: Bank%d auto init (%.4x:%.4x).\n", bank, stat.ptr[2], stat.count[2] + 1);
+          Log("DMA WRITE: Bank%d auto init (%.4x:%.4x).\n", bank, stat.ptr[2], stat.count[2] + 1);
         } else {
           stat.status |= 1 << bank;  // TC
-          LOG1("DMA WRITE: Bank%d end transmittion.\n", bank);
+          Log("DMA WRITE: Bank%d end transmittion.\n", bank);
         }
       }
       n -= size;

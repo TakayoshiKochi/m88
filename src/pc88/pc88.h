@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "common/schedule.h"
 #include "common/device.h"
 #include "common/draw.h"
+#include "common/schedule.h"
 
 // ---------------------------------------------------------------------------
 //  使用する Z80 エンジンの種類を決める

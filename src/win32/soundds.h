@@ -8,6 +8,11 @@
 
 #pragma once
 
+#include <windows.h>
+
+#include <mmsystem.h>
+#include <dsound.h>
+
 #include "win32/sounddrv.h"
 
 // ---------------------------------------------------------------------------

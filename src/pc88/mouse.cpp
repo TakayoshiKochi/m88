@@ -7,11 +7,11 @@
 // ---------------------------------------------------------------------------
 //  $Id: mouse.cpp,v 1.1 2002/04/07 05:40:10 cisc Exp $
 
-#include "win32/headers.h"
+#include "pc88/mouse.h"
+
+#include "if/ifguid.h"
 #include "pc88/config.h"
 #include "pc88/pc88.h"
-#include "pc88/mouse.h"
-#include "if/ifguid.h"
 
 // #define LOGNAME "mouse"
 #include "common/diag.h"

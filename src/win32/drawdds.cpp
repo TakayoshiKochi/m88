@@ -6,11 +6,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: DrawDDS.cpp,v 1.16 2003/11/04 13:14:21 cisc Exp $
 
-#include "win32/headers.h"
+#include <ddraw.h>
+
+#include "win32/drawdds.h"
 
 #include <algorithm>
 
-#include "win32/drawdds.h"
 #include "win32/messages.h"
 
 #define LOGNAME "drawdds"

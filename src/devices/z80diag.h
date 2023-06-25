@@ -8,6 +8,7 @@
 #define Z80DIAG_H
 
 #include <stdint.h>
+
 #include "common/device.h"
 
 // ---------------------------------------------------------------------------

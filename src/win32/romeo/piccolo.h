@@ -4,8 +4,9 @@
 #define incl_romeo_piccolo_h
 
 #include <stdint.h>
-#include "win32/timekeep.h"
+
 #include "win32/critsect.h"
+#include "win32/timekeep.h"
 
 //  遅延送信対応 ROMEO ドライバ
 //

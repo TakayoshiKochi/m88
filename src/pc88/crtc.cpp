@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: crtc.cpp,v 1.34 2004/02/05 11:57:49 cisc Exp $
 
-#include "win32/headers.h"
+#include "pc88/crtc.h"
 
 #include <algorithm>
 
@@ -14,7 +14,6 @@
 #include "common/error.h"
 #include "common/schedule.h"
 #include "pc88/config.h"
-#include "pc88/crtc.h"
 #include "pc88/pc88.h"
 #include "pc88/pd8257.h"
 #include "win32/file.h"
@@ -224,7 +223,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
 
   uint32_t result = 0xff;
 
-  LOG1(a0 ? "\ncmd:%.2x " : "%.2x ", data);
+  Log(a0 ? "\ncmd:%.2x " : "%.2x ", data);
 
   if (a0)
     cmdc = 0, cmdm = data >> 5;
@@ -289,8 +288,8 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
 
           //          screenwidth = 640;
           screenheight = std::min(400U, linesperchar * height);
-          LOG5("\nscrn=(640, %d), vrtc = %d, linetime = %d0 us, frametime0 = %d us\n", screenheight,
-               vretrace, linetime, linetime * (height + vretrace));
+          Log("\nscrn=(640, %d), vrtc = %d, linetime = %d0 us, frametime0 = %d us\n", screenheight,
+              vretrace, linetime, linetime * (height + vretrace));
           mode |= resize;
           break;
       }
@@ -305,7 +304,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
         linesize = width + attrperline * 2;
         int tvramsize = (mode & skipline ? (height + 1) / 2 : height) * linesize;
 
-        LOG1("[%.2x]", status);
+        Log("[%.2x]", status);
         mode = (mode & ~inverse) | (data & 1 ? inverse : 0);
         if (mode & enable) {
           if (!(status & 0x10)) {
@@ -318,8 +317,8 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
         } else
           status &= ~0x10;
 
-        LOG5(" Start Display [%.2x;%.3x;%2d] vrtc %d  tvram size = %.4x ", status, mode, width,
-             vretrace, tvramsize);
+        Log(" Start Display [%.2x;%.3x;%2d] vrtc %d  tvram size = %.4x ", status, mode, width,
+            vretrace, tvramsize);
       }
       break;
 
@@ -469,7 +468,7 @@ void IOCALL CRTC::StartDisplay(uint32_t) {
   sev = 0;
   column = 0;
   mode &= ~suppressdisplay;
-  //  LOG0("DisplayStart\n");
+  //  Log("DisplayStart\n");
   bus->Out(PC88::vrtc, 0);
   if (++frametime > blinkrate)
     frametime = 0;
@@ -503,7 +502,7 @@ int CRTC::ExpandLineSub() {
         mode = (mode & ~(enable)) | clear;
         status = (status & ~0x10) | 0x08;
         memset(dest, 0, linesize);
-        LOG0("DMA underrun\n");
+        Log("DMA underrun\n");
       } else {
         if (mode & suppressdisplay)
           memset(dest, 0, linesize);
@@ -544,7 +543,7 @@ int CRTC::ExpandLineSub() {
 }
 
 inline void IOCALL CRTC::ExpandLineEnd(uint32_t) {
-  //  LOG0("Vertical Retrace\n");
+  //  Log("Vertical Retrace\n");
   bus->Out(PC88::vrtc, 1);
   event = -1;
   sev =
@@ -599,7 +598,7 @@ void CRTC::UpdateScreen(uint8_t* image, int _bpl, Draw::Region& region, bool ref
 
     Log(" update");
 
-    //      LOG4("time: %d  cursor: %d(%d)  blink: %d\n", frametime, attr_cursor, cursor_type,
+    //      Log("time: %d  cursor: %d(%d)  blink: %d\n", frametime, attr_cursor, cursor_type,
     //      attr_blink);
     ExpandImage(image, region);
   }
@@ -661,7 +660,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
 
   int yy = std::min(screenheight / linesperchar, height) - 1;
 
-  //  LOG1("ExpandImage Bank:%d\n", bank);
+  //  Log("ExpandImage Bank:%d\n", bank);
   //  image += y * linestep;
   uint8_t* src = vram[bank];         // + y * linesize;
   uint8_t* cache = vram[bank ^= 1];  // + y * linesize;
@@ -691,7 +690,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
       } else {
         for (uint32_t x = 0; x < width; x++) {
           uint8_t a = attrflag[x];
-          //                  LOG1("%.2x ", a);
+          //                  Log("%.2x ", a);
           if ((src[x] ^ cache[x]) | (a ^ cache_attr[x])) {
             pat_col = colorpattern[(a >> 5) & 7];
             cache_attr[x] = a;
@@ -701,7 +700,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
             PutChar((packed*)&image[8 * x], src[x], a);
           }
         }
-        //              LOG0("\n");
+        //              Log("\n");
       }
       if (rightl >= 0) {
         if (rightl > right)
@@ -715,9 +714,9 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
     cache += linesize;
     cache_attr += width;
   }
-  //  LOG0("\n");
+  //  Log("\n");
   region.Update(left * 8, linesperchar * top, (right + 1) * 8, linesperchar * bottom - 1);
-  //  LOG2("Update: from %3d to %3d\n", region.top, region.bottom);
+  //  Log("Update: from %3d to %3d\n", region.top, region.bottom);
 }
 
 // ---------------------------------------------------------------------------
@@ -1019,7 +1018,7 @@ void IOCALL CRTC::PCGOut(uint32_t p, uint32_t d) {
 
   if (pcgadr & 0x1000) {
     uint32_t tmp = (pcgadr & 0x2000) ? fontrom[0x400 + (pcgadr & 0x3ff)] : pcgdat;
-    LOG2("PCG: %.4x <- %.2x\n", pcgadr, tmp);
+    Log("PCG: %.4x <- %.2x\n", pcgadr, tmp);
     pcgram[pcgadr & 0x3ff] = tmp;
     if (pcgenable)
       ModifyFont(0x400 + (pcgadr & 0x3ff), tmp);
@@ -1081,7 +1080,7 @@ uint32_t IFCALL CRTC::GetStatusSize() {
 }
 
 bool IFCALL CRTC::SaveStatus(uint8_t* s) {
-  LOG0("*** Save Status\n");
+  Log("*** Save Status\n");
   Status* st = (Status*)s;
 
   st->rev = ssrev;
@@ -1103,7 +1102,7 @@ bool IFCALL CRTC::SaveStatus(uint8_t* s) {
 }
 
 bool IFCALL CRTC::LoadStatus(const uint8_t* s) {
-  LOG0("*** Load Status\n");
+  Log("*** Load Status\n");
   const Status* st = (const Status*)s;
   if (st->rev < 1 || ssrev < st->rev)
     return false;

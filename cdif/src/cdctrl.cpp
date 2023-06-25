@@ -4,12 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: cdctrl.cpp,v 1.1 1999/08/26 08:04:36 cisc Exp $
 
+#include "cdctrl.h"
+
 #include <process.h>
 
-#include "win32/headers.h"
 #include "aspi.h"
 #include "cdrom.h"
-#include "cdctrl.h"
 #include "cdromdef.h"
 
 #define LOGNAME "cdctrl"
@@ -80,43 +80,43 @@ void CDControl::ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
       ret = cdrom->ReadTOC();
       if (ret)
         diskpresent = true;
-      LOG1("Read TOC - %d\n", ret);
+      Log("Read TOC - %d\n", ret);
       break;
 
     case playaudio:
       ret = cdrom->PlayAudio(arg1, arg2);
-      LOG3("Play Audio(%d, %d) - %d\n", arg1, arg2, ret);
+      Log("Play Audio(%d, %d) - %d\n", arg1, arg2, ret);
       break;
 
     case playtrack:
       ret = cdrom->PlayTrack(arg1);
-      LOG2("Play Track(%d) - %d\n", arg1, ret);
+      Log("Play Track(%d) - %d\n", arg1, ret);
       break;
 
     case stop:
       ret = cdrom->Stop();
-      LOG1("Stop - %d\n", ret);
+      Log("Stop - %d\n", ret);
       if (arg1)
         return;
       break;
 
     case pause:
       ret = cdrom->Pause(true);
-      LOG1("Pause - %d\n", ret);
+      Log("Pause - %d\n", ret);
       break;
 
     case checkdisk:
       ret = cdrom->CheckMedia();
-      LOG1("CheckDisk - %d\n", ret);
+      Log("CheckDisk - %d\n", ret);
       if (diskpresent) {
         if (!ret)
           diskpresent = false;
-        LOG0("unmount\n");
+        Log("unmount\n");
       } else {
         if (ret) {
           if (cdrom->ReadTOC())
             diskpresent = true;
-          LOG0("Mount\n");
+          Log("Mount\n");
         }
       }
       break;

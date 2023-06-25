@@ -6,10 +6,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: soundds2.cpp,v 1.5 2002/05/31 09:45:21 cisc Exp $
 
-#include <process.h>
-
-#include "win32/headers.h"
 #include "win32/soundds2.h"
+
+#include <process.h>
 
 #define LOGNAME "soundds2"
 #include "common/diag.h"
@@ -181,7 +180,7 @@ uint32_t __stdcall DriverDS2::ThreadEntry(LPVOID arg) {
   while (dd->playing) {
     static int p;
     int t = GetTickCount();
-    LOG1("%d ", t - p);
+    Log("%d ", t - p);
     p = t;
 
     dd->Send();

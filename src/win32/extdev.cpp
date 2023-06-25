@@ -4,11 +4,11 @@
 // ---------------------------------------------------------------------------
 //  $Id: extdev.cpp,v 1.7 1999/12/30 14:53:13 cisc Exp $
 
-#include "win32/headers.h"
 #include "win32/extdev.h"
+
+#include "pc88/memory.h"
 #include "pc88/pc88.h"
 #include "pc88/pd8257.h"
-#include "pc88/memory.h"
 #include "pc88/sound.h"
 
 using namespace PC8801;

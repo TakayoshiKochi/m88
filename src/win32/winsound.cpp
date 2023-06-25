@@ -4,13 +4,10 @@
 // ---------------------------------------------------------------------------
 //  $Id: winsound.cpp,v 1.27 2003/05/12 22:26:36 cisc Exp $
 
-#include <algorithm>
-
-#include "win32/headers.h"
-
-#include <algorithm>
-
 #include "win32/winsound.h"
+
+#include <algorithm>
+
 #include "pc88/config.h"
 #include "win32/status.h"
 #include "win32/soundds.h"

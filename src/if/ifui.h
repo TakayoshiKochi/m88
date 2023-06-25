@@ -12,7 +12,7 @@
 #define IFCALL __stdcall
 #endif
 
-interface IMouseUI : public IUnk {
+struct IMouseUI : public IUnk {
   virtual bool IFCALL Enable(bool en) = 0;
   virtual bool IFCALL GetMovement(POINT*) = 0;
   virtual uint32_t IFCALL GetButton() = 0;
@@ -23,6 +23,6 @@ struct PadState {
   uint8_t button;     // b0-3, active high
 };
 
-interface IPadInput {
+struct IPadInput {
   virtual void IFCALL GetState(PadState*) = 0;
 };

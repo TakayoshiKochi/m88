@@ -6,26 +6,26 @@
 // ---------------------------------------------------------------------------
 //  $Id: ui.cpp,v 1.62 2003/09/28 14:35:35 cisc Exp $
 
-#include "win32/headers.h"
+#include "win32/ui.h"
+
 #include <commdlg.h>
+#include <ddraw.h>
 #include <shellapi.h>
 #include <mbstring.h>
 
 #include <algorithm>
 
-#include "win32/resource.h"
-#include "win32/ui.h"
-#include "win32/about.h"
-#include "win32/file.h"
-#include "win32/messages.h"
 #include "common/error.h"
-#include "win32/88config.h"
-#include "win32/status.h"
 #include "pc88/opnif.h"
 #include "pc88/diskmgr.h"
 #include "pc88/tapemgr.h"
+#include "win32/88config.h"
+#include "win32/about.h"
+#include "win32/file.h"
 #include "win32/filetest.h"
-#include "win32/winvars.h"
+#include "win32/messages.h"
+#include "win32/status.h"
+#include "win32/resource.h"
 #include "win32/winexapi.h"
 
 #define LOGNAME "ui"
@@ -80,7 +80,7 @@ bool WinUI::InitM88(const char* cmdline) {
   tapetitle[0] = 0;
 
   //  設定読み込み
-  LOG1("%d\tLoadConfig\n", timeGetTime());
+  Log("%d\tLoadConfig\n", timeGetTime());
   PC8801::LoadConfig(&config, m88ini, true);
 
   // ステータスバー初期化
@@ -106,7 +106,7 @@ bool WinUI::InitM88(const char* cmdline) {
   //  デバイスの初期化
   PC8801::LoadConfigDirectory(&config, m88ini, "BIOSPath", true);
 
-  LOG1("%d\tdiskmanager\n", timeGetTime());
+  Log("%d\tdiskmanager\n", timeGetTime());
   if (!diskmgr)
     diskmgr = new DiskManager;
   if (!diskmgr || !diskmgr->Init())
@@ -116,15 +116,15 @@ bool WinUI::InitM88(const char* cmdline) {
   if (!tapemgr)
     return false;
 
-  LOG1("%d\tkeyboard if\n", timeGetTime());
+  Log("%d\tkeyboard if\n", timeGetTime());
   if (!keyif.Init(hwnd))
     return false;
-  LOG1("%d\tcore\n", timeGetTime());
+  Log("%d\tcore\n", timeGetTime());
   if (!core.Init(this, hwnd, &draw, diskmgr, &keyif, &winconfig, tapemgr))
     return false;
 
   //  debug 用クラス初期化
-  LOG1("%d\tmonitors\n", timeGetTime());
+  Log("%d\tmonitors\n", timeGetTime());
   opnmon.Init(core.GetOPN1(), core.GetSound());
   memmon.Init(&core);
   codemon.Init(&core);
@@ -135,33 +135,33 @@ bool WinUI::InitM88(const char* cmdline) {
   core.GetSound()->SetSoundMonitor(&opnmon);
 
   //  実行ファイル改変チェック
-  LOG1("%d\tself test\n", timeGetTime());
+  Log("%d\tself test\n", timeGetTime());
   if (!SanityCheck())
     return false;
 
   //  エミュレーション開始
-  LOG1("%d\temulation begin\n", timeGetTime());
+  Log("%d\temulation begin\n", timeGetTime());
   core.Wait(false);
   active = true;
   fullscreen = false;
 
   //  設定反映
-  LOG1("%d\tapply cmdline\n", timeGetTime());
+  Log("%d\tapply cmdline\n", timeGetTime());
   SetCurrentDirectory(path);
   ApplyCommandLine(cmdline);
-  LOG1("%d\tapply config\n", timeGetTime());
+  Log("%d\tapply config\n", timeGetTime());
   ApplyConfig();
 
   //  リセット
-  LOG1("%d\treset\n", timeGetTime());
+  Log("%d\treset\n", timeGetTime());
   core.Reset();
 
   // あとごちゃごちゃしたもの
-  LOG1("%d\tetc\n", timeGetTime());
+  Log("%d\tetc\n", timeGetTime());
   if (!diskinfo[0].filename[0])
     PC8801::LoadConfigDirectory(&config, m88ini, "Directory", false);
 
-  LOG1("%d\tend initm88\n", timeGetTime());
+  Log("%d\tend initm88\n", timeGetTime());
   return true;
 }
 
@@ -716,7 +716,7 @@ LRESULT WinUI::WmCreate(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   point.x = rect.left;
   point.y = rect.top;
 
-  LOG0("WmCreate\n");
+  Log("WmCreate\n");
   return 0;
 }
 
@@ -752,7 +752,7 @@ LRESULT WinUI::WmClose(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   // 拡張メニューを破壊する
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(mii));
-  mii.cbSize = WINVAR(MIISIZE);
+  mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_SUBMENU;
   mii.hSubMenu = 0;
 
@@ -783,7 +783,7 @@ LRESULT WinUI::WmClose(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WM_TIMER ハンドラ
 //
 LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  LOG2("WmTimer:%d(%d)\n", wparam, timerid);
+  Log("WmTimer:%d(%d)\n", wparam, timerid);
   if (wparam == timerid) {
     // 実効周波数,表示フレーム数を取得
     int fcount = draw.GetDrawCount();
@@ -939,7 +939,7 @@ void WinUI::ApplyConfig() {
 
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(mii));
-  mii.cbSize = WINVAR(MIISIZE);
+  mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
   mii.dwTypeData = (config.flags & Config::disablef12reset) ? "&Reset" : "&Reset\tF12";
@@ -1001,7 +1001,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
 
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
-  ofn.lStructSize = WINVAR(OFNSIZE);
+  ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.FlagsEx = config.flag2 & Config::showplacesbar ? 0 : OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];
@@ -1170,7 +1170,7 @@ bool WinUI::CreateDiskMenu(uint32_t drive) {
 
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(mii));
-  mii.cbSize = WINVAR(MIISIZE);
+  mii.cbSize = sizeof(MENUITEMINFO);
   mii.fType = MFT_STRING;
   mii.fMask = MIIM_TYPE | MIIM_SUBMENU;
   mii.dwTypeData = buf;
@@ -1210,7 +1210,7 @@ void WinUI::ChangeTapeImage() {
 
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
-  ofn.lStructSize = WINVAR(OFNSIZE);
+  ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.FlagsEx = config.flag2 & Config::showplacesbar ? 0 : OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];
@@ -1242,7 +1242,7 @@ void WinUI::OpenTapeImage(const char* filename) {
   char buf[MAX_PATH + 32];
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(mii));
-  mii.cbSize = WINVAR(MIISIZE);
+  mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
 
@@ -1492,7 +1492,7 @@ void WinUI::CaptureScreen() {
 
       OPENFILENAME ofn;
       memset(&ofn, 0, sizeof(ofn));
-      ofn.lStructSize = WINVAR(OFNSIZE);
+      ofn.lStructSize = sizeof(OPENFILENAME);
       ofn.hwndOwner = hwnd;
       ofn.lpstrFilter = "bitmap image [4bpp] (*.bmp)\0*.bmp\0";
       ofn.lpstrFile = filename;
@@ -1599,7 +1599,7 @@ LRESULT WinUI::M88ClipCursor(HWND hwnd, WPARAM op, LPARAM) {
       rect.top = center.y - 180;
       rect.bottom = center.y + 180;
     }
-    LOG4("rect: %d %d %d %d\n", rect.left, rect.top, rect.right, rect.bottom);
+    Log("rect: %d %d %d %d\n", rect.left, rect.top, rect.right, rect.bottom);
     ClipCursor(&rect);
   } else {
     ClipCursor(0);
@@ -1736,7 +1736,7 @@ bool WinUI::MakeSnapshotMenu() {
     // メニューを元に戻す
     MENUITEMINFO mii;
     memset(&mii, 0, sizeof(mii));
-    mii.cbSize = WINVAR(MIISIZE);
+    mii.cbSize = sizeof(MENUITEMINFO);
     mii.fMask = MIIM_SUBMENU;
     mii.hSubMenu = 0;
     SetMenuItemInfo(GetMenu(hwnd), IDM_SNAPSHOT_LOAD, false, &mii);

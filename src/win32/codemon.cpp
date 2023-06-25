@@ -4,13 +4,11 @@
 // ---------------------------------------------------------------------------
 //  $Id: codemon.cpp,v 1.8 2001/02/21 11:58:53 cisc Exp $
 
-#include "win32/headers.h"
+#include "win32/codemon.h"
 
 #include "common/misc.h"
 #include "pc88/pc88.h"
-#include "win32/codemon.h"
 #include "win32/resource.h"
-#include "win32/winvars.h"
 
 using namespace PC8801;
 
@@ -149,7 +147,7 @@ bool CodeMonitor::DumpImage() {
   // ダイアログ
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
-  ofn.lStructSize = WINVAR(OFNSIZE);
+  ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.FlagsEx = OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];

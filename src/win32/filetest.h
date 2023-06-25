@@ -3,6 +3,8 @@
 #ifndef incl_filetest_h
 #define incl_filetest_h
 
+#include <stdint.h>
+
 bool SanityCheck(uint32_t* = 0);
 
 #endif  // incl_filetest_h

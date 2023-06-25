@@ -6,10 +6,10 @@
 
 #pragma once
 
-#include "pc88/floppy.h"
-#include "win32/file.h"
 #include "pc88/fdu.h"
+#include "pc88/floppy.h"
 #include "win32/critsect.h"
+#include "win32/file.h"
 
 namespace D88 {
 struct ImageHeader {

@@ -6,11 +6,11 @@
 // ---------------------------------------------------------------------------
 //  $Id: screen.cpp,v 1.26 2003/09/28 14:35:35 cisc Exp $
 
-#include "win32/headers.h"
 #include "pc88/screen.h"
-#include "pc88/memory.h"
+
 #include "pc88/config.h"
 #include "pc88/crtc.h"
+#include "pc88/memory.h"
 #include "win32/status.h"
 
 #define LOGNAME "screen"
@@ -134,7 +134,7 @@ bool Screen::UpdatePalette(Draw* draw) {
   //  statusdisplay.Show(10, 0, "SCRN: %.3x", pmode);
 
   if (pmode != prevpmode || modechanged) {
-    LOG1("p:%.2x ", pmode);
+    Log("p:%.2x ", pmode);
     palettechanged = true;
     prevpmode = pmode;
   }
@@ -188,7 +188,7 @@ bool Screen::UpdatePalette(Draw* draw) {
     int textcolor = port30 & 2 ? 7 : 0;
 
     if (color) {
-      LOG2("\ncolor  port53 = %.2x  port32 = %.2x\n", port53, port32);
+      Log("\ncolor  port53 = %.2x  port32 = %.2x\n", port53, port32);
       //  color mode      GG GG GR GB TE TG TR TB
       if (port53 & 1)  // hide text plane ?
       {
@@ -227,7 +227,7 @@ bool Screen::UpdatePalette(Draw* draw) {
 
       const Draw::Palette* tpal = port32 & 0x20 ? xpal : palcolor;
 
-      LOG3("\nb/w  port53 = %.2x  port32 = %.2x  port30 = %.2x\n", port53, port32, port30);
+      Log("\nb/w  port53 = %.2x  port32 = %.2x  port30 = %.2x\n", port53, port32, port30);
       if (port53 & 1)  // hidetext
       {
         int m = texttp || displaygraphics ? ~0 : ~1;
@@ -261,7 +261,7 @@ bool Screen::UpdatePalette(Draw* draw) {
     }
 
     //      for (int gc=0; gc<0x90; gc++)
-    //          LOG4("P[%.2x] = %.2x %.2x %.2x\n", gc, palette[gc].green, palette[gc].red,
+    //          Log("P[%.2x] = %.2x %.2x %.2x\n", gc, palette[gc].green, palette[gc].red,
     //          palette[gc].blue);
     draw->SetPalette(0x40, 0x90, palette);
     return true;
@@ -290,13 +290,13 @@ void Screen::UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool re
   }
 
   if (gmode != prevgmode) {
-    LOG1("g:%.2x ", gmode);
+    Log("g:%.2x ", gmode);
     prevgmode = gmode;
     modechanged = true;
   }
 
   if (modechanged || refresh) {
-    LOG0("<modechange> ");
+    Log("<modechange> ");
     modechanged = false;
     palettechanged = true;
     ClearScreen(image, bpl);
@@ -1242,7 +1242,7 @@ void IOCALL Screen::Out52(uint32_t, uint32_t data) {
     bgpal.blue = (data & 0x08) ? 255 : 0;
     bgpal.red = (data & 0x10) ? 255 : 0;
     bgpal.green = (data & 0x20) ? 255 : 0;
-    LOG1("bgpalette(d) = %6x\n", bgpal.green * 0x10000 + bgpal.red * 0x100 + bgpal.blue);
+    Log("bgpalette(d) = %6x\n", bgpal.green * 0x10000 + bgpal.red * 0x100 + bgpal.blue);
     if (!color)
       palettechanged = true;
   }
@@ -1254,16 +1254,16 @@ void IOCALL Screen::Out52(uint32_t, uint32_t data) {
 //
 void IOCALL Screen::Out53(uint32_t, uint32_t data) {
   if (!n80mode) {
-    LOG4("show plane(53) : %c%c%c %c\n", data & 8 ? '-' : '2', data & 4 ? '-' : '1',
-         data & 2 ? '-' : '0', data & 1 ? '-' : 'T');
+    Log("show plane(53) : %c%c%c %c\n", data & 8 ? '-' : '2', data & 4 ? '-' : '1',
+        data & 2 ? '-' : '0', data & 1 ? '-' : 'T');
 
     if ((port53 ^ data) & (color ? 0x01 : 0x0f)) {
       port53 = data;
     }
   } else if (port33 & 0x80) {
-    LOG7("show plane(53) : %c%c%c%c%c%c %c\n", data & 64 ? '-' : '5', data & 32 ? '-' : '4',
-         data & 16 ? '-' : '3', data & 8 ? '-' : '2', data & 4 ? '-' : '1', data & 2 ? '-' : '0',
-         data & 1 ? '-' : 'T');
+    Log("show plane(53) : %c%c%c%c%c%c %c\n", data & 64 ? '-' : '5', data & 32 ? '-' : '4',
+        data & 16 ? '-' : '3', data & 8 ? '-' : '2', data & 4 ? '-' : '1', data & 2 ? '-' : '0',
+        data & 1 ? '-' : 'T');
     uint32_t mask;
     if (color) {
       if (line320)
@@ -1302,13 +1302,13 @@ void IOCALL Screen::Out54(uint32_t, uint32_t data) {
     else
       p.blue = data & 7, p.red = (data >> 3) & 7;
 
-    LOG2("palette(a) %c = %3x\n", data & 0x80 ? 'b' : '0',
-         pal[0].green * 0x100 + pal[0].red * 0x10 + pal[0].blue);
+    Log("palette(a) %c = %3x\n", data & 0x80 ? 'b' : '0',
+        pal[0].green * 0x100 + pal[0].red * 0x10 + pal[0].blue);
   } else {
     pal[0].green = data & 4 ? 7 : 0;
     pal[0].red = data & 2 ? 7 : 0;
     pal[0].blue = data & 1 ? 7 : 0;
-    LOG1("palette(d) 0 = %.3x\n", pal[0].green * 0x100 + pal[0].red * 0x10 + pal[0].blue);
+    Log("palette(d) 0 = %.3x\n", pal[0].green * 0x100 + pal[0].red * 0x10 + pal[0].blue);
   }
   palettechanged = true;
 }
@@ -1332,7 +1332,7 @@ void IOCALL Screen::Out55to5b(uint32_t port, uint32_t data) {
     p.blue = data & 1 ? 7 : 0;
   }
 
-  LOG2("palette    %d = %.3x\n", port - 0x54, p.green * 0x100 + p.red * 0x10 + p.blue);
+  Log("palette    %d = %.3x\n", port - 0x54, p.green * 0x100 + p.red * 0x10 + p.blue);
   palettechanged = true;
 }
 
