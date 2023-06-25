@@ -497,7 +497,8 @@ inline void Operator::EGUpdate() {
       ssg_vector_ = 1;
       ssg_offset_ = 0;
     }
-    eg_out_ = std::max(0, std::min(tl_out_ + eg_level_ * ssg_vector_ + ssg_offset_, 0x3ff)) << (1 + 2);
+    eg_out_ = std::max(0, std::min(tl_out_ + eg_level_ * ssg_vector_ + ssg_offset_, 0x3ff))
+              << (1 + 2);
   }
 }
 

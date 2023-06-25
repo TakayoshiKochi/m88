@@ -11,7 +11,6 @@
 #include <windows.h>
 #include <commctrl.h>
 
-
 // #define LOGNAME "status"
 #include "common/diag.h"
 

@@ -68,7 +68,7 @@ uint32_t MemoryBus::rddummy(void*, uint32_t addr) {
 
 void MemoryBus::wrdummy(void*, uint32_t addr, uint32_t data) {
   Log("bus: Write on undefined memory page 0x%x, (addr:0x%.4x data:0x%.2x)\n", addr >> pagebits,
-       addr, data);
+      addr, data);
 }
 
 // ---------------------------------------------------------------------------

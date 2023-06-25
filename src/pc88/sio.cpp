@@ -61,7 +61,9 @@ void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
         parity = d & 0x10 ? (d & 0x20 ? even : odd) : none;
         stop = (d >> 6) & 3;
         Log("Async: %d baud, Parity:%c Data:%d Stop:%s\n", clock, parity, datalen,
-             stop == 3 ? "2" : stop == 2 ? "1.5" : "1");
+            stop == 3   ? "2"
+            : stop == 2 ? "1.5"
+                        : "1");
       } else {
         // Synchronus mode
         mode = sync1;

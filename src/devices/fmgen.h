@@ -301,7 +301,7 @@ class Chip {
 #define FM_EGBITS 16
 
 // extern int paramcount[];
-//#define PARAMCHANGE(i) paramcount[i]++;
+// #define PARAMCHANGE(i) paramcount[i]++;
 #define PARAMCHANGE(i)
 
 namespace FM {

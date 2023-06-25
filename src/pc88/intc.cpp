@@ -58,7 +58,7 @@ void IOCALL INTC::Request(uint32_t port, uint32_t en) {
     bit &= stat.mask2;
     // request
     Log("INT%d REQ - %s :", port - iportbase,
-         bit ? (bit & stat.mask ? "accept" : "denied") : "discarded");
+        bit ? (bit & stat.mask ? "accept" : "denied") : "discarded");
     if (!(stat.irq & bit)) {
       stat.irq |= bit;
       IRQ((stat.irq & stat.mask & stat.mask2) != 0);

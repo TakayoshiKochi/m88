@@ -1093,7 +1093,7 @@ uint32_t FDC::CheckCondition(bool write) {
 //
 void FDC::GetSectorParameters() {
   Log("(%.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x)\n", buffer[0], buffer[1], buffer[2], buffer[3],
-       buffer[4], buffer[5], buffer[6], buffer[7]);
+      buffer[4], buffer[5], buffer[6], buffer[7]);
 
   hdu = hdue = buffer[0];
   idr.c = buffer[1];

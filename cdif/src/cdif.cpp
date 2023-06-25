@@ -425,7 +425,7 @@ void CDIF::ReadTOC() {
             datbuf[2] = msf.frame;
             datbuf[3] = t ? tr->control & 0x0f : 0;
             Log(" : %8d/%.2x:%.2x.%.2x %.2x\n", tr->addr, msf.min, msf.sec, msf.frame,
-                 t ? tr->control : 0);
+                t ? tr->control : 0);
             SendPhase(4, 0, 0);
             break;
           }

@@ -1255,15 +1255,15 @@ void IOCALL Screen::Out52(uint32_t, uint32_t data) {
 void IOCALL Screen::Out53(uint32_t, uint32_t data) {
   if (!n80mode) {
     Log("show plane(53) : %c%c%c %c\n", data & 8 ? '-' : '2', data & 4 ? '-' : '1',
-         data & 2 ? '-' : '0', data & 1 ? '-' : 'T');
+        data & 2 ? '-' : '0', data & 1 ? '-' : 'T');
 
     if ((port53 ^ data) & (color ? 0x01 : 0x0f)) {
       port53 = data;
     }
   } else if (port33 & 0x80) {
     Log("show plane(53) : %c%c%c%c%c%c %c\n", data & 64 ? '-' : '5', data & 32 ? '-' : '4',
-         data & 16 ? '-' : '3', data & 8 ? '-' : '2', data & 4 ? '-' : '1', data & 2 ? '-' : '0',
-         data & 1 ? '-' : 'T');
+        data & 16 ? '-' : '3', data & 8 ? '-' : '2', data & 4 ? '-' : '1', data & 2 ? '-' : '0',
+        data & 1 ? '-' : 'T');
     uint32_t mask;
     if (color) {
       if (line320)
@@ -1303,7 +1303,7 @@ void IOCALL Screen::Out54(uint32_t, uint32_t data) {
       p.blue = data & 7, p.red = (data >> 3) & 7;
 
     Log("palette(a) %c = %3x\n", data & 0x80 ? 'b' : '0',
-         pal[0].green * 0x100 + pal[0].red * 0x10 + pal[0].blue);
+        pal[0].green * 0x100 + pal[0].red * 0x10 + pal[0].blue);
   } else {
     pal[0].green = data & 4 ? 7 : 0;
     pal[0].red = data & 2 ? 7 : 0;
