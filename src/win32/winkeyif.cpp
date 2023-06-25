@@ -413,8 +413,8 @@ const WinKeyIF::Key WinKeyIF::KeyTable106[16 * 8][8] = {
     {KEY('Y'), TERM},   // Y
     {KEY('Z'), TERM},   // Z
     {KEY(0xdb), TERM},  // [
-    {KEY(0xdc), TERM},  // \
-    { KEY(0xdd),TERM }, // ]
+    {KEY(0xdc), TERM},  // \ (backslash)
+    {KEY(0xdd), TERM},  // ]
     {KEY(0xde), TERM},  // ^
     {KEY(0xbd), TERM},  // -
 
@@ -883,8 +883,8 @@ const WinKeyIF::Key WinKeyIF::KeyTable98[16 * 8][8] = {
     {KEY('Y'), TERM},   // Y
     {KEY('Z'), TERM},   // Z
     {KEY(0xdb), TERM},  // [
-    {KEY(0xdc), TERM},  // \
-    { KEY(0xdd),TERM }, // ]
+    {KEY(0xdc), TERM},  // \ (backslash)
+    {KEY(0xdd), TERM},  // ]
     {KEY(0xde), TERM},  // ^
     {KEY(0xbd), TERM},  // -
 
