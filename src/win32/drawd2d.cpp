@@ -21,15 +21,7 @@ void SafeRelease(T** ppT) {
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-WinDrawD2D::WinDrawD2D()
-    : m_hWnd(0),
-      m_hCWnd(0),
-      m_image(0),
-      m_GDIRT(0),
-      m_D2DFact(0),
-      m_RenderTarget(0),
-      m_UpdatePal(false),
-      m_hBitmap(0) {}
+WinDrawD2D::WinDrawD2D() {}
 
 WinDrawD2D::~WinDrawD2D() {
   Cleanup();
@@ -41,14 +33,11 @@ WinDrawD2D::~WinDrawD2D() {
 bool WinDrawD2D::Init(HWND _hWnd, uint32_t _width, uint32_t _height, GUID*) {
   m_hWnd = _hWnd;
 
-  if (CreateD2D() == false) {
+  if (!CreateD2D()) {
     return false;
   }
 
-  if (Resize(_width, _height) == false) {
-    return false;
-  }
-  return true;
+  return !Resize(_width, _height);
 }
 
 void WinDrawD2D::SetGUIMode(bool _mode) {
@@ -62,16 +51,6 @@ void WinDrawD2D::SetGUIMode(bool _mode) {
 }
 
 bool WinDrawD2D::CreateD2D() {
-  // OSバージョンのチェック
-  OSVERSIONINFOEX osinfo;
-  memset(&osinfo, 0, sizeof(osinfo));
-  osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-  ::GetVersionEx((OSVERSIONINFO*)&osinfo);
-  if (osinfo.dwMajorVersion < 6) {
-    // Vista(ver6.0)以前は失敗
-    return false;
-  }
-
   Cleanup();
 
   if (m_hCWnd == 0) {
@@ -87,14 +66,9 @@ bool WinDrawD2D::CreateD2D() {
   }
 
   // D2D factory作成
-  HRESULT hr;
-  hr = ::D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &m_D2DFact);
+  HRESULT hr = ::D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &m_D2DFact);
 
-  if (SUCCEEDED(hr)) {
-    return true;
-  } else {
-    return false;
-  }
+  return SUCCEEDED(hr);
 }
 
 //! 画面有効範囲を変更
@@ -135,11 +109,7 @@ bool WinDrawD2D::Resize(uint32_t _width, uint32_t _height) {
     m_RenderTarget->Resize(size);
   }
 
-  if (!SUCCEEDED(hr)) {
-    return false;
-  }
-
-  return true;
+  return SUCCEEDED(hr);
 }
 
 //! 後片付け
@@ -235,9 +205,8 @@ void WinDrawD2D::DrawScreen(const RECT& _rect, bool refresh) {
   }
 
   if (valid) {
-    HRESULT hr;
-    HDC hDC = NULL;
-    hr = m_GDIRT->GetDC(D2D1_DC_INITIALIZE_MODE_COPY, &hDC);
+    HDC hDC = nullptr;
+    HRESULT hr = m_GDIRT->GetDC(D2D1_DC_INITIALIZE_MODE_COPY, &hDC);
 
     HDC hmemdc = ::CreateCompatibleDC(hDC);
     HBITMAP oldbitmap = (HBITMAP)::SelectObject(hmemdc, m_hBitmap);
