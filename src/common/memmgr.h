@@ -26,8 +26,7 @@ class MemoryManagerBase {
   enum {
     ndevices = 8,
     pagebits = 10,
-    pagemask = (1 << pagebits) - 1,
-    idbit = 0,
+    pagemask = (1 << pagebits) - 1
   };
 
  public:
@@ -106,8 +105,7 @@ class MemoryManager : public IMemoryManager,
  public:
   enum {
     pagebits = ::MemoryManagerBase::pagebits,
-    pagemask = ::MemoryManagerBase::pagemask,
-    idbit = ::MemoryManagerBase::idbit,
+    pagemask = ::MemoryManagerBase::pagemask
   };
   typedef ReadMemManager::RdFunc RdFunc;
   typedef WriteMemManager::WrFunc WrFunc;
@@ -233,7 +231,6 @@ inline bool MemoryManagerBase::Release(uint32_t pid, uint32_t page, uint32_t top
 // ---------------------------------------------------------------------------
 
 inline bool ReadMemManager::AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) {
-  assert((intptr_t(ptr) & idbit) == 0);
   uint32_t page = addr >> pagebits;
   uint32_t top = (addr + length + pagemask) >> pagebits;
   return Alloc(pid, page, top, intptr_t(ptr), 1 << pagebits, false);
@@ -242,11 +239,10 @@ inline bool ReadMemManager::AllocR(uint32_t pid, uint32_t addr, uint32_t length,
 // ---------------------------------------------------------------------------
 
 inline bool ReadMemManager::AllocR(uint32_t pid, uint32_t addr, uint32_t length, RdFunc ptr) {
-  assert((intptr_t(ptr) & idbit) == 0);
   uint32_t page = addr >> pagebits;
   uint32_t top = (addr + length + pagemask) >> pagebits;
 
-  return Alloc(pid, page, top, intptr_t(ptr) | idbit, 0, true);
+  return Alloc(pid, page, top, intptr_t(ptr), 0, true);
 }
 
 // ---------------------------------------------------------------------------
@@ -260,7 +256,6 @@ inline bool ReadMemManager::ReleaseR(uint32_t pid, uint32_t addr, uint32_t lengt
 // ---------------------------------------------------------------------------
 
 inline bool WriteMemManager::AllocW(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) {
-  assert((intptr_t(ptr) & idbit) == 0);
   uint32_t page = addr >> pagebits;
   uint32_t top = (addr + length + pagemask) >> pagebits;
   return Alloc(pid, page, top, intptr_t(ptr), 1 << pagebits, false);
@@ -269,10 +264,9 @@ inline bool WriteMemManager::AllocW(uint32_t pid, uint32_t addr, uint32_t length
 // ---------------------------------------------------------------------------
 
 inline bool WriteMemManager::AllocW(uint32_t pid, uint32_t addr, uint32_t length, WrFunc ptr) {
-  assert((intptr_t(ptr) & idbit) == 0);
   uint32_t page = addr >> pagebits;
   uint32_t top = (addr + length + pagemask) >> pagebits;
-  return MemoryManagerBase::Alloc(pid, page, top, intptr_t(ptr) | idbit, 0, true);
+  return MemoryManagerBase::Alloc(pid, page, top, intptr_t(ptr), 0, true);
 }
 
 // ---------------------------------------------------------------------------

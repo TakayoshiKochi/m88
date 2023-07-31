@@ -50,8 +50,8 @@ bool MemoryBus::Init(uint32_t npages, Page* _pages) {
   memset(owners, 0, sizeof(Owner) * npages);
 
   for (Page* b = pages; npages > 0; npages--, b++) {
-    b->read = (void*)(intptr_t(rddummy) | idbit);
-    b->write = (void*)(intptr_t(wrdummy) | idbit);
+    b->read = (void*)(intptr_t(rddummy));
+    b->write = (void*)(intptr_t(wrdummy));
     b->inst = 0;
     b->wait = 0;
   }
