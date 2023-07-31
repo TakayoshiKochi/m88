@@ -432,7 +432,7 @@ inline uint32_t Z80C::Read8(uint32_t addr) {
     return ((uint8_t*)page.ptr)[addr & pagemask];
   } else {
     DEBUGCOUNT(8);
-    return (*MemoryManager::RdFunc(intptr_t(page.ptr) & ~idbit))(page.inst, addr);
+    return (*MemoryManager::RdFunc(intptr_t(page.ptr)))(page.inst, addr);
   }
 }
 
@@ -444,7 +444,7 @@ inline void Z80C::Write8(uint32_t addr, uint32_t data) {
     ((uint8_t*)page.ptr)[addr & pagemask] = data;
   } else {
     DEBUGCOUNT(16);
-    (*MemoryManager::WrFunc(intptr_t(page.ptr) & ~idbit))(page.inst, addr, data);
+    (*MemoryManager::WrFunc(intptr_t(page.ptr)))(page.inst, addr, data);
   }
 }
 
