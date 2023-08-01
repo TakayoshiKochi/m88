@@ -11,6 +11,7 @@
 
 #include <vector>
 
+#include "gtest/gtest.h"
 #include "if/ifcommon.h"
 
 // ---------------------------------------------------------------------------
@@ -28,6 +29,7 @@ class Device : public IDevice {
   bool IFCALL SaveStatus(uint8_t* status) override { return false; }
 
  protected:
+  FRIEND_TEST(DeviceIdTest, TestId);
   void SetID(const ID& id) { id_ = id; }
 
  private:
