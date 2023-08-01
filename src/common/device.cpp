@@ -252,7 +252,7 @@ bool IOBus::Disconnect(IDevice* device) {
 }
 
 uint32_t IOBus::In(uint32_t port) {
-  InBank* list = &ins[port >> iobankbits];
+  InBank* list = &ins[port];
 
   uint32_t data = 0xff;
   do {
@@ -263,7 +263,7 @@ uint32_t IOBus::In(uint32_t port) {
 }
 
 void IOBus::Out(uint32_t port, uint32_t data) {
-  OutBank* list = &outs[port >> iobankbits];
+  OutBank* list = &outs[port];
   do {
     (list->device->*list->func)(port, data);
     list = list->next;

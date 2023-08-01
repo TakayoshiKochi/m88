@@ -155,9 +155,6 @@ class IOBus : public IIOAccess, public IIOBus {
   using InFuncPtr = Device::InFuncPtr;
   using OutFuncPtr = Device::OutFuncPtr;
 
-  enum {
-    iobankbits = 0,  // 1 バンクのサイズ(ビット数)
-  };
   struct InBank {
     IDevice* device;
     InFuncPtr func;
@@ -238,7 +235,7 @@ public:
 // ---------------------------------------------------------------------------
 
 inline bool IOBus::IsSyncPort(uint32_t port) {
-  return (flags[port >> iobankbits] & 1) != 0;
+  return (flags[port] & 1) != 0;
 }
 
 // ---------------------------------------------------------------------------
