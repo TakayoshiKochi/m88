@@ -16,20 +16,20 @@
 //
 class Device : public IDevice {
  public:
-  Device(const ID& _id) : id(_id) {}
+  Device(const ID& id) : id_(id) {}
   virtual ~Device() {}
 
-  const ID& IFCALL GetID() const { return id; }
-  const Descriptor* IFCALL GetDesc() const { return 0; }
-  uint32_t IFCALL GetStatusSize() { return 0; }
-  bool IFCALL LoadStatus(const uint8_t* status) { return false; }
-  bool IFCALL SaveStatus(uint8_t* status) { return false; }
+  const ID& IFCALL GetID() const override { return id_; }
+  const Descriptor* IFCALL GetDesc() const override { return 0; }
+  uint32_t IFCALL GetStatusSize() override { return 0; }
+  bool IFCALL LoadStatus(const uint8_t* status) override { return false; }
+  bool IFCALL SaveStatus(uint8_t* status) override { return false; }
 
  protected:
-  void SetID(const ID& i) { id = i; }
+  void SetID(const ID& id) { id_ = id; }
 
  private:
-  ID id;
+  ID id_;
 };
 
 // ---------------------------------------------------------------------------
@@ -44,8 +44,8 @@ class Device : public IDevice {
 //
 class MemoryBus : public IMemoryAccess {
  public:
-  typedef uint32_t (*ReadFuncPtr)(void* inst, uint32_t addr);
-  typedef void (*WriteFuncPtr)(void* inst, uint32_t addr, uint32_t data);
+  using ReadFuncPtr = uint32_t (*)(void* inst, uint32_t addr);
+  using WriteFuncPtr = void (*)(void* inst, uint32_t addr, uint32_t data);
 
   struct Page {
     void* read;
@@ -53,6 +53,7 @@ class MemoryBus : public IMemoryAccess {
     void* inst;
     int wait;
   };
+
   struct Owner {
     void* read;
     void* write;
@@ -91,8 +92,9 @@ class MemoryBus : public IMemoryAccess {
   void SetWait(uint32_t addr, uint32_t wait);
   void SetWaits(uint32_t addr, uint32_t length, uint32_t wait);
 
-  uint32_t IFCALL Read8(uint32_t addr);
-  void IFCALL Write8(uint32_t addr, uint32_t data);
+  // Overrides IMemoryAccess
+  uint32_t IFCALL Read8(uint32_t addr) override;
+  void IFCALL Write8(uint32_t addr, uint32_t data) override;
 
   const Page* GetPageTable();
 
@@ -109,7 +111,7 @@ class MemoryBus : public IMemoryAccess {
 
 class DeviceList {
  public:
-  typedef IDevice::ID ID;
+  using ID = IDevice::ID;
 
  private:
   struct Node {
@@ -150,8 +152,8 @@ class DeviceList {
 //
 class IOBus : public IIOAccess, public IIOBus {
  public:
-  typedef Device::InFuncPtr InFuncPtr;
-  typedef Device::OutFuncPtr OutFuncPtr;
+  using InFuncPtr = Device::InFuncPtr;
+  using OutFuncPtr = Device::OutFuncPtr;
 
   enum {
     iobankbits = 0,  // 1 バンクのサイズ(ビット数)

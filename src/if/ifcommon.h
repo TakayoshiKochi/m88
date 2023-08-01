@@ -98,10 +98,11 @@ struct IIOAccess {
 //  デバイスのインターフェース
 //
 struct IDevice {
-  typedef uint32_t ID;
-  typedef uint32_t (IOCALL IDevice::*InFuncPtr)(uint32_t port);
-  typedef void (IOCALL IDevice::*OutFuncPtr)(uint32_t port, uint32_t data);
-  typedef void (IOCALL IDevice::*TimeFunc)(uint32_t arg);
+  using ID = uint32_t;
+  using InFuncPtr = uint32_t (IOCALL IDevice::*)(uint32_t port);
+  using OutFuncPtr = void (IOCALL IDevice::*)(uint32_t port, uint32_t data);
+  using TimeFunc = void (IOCALL IDevice::*)(uint32_t arg);
+
   struct Descriptor {
     const InFuncPtr* indef;
     const OutFuncPtr* outdef;
