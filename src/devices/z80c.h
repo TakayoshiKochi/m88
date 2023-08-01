@@ -79,7 +79,7 @@ class Z80C : public Device {
   Z80C(const ID& id);
   ~Z80C();
 
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   bool Init(MemoryManager* mem, IOBus* bus, int iack);
 
@@ -94,7 +94,8 @@ class Z80C : public Device {
     if (currentcpu)
       currentcpu->Stop(count);
   }
-  int GetCount();
+  // クロックカウンタ取得
+  int GetCount() const { return execcount + (clockcount << eshift); }
   static int GetCCount() {
     return currentcpu ? currentcpu->GetCount() - currentcpu->startcount : 0;
   }
@@ -104,11 +105,12 @@ class Z80C : public Device {
   void IOCALL NMI(uint32_t = 0, uint32_t = 0);
   void Wait(bool flag);
 
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* status);
-  bool IFCALL LoadStatus(const uint8_t* status);
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
 
-  uint32_t GetPC();
+  uint32_t GetPC() const { return static_cast<uint32_t>(inst - instbase); }
+
   void SetPC(uint32_t newpc);
   const Z80Reg& GetReg() { return reg; }
 
@@ -237,17 +239,6 @@ class Z80C : public Device {
   uint8_t RR(uint8_t), SLA(uint8_t), SRA(uint8_t);
   uint8_t SLL(uint8_t), SRL(uint8_t);
 };
-
-// ---------------------------------------------------------------------------
-//  クロックカウンタ取得
-//
-inline int Z80C::GetCount() {
-  return execcount + (clockcount << eshift);
-}
-
-inline uint32_t Z80C::GetPC() {
-  return (uint32_t)(inst - instbase);
-}
 
 inline Z80C::Statistics* Z80C::GetStatistics() {
 #ifdef Z80C_STATISTICS
