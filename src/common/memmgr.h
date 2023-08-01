@@ -157,11 +157,11 @@ inline int IFCALL MemoryManager::Connect(void* inst, bool high) {
 }
 
 inline bool IFCALL MemoryManager::Disconnect(uint32_t pid) {
-  return ReadMemManager::Disconnect(pid) & WriteMemManager::Disconnect(pid);
+  return ReadMemManager::Disconnect(pid) && WriteMemManager::Disconnect(pid);
 }
 
 inline bool MemoryManager::Disconnect(void* inst) {
-  return ReadMemManager::Disconnect(inst) & WriteMemManager::Disconnect(inst);
+  return ReadMemManager::Disconnect(inst) && WriteMemManager::Disconnect(inst);
 }
 
 // ---------------------------------------------------------------------------
