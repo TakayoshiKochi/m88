@@ -217,16 +217,16 @@ void IOCALL Memory::Out31(uint32_t, uint32_t data) {
 //  b1 b0   N88 EROM bank select
 //
 void IOCALL Memory::Out32(uint32_t, uint32_t data) {
-  if (!n80mode) {
-    uint32_t mod = data ^ port32;
-    port32 = data;
-    if (mod & 0x03)
-      Update60R();
-    if (mod & 0x40)
-      UpdateC0();
-    if (mod & 0x50)
-      UpdateF0();
-  }
+  if (n80mode)
+    return;
+  uint32_t mod = data ^ port32;
+  port32 = data;
+  if (mod & 0x03)
+    Update60R();
+  if (mod & 0x40)
+    UpdateC0();
+  if (mod & 0x50)
+    UpdateF0();
 }
 
 // ----------------------------------------------------------------------------
@@ -235,47 +235,48 @@ void IOCALL Memory::Out32(uint32_t, uint32_t data) {
 //  b6      ALU Enable (port5x=RAM)
 //
 void IOCALL Memory::Out33(uint32_t, uint32_t data) {
-  if (n80mode) {
-    uint32_t mod = data ^ port33;
-    port33 = data;
-    if (mod & 0x80)
-      UpdateN80R();
-    if (mod & 0x40)
-      UpdateN80G();
-  }
+  if (!n80mode)
+    return;
+  uint32_t mod = data ^ port33;
+  port33 = data;
+  if (mod & 0x80)
+    UpdateN80R();
+  if (mod & 0x40)
+    UpdateN80G();
 }
 
 // ----------------------------------------------------------------------------
 //  Port34  ALU Operation
 //
 void IOCALL Memory::Out34(uint32_t, uint32_t data) {
-  if (!n80mode || n80srmode) {
-    port34 = data;
-    for (uint32_t i = 0; i < 3; i++) {
-      switch (data & 0x11) {
-        case 0x00:
-          maskr.byte[i] = 0xff;
-          masks.byte[i] = 0x00;
-          maski.byte[i] = 0x00;
-          break;
-        case 0x01:
-          maskr.byte[i] = 0x00;
-          masks.byte[i] = 0xff;
-          maski.byte[i] = 0x00;
-          break;
-        case 0x10:
-          maskr.byte[i] = 0x00;
-          masks.byte[i] = 0x00;
-          maski.byte[i] = 0xff;
-          break;
-        case 0x11:
-          maskr.byte[i] = 0x00;
-          masks.byte[i] = 0x00;
-          maski.byte[i] = 0x00;
-          break;
+  if (n80mode && !n80srmode)
+    return;
+
+  port34 = data;
+  for (int i = 0; i < 3; ++i) {
+    switch (data & 0x11) {
+      case 0x00:
+        maskr.byte[i] = 0xff;
+        masks.byte[i] = 0x00;
+        maski.byte[i] = 0x00;
+        break;
+      case 0x01:
+        maskr.byte[i] = 0x00;
+        masks.byte[i] = 0xff;
+        maski.byte[i] = 0x00;
+        break;
+      case 0x10:
+        maskr.byte[i] = 0x00;
+        masks.byte[i] = 0x00;
+        maski.byte[i] = 0xff;
+        break;
+      case 0x11:
+        maskr.byte[i] = 0x00;
+        masks.byte[i] = 0x00;
+        maski.byte[i] = 0x00;
+        break;
       }
-      data >>= 1;
-    }
+    data >>= 1;
   }
 }
 
@@ -286,21 +287,23 @@ void IOCALL Memory::Out34(uint32_t, uint32_t data) {
 //  b2-b0   ALU Read MUX
 //
 void IOCALL Memory::Out35(uint32_t, uint32_t data) {
-  if (!n80mode || n80srmode) {
-    port35 = data;
-    aluread.byte[0] = (data & 1) ? 0xff : 0x00;
-    aluread.byte[1] = (data & 2) ? 0xff : 0x00;
-    aluread.byte[2] = (data & 4) ? 0xff : 0x00;
+  if (n80mode && !n80srmode)
+    return;
 
-    if (data & 0x80) {
-      port5x = 3;
-    }
-    if (!n80mode) {
-      UpdateC0();
-      UpdateF0();
-    } else {
-      UpdateN80G();
-    }
+  port35 = data;
+  aluread.byte[0] = (data & 1) ? 0xff : 0x00;
+  aluread.byte[1] = (data & 2) ? 0xff : 0x00;
+  aluread.byte[2] = (data & 4) ? 0xff : 0x00;
+
+  if (data & 0x80) {
+    port5x = 3;
+  }
+
+  if (!n80mode) {
+    UpdateC0();
+    UpdateF0();
+  } else {
+    UpdateN80G();
   }
 }
 
@@ -330,12 +333,13 @@ void IOCALL Memory::Out5x(uint32_t bank, uint32_t) {
 //  Port70  TextWindow (N88 時有効)
 //
 void IOCALL Memory::Out70(uint32_t, uint32_t data) {
-  if (!n80mode)  // 80SR では port70 が hold されないってことかな？
-  {
-    txtwnd = data * 0x100;
-    if ((port31 & 6) == 0) {
-      Update80();
-    }
+  // 80SR では port70 が hold されないってことかな？
+  if (n80mode)
+    return;
+
+  txtwnd = data * 0x100;
+  if ((port31 & 6) == 0) {
+    Update80();
   }
 }
 
@@ -765,42 +769,42 @@ void Memory::SelectGVRAM(uint32_t gvtop) {
 //  GVRAM の読み書き
 //
 #define SETDIRTY(addr)     \
-  if (m->dirty[addr >> 4]) \
+  if (m->dirty_[addr >> 4]) \
     return;                \
   else                     \
-    m->dirty[addr >> 4] = 1;
+    m->dirty_[addr >> 4] = 1;
 
 void Memory::WrGVRAM0(void* inst, uint32_t addr, uint32_t data) {
   Memory* m = static_cast<Memory*>(inst);
-  m->gvram[addr &= 0x3fff].byte[0] = data;
+  m->gvram_[addr &= 0x3fff].byte[0] = data;
   SETDIRTY(addr);
 }
 
 void Memory::WrGVRAM1(void* inst, uint32_t addr, uint32_t data) {
   Memory* m = static_cast<Memory*>(inst);
-  m->gvram[addr &= 0x3fff].byte[1] = data;
+  m->gvram_[addr &= 0x3fff].byte[1] = data;
   SETDIRTY(addr);
 }
 
 void Memory::WrGVRAM2(void* inst, uint32_t addr, uint32_t data) {
   Memory* m = static_cast<Memory*>(inst);
-  m->gvram[addr &= 0x3fff].byte[2] = data;
+  m->gvram_[addr &= 0x3fff].byte[2] = data;
   SETDIRTY(addr);
 }
 
 uint32_t Memory::RdGVRAM0(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
-  return m->gvram[addr & 0x3fff].byte[0];
+  return m->gvram_[addr & 0x3fff].byte[0];
 }
 
 uint32_t Memory::RdGVRAM1(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
-  return m->gvram[addr & 0x3fff].byte[1];
+  return m->gvram_[addr & 0x3fff].byte[1];
 }
 
 uint32_t Memory::RdGVRAM2(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
-  return m->gvram[addr & 0x3fff].byte[2];
+  return m->gvram_[addr & 0x3fff].byte[2];
 }
 
 // ----------------------------------------------------------------------------
@@ -824,7 +828,7 @@ void Memory::SelectALU(uint32_t gvtop) {
 //
 uint32_t Memory::RdALU(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
-  m->alureg = m->gvram[addr & 0x3fff];
+  m->alureg = m->gvram_[addr & 0x3fff];
   Quadbyte q(m->alureg.pack ^ m->aluread.pack);
   return ~(q.byte[0] | q.byte[1] | q.byte[2]) & 0xff;
 }
@@ -835,27 +839,27 @@ void Memory::WrALUSet(void* inst, uint32_t addr, uint32_t data) {
   // data &= 255;
   Quadbyte q((data << 16) | (data << 8) | data);
   addr &= 0x3fff;
-  m->gvram[addr].pack =
-      ((m->gvram[addr].pack & ~(q.pack & m->maskr.pack)) | (q.pack & m->masks.pack)) ^
+  m->gvram_[addr].pack =
+      ((m->gvram_[addr].pack & ~(q.pack & m->maskr.pack)) | (q.pack & m->masks.pack)) ^
       (q.pack & m->maski.pack);
   SETDIRTY(addr);
 }
 
 void Memory::WrALURGB(void* inst, uint32_t addr, uint32_t) {
   Memory* m = static_cast<Memory*>(inst);
-  m->gvram[addr &= 0x3fff] = m->alureg;
+  m->gvram_[addr &= 0x3fff] = m->alureg;
   SETDIRTY(addr);
 }
 
 void Memory::WrALUR(void* inst, uint32_t addr, uint32_t) {
   Memory* m = static_cast<Memory*>(inst);
-  m->gvram[addr &= 0x3fff].byte[1] = m->alureg.byte[0];
+  m->gvram_[addr &= 0x3fff].byte[1] = m->alureg.byte[0];
   SETDIRTY(addr);
 }
 
 void Memory::WrALUB(void* inst, uint32_t addr, uint32_t) {
   Memory* m = static_cast<Memory*>(inst);
-  m->gvram[addr &= 0x3fff].byte[0] = m->alureg.byte[1];
+  m->gvram_[addr &= 0x3fff].byte[0] = m->alureg.byte[1];
   SETDIRTY(addr);
 }
 
@@ -866,13 +870,16 @@ bool Memory::InitMemory() {
   rom_ = std::make_unique<uint8_t[]>(romsize);
   ram_ = std::make_unique<uint8_t[]>(0x10000);
   tvram_ = std::make_unique<uint8_t[]>(0x1000);
+  gvram_ = std::make_unique<Quadbyte[]>(0x4000);
+  dirty_ = std::make_unique<uint8_t[]>(0x400);
 
   if (!(rom_.get() && ram_.get() && tvram_.get())) {
     Error::SetError(Error::OutOfMemory);
     return false;
   }
   SetRAMPattern(ram_.get(), 0x10000);
-  memset(gvram, 0, sizeof(Quadbyte) * 0x4000);
+  memset(gvram_.get(), 0, sizeof(Quadbyte) * 0x4000);
+  memset(dirty_.get(), 1, 0x400);
   memset(tvram_.get(), 0, 0x1000);
 
   ram_[0xff33] = 0;  // PACMAN 対策
@@ -1064,7 +1071,7 @@ bool IFCALL Memory::SaveStatus(uint8_t* s) {
   memcpy(status->tvram, tvram_.get(), 0x1000);
   for (int i = 0; i < 3; i++)
     for (int j = 0; j < 0x4000; j++)
-      status->gvram[i][j] = gvram[j].byte[i];
+      status->gvram[i][j] = gvram_[j].byte[i];
   memcpy(status->eram, eram_.get(), 0x8000 * erambanks);
   return true;
 }
@@ -1092,8 +1099,8 @@ bool IFCALL Memory::LoadStatus(const uint8_t* s) {
   memcpy(tvram_.get(), status->tvram, 0x1000);
   for (int i = 0; i < 3; i++)
     for (int j = 0; j < 0x4000; j++)
-      gvram[j].byte[i] = status->gvram[i][j];
-  memset(dirty, 1, 0x400);
+      gvram_[j].byte[i] = status->gvram[i][j];
+  memset(dirty_.get(), 1, 0x400);
   memcpy(eram_.get(), status->eram, 0x8000 * erambanks);
   return true;
 }

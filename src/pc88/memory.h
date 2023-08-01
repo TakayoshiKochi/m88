@@ -91,9 +91,9 @@ class Memory : public Device, public IGetMemoryBank {
     return ((bank < erambanks) ? &eram_[bank * 0x8000] : ram_.get());
   }
   uint8_t* GetTVRAM() { return tvram_.get(); }
-  Quadbyte* GetGVRAM() { return gvram; }
+  Quadbyte* GetGVRAM() { return gvram_.get(); }
   uint8_t* GetROM() { return rom_.get(); }
-  uint8_t* GetDirtyFlag() { return dirty; }
+  uint8_t* GetDirtyFlag() { return dirty_.get(); }
 
   // Overrides for class IGetMemoryBank
   uint32_t IFCALL GetRdBank(uint32_t addr) override;
@@ -208,8 +208,8 @@ class Memory : public Device, public IGetMemoryBank {
   uint32_t porte3 = 0;
   uint32_t portf0 = 0;
 
-  uint32_t sw31;
-  uint32_t erommask;
+  uint32_t sw31 = 0;
+  uint32_t erommask = 0;
   uint32_t waitmode = 0;
   uint32_t waittype = 0;  // b0 = disp/vrtc,
   bool selgvram = false;
@@ -231,9 +231,8 @@ class Memory : public Device, public IGetMemoryBank {
   Quadbyte masks = 0;
   Quadbyte aluread = 0;
 
-  // TODO: use unique_ptr<>
-  Quadbyte gvram[0x4000];
-  uint8_t dirty[0x400];
+  std::unique_ptr<Quadbyte[]> gvram_;
+  std::unique_ptr<uint8_t[]> dirty_;
 
   static const WaitDesc waittable[48];
 
