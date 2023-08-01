@@ -22,7 +22,7 @@ class Device : public IDevice {
   virtual ~Device() {}
 
   const ID& IFCALL GetID() const override { return id_; }
-  const Descriptor* IFCALL GetDesc() const override { return 0; }
+  const Descriptor* IFCALL GetDesc() const override { return nullptr; }
   uint32_t IFCALL GetStatusSize() override { return 0; }
   bool IFCALL LoadStatus(const uint8_t* status) override { return false; }
   bool IFCALL SaveStatus(uint8_t* status) override { return false; }
@@ -175,8 +175,6 @@ class IOBus : public IIOAccess, public IIOBus {
   bool ConnectIn(uint32_t bank, IDevice* device, InFuncPtr func);
   bool ConnectOut(uint32_t bank, IDevice* device, OutFuncPtr func);
 
-  InBank* GetIns() { return ins; }
-  OutBank* GetOuts() { return outs; }
   uint8_t* GetFlags() { return flags; }
 
   bool IsSyncPort(uint32_t port);
