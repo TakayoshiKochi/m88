@@ -26,14 +26,7 @@ using namespace PC8801;
 // ----------------------------------------------------------------------------
 //  Constructor / Destructor
 //
-Memory::Memory(const ID& id) : Device(id), bus(0), mm(0), mid(-1) {
-  txtwnd = 0;
-  erambanks = 0;
-  neweram = 4;
-  waitmode = 0;
-  waittype = 0;
-  enablewait = false;
-}
+Memory::Memory(const ID& id) : Device(id) {}
 
 Memory::~Memory() {
   if (mm && mid != -1)
@@ -41,7 +34,11 @@ Memory::~Memory() {
 }
 
 bool Memory::Init(MemoryManager* _mm, IOBus* _bus, CRTC* _crtc, int* wt) {
-  mm = _mm, bus = _bus, crtc = _crtc, waits = wt;
+  mm = _mm;
+  bus = _bus;
+  crtc = _crtc;
+  waits = wt;
+
   assert(MemoryManagerBase::pagebits <= 10);
   if (MemoryManagerBase::pagebits > 10)
     return false;
@@ -53,7 +50,11 @@ bool Memory::Init(MemoryManager* _mm, IOBus* _bus, CRTC* _crtc, int* wt) {
   if (!InitMemory())
     return false;
 
-  port31 = port32 = port33 = port34 = port35 = 0;
+  port31 = 0;
+  port32 = 0;
+  port33 = 0;
+  port34 = 0;
+  port35 = 0;
   port71 = 0xff;
   port5x = 3;
   port99 = 0;
@@ -88,7 +89,9 @@ void Memory::Reset(uint32_t, uint32_t newmode) {
   waitmode = ((sw31 & 0x40) || (n80mode && n80srmode) ? 12 : 0) + (high ? 24 : 0);
   selgvram = true;
   port5x = 3;
-  r00 = 0, r60 = 0, w00 = 0;
+  r00_ = nullptr;
+  r60_ = nullptr;
+  w00_ = nullptr;
 
   // 拡張 RAM の設定
   if (n80mode)
@@ -484,8 +487,8 @@ void Memory::Update00R() {
       }
     }
   }
-  if (r00 != read) {
-    r00 = read;
+  if (r00_ != read) {
+    r00_ = read;
     mm->AllocR(mid, 0, 0x6000, read);
   }
 }
@@ -510,12 +513,12 @@ void Memory::UpdateN80R() {
       read60 = ((port31 | (erommask >> 8)) & 1) ? read + kOffset : erom_[8].get();
     }
   }
-  if (r00 != read) {
-    r00 = read;
+  if (r00_ != read) {
+    r00_ = read;
     mm->AllocR(mid, 0, kOffset, read);
   }
-  if (r60 != read60) {
-    r60 = read60;
+  if (r60_ != read60) {
+    r60_ = read60;
     mm->AllocR(mid, kOffset, 0x2000, read60);
   }
 }
@@ -558,8 +561,8 @@ void Memory::Update60R() {
         read = &rom_[n80 + kOffset];
     }
   }
-  if (r60 != read) {
-    r60 = read;
+  if (r60_ != read) {
+    r60_ = read;
     mm->AllocR(mid, kOffset, 0x2000, read);
   }
 }
@@ -577,8 +580,8 @@ void Memory::Update00W() {
     write = ram_.get();
   }
 
-  if (w00 != write) {
-    w00 = write;
+  if (w00_ != write) {
+    w00_ = write;
     mm->AllocW(mid, 0, 0x8000, write);
   }
 }
@@ -596,8 +599,8 @@ void Memory::UpdateN80W() {
     write = ram_.get();
   }
 
-  if (w00 != write) {
-    w00 = write;
+  if (w00_ != write) {
+    w00_ = write;
     mm->AllocW(mid, 0, 0x8000, write);
   }
 }
@@ -639,9 +642,9 @@ uint32_t Memory::RdWindow(void* inst, uint32_t addr) {
 void Memory::SelectJisyo() {
   if (seldic) {
     uint8_t* mem = &dicrom_[(portf0 & 0x1f) * 0x4000];
-    if (mem != rc0) {
-      rc0 = mem;
-      mm->AllocR(mid, 0xc000, 0x4000, rc0);
+    if (mem != rc0_) {
+      rc0_ = mem;
+      mm->AllocR(mid, 0xc000, 0x4000, rc0_);
     }
   }
 }
@@ -651,19 +654,21 @@ void Memory::SelectJisyo() {
 //  c0-ef      *  *  *  *
 //
 void Memory::UpdateC0() {
+  const uint32_t kOffset = 0xc000;
+
   // is gvram selected ?
   if (port32 & 0x40) {
     port5x = 3;
     if (port35 & 0x80) {
-      rc0 = 0;
-      SelectALU(0xc000);
+      rc0_ = nullptr;
+      SelectALU(kOffset);
       SelectJisyo();
       return;
     }
   } else {
     if (port5x < 3) {
-      rc0 = 0;
-      SelectGVRAM(0xc000);
+      rc0_ = nullptr;
+      SelectGVRAM(kOffset);
       SelectJisyo();
       return;
     }
@@ -672,9 +677,9 @@ void Memory::UpdateC0() {
   // Normal RAM ?
   if (selgvram) {
     selgvram = false;
-    rc0 = &ram_[0xc000];
-    mm->AllocR(mid, 0xc000, 0x3000, &ram_[0xc000]);
-    mm->AllocW(mid, 0xc000, 0x3000, &ram_[0xc000]);
+    rc0_ = &ram_[kOffset];
+    mm->AllocR(mid, kOffset, 0x3000, &ram_[kOffset]);
+    mm->AllocW(mid, kOffset, 0x3000, &ram_[kOffset]);
     waittype &= 3;
     SetWait();
   }
@@ -684,9 +689,9 @@ void Memory::UpdateC0() {
     return;
   }
 
-  if (rc0 != ram_.get() + 0xc000) {
-    rc0 = ram_.get() + 0xc000;
-    mm->AllocR(mid, 0xc000, 0x3000, &ram_[0xc000]);
+  if (rc0_ != ram_.get() + kOffset) {
+    rc0_ = ram_.get() + kOffset;
+    mm->AllocR(mid, kOffset, 0x3000, &ram_[kOffset]);
   }
 }
 
@@ -717,13 +722,13 @@ void Memory::UpdateN80G() {
     // 80SR, ALU
     port5x = 3;
     if (port35 & 0x80) {
-      rc0 = 0;
+      rc0_ = 0;
       SelectALU(0x8000);
       return;
     }
   } else {
     if (port5x < 3) {
-      rc0 = 0;
+      rc0_ = 0;
       SelectGVRAM(0x8000);
       return;
     }
@@ -819,18 +824,16 @@ void Memory::SelectALU(uint32_t gvtop) {
 //
 uint32_t Memory::RdALU(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
-  quadbyte q;
   m->alureg = m->gvram[addr & 0x3fff];
-  q.pack = m->alureg.pack ^ m->aluread.pack;
+  Quadbyte q(m->alureg.pack ^ m->aluread.pack);
   return ~(q.byte[0] | q.byte[1] | q.byte[2]) & 0xff;
 }
 
 void Memory::WrALUSet(void* inst, uint32_t addr, uint32_t data) {
   Memory* m = static_cast<Memory*>(inst);
 
-  quadbyte q;
-  //  data &= 255;
-  q.pack = (data << 16) | (data << 8) | data;
+  // data &= 255;
+  Quadbyte q((data << 16) | (data << 8) | data);
   addr &= 0x3fff;
   m->gvram[addr].pack =
       ((m->gvram[addr].pack & ~(q.pack & m->maskr.pack)) | (q.pack & m->masks.pack)) ^
@@ -869,7 +872,7 @@ bool Memory::InitMemory() {
     return false;
   }
   SetRAMPattern(ram_.get(), 0x10000);
-  memset(gvram, 0, sizeof(quadbyte) * 0x4000);
+  memset(gvram, 0, sizeof(Quadbyte) * 0x4000);
   memset(tvram_.get(), 0, 0x1000);
 
   ram_[0xff33] = 0;  // PACMAN 対策
@@ -1101,22 +1104,30 @@ bool IFCALL Memory::LoadStatus(const uint8_t* s) {
 const Device::Descriptor Memory::descriptor = {Memory::indef, Memory::outdef};
 
 const Device::OutFuncPtr Memory::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&Reset), static_cast<Device::OutFuncPtr>(&Out31),
-    static_cast<Device::OutFuncPtr>(&Out32), static_cast<Device::OutFuncPtr>(&Out34),
-    static_cast<Device::OutFuncPtr>(&Out35), static_cast<Device::OutFuncPtr>(&Out40),
-    static_cast<Device::OutFuncPtr>(&Out5x), static_cast<Device::OutFuncPtr>(&Out70),
-    static_cast<Device::OutFuncPtr>(&Out71), static_cast<Device::OutFuncPtr>(&Out78),
-    static_cast<Device::OutFuncPtr>(&Out99), static_cast<Device::OutFuncPtr>(&Oute2),
-    static_cast<Device::OutFuncPtr>(&Oute3), static_cast<Device::OutFuncPtr>(&Outf0),
-    static_cast<Device::OutFuncPtr>(&Outf1), static_cast<Device::OutFuncPtr>(&VRTC),
-    static_cast<Device::OutFuncPtr>(&Out33),
+    static_cast<Device::OutFuncPtr>(&Memory::Reset),
+    static_cast<Device::OutFuncPtr>(&Memory::Out31),
+    static_cast<Device::OutFuncPtr>(&Memory::Out32),
+    static_cast<Device::OutFuncPtr>(&Memory::Out34),
+    static_cast<Device::OutFuncPtr>(&Memory::Out35),
+    static_cast<Device::OutFuncPtr>(&Memory::Out40),
+    static_cast<Device::OutFuncPtr>(&Memory::Out5x),
+    static_cast<Device::OutFuncPtr>(&Memory::Out70),
+    static_cast<Device::OutFuncPtr>(&Memory::Out71),
+    static_cast<Device::OutFuncPtr>(&Memory::Out78),
+    static_cast<Device::OutFuncPtr>(&Memory::Out99),
+    static_cast<Device::OutFuncPtr>(&Memory::Oute2),
+    static_cast<Device::OutFuncPtr>(&Memory::Oute3),
+    static_cast<Device::OutFuncPtr>(&Memory::Outf0),
+    static_cast<Device::OutFuncPtr>(&Memory::Outf1),
+    static_cast<Device::OutFuncPtr>(&Memory::VRTC),
+    static_cast<Device::OutFuncPtr>(&Memory::Out33),
 };
 
 const Device::InFuncPtr Memory::indef[] = {
-    static_cast<Device::InFuncPtr>(&In32), static_cast<Device::InFuncPtr>(&In5c),
-    static_cast<Device::InFuncPtr>(&In70), static_cast<Device::InFuncPtr>(&In71),
-    static_cast<Device::InFuncPtr>(&Ine2), static_cast<Device::InFuncPtr>(&Ine3),
-    static_cast<Device::InFuncPtr>(&In33),
+    static_cast<Device::InFuncPtr>(&Memory::In32), static_cast<Device::InFuncPtr>(&Memory::In5c),
+    static_cast<Device::InFuncPtr>(&Memory::In70), static_cast<Device::InFuncPtr>(&Memory::In71),
+    static_cast<Device::InFuncPtr>(&Memory::Ine2), static_cast<Device::InFuncPtr>(&Memory::Ine3),
+    static_cast<Device::InFuncPtr>(&Memory::In33),
 };
 
 // ----------------------------------------------------------------------------

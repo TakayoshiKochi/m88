@@ -15,9 +15,10 @@
 //  メモリ管理クラス
 //
 struct MemoryPage {
-  intptr_t ptr;
-  void* inst;
-  bool func;
+  MemoryPage() = default;
+  intptr_t ptr = 0;
+  void* inst = nullptr;
+  bool func = false;
 };
 
 class MemoryManagerBase {
@@ -44,20 +45,21 @@ class MemoryManagerBase {
   bool Alloc(uint32_t pid, uint32_t page, uint32_t top, intptr_t ptr, int incr, bool func);
 
   struct DPage {
-    DPage() : ptr(0) {}
-    intptr_t ptr;
-    bool func;
+    DPage() = default;
+    intptr_t ptr = 0;
+    bool func = false;
   };
   struct LocalSpace {
-    void* inst;
-    DPage* pages;
+    LocalSpace() = default;
+    void* inst = nullptr;
+    DPage* pages = nullptr;
   };
 
-  Page* pages;
+  Page* pages = nullptr;
   uint32_t npages;
   bool ownpages;
 
-  uint8_t* priority;
+  uint8_t* priority = nullptr;
   LocalSpace lsp[ndevices];
 };
 
