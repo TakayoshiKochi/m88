@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <stdint.h>
 
+#include <vector>
+
 #include "if/ifcommon.h"
 
 // ---------------------------------------------------------------------------
@@ -113,22 +115,9 @@ class DeviceList {
  public:
   using ID = IDevice::ID;
 
- private:
-  struct Node {
-    IDevice* entry;
-    Node* next;
-    int count;
-  };
-  struct Header {
-    ID id;
-    uint32_t size;
-  };
+  DeviceList() = default;
+  ~DeviceList() = default;
 
- public:
-  DeviceList() { node = 0; }
-  ~DeviceList();
-
-  void Cleanup();
   bool Add(IDevice* t);
   bool Del(IDevice* t) { return t->GetID() ? Del(t->GetID()) : false; }
   bool Del(const ID id);
@@ -139,10 +128,21 @@ class DeviceList {
   uint32_t GetStatusSize();
 
  private:
-  Node* FindNode(const ID id);
+  struct Node {
+    explicit Node(IDevice* dev) : entry(dev), count(1) {}
+    IDevice* entry;
+    int count;
+  };
+
+  struct Header {
+    ID id;
+    uint32_t size;
+  };
+
+  std::vector<Node>::iterator FindNode(const ID id);
   bool CheckStatus(const uint8_t*);
 
-  Node* node;
+  std::vector<Node> node_;
 };
 
 // ---------------------------------------------------------------------------
