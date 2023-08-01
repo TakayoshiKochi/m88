@@ -22,23 +22,18 @@ using namespace PC8801;
 // ---------------------------------------------------------------------------
 //  構築・破壊
 //
-Base::Base(const ID& id) : Device(id) {
-  port40 = 0;
-  autoboot = true;
-}
-
-Base::~Base() {}
+Base::Base(const ID& id) : Device(id) {}
 
 // ---------------------------------------------------------------------------
 //  初期化
 //
 bool Base::Init(PC88* pc88) {
-  pc = pc88;
+  pc_ = pc88;
   RTC();
   sw30 = 0xcb;
   sw31 = 0x79;
   sw6e = 0xff;
-  pc->AddEvent(167, this, static_cast<TimeFunc>(&Base::RTC), 0, true);
+  pc_->AddEvent(167, this, static_cast<TimeFunc>(&Base::RTC), 0, true);
   return true;
 }
 
@@ -102,7 +97,7 @@ void IOCALL Base::Reset(uint32_t, uint32_t) {
 //  Real Time Clock Interrupt (600Hz)
 //
 void IOCALL Base::RTC(uint32_t) {
-  pc->bus1.Out(PC88::pint2, 1);
+  pc_->bus1.Out(PC88::pint2, 1);
   //  Log("RTC\n");
 }
 
@@ -111,8 +106,8 @@ void IOCALL Base::RTC(uint32_t) {
 //
 void IOCALL Base::VRTC(uint32_t, uint32_t en) {
   if (en) {
-    pc->VSync();
-    pc->bus1.Out(PC88::pint1, 1);
+    pc_->VSync();
+    pc_->bus1.Out(PC88::pint1, 1);
     port40 |= 0x20;
     //      Log("CRTC: Retrace\n");
   } else {

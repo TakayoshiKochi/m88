@@ -17,8 +17,8 @@
 
 class WinDrawSub {
  public:
-  WinDrawSub() : status(0) {}
-  virtual ~WinDrawSub() {}
+  WinDrawSub() = default;
+  virtual ~WinDrawSub() = default;
 
   virtual bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID* display) = 0;
   virtual bool Resize(uint32_t width, uint32_t height) { return false; }
@@ -37,7 +37,7 @@ class WinDrawSub {
   virtual void WindowMoved(int cx, int cy) { return; }
 
  protected:
-  uint32_t status;
+  uint32_t status = 0;
 };
 
 // ---------------------------------------------------------------------------

@@ -6,6 +6,8 @@
 
 #include "common/device.h"
 
+#include <algorithm>
+
 // #define LOGNAME "membus"
 #include "common/diag.h"
 
@@ -252,7 +254,7 @@ bool IOBus::Disconnect(IDevice* device) {
 }
 
 uint32_t IOBus::In(uint32_t port) {
-  InBank* list = &ins[port >> iobankbits];
+  InBank* list = &ins[port];
 
   uint32_t data = 0xff;
   do {
@@ -263,7 +265,7 @@ uint32_t IOBus::In(uint32_t port) {
 }
 
 void IOBus::Out(uint32_t port, uint32_t data) {
-  OutBank* list = &outs[port >> iobankbits];
+  OutBank* list = &outs[port];
   do {
     (list->device->*list->func)(port, data);
     list = list->next;
@@ -282,22 +284,6 @@ void IOCALL IOBus::DummyIO::dummyout(uint32_t, uint32_t) {
 //  DeviceList
 //  状態保存・復帰の対象となるデバイスのリストを管理する．
 //
-DeviceList::~DeviceList() {
-  Cleanup();
-}
-
-// ---------------------------------------------------------------------------
-//  リストをすべて破棄
-//
-void DeviceList::Cleanup() {
-  Node* n = node;
-  while (n) {
-    Node* nx = n->next;
-    delete n;
-    n = nx;
-  }
-  node = 0;
-}
 
 // ---------------------------------------------------------------------------
 //  リストにデバイスを登録
@@ -307,55 +293,42 @@ bool DeviceList::Add(IDevice* t) {
   if (!id)
     return false;
 
-  Node* n = FindNode(id);
-  if (n) {
-    n->count++;
-    return true;
+  auto n = FindNode(id);
+  if (n != node_.end()) {
+    ++n->count;
   } else {
-    n = new Node;
-    if (n) {
-      n->entry = t, n->next = node, n->count = 1;
-      node = n;
-      return true;
-    }
-    return false;
+    node_.emplace_back(t);
   }
+  return true;
 }
 
 // ---------------------------------------------------------------------------
 //  リストからデバイスを削除
 //
 bool DeviceList::Del(const ID id) {
-  for (Node** r = &node; *r; r = &((*r)->next)) {
-    if ((*r)->entry->GetID() == id) {
-      Node* d = *r;
-      if (!--d->count) {
-        *r = d->next;
-        delete d;
-      }
-      return true;
-    }
+  auto n = FindNode(id);
+  if (n == node_.end())
+    return false;
+
+  if (--n->count == 0) {
+    node_.erase(n);
   }
-  return false;
+  return true;
 }
 
 // ---------------------------------------------------------------------------
 //  指定された識別子を持つデバイスをリスト中から探す
 //
 IDevice* DeviceList::Find(const ID id) {
-  Node* n = FindNode(id);
-  return n ? n->entry : 0;
+  auto n = FindNode(id);
+  return n != node_.end() ? n->entry : nullptr;
 }
 
 // ---------------------------------------------------------------------------
 //  指定された識別子を持つデバイスノードを探す
 //
-DeviceList::Node* DeviceList::FindNode(const ID id) {
-  for (Node* n = node; n; n = n->next) {
-    if (n->entry->GetID() == id)
-      return n;
-  }
-  return 0;
+std::vector<DeviceList::Node>::iterator DeviceList::FindNode(const ID id) {
+  return std::find_if(node_.begin(), node_.end(), [id](Node n) { return n.entry->GetID() == id; });
 }
 
 // ---------------------------------------------------------------------------
@@ -363,8 +336,8 @@ DeviceList::Node* DeviceList::FindNode(const ID id) {
 //
 uint32_t DeviceList::GetStatusSize() {
   uint32_t size = sizeof(Header);
-  for (Node* n = node; n; n = n->next) {
-    int ds = n->entry->GetStatusSize();
+  for (auto n : node_) {
+    int ds = n.entry->GetStatusSize();
     if (ds)
       size += sizeof(Header) + ((ds + 3) & ~3);
   }
@@ -376,13 +349,13 @@ uint32_t DeviceList::GetStatusSize() {
 //  data にはあらかじめ GetStatusSize() で取得したサイズのバッファが必要
 //
 bool DeviceList::SaveStatus(uint8_t* data) {
-  for (Node* n = node; n; n = n->next) {
-    int s = n->entry->GetStatusSize();
+  for (auto n : node_) {
+    int s = n.entry->GetStatusSize();
     if (s) {
-      ((Header*)data)->id = n->entry->GetID();
+      ((Header*)data)->id = n.entry->GetID();
       ((Header*)data)->size = s;
       data += sizeof(Header);
-      n->entry->SaveStatus(data);
+      n.entry->SaveStatus(data);
       data += (s + 3) & ~3;
     }
   }

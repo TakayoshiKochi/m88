@@ -377,7 +377,7 @@ void Screen::UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region) {
     image += 2 * bpl * y;
     dirty += 5 * y;
 
-    Memory::quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
     int dm = 0;
 
     if (!fullline) {
@@ -390,7 +390,7 @@ void Screen::UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region) {
             end = y;
             dm |= 1 << x;
 
-            Memory::quadbyte* s = src;
+            Memory::Quadbyte* s = src;
             packed* d = (packed*)dest;
             for (int j = 0; j < 4; j++) {
               WRITEC0(d[0], s[0].pack);
@@ -416,7 +416,7 @@ void Screen::UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region) {
             end = y;
             dm |= 1 << x;
 
-            Memory::quadbyte* s = src;
+            Memory::Quadbyte* s = src;
             packed* d = (packed*)dest;
             for (int j = 0; j < 4; j++) {
               WRITEC0F(0, s[0].pack);
@@ -469,9 +469,9 @@ void Screen::UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region) {
     image += 2 * bpl * y;
     dirty += 5 * y;
 
-    Memory::quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
 
-    Memory::quadbyte mask;
+    Memory::Quadbyte mask;
     mask.byte[0] = port53 & 2 ? 0x00 : 0xff;
     mask.byte[1] = port53 & 4 ? 0x00 : 0xff;
     mask.byte[2] = port53 & 8 ? 0x00 : 0xff;
@@ -488,7 +488,7 @@ void Screen::UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region) {
             end = y;
             dm |= 1 << x;
 
-            Memory::quadbyte* s = src;
+            Memory::Quadbyte* s = src;
             packed* d = (packed*)dest;
             for (int j = 0; j < 4; j++) {
               uint32_t x;
@@ -519,7 +519,7 @@ void Screen::UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region) {
             end = y;
             dm |= 1 << x;
 
-            Memory::quadbyte* s = src;
+            Memory::Quadbyte* s = src;
             packed* d = (packed*)dest;
             for (int j = 0; j < 4; j++) {
               uint32_t x;
@@ -567,9 +567,9 @@ void Screen::UpdateScreen400b(uint8_t* image, int bpl, Draw::Region& region) {
     image += bpl * y;
     dirty += 5 * y;
 
-    Memory::quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
 
-    Memory::quadbyte mask;
+    Memory::Quadbyte mask;
     mask.byte[0] = port53 & 2 ? 0x00 : 0xff;
     mask.byte[1] = port53 & 4 ? 0x00 : 0xff;
     mask.byte[2] = port53 & 8 ? 0x00 : 0xff;
@@ -586,7 +586,7 @@ void Screen::UpdateScreen400b(uint8_t* image, int bpl, Draw::Region& region) {
           end = y;
           dm |= 1 << x;
 
-          Memory::quadbyte* s = src;
+          Memory::Quadbyte* s = src;
           packed* d0 = (packed*)dest0;
           packed* d1 = (packed*)dest1;
           for (int j = 0; j < 4; j++) {
@@ -636,7 +636,7 @@ void Screen::UpdateScreen80c(uint8_t* image, int bpl, Draw::Region& region) {
     image += 2 * bpl * y;
     dirty += 5 * y;
 
-    Memory::quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
     int dm = 0;
 
     if (!fullline) {
@@ -649,7 +649,7 @@ void Screen::UpdateScreen80c(uint8_t* image, int bpl, Draw::Region& region) {
             end = y;
             dm |= 1 << x;
 
-            Memory::quadbyte* s = src;
+            Memory::Quadbyte* s = src;
             packed* d = (packed*)dest;
             for (int j = 0; j < 4; j++) {
               WRITE80C0(d[0], s[0].byte[0]);
@@ -675,7 +675,7 @@ void Screen::UpdateScreen80c(uint8_t* image, int bpl, Draw::Region& region) {
             end = y;
             dm |= 1 << x;
 
-            Memory::quadbyte* s = src;
+            Memory::Quadbyte* s = src;
             packed* d = (packed*)dest;
             for (int j = 0; j < 4; j++) {
               WRITE80C0F(0, s[0].byte[0]);
@@ -725,9 +725,9 @@ void Screen::UpdateScreen80b(uint8_t* image, int bpl, Draw::Region& region) {
     image += 2 * bpl * y;
     dirty += 5 * y;
 
-    Memory::quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
 
-    Memory::quadbyte mask;
+    Memory::Quadbyte mask;
     if (!gmask) {
       mask.byte[0] = port53 & 2 ? 0x00 : 0xff;
       mask.byte[1] = port53 & 4 ? 0x00 : 0xff;
@@ -751,7 +751,7 @@ void Screen::UpdateScreen80b(uint8_t* image, int bpl, Draw::Region& region) {
             end = y;
             dm |= 1 << x;
 
-            Memory::quadbyte* s = src;
+            Memory::Quadbyte* s = src;
             packed* d = (packed*)dest;
             for (int j = 0; j < 4; j++) {
               WRITE80B0(d[0], s[0].byte[0]);
@@ -777,7 +777,7 @@ void Screen::UpdateScreen80b(uint8_t* image, int bpl, Draw::Region& region) {
             end = y;
             dm |= 1 << x;
 
-            Memory::quadbyte* s = src;
+            Memory::Quadbyte* s = src;
             packed* d = (packed*)dest;
             for (int j = 0; j < 4; j++) {
               WRITE80B0F(0, s[0].byte[0]);
@@ -828,8 +828,8 @@ void Screen::UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region) {
     dirty1 += 5 * y;
     dirty2 += 5 * y;
 
-    Memory::quadbyte* src1;
-    Memory::quadbyte* src2;
+    Memory::Quadbyte* src1 = nullptr;
+    Memory::Quadbyte* src2 = nullptr;
     uint32_t dspoff;
     if (!grphpriority) {
       src1 = memory->GetGVRAM() + y * 80;
@@ -996,10 +996,10 @@ void Screen::UpdateScreen320b(uint8_t* image, int bpl, Draw::Region& region) {
     dirty1 += 5 * y;
     dirty2 += 5 * y;
 
-    Memory::quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
 
-    Memory::quadbyte mask1;
-    Memory::quadbyte mask2;
+    Memory::Quadbyte mask1;
+    Memory::Quadbyte mask2;
     mask1.byte[0] = port53 & 2 ? 0x00 : 0xff;
     mask1.byte[1] = port53 & 4 ? 0x00 : 0xff;
     mask1.byte[2] = port53 & 8 ? 0x00 : 0xff;
@@ -1408,13 +1408,8 @@ packed Screen::E80SRTable[64];
 packed Screen::E80SRMask[4];
 packed Screen::BE80Table[4];
 
-#ifdef ENDIAN_IS_BIG
-#define CHKBIT(i, j) ((1 << (sizeof(packed) - j)) & i)
-#define BIT80SR 0
-#else
 #define CHKBIT(i, j) ((1 << j) & i)
 #define BIT80SR 1
-#endif
 
 void Screen::CreateTable() {
   if (BETable0[0] == -1) {

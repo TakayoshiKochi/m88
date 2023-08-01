@@ -22,12 +22,11 @@ class Base : public Device {
   enum IDOut { reset = 0, vrtc };
   enum IDIn { in30 = 0, in31, in40, in6e };
 
- public:
   Base(const ID& id);
-  ~Base();
+  virtual ~Base() = default;
 
   bool Init(PC88* pc88);
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   void SetSwitch(const Config* cfg);
   uint32_t GetBasicMode() { return bmode; }
@@ -43,16 +42,18 @@ class Base : public Device {
   uint32_t IOCALL In6e(uint32_t);
 
  private:
-  PC88* pc;
+  PC88* pc_ = nullptr;
 
   int dipsw;
   int flags;
   int clock;
   int bmode;
 
-  uint8_t port40;
-  uint8_t sw30, sw31, sw6e;
-  bool autoboot;
+  uint8_t port40 = 0;
+  uint8_t sw30;
+  uint8_t sw31;
+  uint8_t sw6e;
+  bool autoboot = true;
   bool fv15k;
 
   static const Descriptor descriptor;

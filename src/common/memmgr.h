@@ -15,14 +15,15 @@
 //  メモリ管理クラス
 //
 struct MemoryPage {
-  intptr_t ptr;
-  void* inst;
-  bool func;
+  MemoryPage() = default;
+  intptr_t ptr = 0;
+  void* inst = nullptr;
+  bool func = false;
 };
 
 class MemoryManagerBase {
  public:
-  typedef MemoryPage Page;
+  using Page = MemoryPage;
   enum {
     ndevices = 8,
     pagebits = 10,
@@ -44,20 +45,21 @@ class MemoryManagerBase {
   bool Alloc(uint32_t pid, uint32_t page, uint32_t top, intptr_t ptr, int incr, bool func);
 
   struct DPage {
-    DPage() : ptr(0) {}
-    intptr_t ptr;
-    bool func;
+    DPage() = default;
+    intptr_t ptr = 0;
+    bool func = false;
   };
   struct LocalSpace {
-    void* inst;
-    DPage* pages;
+    LocalSpace() = default;
+    void* inst = nullptr;
+    DPage* pages = nullptr;
   };
 
-  Page* pages;
+  Page* pages = nullptr;
   uint32_t npages;
   bool ownpages;
 
-  uint8_t* priority;
+  uint8_t* priority = nullptr;
   LocalSpace lsp[ndevices];
 };
 
@@ -65,7 +67,7 @@ class MemoryManagerBase {
 
 class ReadMemManager : public MemoryManagerBase {
  public:
-  typedef uint32_t (*RdFunc)(void* inst, uint32_t addr);
+  using RdFunc = uint32_t (*)(void* inst, uint32_t addr);
 
   bool Init(uint32_t sas, Page* pages = 0);
   bool AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr);
@@ -82,7 +84,7 @@ class ReadMemManager : public MemoryManagerBase {
 
 class WriteMemManager : public MemoryManagerBase {
  public:
-  typedef void (*WrFunc)(void* inst, uint32_t addr, uint32_t data);
+  using WrFunc = void (*)(void* inst, uint32_t addr, uint32_t data);
 
  public:
   bool Init(uint32_t sas, Page* pages = 0);
@@ -107,8 +109,8 @@ class MemoryManager : public IMemoryManager,
     pagebits = ::MemoryManagerBase::pagebits,
     pagemask = ::MemoryManagerBase::pagemask
   };
-  typedef ReadMemManager::RdFunc RdFunc;
-  typedef WriteMemManager::WrFunc WrFunc;
+  using RdFunc = ReadMemManager::RdFunc;
+  using WrFunc = WriteMemManager::WrFunc;
 
   bool Init(uint32_t sas, Page* read = 0, Page* write = 0);
   int IFCALL Connect(void* inst, bool highpriority = false);
@@ -157,11 +159,11 @@ inline int IFCALL MemoryManager::Connect(void* inst, bool high) {
 }
 
 inline bool IFCALL MemoryManager::Disconnect(uint32_t pid) {
-  return ReadMemManager::Disconnect(pid) & WriteMemManager::Disconnect(pid);
+  return ReadMemManager::Disconnect(pid) && WriteMemManager::Disconnect(pid);
 }
 
 inline bool MemoryManager::Disconnect(void* inst) {
-  return ReadMemManager::Disconnect(inst) & WriteMemManager::Disconnect(inst);
+  return ReadMemManager::Disconnect(inst) && WriteMemManager::Disconnect(inst);
 }
 
 // ---------------------------------------------------------------------------

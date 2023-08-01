@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <stdint.h>
 
+#include <vector>
+
 #include "if/ifcommon.h"
 
 // ---------------------------------------------------------------------------
@@ -16,20 +18,20 @@
 //
 class Device : public IDevice {
  public:
-  Device(const ID& _id) : id(_id) {}
+  Device(const ID& id) : id_(id) {}
   virtual ~Device() {}
 
-  const ID& IFCALL GetID() const { return id; }
-  const Descriptor* IFCALL GetDesc() const { return 0; }
-  uint32_t IFCALL GetStatusSize() { return 0; }
-  bool IFCALL LoadStatus(const uint8_t* status) { return false; }
-  bool IFCALL SaveStatus(uint8_t* status) { return false; }
+  const ID& IFCALL GetID() const override { return id_; }
+  const Descriptor* IFCALL GetDesc() const override { return nullptr; }
+  uint32_t IFCALL GetStatusSize() override { return 0; }
+  bool IFCALL LoadStatus(const uint8_t* status) override { return false; }
+  bool IFCALL SaveStatus(uint8_t* status) override { return false; }
 
  protected:
-  void SetID(const ID& i) { id = i; }
+  void SetID(const ID& id) { id_ = id; }
 
  private:
-  ID id;
+  ID id_;
 };
 
 // ---------------------------------------------------------------------------
@@ -44,8 +46,8 @@ class Device : public IDevice {
 //
 class MemoryBus : public IMemoryAccess {
  public:
-  typedef uint32_t (*ReadFuncPtr)(void* inst, uint32_t addr);
-  typedef void (*WriteFuncPtr)(void* inst, uint32_t addr, uint32_t data);
+  using ReadFuncPtr = uint32_t (*)(void* inst, uint32_t addr);
+  using WriteFuncPtr = void (*)(void* inst, uint32_t addr, uint32_t data);
 
   struct Page {
     void* read;
@@ -53,6 +55,7 @@ class MemoryBus : public IMemoryAccess {
     void* inst;
     int wait;
   };
+
   struct Owner {
     void* read;
     void* write;
@@ -91,8 +94,9 @@ class MemoryBus : public IMemoryAccess {
   void SetWait(uint32_t addr, uint32_t wait);
   void SetWaits(uint32_t addr, uint32_t length, uint32_t wait);
 
-  uint32_t IFCALL Read8(uint32_t addr);
-  void IFCALL Write8(uint32_t addr, uint32_t data);
+  // Overrides IMemoryAccess
+  uint32_t IFCALL Read8(uint32_t addr) override;
+  void IFCALL Write8(uint32_t addr, uint32_t data) override;
 
   const Page* GetPageTable();
 
@@ -109,24 +113,11 @@ class MemoryBus : public IMemoryAccess {
 
 class DeviceList {
  public:
-  typedef IDevice::ID ID;
+  using ID = IDevice::ID;
 
- private:
-  struct Node {
-    IDevice* entry;
-    Node* next;
-    int count;
-  };
-  struct Header {
-    ID id;
-    uint32_t size;
-  };
+  DeviceList() = default;
+  ~DeviceList() = default;
 
- public:
-  DeviceList() { node = 0; }
-  ~DeviceList();
-
-  void Cleanup();
   bool Add(IDevice* t);
   bool Del(IDevice* t) { return t->GetID() ? Del(t->GetID()) : false; }
   bool Del(const ID id);
@@ -137,10 +128,21 @@ class DeviceList {
   uint32_t GetStatusSize();
 
  private:
-  Node* FindNode(const ID id);
+  struct Node {
+    explicit Node(IDevice* dev) : entry(dev), count(1) {}
+    IDevice* entry;
+    int count;
+  };
+
+  struct Header {
+    ID id;
+    uint32_t size;
+  };
+
+  std::vector<Node>::iterator FindNode(const ID id);
   bool CheckStatus(const uint8_t*);
 
-  Node* node;
+  std::vector<Node> node_;
 };
 
 // ---------------------------------------------------------------------------
@@ -150,12 +152,9 @@ class DeviceList {
 //
 class IOBus : public IIOAccess, public IIOBus {
  public:
-  typedef Device::InFuncPtr InFuncPtr;
-  typedef Device::OutFuncPtr OutFuncPtr;
+  using InFuncPtr = Device::InFuncPtr;
+  using OutFuncPtr = Device::OutFuncPtr;
 
-  enum {
-    iobankbits = 0,  // 1 バンクのサイズ(ビット数)
-  };
   struct InBank {
     IDevice* device;
     InFuncPtr func;
@@ -176,8 +175,6 @@ class IOBus : public IIOAccess, public IIOBus {
   bool ConnectIn(uint32_t bank, IDevice* device, InFuncPtr func);
   bool ConnectOut(uint32_t bank, IDevice* device, OutFuncPtr func);
 
-  InBank* GetIns() { return ins; }
-  OutBank* GetOuts() { return outs; }
   uint8_t* GetFlags() { return flags; }
 
   bool IsSyncPort(uint32_t port);
@@ -236,7 +233,7 @@ public:
 // ---------------------------------------------------------------------------
 
 inline bool IOBus::IsSyncPort(uint32_t port) {
-  return (flags[port >> iobankbits] & 1) != 0;
+  return (flags[port] & 1) != 0;
 }
 
 // ---------------------------------------------------------------------------

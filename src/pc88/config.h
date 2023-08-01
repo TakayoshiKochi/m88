@@ -28,7 +28,9 @@ class Config {
     N88V2 = 0x31,
     N88V2CD = 0x71,
   };
+
   enum KeyType { AT106 = 0, PC98 = 1, AT101 = 2 };
+
   enum CPUType {
     ms11 = 0,
     ms21,
@@ -68,6 +70,7 @@ class Config {
     mixsoundalways = 1 << 29,   // 処理が重い時も音の合成を続ける
     precisemixing = 1 << 30,    // 高精度な合成を行う
   };
+
   enum Flag2 {
     disableopn44 = 1 << 0,   // OPN(44h) を無効化 (V2 モード時は OPN)
     usewaveoutdrv = 1 << 1,  // PCM の再生に waveOut を使用する
