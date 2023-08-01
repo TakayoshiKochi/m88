@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "common/device.h"
 #include "pc88/config.h"
 
@@ -79,11 +81,13 @@ class Memory : public Device, public IGetMemoryBank {
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
   void ApplyConfig(const Config* cfg);
-  uint8_t* GetRAM() { return ram; }
-  uint8_t* GetERAM(uint32_t bank) { return ((bank < erambanks) ? &eram[bank * 0x8000] : ram); }
-  uint8_t* GetTVRAM() { return tvram; }
+  uint8_t* GetRAM() { return ram_.get(); }
+  uint8_t* GetERAM(uint32_t bank) {
+    return ((bank < erambanks) ? &eram_[bank * 0x8000] : ram_.get());
+  }
+  uint8_t* GetTVRAM() { return tvram_.get(); }
   quadbyte* GetGVRAM() { return gvram; }
-  uint8_t* GetROM() { return rom; }
+  uint8_t* GetROM() { return rom_.get(); }
   uint8_t* GetDirtyFlag() { return dirty; }
 
   uint32_t IFCALL GetRdBank(uint32_t addr);
@@ -92,9 +96,9 @@ class Memory : public Device, public IGetMemoryBank {
   uint32_t IFCALL GetStatusSize();
   bool IFCALL LoadStatus(const uint8_t* status);
   bool IFCALL SaveStatus(uint8_t* status);
-  bool IsN80Ready() { return !!n80rom; }
-  bool IsN80V2Ready() { return !!n80v2rom; }
-  bool IsCDBIOSReady() { return !!cdbios; }
+  bool IsN80Ready() { return !!n80rom_.get(); }
+  bool IsN80V2Ready() { return !!n80v2rom_.get(); }
+  bool IsCDBIOSReady() { return !!cdbios_.get(); }
 
   bool Init(MemoryManager* mgr, IOBus* bus, CRTC* crtc, int* waittbl);
   void IOCALL Reset(uint32_t, uint32_t);
@@ -145,7 +149,7 @@ class Memory : public Device, public IGetMemoryBank {
   bool InitMemory();
   bool LoadROM();
   bool LoadROMImage(uint8_t* at, const char* file, int length);
-  bool LoadOptROM(const char* file, uint8_t*& rom, int length);
+  bool LoadOptROM(const char* file, std::unique_ptr<uint8_t[]>& rom, int length);
   void SetWait();
   void SetWaits(uint32_t, uint32_t, uint32_t);
   void SelectJisyo();
@@ -170,15 +174,15 @@ class Memory : public Device, public IGetMemoryBank {
   int* waits;
   IOBus* bus;
   CRTC* crtc;
-  uint8_t* rom;
-  uint8_t* ram;
-  uint8_t* eram;
-  uint8_t* tvram;
-  uint8_t* dicrom;       // 辞書ROM
-  uint8_t* cdbios;       // CD-ROM BIOS ROM
-  uint8_t* n80rom;       // N80-BASIC ROM
-  uint8_t* n80v2rom;     // N80SR
-  uint8_t* erom[8 + 1];  // 拡張 ROM
+  std::unique_ptr<uint8_t[]> rom_;
+  std::unique_ptr<uint8_t[]> ram_;
+  std::unique_ptr<uint8_t[]> eram_;
+  std::unique_ptr<uint8_t[]> tvram_;
+  std::unique_ptr<uint8_t[]> dicrom_;       // 辞書ROM
+  std::unique_ptr<uint8_t[]> cdbios_;       // CD-ROM BIOS ROM
+  std::unique_ptr<uint8_t[]> n80rom_;       // N80-BASIC ROM
+  std::unique_ptr<uint8_t[]> n80v2rom_;     // N80SR
+  std::unique_ptr<uint8_t[]> erom_[8 + 1];  // 拡張 ROM
 
   uint32_t port31, port32, port33, port34, port35, port40, port5x;
   uint32_t port99, txtwnd, port71, porte2, porte3, portf0;
@@ -200,6 +204,7 @@ class Memory : public Device, public IGetMemoryBank {
   quadbyte alureg;
   quadbyte maskr, maski, masks, aluread;
 
+  // TODO: use unique_ptr<>
   quadbyte gvram[0x4000];
   uint8_t dirty[0x400];
 

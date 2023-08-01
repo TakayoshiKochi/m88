@@ -26,42 +26,18 @@ using namespace PC8801;
 // ----------------------------------------------------------------------------
 //  Constructor / Destructor
 //
-Memory::Memory(const ID& id)
-    : Device(id),
-      rom(0),
-      ram(0),
-      eram(0),
-      tvram(0),
-      bus(0),
-      dicrom(0),
-      cdbios(0),
-      n80rom(0),
-      n80v2rom(0),
-      mm(0),
-      mid(-1) {
+Memory::Memory(const ID& id) : Device(id), bus(0), mm(0), mid(-1) {
   txtwnd = 0;
   erambanks = 0;
   neweram = 4;
   waitmode = 0;
   waittype = 0;
   enablewait = false;
-  for (int i = 1; i < 9; i++)
-    erom[i] = 0;
 }
 
 Memory::~Memory() {
   if (mm && mid != -1)
     mm->Disconnect(mid);
-  delete[] rom;
-  delete[] ram;
-  delete[] eram;
-  delete[] tvram;
-  delete[] dicrom;
-  delete[] cdbios;
-  delete[] n80rom;
-  delete[] n80v2rom;
-  for (int i = 1; i < 9; i++)
-    delete[] erom[i];
 }
 
 bool Memory::Init(MemoryManager* _mm, IOBus* _bus, CRTC* _crtc, int* wt) {
@@ -106,7 +82,7 @@ void Memory::Reset(uint32_t, uint32_t newmode) {
 
   //  port33 = 0;
 
-  n80mode = (newmode & 2) && (port33 & 0x80 ? n80v2rom : n80rom);
+  n80mode = (newmode & 2) && (port33 & 0x80 ? n80v2rom_.get() : n80rom_.get());
   n80srmode = (newmode == Config::N80V2);
 
   waitmode = ((sw31 & 0x40) || (n80mode && n80srmode) ? 12 : 0) + (high ? 24 : 0);
@@ -118,20 +94,16 @@ void Memory::Reset(uint32_t, uint32_t newmode) {
   if (n80mode)
     neweram = std::max(1U, neweram);
   if (erambanks != neweram) {
-    mm->AllocR(mid, 0, 0x8000, ram);
-    mm->AllocW(mid, 0, 0x8000, ram);
+    mm->AllocR(mid, 0, 0x8000, ram_.get());
+    mm->AllocW(mid, 0, 0x8000, ram_.get());
 
-    erambanks = 0;
-    delete[] eram;
-    eram = new uint8_t[0x8000 * neweram];
-    if (eram) {
-      erambanks = neweram;
-      memset(eram, 0, 0x8000 * erambanks);
-    }
+    eram_ = std::make_unique<uint8_t[]>(0x8000 * neweram);
+    erambanks = neweram;
+    memset(eram_.get(), 0, 0x8000 * erambanks);
   }
 
-  mm->AllocR(mid, 0x8000, 0x8000, ram + 0x8000);
-  mm->AllocW(mid, 0x8000, 0x8000, ram + 0x8000);
+  mm->AllocR(mid, 0x8000, 0x8000, &ram_[0x8000]);
+  mm->AllocW(mid, 0x8000, 0x8000, &ram_[0x8000]);
   if (!n80mode) {
     Update00R();
     Update00W();
@@ -396,7 +368,7 @@ void IOCALL Memory::Out78(uint32_t, uint32_t) {
 //  b0      CD-EROM
 //
 void IOCALL Memory::Out99(uint32_t, uint32_t data) {
-  if (cdbios && !n80mode) {
+  if (cdbios_.get() && !n80mode) {
     port99 = data & 0x11;
     Update00R();
     Update60R();
@@ -442,7 +414,7 @@ void IOCALL Memory::Oute3(uint32_t, uint32_t data) {
 //
 void IOCALL Memory::Outf0(uint32_t, uint32_t data) {
   portf0 = data;
-  if (dicrom && !n80mode) {
+  if (dicrom_.get() && !n80mode) {
     UpdateC0();
     UpdateF0();
   }
@@ -452,7 +424,7 @@ void IOCALL Memory::Outf0(uint32_t, uint32_t data) {
 //  Port F0 辞書ROMバンク選択
 //
 void IOCALL Memory::Outf1(uint32_t, uint32_t data) {
-  if (dicrom && !n80mode) {
+  if (dicrom_.get() && !n80mode) {
     seldic = !(data & 1);
     UpdateC0();
     UpdateF0();
@@ -499,16 +471,16 @@ void Memory::Update00R() {
   uint8_t* read;
 
   if ((porte2 & 0x01) && (porte3 < erambanks)) {
-    read = &eram[porte3 * 0x8000];
+    read = &eram_[porte3 * 0x8000];
   } else {
-    read = ram;
+    read = ram_.get();
 
     if (!(port31 & 2)) {
       // ROM
       if (port99 & 0x10) {
-        read = cdbios + (port31 & 4 ? 0x8000 : 0);
+        read = &cdbios_[port31 & 4 ? 0x8000 : 0];
       } else {
-        read = rom + (port31 & 4 ? n80 : n88);
+        read = &rom_[port31 & 4 ? n80 : n88];
       }
     }
   }
@@ -526,15 +498,15 @@ void Memory::UpdateN80R() {
   uint8_t* read60;
 
   if (((porte2 | (port31 >> 1)) & 1) && porte3 < erambanks) {
-    read = &eram[porte3 * 0x8000];
+    read = &eram_[porte3 * 0x8000];
     read60 = read + 0x6000;
   } else {
     if (port33 & 0x80) {
-      read = n80v2rom;
+      read = n80v2rom_.get();
       read60 = read + (port71 & 1 ? 0x6000 : 0x8000);
     } else {
-      read = n80rom;
-      read60 = ((port31 | (erommask >> 8)) & 1) ? read + 0x6000 : erom[8];
+      read = n80rom_.get();
+      read60 = ((port31 | (erommask >> 8)) & 1) ? read + 0x6000 : erom_[8].get();
     }
   }
   if (r00 != read) {
@@ -554,33 +526,33 @@ void Memory::UpdateN80R() {
 void Memory::Update60R() {
   uint8_t* read;
   if ((porte2 & 0x01) && (porte3 < erambanks)) {
-    read = &eram[porte3 * 0x8000] + 0x6000;
+    read = &eram_[porte3 * 0x8000 + 0x6000];
   } else {
-    read = ram + 0x6000;
+    read = &ram_[0x6000];
 
     if ((port31 & 6) == 0) {
       if (port99 & 0x10)
-        read = cdbios + 0x6000;
+        read = &cdbios_[0x6000];
       else {
         if (port71 == 0xff) {
-          read = rom + n88 + 0x6000;
+          read = &rom_[n88 + 0x6000];
         } else {
           if (port71 & 1) {
             for (int i = 7; i > 0; i--) {
               if (~port71 & (1 << i)) {
-                read = erom[i];
+                read = erom_[i].get();
                 break;
               }
             }
           } else
-            read = rom + n88e + 0x2000 * (port32 & 3);
+            read = &rom_[n88e + 0x2000 * (port32 & 3)];
         }
       }
     } else if ((port31 & 6) == 4) {
       if (port99 & 0x10)
-        read = cdbios + 0x8000 + 0x6000;
+        read = &cdbios_[0x8000 + 0x6000];
       else
-        read = rom + n80 + 0x6000;
+        read = &rom_[n80 + 0x6000];
     }
   }
   if (r60 != read) {
@@ -597,9 +569,9 @@ void Memory::Update00W() {
   uint8_t* write;
 
   if ((porte2 & 0x10) && (porte3 < erambanks)) {
-    write = &eram[porte3 * 0x8000];
+    write = &eram_[porte3 * 0x8000];
   } else {
-    write = ram;
+    write = ram_.get();
   }
 
   if (w00 != write) {
@@ -616,9 +588,9 @@ void Memory::UpdateN80W() {
   uint8_t* write;
 
   if (((porte2 & 0x10) || (port31 & 0x02)) && (porte3 < erambanks)) {
-    write = &eram[porte3 * 0x8000];
+    write = &eram_[porte3 * 0x8000];
   } else {
-    write = ram;
+    write = ram_.get();
   }
 
   if (w00 != write) {
@@ -633,12 +605,12 @@ void Memory::UpdateN80W() {
 //
 void Memory::Update80() {
   if ((port31 & 6) != 0) {
-    mm->AllocR(mid, 0x8000, 0x400, ram + 0x8000);
-    mm->AllocW(mid, 0x8000, 0x400, ram + 0x8000);
+    mm->AllocR(mid, 0x8000, 0x400, &ram_[0x8000]);
+    mm->AllocW(mid, 0x8000, 0x400, &ram_[0x8000]);
   } else {
     if (txtwnd <= 0xfc00) {
-      mm->AllocR(mid, 0x8000, 0x400, ram + txtwnd);
-      mm->AllocW(mid, 0x8000, 0x400, ram + txtwnd);
+      mm->AllocR(mid, 0x8000, 0x400, &ram_[txtwnd]);
+      mm->AllocW(mid, 0x8000, 0x400, &ram_[txtwnd]);
     } else {
       mm->AllocR(mid, 0x8000, 0x400, RdWindow);
       mm->AllocW(mid, 0x8000, 0x400, WrWindow);
@@ -651,17 +623,17 @@ void Memory::Update80() {
 //
 void Memory::WrWindow(void* inst, uint32_t addr, uint32_t data) {
   Memory* m = static_cast<Memory*>(inst);
-  m->ram[(m->txtwnd + (addr & 0x3ff)) & 0xffff] = data;
+  m->ram_[(m->txtwnd + (addr & 0x3ff)) & 0xffff] = data;
 }
 
 uint32_t Memory::RdWindow(void* inst, uint32_t addr) {
   Memory* m = static_cast<Memory*>(inst);
-  return m->ram[(m->txtwnd + (addr & 0x3ff)) & 0xffff];
+  return m->ram_[(m->txtwnd + (addr & 0x3ff)) & 0xffff];
 }
 
 void Memory::SelectJisyo() {
   if (seldic) {
-    uint8_t* mem = dicrom + (portf0 & 0x1f) * 0x4000;
+    uint8_t* mem = &dicrom_[(portf0 & 0x1f) * 0x4000];
     if (mem != rc0) {
       rc0 = mem;
       mm->AllocR(mid, 0xc000, 0x4000, rc0);
@@ -695,9 +667,9 @@ void Memory::UpdateC0() {
   // Normal RAM ?
   if (selgvram) {
     selgvram = false;
-    rc0 = ram + 0xc000;
-    mm->AllocR(mid, 0xc000, 0x3000, ram + 0xc000);
-    mm->AllocW(mid, 0xc000, 0x3000, ram + 0xc000);
+    rc0 = &ram_[0xc000];
+    mm->AllocR(mid, 0xc000, 0x3000, &ram_[0xc000]);
+    mm->AllocW(mid, 0xc000, 0x3000, &ram_[0xc000]);
     waittype &= 3;
     SetWait();
   }
@@ -707,9 +679,9 @@ void Memory::UpdateC0() {
     return;
   }
 
-  if (rc0 != ram + 0xc000) {
-    rc0 = ram + 0xc000;
-    mm->AllocR(mid, 0xc000, 0x3000, ram + 0xc000);
+  if (rc0 != ram_.get() + 0xc000) {
+    rc0 = ram_.get() + 0xc000;
+    mm->AllocR(mid, 0xc000, 0x3000, &ram_[0xc000]);
   }
 }
 
@@ -722,9 +694,9 @@ void Memory::UpdateF0() {
     uint8_t* mem;
 
     if (!(port32 & 0x10) && (sw31 & 0x40))
-      mem = tvram;
+      mem = tvram_.get();
     else
-      mem = ram + 0xf000;
+      mem = &ram_[0xf000];
 
     mm->AllocR(mid, 0xf000, 0x1000, mem);
     mm->AllocW(mid, 0xf000, 0x1000, mem);
@@ -754,8 +726,8 @@ void Memory::UpdateN80G() {
   // Normal RAM ?
   if (selgvram) {
     selgvram = false;
-    mm->AllocR(mid, 0x8000, 0x4000, ram + 0x8000);
-    mm->AllocW(mid, 0x8000, 0x4000, ram + 0x8000);
+    mm->AllocR(mid, 0x8000, 0x4000, &ram_[0x8000]);
+    mm->AllocW(mid, 0x8000, 0x4000, &ram_[0x8000]);
     waittype &= 3;
     SetWait();
   }
@@ -883,25 +855,22 @@ void Memory::WrALUB(void* inst, uint32_t addr, uint32_t) {
 //  メモリの割り当てと ROM の読み込み。
 //
 bool Memory::InitMemory() {
-  delete rom;
-  rom = new uint8_t[romsize];
-  delete ram;
-  ram = new uint8_t[0x10000];
-  delete tvram;
-  tvram = new uint8_t[0x1000];
+  rom_ = std::make_unique<uint8_t[]>(romsize);
+  ram_ = std::make_unique<uint8_t[]>(0x10000);
+  tvram_ = std::make_unique<uint8_t[]>(0x1000);
 
-  if (!(rom && ram && tvram)) {
+  if (!(rom_.get() && ram_.get() && tvram_.get())) {
     Error::SetError(Error::OutOfMemory);
     return false;
   }
-  SetRAMPattern(ram, 0x10000);
+  SetRAMPattern(ram_.get(), 0x10000);
   memset(gvram, 0, sizeof(quadbyte) * 0x4000);
-  memset(tvram, 0, 0x1000);
+  memset(tvram_.get(), 0, 0x1000);
 
-  ram[0xff33] = 0;  // PACMAN 対策
+  ram_[0xff33] = 0;  // PACMAN 対策
 
-  mm->AllocR(mid, 0, 0x10000, ram);
-  mm->AllocW(mid, 0, 0x10000, ram);
+  mm->AllocR(mid, 0, 0x10000, ram_.get());
+  mm->AllocW(mid, 0, 0x10000, ram_.get());
 
   if (!LoadROM()) {
     Error::SetError(Error::NoROM);
@@ -913,21 +882,20 @@ bool Memory::InitMemory() {
 // ----------------------------------------------------------------------------
 //  必須でない ROM を読み込む
 //
-bool Memory::LoadOptROM(const char* name, uint8_t*& rom, int size) {
+bool Memory::LoadOptROM(const char* name, std::unique_ptr<uint8_t[]>& rom, int size) {
   FileIO file;
   if (file.Open(name, FileIO::readonly)) {
     file.Seek(0, FileIO::begin);
-    delete[] rom;
-    rom = new uint8_t[size];
+    rom = std::make_unique<uint8_t[]>(size);
+    ;
     if (rom) {
-      int r = file.Read(rom, size);
-      memset(rom + r, 0xff, size - r);
+      int r = file.Read(rom_.get(), size);
+      memset(rom_.get() + r, 0xff, size - r);
       if (r > 0)
         return true;
     }
   }
-  delete[] rom;
-  rom = 0;
+  rom.reset();
   return false;
 }
 
@@ -937,37 +905,37 @@ bool Memory::LoadOptROM(const char* name, uint8_t*& rom, int size) {
 bool Memory::LoadROM() {
   FileIO file;
 
-  LoadOptROM("jisyo.rom", dicrom, 512 * 1024);
-  LoadOptROM("cdbios.rom", cdbios, 0x10000);
-  LoadOptROM("n80_2.rom", n80rom, 0x8000);
-  LoadOptROM("n80_3.rom", n80v2rom, 0xa000);
+  LoadOptROM("jisyo.rom", dicrom_, 512 * 1024);
+  LoadOptROM("cdbios.rom", cdbios_, 0x10000);
+  LoadOptROM("n80_2.rom", n80rom_, 0x8000);
+  LoadOptROM("n80_3.rom", n80v2rom_, 0xa000);
   char name[] = "e0.rom";
 
   erommask = ~1;
   for (int i = 1; i < 9; i++) {
     name[1] = '0' + i;
-    if (LoadOptROM(name, erom[i], 0x2000))
+    if (LoadOptROM(name, erom_[i], 0x2000))
       erommask &= ~(1 << i);
   }
 
   if (file.Open("pc88.rom", FileIO::readonly)) {
     file.Seek(0, FileIO::begin);
-    file.Read(rom + n88, 0x8000);
-    file.Read(rom + n80 + 0x6000, 0x2000);
+    file.Read(rom_.get() + n88, 0x8000);
+    file.Read(rom_.get() + n80 + 0x6000, 0x2000);
     file.Seek(0x2000, FileIO::current);
-    file.Read(rom + n88e, 0x8000);
+    file.Read(rom_.get() + n88e, 0x8000);
     file.Seek(0x2000, FileIO::current);
-    file.Read(rom + n80, 0x6000);
+    file.Read(rom_.get() + n80, 0x6000);
     return true;
   }
 
-  if (!LoadROMImage(rom + n88, "n88.rom", 0x8000))
+  if (!LoadROMImage(rom_.get() + n88, "n88.rom", 0x8000))
     return false;
-  LoadROMImage(rom + n80, "n80.rom", 0x8000);
-  LoadROMImage(rom + n88e, "n88_0.rom", 0x2000);
-  LoadROMImage(rom + n88e + 0x2000, "n88_1.rom", 0x2000);
-  LoadROMImage(rom + n88e + 0x4000, "n88_2.rom", 0x2000);
-  LoadROMImage(rom + n88e + 0x6000, "n88_3.rom", 0x2000);
+  LoadROMImage(rom_.get() + n80, "n80.rom", 0x8000);
+  LoadROMImage(rom_.get() + n88e, "n88_0.rom", 0x2000);
+  LoadROMImage(rom_.get() + n88e + 0x2000, "n88_1.rom", 0x2000);
+  LoadROMImage(rom_.get() + n88e + 0x4000, "n88_2.rom", 0x2000);
+  LoadROMImage(rom_.get() + n88e + 0x6000, "n88_3.rom", 0x2000);
 
   return true;
 }
@@ -1084,12 +1052,12 @@ bool IFCALL Memory::SaveStatus(uint8_t* s) {
   status->pe3 = uint8_t(porte3);
   status->pf0 = uint8_t(portf0);
 
-  memcpy(status->ram, ram, 0x10000);
-  memcpy(status->tvram, tvram, 0x1000);
+  memcpy(status->ram, ram_.get(), 0x10000);
+  memcpy(status->tvram, tvram_.get(), 0x1000);
   for (int i = 0; i < 3; i++)
     for (int j = 0; j < 0x4000; j++)
       status->gvram[i][j] = gvram[j].byte[i];
-  memcpy(status->eram, eram, 0x8000 * erambanks);
+  memcpy(status->eram, eram_.get(), 0x8000 * erambanks);
   return true;
 }
 
@@ -1112,13 +1080,13 @@ bool IFCALL Memory::LoadStatus(const uint8_t* s) {
   Oute3(0, status->pe3);
   Outf0(0, status->pf0);
 
-  memcpy(ram, status->ram, 0x10000);
-  memcpy(tvram, status->tvram, 0x1000);
+  memcpy(ram_.get(), status->ram, 0x10000);
+  memcpy(tvram_.get(), status->tvram, 0x1000);
   for (int i = 0; i < 3; i++)
     for (int j = 0; j < 0x4000; j++)
       gvram[j].byte[i] = status->gvram[i][j];
   memset(dirty, 1, 0x400);
-  memcpy(eram, status->eram, 0x8000 * erambanks);
+  memcpy(eram_.get(), status->eram, 0x8000 * erambanks);
   return true;
 }
 
