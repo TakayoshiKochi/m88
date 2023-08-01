@@ -32,22 +32,6 @@ struct Z80Reg {
       wordreg hl, de, bc, ix, iy, sp;
     } w;
     struct words {
-#ifdef ENDIAN_IS_BIG
-      PAD(p1);
-      uint8_t a, flags;
-      PAD(p2);
-      uint8_t h, l;
-      PAD(p3);
-      uint8_t d, e;
-      PAD(p4);
-      uint8_t b, c;
-      PAD(p5);
-      uint8_t xh, xl;
-      PAD(p6);
-      uint8_t yh, yl;
-      PAD(p7);
-      uint8_t sph, spl;
-#else
       uint8_t flags, a;
       PAD(p1);
       uint8_t l, h;
@@ -62,7 +46,6 @@ struct Z80Reg {
       PAD(p6);
       uint8_t spl, sph;
       PAD(p7);
-#endif
     } b;
   } r;
 

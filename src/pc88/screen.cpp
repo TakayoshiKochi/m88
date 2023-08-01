@@ -1408,13 +1408,8 @@ packed Screen::E80SRTable[64];
 packed Screen::E80SRMask[4];
 packed Screen::BE80Table[4];
 
-#ifdef ENDIAN_IS_BIG
-#define CHKBIT(i, j) ((1 << (sizeof(packed) - j)) & i)
-#define BIT80SR 0
-#else
 #define CHKBIT(i, j) ((1 << j) & i)
 #define BIT80SR 1
-#endif
 
 void Screen::CreateTable() {
   if (BETable0[0] == -1) {
