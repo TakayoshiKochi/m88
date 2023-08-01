@@ -468,7 +468,7 @@ uint32_t IOCALL Memory::Ine3(uint32_t) {
 //  00-5f(r)*                       *  *  *  *
 //
 void Memory::Update00R() {
-  uint8_t* read;
+  uint8_t* read = nullptr;
 
   if ((porte2 & 0x01) && (porte3 < erambanks)) {
     read = &eram_[porte3 * 0x8000];
@@ -494,28 +494,29 @@ void Memory::Update00R() {
 //  00-7f(r)
 //
 void Memory::UpdateN80R() {
-  uint8_t* read;
-  uint8_t* read60;
+  uint8_t* read = nullptr;
+  uint8_t* read60 = nullptr;
+  constexpr uint32_t kOffset = 0x6000;
 
   if (((porte2 | (port31 >> 1)) & 1) && porte3 < erambanks) {
     read = &eram_[porte3 * 0x8000];
-    read60 = read + 0x6000;
+    read60 = read + kOffset;
   } else {
     if (port33 & 0x80) {
       read = n80v2rom_.get();
-      read60 = read + (port71 & 1 ? 0x6000 : 0x8000);
+      read60 = read + (port71 & 1 ? kOffset : 0x8000);
     } else {
       read = n80rom_.get();
-      read60 = ((port31 | (erommask >> 8)) & 1) ? read + 0x6000 : erom_[8].get();
+      read60 = ((port31 | (erommask >> 8)) & 1) ? read + kOffset : erom_[8].get();
     }
   }
   if (r00 != read) {
     r00 = read;
-    mm->AllocR(mid, 0, 0x6000, read);
+    mm->AllocR(mid, 0, kOffset, read);
   }
   if (r60 != read60) {
     r60 = read60;
-    mm->AllocR(mid, 0x6000, 0x2000, read60);
+    mm->AllocR(mid, kOffset, 0x2000, read60);
   }
 }
 
@@ -524,18 +525,20 @@ void Memory::UpdateN80R() {
 //  60-7f(r)*  *              *     *  *  *  *
 //
 void Memory::Update60R() {
-  uint8_t* read;
+  uint8_t* read = nullptr;
+  constexpr uint32_t kOffset = 0x6000;
+
   if ((porte2 & 0x01) && (porte3 < erambanks)) {
-    read = &eram_[porte3 * 0x8000 + 0x6000];
+    read = &eram_[porte3 * 0x8000] + kOffset;
   } else {
-    read = &ram_[0x6000];
+    read = &ram_[kOffset];
 
     if ((port31 & 6) == 0) {
       if (port99 & 0x10)
-        read = &cdbios_[0x6000];
+        read = &cdbios_[kOffset];
       else {
         if (port71 == 0xff) {
-          read = &rom_[n88 + 0x6000];
+          read = &rom_[n88 + kOffset];
         } else {
           if (port71 & 1) {
             for (int i = 7; i > 0; i--) {
@@ -550,14 +553,14 @@ void Memory::Update60R() {
       }
     } else if ((port31 & 6) == 4) {
       if (port99 & 0x10)
-        read = &cdbios_[0x8000 + 0x6000];
+        read = &cdbios_[0x8000 + kOffset];
       else
-        read = &rom_[n80 + 0x6000];
+        read = &rom_[n80 + kOffset];
     }
   }
   if (r60 != read) {
     r60 = read;
-    mm->AllocR(mid, 0x6000, 0x2000, read);
+    mm->AllocR(mid, kOffset, 0x2000, read);
   }
 }
 
@@ -566,7 +569,7 @@ void Memory::Update60R() {
 //  00-7f(w)                        *  *
 //
 void Memory::Update00W() {
-  uint8_t* write;
+  uint8_t* write = nullptr;
 
   if ((porte2 & 0x10) && (porte3 < erambanks)) {
     write = &eram_[porte3 * 0x8000];
@@ -585,7 +588,7 @@ void Memory::Update00W() {
 //  00-7f(w)   *                    *  *
 //
 void Memory::UpdateN80W() {
-  uint8_t* write;
+  uint8_t* write = nullptr;
 
   if (((porte2 & 0x10) || (port31 & 0x02)) && (porte3 < erambanks)) {
     write = &eram_[porte3 * 0x8000];
@@ -604,16 +607,18 @@ void Memory::UpdateN80W() {
 //  80-83   *              *     *
 //
 void Memory::Update80() {
+  constexpr uint32_t kOffset = 0x8000;
+
   if ((port31 & 6) != 0) {
-    mm->AllocR(mid, 0x8000, 0x400, &ram_[0x8000]);
-    mm->AllocW(mid, 0x8000, 0x400, &ram_[0x8000]);
+    mm->AllocR(mid, kOffset, 0x400, &ram_[kOffset]);
+    mm->AllocW(mid, kOffset, 0x400, &ram_[kOffset]);
   } else {
     if (txtwnd <= 0xfc00) {
-      mm->AllocR(mid, 0x8000, 0x400, &ram_[txtwnd]);
-      mm->AllocW(mid, 0x8000, 0x400, &ram_[txtwnd]);
+      mm->AllocR(mid, kOffset, 0x400, &ram_[txtwnd]);
+      mm->AllocW(mid, kOffset, 0x400, &ram_[txtwnd]);
     } else {
-      mm->AllocR(mid, 0x8000, 0x400, RdWindow);
-      mm->AllocW(mid, 0x8000, 0x400, WrWindow);
+      mm->AllocR(mid, kOffset, 0x400, RdWindow);
+      mm->AllocW(mid, kOffset, 0x400, WrWindow);
     }
   }
 }
@@ -691,7 +696,7 @@ void Memory::UpdateC0() {
 //
 void Memory::UpdateF0() {
   if (!selgvram && !seldic) {
-    uint8_t* mem;
+    uint8_t* mem = nullptr;
 
     if (!(port32 & 0x10) && (sw31 & 0x40))
       mem = tvram_.get();
