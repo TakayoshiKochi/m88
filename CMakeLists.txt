@@ -31,16 +31,14 @@ add_library(common ${LIB_TYPE}
 
 target_include_directories(common
         PUBLIC ${CMAKE_SOURCE_DIR}/src
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/gtest)
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
 add_library(pc88 ${LIB_TYPE}
         src/pc88/base.h src/pc88/base.cpp)
 
 target_include_directories(pc88
         PUBLIC ${CMAKE_SOURCE_DIR}/src
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/gtest)
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
 add_executable(common_unittests
         src/common/device_test.cc)
