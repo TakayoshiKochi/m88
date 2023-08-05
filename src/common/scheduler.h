@@ -11,21 +11,21 @@
 // ---------------------------------------------------------------------------
 
 struct SchedulerEvent {
-  int count;  // 時間残り
+  SchedulerEvent() : count(0), inst(nullptr), func(nullptr), arg(0), time(0) {}
+  // 時間残り
+  int count;
   IDevice* inst;
   IDevice::TimeFunc func;
   int arg;
-  int time;  // 時間
+  // 時間
+  int time;
 };
 
 class Scheduler : public IScheduler, public ITime {
  public:
   using Event = SchedulerEvent;
-  enum {
-    maxevents = 16,
-  };
 
-  Scheduler() = default;
+  Scheduler();
   virtual ~Scheduler() = default;
 
   bool Init();
@@ -35,14 +35,14 @@ class Scheduler : public IScheduler, public ITime {
   Event* IFCALL AddEvent(int count,
                          IDevice* dev,
                          IDevice::TimeFunc func,
-                         int arg = 0,
-                         bool repeat = false) override;
+                         int arg,
+                         bool repeat) override;
   void IFCALL SetEvent(Event* ev,
                        int count,
                        IDevice* dev,
                        IDevice::TimeFunc func,
-                       int arg = 0,
-                       bool repeat = false) override;
+                       int arg,
+                       bool repeat) override;
   bool IFCALL DelEvent(IDevice* dev) override;
   bool IFCALL DelEvent(Event* ev) override;
 
@@ -56,12 +56,13 @@ class Scheduler : public IScheduler, public ITime {
 
  private:
   // 有効なイベントの番号の最大値
-  int evlast_ = 0;
+  int evlast_ = -1;
   // Scheduler 内の現在時刻
-  int time_;
+  int time_ = 0;
   // Execute の終了予定時刻
-  int etime_;
-  Event events[maxevents];
+  int etime_ = 0;
+  static constexpr int kMaxEvents = 16;
+  Event events[kMaxEvents];
 };
 
 // ---------------------------------------------------------------------------

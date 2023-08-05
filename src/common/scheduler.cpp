@@ -8,11 +8,16 @@
 
 #include <assert.h>
 
+Scheduler::Scheduler() {
+  for (auto& event : events) {
+    event = Event();
+  }
+}
+
 bool Scheduler::Init() {
   evlast_ = -1;
-
   time_ = 0;
-  return events != 0;
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -28,8 +33,8 @@ Scheduler::AddEvent(int count, IDevice* inst, IDevice::TimeFunc func, int arg, b
   for (; i <= evlast_; i++)
     if (!events[i].inst)
       break;
-  if (i >= maxevents)
-    return 0;
+  if (i >= kMaxEvents)
+    return nullptr;
   if (i > evlast_)
     evlast_ = i;
 

@@ -193,7 +193,8 @@ void PC88::UpdateScreen(bool refresh) {
 
   if (!updated || refresh) {
     if (!(cfgflags & Config::drawprioritylow) ||
-        (dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) | static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
+        (dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) |
+                  static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
     //      if (dstat & (Draw::readytodraw | Draw::shouldrefresh))
     {
       int bpl;

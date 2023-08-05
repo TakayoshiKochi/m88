@@ -312,7 +312,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
             scheduler->DelEvent(sev);
             event = -1;
             sev = scheduler->AddEvent(linetime * vretrace, this,
-                                      static_cast<TimeFunc>(&CRTC::StartDisplay), 0);
+                                      static_cast<TimeFunc>(&CRTC::StartDisplay), 0, false);
           }
         } else
           status &= ~0x10;
@@ -482,11 +482,12 @@ void IOCALL CRTC::ExpandLine(uint32_t) {
   int e = ExpandLineSub();
   if (e) {
     event = e + 1;
-    sev = scheduler->AddEvent(linetime * e, this, static_cast<TimeFunc>(&CRTC::ExpandLineEnd));
+    sev = scheduler->AddEvent(linetime * e, this, static_cast<TimeFunc>(&CRTC::ExpandLineEnd), 0,
+                              false);
   } else {
     if (++column < height) {
       event = 1;
-      sev = scheduler->AddEvent(linetime, this, static_cast<TimeFunc>(&CRTC::ExpandLine));
+      sev = scheduler->AddEvent(linetime, this, static_cast<TimeFunc>(&CRTC::ExpandLine), 0, false);
     } else
       ExpandLineEnd();
   }
@@ -546,8 +547,8 @@ inline void IOCALL CRTC::ExpandLineEnd(uint32_t) {
   //  Log("Vertical Retrace\n");
   bus->Out(PC88::vrtc, 1);
   event = -1;
-  sev =
-      scheduler->AddEvent(linetime * vretrace, this, static_cast<TimeFunc>(&CRTC::StartDisplay), 0);
+  sev = scheduler->AddEvent(linetime * vretrace, this, static_cast<TimeFunc>(&CRTC::StartDisplay),
+                            0, false);
 }
 
 // ---------------------------------------------------------------------------
@@ -1124,13 +1125,13 @@ bool IFCALL CRTC::LoadStatus(const uint8_t* s) {
 
   scheduler->DelEvent(sev);
   if (event == 1)
-    sev = scheduler->AddEvent(linetime, this, static_cast<TimeFunc>(&CRTC::ExpandLine));
+    sev = scheduler->AddEvent(linetime, this, static_cast<TimeFunc>(&CRTC::ExpandLine), 0, false);
   else if (event > 1)
     sev = scheduler->AddEvent(linetime * (event - 1), this,
-                              static_cast<TimeFunc>(&CRTC::ExpandLineEnd));
+                              static_cast<TimeFunc>(&CRTC::ExpandLineEnd), 0, false);
   else if (event == -1 || st->rev == 1)
     sev = scheduler->AddEvent(linetime * vretrace, this, static_cast<TimeFunc>(&CRTC::StartDisplay),
-                              0);
+                              0, false);
 
   return true;
 }

@@ -277,7 +277,7 @@ void IOCALL Memory::Out34(uint32_t, uint32_t data) {
         masks.byte[i] = 0x00;
         maski.byte[i] = 0x00;
         break;
-      }
+    }
     data >>= 1;
   }
 }
@@ -770,10 +770,10 @@ void Memory::SelectGVRAM(uint32_t gvtop) {
 // ----------------------------------------------------------------------------
 //  GVRAM の読み書き
 //
-#define SETDIRTY(addr)     \
+#define SETDIRTY(addr)      \
   if (m->dirty_[addr >> 4]) \
-    return;                \
-  else                     \
+    return;                 \
+  else                      \
     m->dirty_[addr >> 4] = 1;
 
 void Memory::WrGVRAM0(void* inst, uint32_t addr, uint32_t data) {
