@@ -84,7 +84,7 @@ bool WinDrawDDW::Resize(uint32_t w, uint32_t h) {
   if (ddpf.dwRGBBitCount != 8)
     return false;
 
-  status |= Draw::shouldrefresh;
+  status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
   return true;
 }
 
@@ -294,7 +294,7 @@ bool WinDrawDDW::Unlock() {
   if (locked) {
     HRESULT hr = ddswork->Unlock(0);
     LOGDDERR("DirectDrawSurface::Unlock()", hr);
-    status &= ~Draw::shouldrefresh;
+    status &= ~static_cast<uint32_t>(Draw::Status::kShouldRefresh);
     locked = false;
   }
   return true;
@@ -307,6 +307,6 @@ bool WinDrawDDW::RestoreSurface() {
   if (DD_OK != ddsscrn->Restore() || DD_OK != ddswork->Restore())
     return false;
 
-  status |= Draw::shouldrefresh;
+  status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
   return true;
 }

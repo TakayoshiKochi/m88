@@ -185,15 +185,15 @@ void PC88::VSync() {
 //  画面更新
 //
 void PC88::UpdateScreen(bool refresh) {
-  int dstat = draw->GetStatus();
-  if (dstat & Draw::shouldrefresh)
+  uint32_t dstat = draw->GetStatus();
+  if (dstat & static_cast<uint32_t>(Draw::Status::kShouldRefresh))
     refresh = true;
 
   LOADBEGIN("Screen");
 
   if (!updated || refresh) {
     if (!(cfgflags & Config::drawprioritylow) ||
-        (dstat & (Draw::readytodraw | Draw::shouldrefresh)))
+        (dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) | static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
     //      if (dstat & (Draw::readytodraw | Draw::shouldrefresh))
     {
       int bpl;
@@ -214,7 +214,7 @@ void PC88::UpdateScreen(bool refresh) {
     }
   }
   LOADEND("Screen");
-  if (draw->GetStatus() & Draw::readytodraw) {
+  if (draw->GetStatus() & static_cast<uint32_t>(Draw::Status::kReadyToDraw)) {
     if (updated) {
       updated = false;
       draw->DrawScreen(region);

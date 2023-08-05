@@ -11,7 +11,7 @@
 
 #include <vector>
 
-#include "gtest/gtest.h"
+#include "gtest/gtest_prod.h"
 #include "if/ifcommon.h"
 
 // ---------------------------------------------------------------------------

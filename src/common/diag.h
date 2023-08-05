@@ -11,7 +11,7 @@
 
 class Diag {
  public:
-  Diag(const char* logname);
+  explicit Diag(const char* logname);
   ~Diag();
   void Put(const char*, ...);
   static int GetCPUTick();
