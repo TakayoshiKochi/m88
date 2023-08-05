@@ -7,7 +7,7 @@
 #pragma once
 
 #include "common/device.h"
-#include "common/schedule.h"
+#include "common/scheduler.h"
 #include "devices/z80c.h"
 
 class PC88;

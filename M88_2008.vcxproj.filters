@@ -33,9 +33,6 @@
     <ClCompile Include="src\common\memmgr.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\schedule.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
     <ClCompile Include="src\common\sndbuf2.cpp">
       <Filter>common</Filter>
     </ClCompile>
@@ -312,6 +309,9 @@
     <ClCompile Include="src\common\io_bus.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="src\common\scheduler.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -327,9 +327,6 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\misc.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\schedule.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\sndbuf2.h">
@@ -639,6 +636,9 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\io_bus.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\scheduler.h">
       <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>

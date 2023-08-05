@@ -9,7 +9,7 @@
 #include "common/device.h"
 #include "common/draw.h"
 #include "common/io_bus.h"
-#include "common/schedule.h"
+#include "common/scheduler.h"
 
 // ---------------------------------------------------------------------------
 //  使用する Z80 エンジンの種類を決める

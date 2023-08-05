@@ -10,7 +10,7 @@
 
 #include "common/device.h"
 #include "common/draw.h"
-#include "common/schedule.h"
+#include "common/scheduler.h"
 
 class IOBus;
 class Scheduler;

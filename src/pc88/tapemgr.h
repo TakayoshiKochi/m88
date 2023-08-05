@@ -10,7 +10,7 @@
 #include "devices/opna.h"
 #include "devices/psg.h"
 #include "common/soundbuf.h"
-#include "common/schedule.h"
+#include "common/scheduler.h"
 
 // ---------------------------------------------------------------------------
 //

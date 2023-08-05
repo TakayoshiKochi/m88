@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: schedule.cpp,v 1.16 2002/04/07 05:40:08 cisc Exp $
 
-#include "common/schedule.h"
+#include "common/scheduler.h"
 
 #include <assert.h>
 
