@@ -66,7 +66,8 @@ target_include_directories(pc88
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
 add_executable(common_unittests
-        src/common/device_test.cc)
+        src/common/device_test.cc
+        src/common/scheduler_test.cc)
 
 target_link_libraries(common_unittests
         PUBLIC gtest gtest_main

@@ -20,12 +20,11 @@ struct SchedulerEvent {
 
 class Scheduler : public IScheduler, public ITime {
  public:
-  typedef SchedulerEvent Event;
+  using Event = SchedulerEvent;
   enum {
     maxevents = 16,
   };
 
- public:
   Scheduler() = default;
   virtual ~Scheduler() = default;
 
@@ -56,14 +55,17 @@ class Scheduler : public IScheduler, public ITime {
   virtual int GetTicks() = 0;
 
  private:
-  int evlast = 0;  // 有効なイベントの番号の最大値
-  int time;    // Scheduler 内の現在時刻
-  int etime;   // Execute の終了予定時刻
+  // 有効なイベントの番号の最大値
+  int evlast_ = 0;
+  // Scheduler 内の現在時刻
+  int time_;
+  // Execute の終了予定時刻
+  int etime_;
   Event events[maxevents];
 };
 
 // ---------------------------------------------------------------------------
 
 inline int IFCALL Scheduler::GetTime() {
-  return time + GetTicks();
+  return time_ + GetTicks();
 }
