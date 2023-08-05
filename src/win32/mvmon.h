@@ -7,6 +7,7 @@
 #pragma once
 
 #include "common/device.h"
+#include "common/memory_bus.h"
 #include "pc88/memview.h"
 #include "win32/winmon.h"
 

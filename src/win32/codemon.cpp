@@ -6,6 +6,7 @@
 
 #include "win32/codemon.h"
 
+#include "common/memory_bus.h"
 #include "common/misc.h"
 #include "pc88/pc88.h"
 #include "win32/resource.h"

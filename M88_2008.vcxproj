@@ -480,6 +480,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
+    <ClCompile Include="src\common\memory_bus.cpp" />
     <ClCompile Include="src\common\schedule.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -1349,6 +1350,7 @@
     <ClInclude Include="src\common\draw.h" />
     <ClInclude Include="src\common\error.h" />
     <ClInclude Include="src\common\memmgr.h" />
+    <ClInclude Include="src\common\memory_bus.h" />
     <ClInclude Include="src\common\misc.h" />
     <ClInclude Include="src\common\schedule.h" />
     <ClInclude Include="src\common\sndbuf2.h" />
