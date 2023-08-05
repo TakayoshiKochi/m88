@@ -30,13 +30,13 @@
     <ClCompile Include="src\common\error.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\memmgr.cpp">
+    <ClCompile Include="src\common\memory_manager.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="src\common\sndbuf2.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\soundbuf.cpp">
+    <ClCompile Include="src\common\sound_buffer.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="src\common\srcbuf.cpp">
@@ -323,7 +323,7 @@
     <ClInclude Include="src\common\error.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\memmgr.h">
+    <ClInclude Include="src\common\memory_manager.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\misc.h">
@@ -332,7 +332,7 @@
     <ClInclude Include="src\common\sndbuf2.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\soundbuf.h">
+    <ClInclude Include="src\common\sound_buffer.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\soundsrc.h">

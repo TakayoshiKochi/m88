@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: soundbuf.cpp,v 1.5 1999/11/26 10:13:25 cisc Exp $
 
-#include "common/soundbuf.h"
+#include "common/sound_buffer.h"
 
 #include <algorithm>
 

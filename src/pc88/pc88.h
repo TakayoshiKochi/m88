@@ -25,7 +25,7 @@
 #ifdef CPU_Z80X86
 #include "devices/z80_x86.h"
 #else
-#include "devices/z80C.h"
+#include "devices/z80c.h"
 #endif
 
 #ifdef CPU_TEST

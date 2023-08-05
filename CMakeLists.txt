@@ -35,8 +35,8 @@ add_library(common ${LIB_TYPE}
         src/common/error.cpp
         src/common/io_bus.h
         src/common/io_bus.cpp
-        src/common/memmgr.h
-        src/common/memmgr.cpp
+        src/common/memory_manager.h
+        src/common/memory_manager.cpp
         src/common/memory_bus.h
         src/common/memory_bus.cpp
         src/common/misc.h
@@ -44,8 +44,8 @@ add_library(common ${LIB_TYPE}
         src/common/scheduler.cpp
         src/common/sndbuf2.h
         src/common/sndbuf2.cpp
-        src/common/soundbuf.h
-        src/common/soundbuf.cpp
+        src/common/sound_buffer.h
+        src/common/sound_buffer.cpp
         src/common/soundsrc.h
         src/common/srcbuf.h
         src/common/srcbuf.h)

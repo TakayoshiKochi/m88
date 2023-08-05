@@ -11,7 +11,7 @@
 
 #include <stdint.h>
 #include "common/device.h"
-#include "common/memmgr.h"
+#include "common/memory_manager.h"
 #include "devices/z80.h"
 #include "devices/z80diag.h"
 

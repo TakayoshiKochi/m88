@@ -7,7 +7,7 @@
 #include "pc88/subsys.h"
 
 #include "common/device.h"
-#include "common/memmgr.h"
+#include "common/memory_manager.h"
 #include "win32/file.h"
 #include "win32/status.h"
 
