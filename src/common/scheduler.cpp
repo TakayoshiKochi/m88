@@ -8,16 +8,6 @@
 
 #include <assert.h>
 
-// ---------------------------------------------------------------------------
-
-Scheduler::Scheduler() {
-  evlast = 0;
-}
-
-Scheduler::~Scheduler() {}
-
-// ---------------------------------------------------------------------------
-
 bool Scheduler::Init() {
   evlast = -1;
 
@@ -33,9 +23,9 @@ Scheduler::AddEvent(int count, IDevice* inst, IDevice::TimeFunc func, int arg, b
   assert(inst && func);
   assert(count > 0);
 
-  int i;
+  int i = 0;
   // 空いてる Event を探す
-  for (i = 0; i <= evlast; i++)
+  for (; i <= evlast; i++)
     if (!events[i].inst)
       break;
   if (i >= maxevents)
@@ -107,8 +97,8 @@ bool IFCALL Scheduler::DelEvent(Event* ev) {
 //  時間を進める
 //
 int Scheduler::Proceed(int ticks) {
-  int t;
-  for (t = ticks; t > 0;) {
+  int t = ticks;
+  for (; t > 0;) {
     int i;
     int ptime = t;
     for (i = 0; i <= evlast; i++) {

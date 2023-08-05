@@ -11,8 +11,8 @@
 // ---------------------------------------------------------------------------
 //  Sound Buffer
 //
-SoundBuffer::SoundBuffer() : buffer(0), buffersize(0), ch(0) {
-  fillwhenempty = true;
+SoundBuffer::SoundBuffer() : buffer_(0), buffer_size_(0), ch_(0) {
+  fill_when_empty_ = true;
 }
 
 SoundBuffer::~SoundBuffer() {
@@ -20,72 +20,72 @@ SoundBuffer::~SoundBuffer() {
 }
 
 bool SoundBuffer::Init(int nch, int bufsize) {
-  CriticalSection::Lock lock(cs);
+  CriticalSection::Lock lock(cs_);
 
-  delete[] buffer;
-  buffer = 0;
+  delete[] buffer_;
+  buffer_ = nullptr;
 
-  buffersize = bufsize;
-  ch = nch;
-  read = 0;
-  write = 0;
+  buffer_size_ = bufsize;
+  ch_ = nch;
+  read_ = 0;
+  write_ = 0;
 
-  if (ch && buffersize > 0) {
-    buffer = new Sample[ch * buffersize];
-    if (!buffer)
+  if (ch_ && buffer_size_ > 0) {
+    buffer_ = new Sample[ch_ * buffer_size_];
+    if (!buffer_)
       return false;
 
-    memset(buffer, 0, ch * buffersize * sizeof(Sample));
+    memset(buffer_, 0, ch_ * buffer_size_ * sizeof(Sample));
   }
   return true;
 }
 
 void SoundBuffer::Cleanup() {
-  CriticalSection::Lock lock(cs);
+  CriticalSection::Lock lock(cs_);
 
-  delete[] buffer;
-  buffer = 0;
+  delete[] buffer_;
+  buffer_ = 0;
 }
 
 // ---------------------------------------------------------------------------
 //  バッファに音を追加
 //
 void SoundBuffer::Put(int samples) {
-  CriticalSection::Lock lock(cs);
-  if (buffer)
+  CriticalSection::Lock lock(cs_);
+  if (buffer_)
     PutMain(samples);
 }
 
 void SoundBuffer::PutMain(int samples) {
   // リングバッファの空きを計算
   int free;
-  if (read <= write)
-    free = buffersize + read - write;
+  if (read_ <= write_)
+    free = buffer_size_ + read_ - write_;
   else
-    free = read - write;
+    free = read_ - write_;
 
-  if (!fillwhenempty && (samples > free - 1)) {
-    int skip = std::min(samples - free + 1, buffersize - free);
+  if (!fill_when_empty_ && (samples > free - 1)) {
+    int skip = std::min(samples - free + 1, buffer_size_ - free);
     free += skip;
-    read += skip;
-    if (read > buffersize)
-      read -= buffersize;
+    read_ += skip;
+    if (read_ > buffer_size_)
+      read_ -= buffer_size_;
   }
 
   // 書きこむべきデータ量を計算
   samples = std::min(samples, free - 1);
   if (samples > 0) {
     // 書きこむ
-    if (buffersize - write >= samples) {
+    if (buffer_size_ - write_ >= samples) {
       // 一度で書ける場合
-      Mix(buffer + write * ch, samples);
+      Mix(buffer_ + write_ * ch_, samples);
     } else {
       // ２度に分けて書く場合
-      Mix(buffer + write * ch, buffersize - write, buffer, samples - (buffersize - write));
+      Mix(buffer_ + write_ * ch_, buffer_size_ - write_, buffer_, samples - (buffer_size_ - write_));
     }
-    write += samples;
-    if (write >= buffersize)
-      write -= buffersize;
+    write_ += samples;
+    if (write_ >= buffer_size_)
+      write_ -= buffer_size_;
   }
 }
 
@@ -93,37 +93,37 @@ void SoundBuffer::PutMain(int samples) {
 //  バッファから音を貰う
 //
 void SoundBuffer::Get(Sample* dest, int samples) {
-  CriticalSection::Lock lock(cs);
-  if (buffer) {
+  CriticalSection::Lock lock(cs_);
+  if (buffer_) {
     while (samples > 0) {
-      int xsize = std::min(samples, buffersize - read);
+      int xsize = std::min(samples, buffer_size_ - read_);
 
       int avail;
-      if (write >= read)
-        avail = write - read;
+      if (write_ >= read_)
+        avail = write_ - read_;
       else
-        avail = buffersize + write - read;
+        avail = buffer_size_ + write_ - read_;
 
       // 供給不足なら追加
-      if (xsize <= avail || fillwhenempty) {
+      if (xsize <= avail || fill_when_empty_) {
         if (xsize > avail)
           PutMain(xsize - avail);
-        memcpy(dest, buffer + read * ch, xsize * ch * sizeof(Sample));
-        dest += xsize * ch;
-        read += xsize;
+        memcpy(dest, buffer_ + read_ * ch_, xsize * ch_ * sizeof(Sample));
+        dest += xsize * ch_;
+        read_ += xsize;
       } else {
         if (avail > 0) {
-          memcpy(dest, buffer + read * ch, avail * ch * sizeof(Sample));
-          dest += avail * ch;
-          read += avail;
+          memcpy(dest, buffer_ + read_ * ch_, avail * ch_ * sizeof(Sample));
+          dest += avail * ch_;
+          read_ += avail;
         }
-        memset(dest, 0, (xsize - avail) * ch * sizeof(Sample));
-        dest += (xsize - avail) * ch;
+        memset(dest, 0, (xsize - avail) * ch_ * sizeof(Sample));
+        dest += (xsize - avail) * ch_;
       }
 
       samples -= xsize;
-      if (read >= buffersize)
-        read -= buffersize;
+      if (read_ >= buffer_size_)
+        read_ -= buffer_size_;
     }
   }
 }
@@ -133,10 +133,10 @@ void SoundBuffer::Get(Sample* dest, int samples) {
 //
 bool SoundBuffer::IsEmpty() {
   int avail;
-  if (write >= read)
-    avail = write - read;
+  if (write_ >= read_)
+    avail = write_ - read_;
   else
-    avail = buffersize + write - read;
+    avail = buffer_size_ + write_ - read_;
 
   return avail == 0;
 }
