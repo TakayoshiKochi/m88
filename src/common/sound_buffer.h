@@ -41,9 +41,9 @@ class SoundBuffer {
   CriticalSection cs_;
 
   int buffer_size_;  // バッファのサイズ (in samples)
-  int read_;        // 読込位置 (in samples)
-  int write_;       // 書き込み位置 (in samples)
-  int ch_;          // チャネル数(1sample = ch*Sample)
+  int read_;         // 読込位置 (in samples)
+  int write_;        // 書き込み位置 (in samples)
+  int ch_;           // チャネル数(1sample = ch*Sample)
   bool fill_when_empty_;
 };
 

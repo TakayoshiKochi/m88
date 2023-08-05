@@ -9,12 +9,10 @@ class DeviceListTest : public testing::Test {
   DeviceListTest() = default;
   ~DeviceListTest() = default;
 
-  void SetUp() override { devlist_ = new DeviceList();
-  }
+  void SetUp() override { devlist_ = new DeviceList(); }
 
-  void TearDown() override {
-    delete devlist_;
-  }
+  void TearDown() override { delete devlist_; }
+
  private:
   DeviceList* devlist_;
 };

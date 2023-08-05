@@ -33,8 +33,11 @@ class Scheduler : public IScheduler, public ITime {
   int Proceed(int ticks);
 
   // Overrides IScheduler
-  Event* IFCALL
-  AddEvent(int count, IDevice* dev, IDevice::TimeFunc func, int arg = 0, bool repeat = false) override;
+  Event* IFCALL AddEvent(int count,
+                         IDevice* dev,
+                         IDevice::TimeFunc func,
+                         int arg = 0,
+                         bool repeat = false) override;
   void IFCALL SetEvent(Event* ev,
                        int count,
                        IDevice* dev,
