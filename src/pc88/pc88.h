@@ -8,7 +8,8 @@
 
 #include "common/device.h"
 #include "common/draw.h"
-#include "common/schedule.h"
+#include "common/io_bus.h"
+#include "common/scheduler.h"
 
 // ---------------------------------------------------------------------------
 //  使用する Z80 エンジンの種類を決める
@@ -24,7 +25,7 @@
 #ifdef CPU_Z80X86
 #include "devices/z80_x86.h"
 #else
-#include "devices/z80C.h"
+#include "devices/z80c.h"
 #endif
 
 #ifdef CPU_TEST
@@ -55,7 +56,7 @@ class SubSystem;
 class SIO;
 class CDIF;
 class OPNIF;
-class Calender;
+class Calendar;
 class DiskIO;
 class Beep;
 class JoyPad;
@@ -181,7 +182,7 @@ class PC88 : public Scheduler, public ICPUTime {
   PC8801::SIO* siomidi;
   PC8801::OPNIF* opn1;
   PC8801::OPNIF* opn2;
-  PC8801::Calender* caln;
+  PC8801::Calendar* caln;
   PC8801::Beep* beep;
   PC8801::PD8257* dmac;
 

@@ -10,6 +10,8 @@
 
 #include <algorithm>
 
+#include "common/io_bus.h"
+
 // #define LOGNAME "intc"
 #include "common/diag.h"
 

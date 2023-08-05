@@ -8,6 +8,7 @@
 
 #include <algorithm>
 
+#include "common/io_bus.h"
 #include "win32/file.h"
 #include "win32/status.h"
 

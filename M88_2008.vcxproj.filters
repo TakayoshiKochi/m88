@@ -30,16 +30,13 @@
     <ClCompile Include="src\common\error.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\memmgr.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="src\common\schedule.cpp">
+    <ClCompile Include="src\common\memory_manager.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="src\common\sndbuf2.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\soundbuf.cpp">
+    <ClCompile Include="src\common\sound_buffer.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="src\common\srcbuf.cpp">
@@ -76,9 +73,6 @@
       <Filter>PC88</Filter>
     </ClCompile>
     <ClCompile Include="src\pc88\beep.cpp">
-      <Filter>PC88</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pc88\calender.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
     <ClCompile Include="src\pc88\crtc.cpp">
@@ -306,6 +300,18 @@
     <ClCompile Include="src\common\diag.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="src\common\memory_bus.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\io_bus.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\scheduler.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pc88\calendar.cpp">
+      <Filter>pc88</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -317,19 +323,16 @@
     <ClInclude Include="src\common\error.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\memmgr.h">
+    <ClInclude Include="src\common\memory_manager.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\misc.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\schedule.h">
-      <Filter>common</Filter>
-    </ClInclude>
     <ClInclude Include="src\common\sndbuf2.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\soundbuf.h">
+    <ClInclude Include="src\common\sound_buffer.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\soundsrc.h">
@@ -372,9 +375,6 @@
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\beep.h">
-      <Filter>PC88</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pc88\calender.h">
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\config.h">
@@ -628,6 +628,18 @@
     </ClInclude>
     <ClInclude Include="src\common\diag.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\memory_bus.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\io_bus.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\scheduler.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pc88\calendar.h">
+      <Filter>pc88</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -9,12 +9,15 @@
 #include "common/device.h"
 #include "devices/opna.h"
 #include "devices/psg.h"
-#include "common/soundbuf.h"
-#include "common/schedule.h"
+#include "common/sound_buffer.h"
+#include "common/scheduler.h"
 
 // ---------------------------------------------------------------------------
 //
 //
+
+class IOBus;
+
 class TapeManager : public Device {
  public:
   enum {

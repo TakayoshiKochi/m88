@@ -14,7 +14,7 @@
 
 #include "pc88/base.h"
 #include "pc88/beep.h"
-#include "pc88/calender.h"
+#include "pc88/calendar.h"
 #include "pc88/config.h"
 #include "pc88/crtc.h"
 #include "pc88/diskmgr.h"
@@ -185,15 +185,15 @@ void PC88::VSync() {
 //  画面更新
 //
 void PC88::UpdateScreen(bool refresh) {
-  int dstat = draw->GetStatus();
-  if (dstat & Draw::shouldrefresh)
+  uint32_t dstat = draw->GetStatus();
+  if (dstat & static_cast<uint32_t>(Draw::Status::kShouldRefresh))
     refresh = true;
 
   LOADBEGIN("Screen");
 
   if (!updated || refresh) {
     if (!(cfgflags & Config::drawprioritylow) ||
-        (dstat & (Draw::readytodraw | Draw::shouldrefresh)))
+        (dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) | static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
     //      if (dstat & (Draw::readytodraw | Draw::shouldrefresh))
     {
       int bpl;
@@ -214,7 +214,7 @@ void PC88::UpdateScreen(bool refresh) {
     }
   }
   LOADEND("Screen");
-  if (draw->GetStatus() & Draw::readytodraw) {
+  if (draw->GetStatus() & static_cast<uint32_t>(Draw::Status::kReadyToDraw)) {
     if (updated) {
       updated = false;
       draw->DrawScreen(region);
@@ -489,12 +489,12 @@ bool PC88::ConnectDevices() {
     return false;
   opn2->SetIMask(0xaa, 0x80);
 
-  static const IOBus::Connector c_caln[] = {{pres, IOBus::portout, Calender::reset},
-                                            {0x10, IOBus::portout, Calender::out10},
-                                            {0x40, IOBus::portout, Calender::out40},
-                                            {0x40, IOBus::portin, Calender::in40},
+  static const IOBus::Connector c_caln[] = {{pres, IOBus::portout, Calendar::reset},
+                                            {0x10, IOBus::portout, Calendar::out10},
+                                            {0x40, IOBus::portout, Calendar::out40},
+                                            {0x40, IOBus::portin, Calendar::in40},
                                             {0, 0, 0}};
-  caln = new PC8801::Calender(DEV_ID('C', 'A', 'L', 'N'));
+  caln = new PC8801::Calendar(DEV_ID('C', 'A', 'L', 'N'));
   if (!caln || !caln->Init())
     return false;
   if (!bus1.Connect(caln, c_caln))

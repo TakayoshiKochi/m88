@@ -1,5 +1,6 @@
 //  $Id: moduleif.cpp,v 1.2 1999/11/26 10:12:48 cisc Exp $
 
+#include "common/io_bus.h"
 #include "if/ifcommon.h"
 #include "if/ifguid.h"
 #include "cdif.h"

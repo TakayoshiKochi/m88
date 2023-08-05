@@ -9,6 +9,7 @@
 #pragma once
 
 #include "common/device.h"
+#include "common/memory_bus.h"
 #include "pc88/memory.h"
 #include "pc88/pc88.h"
 #include "pc88/subsys.h"

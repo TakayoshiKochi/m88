@@ -11,6 +11,7 @@
 
 // ---------------------------------------------------------------------------
 
+class IOBus;
 class PC88;
 class Scheduler;
 class Piccolo;

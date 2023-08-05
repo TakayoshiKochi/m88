@@ -12,6 +12,7 @@
 
 #include <algorithm>
 
+#include "common/io_bus.h"
 #include "pc88/config.h"
 #include "pc88/diskmgr.h"
 #include "win32/critsect.h"

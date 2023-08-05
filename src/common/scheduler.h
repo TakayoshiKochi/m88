@@ -26,24 +26,26 @@ class Scheduler : public IScheduler, public ITime {
   };
 
  public:
-  Scheduler();
-  virtual ~Scheduler();
+  Scheduler() = default;
+  virtual ~Scheduler() = default;
 
   bool Init();
   int Proceed(int ticks);
 
+  // Overrides IScheduler
   Event* IFCALL
-  AddEvent(int count, IDevice* dev, IDevice::TimeFunc func, int arg = 0, bool repeat = false);
+  AddEvent(int count, IDevice* dev, IDevice::TimeFunc func, int arg = 0, bool repeat = false) override;
   void IFCALL SetEvent(Event* ev,
                        int count,
                        IDevice* dev,
                        IDevice::TimeFunc func,
                        int arg = 0,
-                       bool repeat = false);
-  bool IFCALL DelEvent(IDevice* dev);
-  bool IFCALL DelEvent(Event* ev);
+                       bool repeat = false) override;
+  bool IFCALL DelEvent(IDevice* dev) override;
+  bool IFCALL DelEvent(Event* ev) override;
 
-  int IFCALL GetTime();
+  // Overrides ITime
+  int IFCALL GetTime() override;
 
  private:
   virtual int Execute(int ticks) = 0;
@@ -51,7 +53,7 @@ class Scheduler : public IScheduler, public ITime {
   virtual int GetTicks() = 0;
 
  private:
-  int evlast;  // 有効なイベントの番号の最大値
+  int evlast = 0;  // 有効なイベントの番号の最大値
   int time;    // Scheduler 内の現在時刻
   int etime;   // Execute の終了予定時刻
   Event events[maxevents];

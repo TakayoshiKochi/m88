@@ -10,6 +10,7 @@
 
 #include "common/device.h"
 
+class IOBus;
 class Scheduler;
 
 namespace PC8801 {

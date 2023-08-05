@@ -27,14 +27,39 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/gtest)
 
 add_library(common ${LIB_TYPE}
         src/common/device.h
-        src/common/device.cpp)
+        src/common/device.cpp
+        src/common/diag.h
+        src/common/diag.cpp
+        src/common/draw.h
+        src/common/error.h
+        src/common/error.cpp
+        src/common/io_bus.h
+        src/common/io_bus.cpp
+        src/common/memory_manager.h
+        src/common/memory_manager.cpp
+        src/common/memory_bus.h
+        src/common/memory_bus.cpp
+        src/common/misc.h
+        src/common/scheduler.h
+        src/common/scheduler.cpp
+        src/common/sndbuf2.h
+        src/common/sndbuf2.cpp
+        src/common/sound_buffer.h
+        src/common/sound_buffer.cpp
+        src/common/soundsrc.h
+        src/common/srcbuf.h
+        src/common/srcbuf.h)
 
 target_include_directories(common
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
 add_library(pc88 ${LIB_TYPE}
-        src/pc88/base.h src/pc88/base.cpp)
+        src/pc88/base.h
+        src/pc88/base.cpp
+        src/pc88/beep.h
+        src/pc88/beep.cpp
+)
 
 target_include_directories(pc88
         PUBLIC ${CMAKE_SOURCE_DIR}/src

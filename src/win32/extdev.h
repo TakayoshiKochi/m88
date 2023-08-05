@@ -10,6 +10,7 @@
 #include "pc88/pcinfo.h"
 #include "pc88/sound.h"
 
+class IOBus;
 class PC88;
 class Scheduler;
 

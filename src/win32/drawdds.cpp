@@ -76,7 +76,7 @@ bool WinDrawDDS::Init(HWND hwindow, uint32_t w, uint32_t h, GUID* drv) {
   guimode = true;
   SetGUIMode(false);
   SendMessage(hwnd, WM_M88_CLIPCURSOR, CLIPCURSOR_WINDOW, 0);
-  status |= Draw::shouldrefresh;
+  status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
 
   return true;
 }
@@ -261,7 +261,7 @@ bool WinDrawDDS::Lock(uint8_t** pimage, int* pbpl) {
 //  画面イメージの使用終了
 //
 bool WinDrawDDS::Unlock() {
-  status &= ~Draw::shouldrefresh;
+  status &= ~static_cast<uint32_t>(Draw::Status::kShouldRefresh);
   return true;
 }
 
@@ -335,7 +335,7 @@ bool WinDrawDDS::RestoreSurface() {
     return false;
   }
 
-  status |= Draw::shouldrefresh;
+  status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
   FillBlankArea();
   return true;
 }
@@ -371,7 +371,7 @@ void WinDrawDDS::SetGUIMode(bool newguimode) {
     if (guimode) {
       ddraw->FlipToGDISurface();
       ddsscrn->SetClipper(ddcscrn);
-      status |= Draw::shouldrefresh;
+      status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
     } else {
       ddsscrn->SetClipper(0);
 
@@ -383,7 +383,7 @@ void WinDrawDDS::SetGUIMode(bool newguimode) {
       rectsrc.right = width;
       rectsrc.bottom = height;
 
-      status |= Draw::shouldrefresh;
+      status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
       Update(ddsscrn, rectsrc);
     }
   }

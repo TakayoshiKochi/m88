@@ -14,7 +14,9 @@
 
 #include "common/device.h"
 #include "common/error.h"
-#include "common/memmgr.h"
+#include "common/io_bus.h"
+#include "common/memory_bus.h"
+#include "common/memory_manager.h"
 #include "pc88/config.h"
 #include "pc88/crtc.h"
 #include "win32/file.h"

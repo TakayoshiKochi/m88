@@ -8,7 +8,8 @@
 
 #include "pc88/sio.h"
 
-#include "common/schedule.h"
+#include "common/io_bus.h"
+#include "common/scheduler.h"
 
 #define LOGNAME "sio"
 #include "common/diag.h"

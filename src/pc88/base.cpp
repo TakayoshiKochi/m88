@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 #include "common/draw.h"
+#include "common/io_bus.h"
 #include "pc88/base.h"
 #include "pc88/config.h"
 #include "pc88/tapemgr.h"
