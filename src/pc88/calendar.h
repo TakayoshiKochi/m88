@@ -12,7 +12,7 @@
 
 namespace PC8801 {
 
-class Calender : public Device {
+class Calendar : public Device {
  public:
   enum {
     reset = 0,
@@ -22,8 +22,8 @@ class Calender : public Device {
   };
 
  public:
-  Calender(const ID& id);
-  ~Calender();
+  Calendar(const ID& id);
+  ~Calendar();
   bool Init() { return true; }
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }

@@ -75,9 +75,6 @@
     <ClCompile Include="src\pc88\beep.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
-    <ClCompile Include="src\pc88\calender.cpp">
-      <Filter>PC88</Filter>
-    </ClCompile>
     <ClCompile Include="src\pc88\crtc.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
@@ -312,6 +309,9 @@
     <ClCompile Include="src\common\scheduler.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="src\pc88\calendar.cpp">
+      <Filter>pc88</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -375,9 +375,6 @@
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\beep.h">
-      <Filter>PC88</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pc88\calender.h">
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\config.h">
@@ -640,6 +637,9 @@
     </ClInclude>
     <ClInclude Include="src\common\scheduler.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pc88\calendar.h">
+      <Filter>pc88</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

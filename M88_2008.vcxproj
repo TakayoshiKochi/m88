@@ -610,14 +610,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\pc88\calender.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
-    </ClCompile>
+    <ClCompile Include="src\pc88\calendar.cpp" />
     <ClCompile Include="src\pc88\crtc.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -1368,7 +1361,7 @@
     <ClInclude Include="src\if\ifui.h" />
     <ClInclude Include="src\pc88\base.h" />
     <ClInclude Include="src\pc88\beep.h" />
-    <ClInclude Include="src\pc88\calender.h" />
+    <ClInclude Include="src\pc88\calendar.h" />
     <ClInclude Include="src\pc88\config.h" />
     <ClInclude Include="src\pc88\crtc.h" />
     <ClInclude Include="src\pc88\diskmgr.h" />
