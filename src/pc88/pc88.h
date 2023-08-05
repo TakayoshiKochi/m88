@@ -145,11 +145,13 @@ class PC88 : public Scheduler, public ICPUTime {
  private:
   void VSync();
 
-  int Execute(int ticks);
-  void Shorten(int ticks);
+  // Overrides Scheduler
+  int Execute(int ticks) override;
+  void Shorten(int ticks) override;
+  int GetTicks() override;
+
   bool ConnectDevices();
   bool ConnectDevices2();
-  int GetTicks();
 
  private:
   enum CPUMode {

@@ -14,6 +14,7 @@ struct SchedulerEvent {
   SchedulerEvent() : count(0), inst(nullptr), func(nullptr), arg(0), time(0) {}
   // 時間残り
   int count;
+  // nullptr の場合、イベントが無効化されている
   IDevice* inst;
   IDevice::TimeFunc func;
   int arg;
@@ -29,6 +30,7 @@ class Scheduler : public IScheduler, public ITime {
   virtual ~Scheduler() = default;
 
   bool Init();
+  // 時間を ticks 進める
   int Proceed(int ticks);
 
   // Overrides IScheduler

@@ -39,15 +39,7 @@ Scheduler::AddEvent(int count, IDevice* inst, IDevice::TimeFunc func, int arg, b
     evlast_ = i;
 
   Event& ev = events[i];
-  ev.count = GetTime() + count;
-  ev.inst = inst, ev.func = func, ev.arg = arg;
-  ev.time = repeat ? count : 0;
-
-  // 最短イベント発生時刻を更新する？
-  if ((etime_ - ev.count) > 0) {
-    Shorten(etime_ - ev.count);
-    etime_ = ev.count;
-  }
+  SetEvent(&ev, count, inst, func, arg, repeat);
   return &ev;
 }
 
@@ -64,7 +56,9 @@ void IFCALL Scheduler::SetEvent(Event* ev,
   assert(count > 0);
 
   ev->count = GetTime() + count;
-  ev->inst = inst, ev->func = func, ev->arg = arg;
+  ev->inst = inst;
+  ev->func = func;
+  ev->arg = arg;
   ev->time = repeat ? count : 0;
 
   // 最短イベント発生時刻を更新する？
@@ -79,11 +73,11 @@ void IFCALL Scheduler::SetEvent(Event* ev,
 //
 bool IFCALL Scheduler::DelEvent(IDevice* inst) {
   Event* ev = &events[evlast_];
-  for (int i = evlast_; i >= 0; i--, ev--) {
+  for (int i = evlast_; i >= 0; --i, --ev) {
     if (ev->inst == inst) {
-      ev->inst = 0;
+      ev->inst = nullptr;
       if (evlast_ == i)
-        evlast_--;
+        --evlast_;
     }
   }
   return true;
@@ -91,22 +85,19 @@ bool IFCALL Scheduler::DelEvent(IDevice* inst) {
 
 bool IFCALL Scheduler::DelEvent(Event* ev) {
   if (ev) {
-    ev->inst = 0;
+    ev->inst = nullptr;
     if (ev - events == evlast_)
-      evlast_--;
+      --evlast_;
   }
   return true;
 }
 
-// ---------------------------------------------------------------------------
-//  時間を進める
-//
 int Scheduler::Proceed(int ticks) {
   int t = ticks;
   for (; t > 0;) {
-    int i;
+    int i = 0;
     int ptime = t;
-    for (i = 0; i <= evlast_; i++) {
+    for (; i <= evlast_; ++i) {
       Event& ev = events[i];
       if (ev.inst) {
         int l = ev.count - time_;
@@ -130,9 +121,9 @@ int Scheduler::Proceed(int ticks) {
         if (ev.time)
           ev.count += ev.time;
         else {
-          ev.inst = 0;
+          ev.inst = nullptr;
           if (evlast_ == i)
-            evlast_--;
+            --evlast_;
         }
 
         (inst->*ev.func)(ev.arg);
