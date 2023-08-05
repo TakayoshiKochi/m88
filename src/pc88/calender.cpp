@@ -11,6 +11,8 @@
 
 #include <time.h>
 
+#include "common/io_bus.h"
+
 // #define LOGNAME "calender"
 #include "common/diag.h"
 

@@ -13,6 +13,7 @@
 #include "common/device.h"
 #include "pc88/config.h"
 
+class IOBus;
 class MemoryManager;
 
 namespace PC8801 {

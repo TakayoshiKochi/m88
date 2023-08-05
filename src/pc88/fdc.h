@@ -14,6 +14,7 @@
 #include "pc88/floppy.h"
 
 class DiskManager;
+class IOBus;
 
 namespace PC8801 {
 class Config;

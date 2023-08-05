@@ -8,6 +8,7 @@
 
 #include "common/device.h"
 #include "common/draw.h"
+#include "common/io_bus.h"
 #include "common/schedule.h"
 
 // ---------------------------------------------------------------------------

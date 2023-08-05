@@ -309,6 +309,9 @@
     <ClCompile Include="src\common\memory_bus.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="src\common\io_bus.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -633,6 +636,9 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\memory_bus.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\io_bus.h">
       <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>

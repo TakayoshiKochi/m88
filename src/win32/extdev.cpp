@@ -6,6 +6,7 @@
 
 #include "win32/extdev.h"
 
+#include "common/io_bus.h"
 #include "pc88/memory.h"
 #include "pc88/pc88.h"
 #include "pc88/pd8257.h"

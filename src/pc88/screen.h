@@ -14,6 +14,8 @@
 #include "common/draw.h"
 #include "pc88/config.h"
 
+class IOBus;
+
 // ---------------------------------------------------------------------------
 //  color mode
 //  BITMAP BIT 配置       -- GG GR GB TE TG TR TB

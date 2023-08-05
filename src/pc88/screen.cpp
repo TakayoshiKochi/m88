@@ -8,6 +8,7 @@
 
 #include "pc88/screen.h"
 
+#include "common/io_bus.h"
 #include "pc88/config.h"
 #include "pc88/crtc.h"
 #include "pc88/memory.h"

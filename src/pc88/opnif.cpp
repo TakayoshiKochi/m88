@@ -6,6 +6,7 @@
 
 #include "pc88/opnif.h"
 
+#include "common/io_bus.h"
 #include "common/schedule.h"
 #include "pc88/config.h"
 #include "win32/romeo/piccolo.h"

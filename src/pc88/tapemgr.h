@@ -15,6 +15,9 @@
 // ---------------------------------------------------------------------------
 //
 //
+
+class IOBus;
+
 class TapeManager : public Device {
  public:
   enum {

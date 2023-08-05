@@ -6,6 +6,8 @@
 
 #include "devices/z80c.h"
 
+#include "common/io_bus.h"
+
 // #define NO_UNOFFICIALFLAGS
 
 // #define LOGNAME "Z80C"
