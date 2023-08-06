@@ -62,9 +62,7 @@ PC88::PC88()
       siomidi(0),
       joypad(0) {
   assert((1 << MemoryManager::pagebits) <= 0x400);
-  clock = 100;
   DIAGINIT(&cpu1);
-  dexc = 0;
 }
 
 PC88::~PC88() {
@@ -121,7 +119,7 @@ bool PC88::Init(Draw* _draw, DiskManager* disk, TapeManager* tape) {
 
   Reset();
   region.Reset();
-  clock = 1;
+  clock_ = 1;
   return true;
 }
 
@@ -136,8 +134,8 @@ void PC88::DeInit() {
 //  1 tick = 10μs
 //
 int PC88::Proceed(uint32_t ticks, uint32_t clk, uint32_t ecl) {
-  clock = std::max(1U, clk);
-  eclock = std::max(1U, ecl);
+  clock_ = std::max(1U, clk);
+  eclock_ = std::max(1U, ecl);
   return Scheduler::Proceed(ticks);
 }
 
@@ -146,7 +144,7 @@ int PC88::Proceed(uint32_t ticks, uint32_t clk, uint32_t ecl) {
 //
 int PC88::Execute(int ticks) {
   LOADBEGIN("Core.CPU");
-  int exc = ticks * clock;
+  int exc = ticks * clock_;
   if (!(cpumode & stopwhenidle) || subsys->IsBusy() || fdc->IsBusy()) {
     if ((cpumode & 1) == ms11)
       exc = Z80::ExecDual(&cpu1, &cpu2, exc);
@@ -155,21 +153,21 @@ int PC88::Execute(int ticks) {
   } else {
     exc = Z80::ExecSingle(&cpu1, &cpu2, exc);
   }
-  exc += dexc;
-  dexc = exc % clock;
+  exc += dexc_;
+  dexc_ = exc % clock_;
   LOADEND("Core.CPU");
-  return exc / clock;
+  return exc / clock_;
 }
 
 // ---------------------------------------------------------------------------
 //  実行クロック数変更
 //
 void PC88::Shorten(int ticks) {
-  Z80::StopDual(ticks * clock);
+  Z80::StopDual(ticks * clock_);
 }
 
 int PC88::GetTicks() {
-  return (Z80::GetCCount() + dexc) / clock;
+  return (Z80::GetCCount() + dexc_) / clock_;
 }
 
 // ---------------------------------------------------------------------------
@@ -193,7 +191,8 @@ void PC88::UpdateScreen(bool refresh) {
 
   if (!updated || refresh) {
     if (!(cfgflags & Config::drawprioritylow) ||
-        (dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) | static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
+        (dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) |
+                  static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
     //      if (dstat & (Draw::readytodraw | Draw::shouldrefresh))
     {
       int bpl;

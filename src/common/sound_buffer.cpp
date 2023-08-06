@@ -81,7 +81,8 @@ void SoundBuffer::PutMain(int samples) {
       Mix(buffer_ + write_ * ch_, samples);
     } else {
       // ２度に分けて書く場合
-      Mix(buffer_ + write_ * ch_, buffer_size_ - write_, buffer_, samples - (buffer_size_ - write_));
+      Mix(buffer_ + write_ * ch_, buffer_size_ - write_, buffer_,
+          samples - (buffer_size_ - write_));
     }
     write_ += samples;
     if (write_ >= buffer_size_)

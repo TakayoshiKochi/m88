@@ -8,11 +8,16 @@
 
 #include <assert.h>
 
-bool Scheduler::Init() {
-  evlast = -1;
+Scheduler::Scheduler() {
+  for (auto& event : events) {
+    event = Event();
+  }
+}
 
-  time = 0;
-  return events != 0;
+bool Scheduler::Init() {
+  evlast_ = -1;
+  time_ = 0;
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -25,24 +30,17 @@ Scheduler::AddEvent(int count, IDevice* inst, IDevice::TimeFunc func, int arg, b
 
   int i = 0;
   // 空いてる Event を探す
-  for (; i <= evlast; i++)
+  for (; i <= evlast_; i++)
     if (!events[i].inst)
       break;
-  if (i >= maxevents)
-    return 0;
-  if (i > evlast)
-    evlast = i;
+  // この条件が発生した場合はアボートすべき?
+  if (i >= kMaxEvents)
+    return nullptr;
+  if (i > evlast_)
+    evlast_ = i;
 
   Event& ev = events[i];
-  ev.count = GetTime() + count;
-  ev.inst = inst, ev.func = func, ev.arg = arg;
-  ev.time = repeat ? count : 0;
-
-  // 最短イベント発生時刻を更新する？
-  if ((etime - ev.count) > 0) {
-    Shorten(etime - ev.count);
-    etime = ev.count;
-  }
+  SetEvent(&ev, count, inst, func, arg, repeat);
   return &ev;
 }
 
@@ -59,13 +57,15 @@ void IFCALL Scheduler::SetEvent(Event* ev,
   assert(count > 0);
 
   ev->count = GetTime() + count;
-  ev->inst = inst, ev->func = func, ev->arg = arg;
+  ev->inst = inst;
+  ev->func = func;
+  ev->arg = arg;
   ev->time = repeat ? count : 0;
 
   // 最短イベント発生時刻を更新する？
-  if ((etime - ev->count) > 0) {
-    Shorten(etime - ev->count);
-    etime = ev->count;
+  if ((etime_ - ev->count) > 0) {
+    Shorten(etime_ - ev->count);
+    etime_ = ev->count;
   }
 }
 
@@ -73,12 +73,12 @@ void IFCALL Scheduler::SetEvent(Event* ev,
 //  時間イベントを削除
 //
 bool IFCALL Scheduler::DelEvent(IDevice* inst) {
-  Event* ev = &events[evlast];
-  for (int i = evlast; i >= 0; i--, ev--) {
+  Event* ev = &events[evlast_];
+  for (int i = evlast_; i >= 0; --i, --ev) {
     if (ev->inst == inst) {
-      ev->inst = 0;
-      if (evlast == i)
-        evlast--;
+      ev->inst = nullptr;
+      if (evlast_ == i)
+        --evlast_;
     }
   }
   return true;
@@ -86,48 +86,47 @@ bool IFCALL Scheduler::DelEvent(IDevice* inst) {
 
 bool IFCALL Scheduler::DelEvent(Event* ev) {
   if (ev) {
-    ev->inst = 0;
-    if (ev - events == evlast)
-      evlast--;
+    ev->inst = nullptr;
+    if (ev - events == evlast_)
+      --evlast_;
   }
   return true;
 }
 
-// ---------------------------------------------------------------------------
-//  時間を進める
-//
 int Scheduler::Proceed(int ticks) {
   int t = ticks;
   for (; t > 0;) {
-    int i;
+    int i = 0;
+    // 最短イベント発生時刻を求める
     int ptime = t;
-    for (i = 0; i <= evlast; i++) {
+    for (; i <= evlast_; ++i) {
       Event& ev = events[i];
-      if (ev.inst) {
-        int l = ev.count - time;
-        if (l < ptime)
-          ptime = l;
-      }
+      if (!ev.inst)
+        continue;
+      int l = ev.count - time_;
+      if (l < ptime)
+        ptime = l;
     }
 
-    etime = time + ptime;
-
+    etime_ = time_ + ptime;
+    // 最短イベント発生時刻まで実行する。ただし、途中で新イベントが発生することにより、ptime 以前に終了して
+    // 帰ってくる可能性がある。
     int xtime = Execute(ptime);
-    etime = time += xtime;
+    etime_ = time_ += xtime;
     t -= xtime;
 
-    // イベントを駆動
-    for (i = evlast; i >= 0; i--) {
+    // イベントを発火する
+    for (i = evlast_; i >= 0; --i) {
       Event& ev = events[i];
 
-      if (ev.inst && (ev.count - time <= 0)) {
+      if (ev.inst && (ev.count - time_ <= 0)) {
         IDevice* inst = ev.inst;
         if (ev.time)
           ev.count += ev.time;
         else {
-          ev.inst = 0;
-          if (evlast == i)
-            evlast--;
+          ev.inst = nullptr;
+          if (evlast_ == i)
+            --evlast_;
         }
 
         (inst->*ev.func)(ev.arg);

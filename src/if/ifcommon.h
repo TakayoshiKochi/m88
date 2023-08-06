@@ -166,8 +166,8 @@ struct ITime {
 //  より精度の高い時間を取得するためのインターフェース
 //
 struct ICPUTime {
-  virtual uint32_t IFCALL GetCPUTick() = 0;
-  virtual uint32_t IFCALL GetCPUSpeed() = 0;
+  virtual uint32_t IFCALL GetCPUTick() const = 0;
+  virtual uint32_t IFCALL GetCPUSpeed() const = 0;
 };
 
 // ----------------------------------------------------------------------------
