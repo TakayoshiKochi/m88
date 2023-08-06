@@ -42,10 +42,6 @@ add_library(common ${LIB_TYPE}
         src/common/misc.h
         src/common/scheduler.h
         src/common/scheduler.cpp
-        src/common/sndbuf2.h
-        src/common/sndbuf2.cpp
-        src/common/sound_buffer.h
-        src/common/sound_buffer.cpp
         src/common/soundsrc.h
         src/common/srcbuf.h
         src/common/srcbuf.h)

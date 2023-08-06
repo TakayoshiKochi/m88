@@ -9,7 +9,6 @@
 #include "common/device.h"
 #include "devices/opna.h"
 #include "devices/psg.h"
-#include "common/sound_buffer.h"
 #include "common/scheduler.h"
 
 // ---------------------------------------------------------------------------

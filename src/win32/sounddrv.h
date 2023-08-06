@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#include "common/sndbuf2.h"
+#include "common/soundsrc.h"
 
 // ---------------------------------------------------------------------------
 
