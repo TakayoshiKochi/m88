@@ -33,12 +33,6 @@
     <ClCompile Include="src\common\memory_manager.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\sndbuf2.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="src\common\sound_buffer.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
     <ClCompile Include="src\common\srcbuf.cpp">
       <Filter>common</Filter>
     </ClCompile>
@@ -327,12 +321,6 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\misc.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\sndbuf2.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\sound_buffer.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\soundsrc.h">
