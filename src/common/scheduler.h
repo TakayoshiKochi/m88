@@ -12,13 +12,15 @@
 
 struct SchedulerEvent {
   SchedulerEvent() : count(0), inst(nullptr), func(nullptr), arg(0), time(0) {}
-  // 時間残り
+  // イベント発火時刻 (time_ と直接比較可能な時間)
   int count;
   // nullptr の場合、イベントが無効化されている
   IDevice* inst;
+  // Callback関数
   IDevice::TimeFunc func;
+  // Callback関数に渡す引数
   int arg;
-  // 時間
+  // リピートするイベントの場合の間隔 (単位は Ticks)
   int time;
 };
 
@@ -52,6 +54,7 @@ class Scheduler : public IScheduler, public ITime {
   int IFCALL GetTime() override;
 
  private:
+  // 1 tick = 10μs (≒ 40clocks at 4MHz)
   virtual int Execute(int ticks) = 0;
   virtual void Shorten(int ticks) = 0;
   virtual int GetTicks() = 0;

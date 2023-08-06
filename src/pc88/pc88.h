@@ -89,9 +89,11 @@ class PC88 : public Scheduler, public ICPUTime {
   void ApplyConfig(PC8801::Config*);
   void SetVolume(PC8801::Config*);
 
-  uint32_t IFCALL GetCPUTick() { return cpu1.GetCount(); }
-  uint32_t IFCALL GetCPUSpeed() { return clock; }
-  uint32_t GetEffectiveSpeed() { return eclock; }
+  // Overrides ICPUTime
+  uint32_t IFCALL GetCPUTick() const override { return cpu1.GetCount(); }
+  uint32_t IFCALL GetCPUSpeed() const override { return clock_; }
+
+  uint32_t GetEffectiveSpeed() const { return eclock_; }
   void TimeSync();
 
   void UpdateScreen(bool refresh = false);
@@ -108,8 +110,8 @@ class PC88 : public Scheduler, public ICPUTime {
   PC8801::PD8257* GetDMAC() { return dmac; }
   PC8801::Beep* GetBEEP() { return beep; }
 
-  bool SaveShapshot(const char* filename);
-  bool LoadShapshot(const char* filename);
+  // bool SaveShapshot(const char* filename);
+  // bool LoadShapshot(const char* filename);
 
   int GetFramePeriod();
 
@@ -162,10 +164,13 @@ class PC88 : public Scheduler, public ICPUTime {
 
   Draw::Region region;
 
-  int clock;
+  // 1Tickあたりのクロック数 (e.g. 4MHz のとき 40)
+  int clock_ = 100;
   int cpumode;
-  int dexc;
-  int eclock;
+  // Tick単位で実行した時のクロックの剰余、次回分に加算して誤差を防止する
+  int dexc_ = 0;
+  // 実効速度 (単位はTick)
+  int eclock_;
 
   uint32_t cfgflags;
   uint32_t cfgflag2;

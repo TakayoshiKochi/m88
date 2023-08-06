@@ -33,6 +33,7 @@ Scheduler::AddEvent(int count, IDevice* inst, IDevice::TimeFunc func, int arg, b
   for (; i <= evlast_; i++)
     if (!events[i].inst)
       break;
+  // この条件が発生した場合はアボートすべき?
   if (i >= kMaxEvents)
     return nullptr;
   if (i > evlast_)
@@ -96,24 +97,26 @@ int Scheduler::Proceed(int ticks) {
   int t = ticks;
   for (; t > 0;) {
     int i = 0;
+    // 最短イベント発生時刻を求める
     int ptime = t;
     for (; i <= evlast_; ++i) {
       Event& ev = events[i];
-      if (ev.inst) {
-        int l = ev.count - time_;
-        if (l < ptime)
-          ptime = l;
-      }
+      if (!ev.inst)
+        continue;
+      int l = ev.count - time_;
+      if (l < ptime)
+        ptime = l;
     }
 
     etime_ = time_ + ptime;
-
+    // 最短イベント発生時刻まで実行する。ただし、途中で新イベントが発生することにより、ptime 以前に終了して
+    // 帰ってくる可能性がある。
     int xtime = Execute(ptime);
     etime_ = time_ += xtime;
     t -= xtime;
 
-    // イベントを駆動
-    for (i = evlast_; i >= 0; i--) {
+    // イベントを発火する
+    for (i = evlast_; i >= 0; --i) {
       Event& ev = events[i];
 
       if (ev.inst && (ev.count - time_ <= 0)) {
