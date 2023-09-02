@@ -39,10 +39,13 @@ class IOBus : public IIOAccess, public IIOBus {
 
   bool IsSyncPort(uint32_t port);
 
-  bool IFCALL Connect(IDevice* device, const Connector* connector);
-  bool IFCALL Disconnect(IDevice* device);
-  uint32_t IFCALL In(uint32_t port);
-  void IFCALL Out(uint32_t port, uint32_t data);
+  // Overrides IIOBus
+  bool IFCALL Connect(IDevice* device, const Connector* connector) override;
+  bool IFCALL Disconnect(IDevice* device) override;
+
+  // Overrides IIOAccess
+  uint32_t IFCALL In(uint32_t port) override;
+  void IFCALL Out(uint32_t port, uint32_t data) override;
 
   // inactive line is high
   static uint32_t Active(uint32_t data, uint32_t bits) { return data | ~bits; }

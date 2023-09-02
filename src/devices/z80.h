@@ -54,7 +54,8 @@ struct Z80Reg {
   uint8_t ireg;
   uint8_t rreg, rreg7; /* R(0-6 bit), R(7th bit) */
   uint8_t intmode;     /* 割り込みモード */
-  bool iff1, iff2;
+  bool iff1;
+  bool iff2;
 };
 
 #undef PAD
