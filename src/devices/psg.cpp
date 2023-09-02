@@ -8,9 +8,76 @@
 
 #include <math.h>
 
+// ---------------------------------------------------------------------------
+//  テーブル
+//
+namespace {
+const int noisetablesize = 1 << 11;  // ←メモリ使用量を減らしたいなら減らして
+
+uint32_t enveloptable[16][64] = {
+    0,
+};
+uint32_t noisetable[noisetablesize] = {
+    0,
+};
+int EmitTable[0x20] = {
+    -1,
+};
+
+using Sample = PSG::Sample;
+// ---------------------------------------------------------------------------
+//  ノイズテーブルを作成する
+//
+void MakeNoiseTable() {
+  if (!noisetable[0]) {
+    int noise = 14321;
+    for (unsigned int & i : noisetable) {
+      int n = 0;
+      for (int j = 0; j < 32; j++) {
+        n = n * 2 + (noise & 1);
+        noise = (noise >> 1) | (((noise << 14) ^ (noise << 16)) & 0x10000);
+      }
+      i = n;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  エンベロープ波形テーブル
+//
+void MakeEnvelopTable() {
+  // 0 lo  1 up 2 down 3 hi
+  constexpr uint8_t table1[16 * 2] = {
+      2, 0, 2, 0, 2, 0, 2, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+      2, 2, 2, 0, 2, 1, 2, 3, 1, 1, 1, 3, 1, 2, 1, 0,
+  };
+  constexpr uint8_t table2[4] = {0, 0, 31, 31};
+  constexpr  int8_t table3[4] = {0, 1, -1, 0};
+
+  uint32_t* ptr = enveloptable[0];
+
+  for (unsigned char i : table1) {
+    uint8_t v = table2[i];
+
+    for (int j = 0; j < 32; j++) {
+      *ptr++ = EmitTable[v];
+      v += table3[i];
+    }
+  }
+}
+
 inline int Limit(int v, int max, int min) {
   return v > max ? max : (v < min ? min : v);
 }
+
+inline void StoreSample(Sample& dest, int32_t data) {
+  if (sizeof(Sample) == 2)
+    dest = (Sample)Limit(dest + data, 0x7fff, -0x8000);
+  else
+    dest += data;
+}
+
+}  // namespace
 
 // ---------------------------------------------------------------------------
 //  コンストラクタ・デストラクタ
@@ -19,10 +86,7 @@ PSG::PSG() {
   SetVolume(0);
   MakeNoiseTable();
   Reset();
-  mask = 0x3f;
 }
-
-PSG::~PSG() {}
 
 // ---------------------------------------------------------------------------
 //  PSG を初期化する(RESET)
@@ -44,34 +108,16 @@ void PSG::SetClock(int clock, int rate) {
   nperiodbase = int((1 << noiseshift) / 4.0 * clock / rate);
 
   // 各データの更新
-  int tmp;
-  tmp = ((reg[0] + reg[1] * 256) & 0xfff);
+  int tmp = GetTune(0);
   speriod[0] = tmp ? tperiodbase / tmp : tperiodbase;
-  tmp = ((reg[2] + reg[3] * 256) & 0xfff);
+  tmp = GetTune(1);
   speriod[1] = tmp ? tperiodbase / tmp : tperiodbase;
-  tmp = ((reg[4] + reg[5] * 256) & 0xfff);
+  tmp = GetTune(2);
   speriod[2] = tmp ? tperiodbase / tmp : tperiodbase;
-  tmp = reg[6] & 0x1f;
+  tmp = reg_[6] & 0x1f;
   nperiod = tmp ? nperiodbase / tmp / 2 : nperiodbase / 2;
-  tmp = ((reg[11] + reg[12] * 256) & 0xffff);
+  tmp = ((reg_[11] + reg_[12] * 256) & 0xffff);
   eperiod = tmp ? eperiodbase / tmp : eperiodbase * 2;
-}
-
-// ---------------------------------------------------------------------------
-//  ノイズテーブルを作成する
-//
-void PSG::MakeNoiseTable() {
-  if (!noisetable[0]) {
-    int noise = 14321;
-    for (int i = 0; i < noisetablesize; i++) {
-      int n = 0;
-      for (int j = 0; j < 32; j++) {
-        n = n * 2 + (noise & 1);
-        noise = (noise >> 1) | (((noise << 14) ^ (noise << 16)) & 0x10000);
-      }
-      noisetable[i] = n;
-    }
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -88,37 +134,13 @@ void PSG::SetVolume(int volume) {
   EmitTable[0] = 0;
   MakeEnvelopTable();
 
-  SetChannelMask(~mask);
+  SetChannelMask(~mask_);
 }
 
 void PSG::SetChannelMask(int c) {
-  mask = ~c;
-  for (int i = 0; i < 3; i++)
-    olevel[i] = mask & (1 << i) ? EmitTable[(reg[8 + i] & 15) * 2 + 1] : 0;
-}
-
-// ---------------------------------------------------------------------------
-//  エンベロープ波形テーブル
-//
-void PSG::MakeEnvelopTable() {
-  // 0 lo  1 up 2 down 3 hi
-  static uint8_t table1[16 * 2] = {
-      2, 0, 2, 0, 2, 0, 2, 0, 1, 0, 1, 0, 1, 0, 1, 0,
-      2, 2, 2, 0, 2, 1, 2, 3, 1, 1, 1, 3, 1, 2, 1, 0,
-  };
-  static uint8_t table2[4] = {0, 0, 31, 31};
-  static uint8_t table3[4] = {0, 1, -1, 0};
-
-  uint32_t* ptr = enveloptable[0];
-
-  for (int i = 0; i < 16 * 2; i++) {
-    uint8_t v = table2[table1[i]];
-
-    for (int j = 0; j < 32; j++) {
-      *ptr++ = EmitTable[v];
-      v += table3[table1[i]];
-    }
-  }
+  mask_ = ~c;
+  for (int ch = 0; ch < 3; ++ch)
+    olevel[ch] = IsMasked(ch) ? EmitTable[(reg_[8 + ch] & 15) * 2 + 1] : 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -127,68 +149,63 @@ void PSG::MakeEnvelopTable() {
 //  data        セットする値
 //
 void PSG::SetReg(uint32_t regnum, uint8_t data) {
-  if (regnum < 0x10) {
-    reg[regnum] = data;
-    switch (regnum) {
-      int tmp;
+  if (regnum >= 0x10)
+    return;
 
-      case 0:  // ChA Fine Tune
-      case 1:  // ChA Coarse Tune
-        tmp = ((reg[0] + reg[1] * 256) & 0xfff);
-        speriod[0] = tmp ? tperiodbase / tmp : tperiodbase;
-        break;
+  reg_[regnum] = data;
+  int tmp = 0;
 
-      case 2:  // ChB Fine Tune
-      case 3:  // ChB Coarse Tune
-        tmp = ((reg[2] + reg[3] * 256) & 0xfff);
-        speriod[1] = tmp ? tperiodbase / tmp : tperiodbase;
-        break;
+  switch (regnum) {
+    case 0:  // ChA Fine Tune
+    case 1:  // ChA Coarse Tune
+      tmp = GetTune(0);
+      speriod[0] = tmp ? tperiodbase / tmp : tperiodbase;
+      break;
 
-      case 4:  // ChC Fine Tune
-      case 5:  // ChC Coarse Tune
-        tmp = ((reg[4] + reg[5] * 256) & 0xfff);
-        speriod[2] = tmp ? tperiodbase / tmp : tperiodbase;
-        break;
+    case 2:  // ChB Fine Tune
+    case 3:  // ChB Coarse Tune
+      tmp = GetTune(1);
+      speriod[1] = tmp ? tperiodbase / tmp : tperiodbase;
+      break;
 
-      case 6:  // Noise generator control
-        data &= 0x1f;
-        nperiod = data ? nperiodbase / data : nperiodbase;
-        break;
+    case 4:  // ChC Fine Tune
+    case 5:  // ChC Coarse Tune
+      tmp = GetTune(2);
+      speriod[2] = tmp ? tperiodbase / tmp : tperiodbase;
+      break;
 
-      case 8:
-        olevel[0] = mask & 1 ? EmitTable[(data & 15) * 2 + 1] : 0;
-        break;
+    case 6:  // Noise generator control
+      data &= 0x1f;
+      nperiod = data ? nperiodbase / data : nperiodbase;
+      break;
 
-      case 9:
-        olevel[1] = mask & 2 ? EmitTable[(data & 15) * 2 + 1] : 0;
-        break;
+    case 8:
+      olevel[0] = IsMasked(0) ? EmitTable[(data & 15) * 2 + 1] : 0;
+      break;
 
-      case 10:
-        olevel[2] = mask & 4 ? EmitTable[(data & 15) * 2 + 1] : 0;
-        break;
+    case 9:
+      olevel[1] = IsMasked(1) ? EmitTable[(data & 15) * 2 + 1] : 0;
+      break;
 
-      case 11:  // Envelop period
-      case 12:
-        tmp = ((reg[11] + reg[12] * 256) & 0xffff);
-        eperiod = tmp ? eperiodbase / tmp : eperiodbase * 2;
-        break;
+    case 10:
+      olevel[2] = IsMasked(2) ? EmitTable[(data & 15) * 2 + 1] : 0;
+      break;
 
-      case 13:  // Envelop shape
-        ecount = 0;
-        envelop = enveloptable[data & 15];
-        break;
-    }
+    case 11:  // Envelop period
+    case 12:
+      tmp = ((reg_[11] + reg_[12] * 256) & 0xffff);
+      eperiod = tmp ? eperiodbase / tmp : eperiodbase * 2;
+      break;
+
+    case 13:  // Envelop shape
+      ecount = 0;
+      envelop = enveloptable[data & 15];
+      break;
+
+    default:
+      // Ignore 14, 15
+      break;
   }
-}
-
-// ---------------------------------------------------------------------------
-//
-//
-inline void PSG::StoreSample(Sample& dest, int32_t data) {
-  if (sizeof(Sample) == 2)
-    dest = (Sample)Limit(dest + data, 0x7fff, -0x8000);
-  else
-    dest += data;
 }
 
 // ---------------------------------------------------------------------------
@@ -197,10 +214,13 @@ inline void PSG::StoreSample(Sample& dest, int32_t data) {
 //  nsamples    展開する PCM のサンプル数
 //
 void PSG::Mix(Sample* dest, int nsamples) {
-  uint8_t chenable[3], nenable[3];
-  uint8_t r7 = ~reg[7];
+  // channel enabled
+  uint8_t chenable[3];
+  // noise enabled
+  uint8_t nenable[3];
+  uint8_t r7 = ~reg_[7];
 
-  if ((r7 & 0x3f) | ((reg[8] | reg[9] | reg[10]) & 0x1f)) {
+  if ((r7 & 0x3f) | ((reg_[8] | reg_[9] | reg_[10]) & 0x1f)) {
     chenable[0] = (r7 & 0x01) && (speriod[0] <= (1 << toneshift));
     chenable[1] = (r7 & 0x02) && (speriod[1] <= (1 << toneshift));
     chenable[2] = (r7 & 0x04) && (speriod[2] <= (1 << toneshift));
@@ -208,11 +228,12 @@ void PSG::Mix(Sample* dest, int nsamples) {
     nenable[1] = (r7 >> 4) & 1;
     nenable[2] = (r7 >> 5) & 1;
 
-    int noise, sample;
+    int noise;
+    int sample;
     uint32_t env;
-    uint32_t* p1 = ((mask & 1) && (reg[8] & 0x10)) ? &env : &olevel[0];
-    uint32_t* p2 = ((mask & 2) && (reg[9] & 0x10)) ? &env : &olevel[1];
-    uint32_t* p3 = ((mask & 4) && (reg[10] & 0x10)) ? &env : &olevel[2];
+    uint32_t* p1 = IsMasked(0) && IsNoiseEnabled(0) ? &env : &olevel[0];
+    uint32_t* p2 = IsMasked(1) && IsNoiseEnabled(1) ? &env : &olevel[1];
+    uint32_t* p3 = IsMasked(2) && IsNoiseEnabled(2) ? &env : &olevel[2];
 
 #define SCOUNT(ch) (scount[ch] >> (toneshift + oversampling))
 
@@ -220,17 +241,16 @@ void PSG::Mix(Sample* dest, int nsamples) {
       // エンベロープ無し
       if ((r7 & 0x38) == 0) {
         // ノイズ無し
-        for (int i = 0; i < nsamples; i++) {
+        for (int i = 0; i < nsamples; ++i) {
           sample = 0;
-          for (int j = 0; j < (1 << oversampling); j++) {
-            int x, y, z;
-            x = (SCOUNT(0) & chenable[0]) - 1;
+          for (int j = 0; j < (1 << oversampling); ++j) {
+            int x = (SCOUNT(0) & chenable[0]) - 1;
             sample += (olevel[0] + x) ^ x;
             scount[0] += speriod[0];
-            y = (SCOUNT(1) & chenable[1]) - 1;
+            int y = (SCOUNT(1) & chenable[1]) - 1;
             sample += (olevel[1] + y) ^ y;
             scount[1] += speriod[1];
-            z = (SCOUNT(2) & chenable[2]) - 1;
+            int z = (SCOUNT(2) & chenable[2]) - 1;
             sample += (olevel[2] + z) ^ z;
             scount[2] += speriod[2];
           }
@@ -241,9 +261,9 @@ void PSG::Mix(Sample* dest, int nsamples) {
         }
       } else {
         // ノイズ有り
-        for (int i = 0; i < nsamples; i++) {
+        for (int i = 0; i < nsamples; ++i) {
           sample = 0;
-          for (int j = 0; j < (1 << oversampling); j++) {
+          for (int j = 0; j < (1 << oversampling); ++j) {
 #ifdef _M_IX86
             noise =
                 noisetable[(ncount >> (noiseshift + oversampling + 6)) & (noisetablesize - 1)] >>
@@ -255,14 +275,13 @@ void PSG::Mix(Sample* dest, int nsamples) {
 #endif
             ncount += nperiod;
 
-            int x, y, z;
-            x = ((SCOUNT(0) & chenable[0]) | (nenable[0] & noise)) - 1;  // 0 or -1
+            int x = ((SCOUNT(0) & chenable[0]) | (nenable[0] & noise)) - 1;  // 0 or -1
             sample += (olevel[0] + x) ^ x;
             scount[0] += speriod[0];
-            y = ((SCOUNT(1) & chenable[1]) | (nenable[1] & noise)) - 1;
+            int y = ((SCOUNT(1) & chenable[1]) | (nenable[1] & noise)) - 1;
             sample += (olevel[1] + y) ^ y;
             scount[1] += speriod[1];
-            z = ((SCOUNT(2) & chenable[2]) | (nenable[2] & noise)) - 1;
+            int z = ((SCOUNT(2) & chenable[2]) | (nenable[2] & noise)) - 1;
             sample += (olevel[2] + z) ^ z;
             scount[2] += speriod[2];
           }
@@ -276,20 +295,20 @@ void PSG::Mix(Sample* dest, int nsamples) {
       // エンベロープの計算をさぼった帳尻あわせ
       ecount = (ecount >> 8) + (eperiod >> (8 - oversampling)) * nsamples;
       if (ecount >= (1 << (envshift + 6 + oversampling - 8))) {
-        if ((reg[0x0d] & 0x0b) != 0x0a)
+        if ((reg_[0x0d] & 0x0b) != 0x0a)
           ecount |= (1 << (envshift + 5 + oversampling - 8));
         ecount &= (1 << (envshift + 6 + oversampling - 8)) - 1;
       }
       ecount <<= 8;
     } else {
       // エンベロープあり
-      for (int i = 0; i < nsamples; i++) {
+      for (int i = 0; i < nsamples; ++i) {
         sample = 0;
-        for (int j = 0; j < (1 << oversampling); j++) {
+        for (int j = 0; j < (1 << oversampling); ++j) {
           env = envelop[ecount >> (envshift + oversampling)];
           ecount += eperiod;
           if (ecount >= (1 << (envshift + 6 + oversampling))) {
-            if ((reg[0x0d] & 0x0b) != 0x0a)
+            if ((reg_[0x0d] & 0x0b) != 0x0a)
               ecount |= (1 << (envshift + 5 + oversampling));
             ecount &= (1 << (envshift + 6 + oversampling)) - 1;
           }
@@ -302,14 +321,13 @@ void PSG::Mix(Sample* dest, int nsamples) {
 #endif
           ncount += nperiod;
 
-          int x, y, z;
-          x = ((SCOUNT(0) & chenable[0]) | (nenable[0] & noise)) - 1;  // 0 or -1
+          int x = ((SCOUNT(0) & chenable[0]) | (nenable[0] & noise)) - 1;  // 0 or -1
           sample += (*p1 + x) ^ x;
           scount[0] += speriod[0];
-          y = ((SCOUNT(1) & chenable[1]) | (nenable[1] & noise)) - 1;
+          int y = ((SCOUNT(1) & chenable[1]) | (nenable[1] & noise)) - 1;
           sample += (*p2 + y) ^ y;
           scount[1] += speriod[1];
-          z = ((SCOUNT(2) & chenable[2]) | (nenable[2] & noise)) - 1;
+          int z = ((SCOUNT(2) & chenable[2]) | (nenable[2] & noise)) - 1;
           sample += (*p3 + z) ^ z;
           scount[2] += speriod[2];
         }
@@ -321,16 +339,3 @@ void PSG::Mix(Sample* dest, int nsamples) {
     }
   }
 }
-
-// ---------------------------------------------------------------------------
-//  テーブル
-//
-uint32_t PSG::noisetable[noisetablesize] = {
-    0,
-};
-int PSG::EmitTable[0x20] = {
-    -1,
-};
-uint32_t PSG::enveloptable[16][64] = {
-    0,
-};
