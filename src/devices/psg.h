@@ -45,13 +45,6 @@ class PSG {
  public:
   using Sample = PSG_SAMPLETYPE;
 
-  enum {
-    toneshift = 24,
-    envshift = 22,
-    noiseshift = 14,
-    oversampling = 2,  // ← 音質より速度が優先なら減らすといいかも
-  };
-
   PSG();
   ~PSG() = default;
 
@@ -69,24 +62,25 @@ class PSG {
   [[nodiscard]] bool IsMasked(int ch) const { return (mask_ & (1 << ch)) != 0; }
   [[nodiscard]] int GetVolume(int ch) const { return reg_[8 + ch] & 0x1f; }
   [[nodiscard]] bool IsNoiseEnabled(int ch) const { return (GetVolume(ch) & 0x10) != 0; }
+  // Get tone tune (12bits).
   [[nodiscard]] int GetTune(int ch) const { return (reg_[ch * 2] | (reg_[ch * 2 + 1] << 8)) & 0xfff; }
   uint8_t reg_[16] = {0};
 
-  const uint32_t* envelop = nullptr;
+  const uint32_t* envelop_ = nullptr;
 
-  uint32_t olevel[3] = {0, 0, 0};
+  uint32_t output_level_[3] = {0, 0, 0};
   uint32_t scount[3] = {0, 0, 0};
   uint32_t speriod[3] = {0, 0, 0};
 
-  uint32_t ecount = 0;
-  uint32_t eperiod = 0;
+  uint32_t env_count_ = 0;
+  uint32_t env_period_ = 0;
 
-  uint32_t ncount = 0;
-  uint32_t nperiod = 0;
+  uint32_t noise_count_ = 0;
+  uint32_t noise_period_ = 0;
 
-  uint32_t tperiodbase = 0;
-  uint32_t eperiodbase = 0;
-  uint32_t nperiodbase = 0;
+  uint32_t tone_period_base_ = 0;
+  uint32_t env_period_base_ = 0;
+  uint32_t noise_period_base_ = 0;
   int mask_ = 0x3f;
 };
 
