@@ -38,8 +38,8 @@ inline int Limit(int v, int max, int min) {
 
 namespace FM {
 //  Types ----------------------------------------------------------------
-typedef FM_SAMPLETYPE Sample;
-typedef int32_t ISample;
+using Sample = FM_SAMPLETYPE;
+using ISample = int32_t;
 
 enum OpType { typeN = 0, typeM = 1 };
 
@@ -53,7 +53,7 @@ class Operator {
   Operator();
   void SetChip(Chip* chip) { chip_ = chip; }
 
-  static void MakeTimeTable(uint32_t ratio);
+  // static void MakeTimeTable(uint32_t ratio);
 
   ISample Calc(ISample in);
   ISample CalcL(ISample in);
@@ -82,7 +82,7 @@ class Operator {
   void SetSSGEC(uint32_t ssgec);
   void SetFNum(uint32_t fnum);
   void SetDPBN(uint32_t dp, uint32_t bn);
-  void SetMode(bool modulator);
+  // void SetMode(bool modulator);
   void SetAMON(bool on);
   void SetMS(uint32_t ms);
   void Mute(bool);
@@ -90,9 +90,9 @@ class Operator {
   //      static void SetAML(uint32_t l);
   //      static void SetPML(uint32_t l);
 
-  int Out() const { return out_; }
+  [[nodiscard]] int Out() const { return out_; }
 
-  int dbgGetIn2() const { return in2_; }
+  // int dbgGetIn2() const { return in2_; }
   void dbgStopPG() {
     pg_diff_ = 0;
     pg_diff_lfo_ = 0;
@@ -123,10 +123,10 @@ class Operator {
   void EGCalc();
   void EGStep();
   void ShiftPhase(EGPhase nextphase);
-  void SSGShiftPhase(int mode);
+  // void SSGShiftPhase(int mode);
   void SetEGRate(uint32_t);
   void EGUpdate();
-  int FBCalc(int fb);
+  // int FBCalc(int fb);
   ISample LogToLin(uint32_t a);
 
   OpType type_;                 // OP の種類 (M, N...)
@@ -166,8 +166,8 @@ class Operator {
   bool mute_;
 
   //  Tables ---------------------------------------------------------------
-  static Counter rate_table[16];
-  static uint32_t multable[4][16];
+  // static Counter rate_table[16];
+  // static uint32_t multable[4][16];
 
   static const uint8_t notetable[128];
   static const int8_t dttable[256];
@@ -187,8 +187,8 @@ class Operator {
  public:
   int dbgopout_;
   int dbgpgout_;
-  static const int32_t* dbgGetClTable() { return cltable; }
-  static const uint32_t* dbgGetSineTable() { return sinetable; }
+  // static const int32_t* dbgGetClTable() { return cltable; }
+  // static const uint32_t* dbgGetSineTable() { return sinetable; }
 };
 
 //  4-op Channel ---------------------------------------------------------
@@ -200,10 +200,11 @@ class Channel4 {
 
   ISample Calc();
   ISample CalcL();
-  ISample CalcN(uint32_t noise);
-  ISample CalcLN(uint32_t noise);
+  ISample CalcN(uint32_t noise);  // OPM only
+  ISample CalcLN(uint32_t noise);  // OPM only
   void SetFNum(uint32_t fnum);
-  void SetFB(uint32_t fb);
+  void SetFB(uint32_t feedback);
+  // Used in the OPM implementation
   void SetKCKF(uint32_t kc, uint32_t kf);
   void SetAlgorithm(uint32_t algo);
   int Prepare();
@@ -213,12 +214,14 @@ class Channel4 {
   void Reset();
   void SetMS(uint32_t ms);
   void Mute(bool);
-  void Refresh();
+  // void Refresh();
 
+#if 0
   void dbgStopPG() {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; ++i)
       op[i].dbgStopPG();
   }
+#endif
 
  private:
   static const uint8_t fbtable[8];
@@ -248,11 +251,11 @@ class Chip {
   void SetPML(uint32_t l);
   void SetPMV(int pmv) { pmv_ = pmv; }
 
-  uint32_t GetMulValue(uint32_t dt2, uint32_t mul) const { return multable_[dt2][mul]; }
-  uint32_t GetAML() const { return aml_; }
-  uint32_t GetPML() const { return pml_; }
-  int GetPMV() const { return pmv_; }
-  uint32_t GetRatio() const { return ratio_; }
+  [[nodiscard]] uint32_t GetMulValue(uint32_t dt2, uint32_t mul) const { return multable_[dt2][mul]; }
+  [[nodiscard]] uint32_t GetAML() const { return aml_; }
+  [[nodiscard]] uint32_t GetPML() const { return pml_; }
+  [[nodiscard]] int GetPMV() const { return pmv_; }
+  [[nodiscard]] uint32_t GetRatio() const { return ratio_; }
 
  private:
   void MakeTable();
@@ -501,12 +504,14 @@ inline void Channel4::Mute(bool m) {
     op[i].Mute(m);
 }
 
+#if 0
 //  内部パラメータを再計算
 inline void Channel4::Refresh() {
   for (int i = 0; i < 4; i++)
     op[i].param_changed_ = true;
   PARAMCHANGE(3);
 }
+#endif
 
 inline void Channel4::SetChip(Chip* chip) {
   chip_ = chip;

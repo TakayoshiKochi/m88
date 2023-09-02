@@ -105,34 +105,44 @@ class MemoryManager : public IMemoryManager,
   using RdFunc = ReadMemManager::RdFunc;
   using WrFunc = WriteMemManager::WrFunc;
 
-  bool Init(uint32_t sas, Page* read = 0, Page* write = 0);
-  int IFCALL Connect(void* inst, bool highpriority = false);
-  bool IFCALL Disconnect(uint32_t pid);
+  bool Init(uint32_t sas, Page* read = nullptr, Page* write = nullptr);
+
+  // Overrides IMemoryManager
+  int IFCALL Connect(void* inst, bool highpriority = false) override;
+  bool IFCALL Disconnect(uint32_t pid) override;
+  // ??
   bool Disconnect(void* inst);
 
-  bool IFCALL AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) {
+  // Overrides IMemoryManager
+  bool IFCALL AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) override {
     return ReadMemManager::AllocR(pid, addr, length, ptr);
   }
-  bool IFCALL AllocR(uint32_t pid, uint32_t addr, uint32_t length, RdFunc ptr) {
+  bool IFCALL AllocR(uint32_t pid, uint32_t addr, uint32_t length, RdFunc ptr) override {
     return ReadMemManager::AllocR(pid, addr, length, ptr);
   }
-  bool IFCALL ReleaseR(uint32_t pid, uint32_t addr, uint32_t length) {
+  bool IFCALL ReleaseR(uint32_t pid, uint32_t addr, uint32_t length) override {
     return ReadMemManager::ReleaseR(pid, addr, length);
   }
-  uint32_t IFCALL Read8(uint32_t addr) { return ReadMemManager::Read8(addr); }
-  uint32_t IFCALL Read8P(uint32_t pid, uint32_t addr) { return ReadMemManager::Read8P(pid, addr); }
-  bool IFCALL AllocW(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) {
+  uint32_t IFCALL Read8P(uint32_t pid, uint32_t addr) override {
+    return ReadMemManager::Read8P(pid, addr);
+  }
+  bool IFCALL AllocW(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr) override {
     return WriteMemManager::AllocW(pid, addr, length, ptr);
   }
-  bool IFCALL AllocW(uint32_t pid, uint32_t addr, uint32_t length, WrFunc ptr) {
+  bool IFCALL AllocW(uint32_t pid, uint32_t addr, uint32_t length, WrFunc ptr) override {
     return WriteMemManager::AllocW(pid, addr, length, ptr);
   }
-  bool IFCALL ReleaseW(uint32_t pid, uint32_t addr, uint32_t length) {
+  bool IFCALL ReleaseW(uint32_t pid, uint32_t addr, uint32_t length) override {
     return WriteMemManager::ReleaseW(pid, addr, length);
   }
-  void IFCALL Write8(uint32_t addr, uint32_t data) { WriteMemManager::Write8(addr, data); }
-  void IFCALL Write8P(uint32_t pid, uint32_t addr, uint32_t data) {
+  void IFCALL Write8P(uint32_t pid, uint32_t addr, uint32_t data) override {
     WriteMemManager::Write8P(pid, addr, data);
+  }
+
+  // Overrides IMemoryAccess
+  uint32_t IFCALL Read8(uint32_t addr) override { return ReadMemManager::Read8(addr); }
+  void IFCALL Write8(uint32_t addr, uint32_t data) override {
+    WriteMemManager::Write8(addr, data);
   }
 };
 

@@ -43,19 +43,10 @@
 //
 class PSG {
  public:
-  typedef PSG_SAMPLETYPE Sample;
+  using Sample = PSG_SAMPLETYPE;
 
-  enum {
-    noisetablesize = 1 << 11,  // ←メモリ使用量を減らしたいなら減らして
-    toneshift = 24,
-    envshift = 22,
-    noiseshift = 14,
-    oversampling = 2,  // ← 音質より速度が優先なら減らすといいかも
-  };
-
- public:
   PSG();
-  ~PSG();
+  ~PSG() = default;
 
   void Mix(Sample* dest, int nsamples);
   void SetClock(int clock, int rate);
@@ -65,28 +56,32 @@ class PSG {
 
   void Reset();
   void SetReg(uint32_t regnum, uint8_t data);
-  uint32_t GetReg(uint32_t regnum) { return reg[regnum & 0x0f]; }
+  uint32_t GetReg(uint32_t regnum) { return reg_[regnum & 0x0f]; }
 
- protected:
-  void MakeNoiseTable();
-  void MakeEnvelopTable();
-  static void StoreSample(Sample& dest, int32_t data);
+ private:
+  [[nodiscard]] bool IsMasked(int ch) const { return (mask_ & (1 << ch)) != 0; }
+  [[nodiscard]] int GetVolume(int ch) const { return reg_[8 + ch] & 0x1f; }
+  [[nodiscard]] bool IsNoiseEnabled(int ch) const { return (GetVolume(ch) & 0x10) != 0; }
+  // Get tone tune (12bits).
+  [[nodiscard]] int GetTune(int ch) const { return (reg_[ch * 2] | (reg_[ch * 2 + 1] << 8)) & 0xfff; }
+  uint8_t reg_[16] = {0};
 
-  uint8_t reg[16];
+  const uint32_t* envelop_ = nullptr;
 
-  const uint32_t* envelop;
-  uint32_t olevel[3];
-  uint32_t scount[3], speriod[3];
-  uint32_t ecount, eperiod;
-  uint32_t ncount, nperiod;
-  uint32_t tperiodbase;
-  uint32_t eperiodbase;
-  uint32_t nperiodbase;
-  int mask;
+  uint32_t output_level_[3] = {0, 0, 0};
+  uint32_t scount[3] = {0, 0, 0};
+  uint32_t speriod[3] = {0, 0, 0};
 
-  static uint32_t enveloptable[16][64];
-  static uint32_t noisetable[noisetablesize];
-  static int EmitTable[32];
+  uint32_t env_count_ = 0;
+  uint32_t env_period_ = 0;
+
+  uint32_t noise_count_ = 0;
+  uint32_t noise_period_ = 0;
+
+  uint32_t tone_period_base_ = 0;
+  uint32_t env_period_base_ = 0;
+  uint32_t noise_period_base_ = 0;
+  int mask_ = 0x3f;
 };
 
 #endif  // PSG_H
