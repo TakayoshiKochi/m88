@@ -12,12 +12,12 @@
 
 #include "common/draw.h"
 #include "common/error.h"
+#include "common/file.h"
 #include "common/scheduler.h"
+#include "common/status.h"
 #include "pc88/config.h"
 #include "pc88/pc88.h"
 #include "pc88/pd8257.h"
-#include "win32/file.h"
-#include "win32/status.h"
 
 // #define LOGNAME "crtc"
 #include "common/diag.h"
@@ -367,7 +367,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
 //  フォントファイル読み込み
 //
 bool CRTC::LoadFontFile() {
-  FileIO file;
+  FileIODummy file;
 
   if (file.Open("FONT80SR.ROM", FileIO::readonly)) {
     delete[] cg80rom;
@@ -584,7 +584,7 @@ void CRTC::UpdateScreen(uint8_t* image, int _bpl, Draw::Region& region, bool ref
     ClearText(image);
   }
 
-  //  statusdisplay.Show(10, 0, "CRTC: %.2x %.2x %.2x", status, mode, attr);
+  //  g_status_display->Show(10, 0, "CRTC: %.2x %.2x %.2x", status, mode, attr);
   if (status & 0x10) {
     static const uint8_t ctype[5] = {0, underline, underline, reverse, reverse};
 

@@ -9,8 +9,8 @@
 #include <algorithm>
 
 #include "common/io_bus.h"
-#include "win32/file.h"
-#include "win32/status.h"
+#include "common/file.h"
+#include "common/status.h"
 
 #define LOGNAME "tape"
 #include "common/diag.h"
@@ -59,7 +59,7 @@ bool TapeManager::Init(Scheduler* s, IOBus* b, int pi) {
 bool TapeManager::Open(const char* file) {
   Close();
 
-  FileIO fio;
+  FileIODummy fio;
   if (!fio.Open(file, FileIO::readonly))
     return false;
 
@@ -136,7 +136,7 @@ bool TapeManager::Motor(bool s) {
   if (motor == s)
     return true;
   if (s) {
-    statusdisplay.Show(10, 2000, "Motor on: %d %d", timerremain, timercount);
+    g_status_display->Show(10, 2000, "Motor on: %d %d", timerremain, timercount);
     time = scheduler->GetTime();
     if (timerremain)
       event = scheduler->AddEvent(timercount * 125 / 6, this,
@@ -147,7 +147,7 @@ bool TapeManager::Motor(bool s) {
       int td = (scheduler->GetTime() - time) * 6 / 125;
       timerremain = std::max(10U, timerremain - td);
       scheduler->DelEvent(event), event = 0;
-      statusdisplay.Show(10, 2000, "Motor off: %d %d", timerremain, timercount);
+      g_status_display->Show(10, 2000, "Motor off: %d %d", timerremain, timercount);
     }
     motor = false;
   }
@@ -177,7 +177,7 @@ void TapeManager::Proceed(bool timer) {
       case T_END:
         mode = T_BLANK;
         pos = 0;
-        statusdisplay.Show(50, 0, "end of tape", tick);
+        g_status_display->Show(50, 0, "end of tape", tick);
         timercount = 0;
         return;
 
@@ -228,7 +228,7 @@ void TapeManager::Proceed(bool timer) {
 //
 void IOCALL TapeManager::Timer(uint32_t) {
   tick += timercount;
-  statusdisplay.Show(50, 0, "tape: %d", tick);
+  g_status_display->Show(50, 0, "tape: %d", tick);
 
   if (mode == T_DATA) {
     Send(*data++);
@@ -351,7 +351,7 @@ bool IFCALL TapeManager::SaveStatus(uint8_t* s) {
   status->motor = motor;
   status->pos = GetPos();
   status->offset = offset;
-  statusdisplay.Show(0, 1000, "tapesave: %d", status->pos);
+  g_status_display->Show(0, 1000, "tapesave: %d", status->pos);
   return true;
 }
 
@@ -361,7 +361,7 @@ bool IFCALL TapeManager::LoadStatus(const uint8_t* s) {
     return false;
   motor = status->motor;
   Seek(status->pos, status->offset);
-  statusdisplay.Show(0, 1000, "tapesave: %d", GetPos());
+  g_status_display->Show(0, 1000, "tapesave: %d", GetPos());
   return true;
 }
 

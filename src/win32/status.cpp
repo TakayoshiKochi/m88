@@ -14,12 +14,13 @@
 // #define LOGNAME "status"
 #include "common/diag.h"
 
-StatusDisplay statusdisplay;
+StatusDisplayImpl statusdisplay = StatusDisplayImpl();
+StatusDisplay* g_status_display = new StatusDisplay(&statusdisplay);
 
 // ---------------------------------------------------------------------------
 //  Constructor/Destructor
 //
-StatusDisplay::StatusDisplay() {
+StatusDisplayImpl::StatusDisplayImpl() {
   hwnd = 0;
   hwndparent = 0;
   list = 0;
@@ -33,7 +34,7 @@ StatusDisplay::StatusDisplay() {
   currentpriority = 10000;
 }
 
-StatusDisplay::~StatusDisplay() {
+StatusDisplayImpl::~StatusDisplayImpl() {
   Cleanup();
   while (list) {
     List* next = list->next;
@@ -42,12 +43,12 @@ StatusDisplay::~StatusDisplay() {
   }
 }
 
-bool StatusDisplay::Init(HWND hwndp) {
+bool StatusDisplayImpl::Init(HWND hwndp) {
   hwndparent = hwndp;
   return true;
 }
 
-bool StatusDisplay::Enable(bool showfd) {
+bool StatusDisplayImpl::Enable(bool showfd) {
   if (!hwnd) {
     hwnd = CreateStatusWindow(WS_CHILD | WS_VISIBLE, 0, hwndparent, 1);
 
@@ -76,7 +77,7 @@ bool StatusDisplay::Enable(bool showfd) {
   return true;
 }
 
-bool StatusDisplay::Disable() {
+bool StatusDisplayImpl::Disable() {
   if (hwnd) {
     DestroyWindow(hwnd);
     hwnd = 0;
@@ -85,7 +86,7 @@ bool StatusDisplay::Disable() {
   return true;
 }
 
-void StatusDisplay::Cleanup() {
+void StatusDisplayImpl::Cleanup() {
   Disable();
   if (timerid) {
     KillTimer(hwndparent, timerid);
@@ -96,7 +97,7 @@ void StatusDisplay::Cleanup() {
 // ---------------------------------------------------------------------------
 //  DrawItem
 //
-void StatusDisplay::DrawItem(DRAWITEMSTRUCT* dis) {
+void StatusDisplayImpl::DrawItem(DRAWITEMSTRUCT* dis) {
   switch (dis->itemID) {
     case 0: {
       SetBkColor(dis->hDC, GetSysColor(COLOR_3DFACE));
@@ -138,7 +139,7 @@ void StatusDisplay::DrawItem(DRAWITEMSTRUCT* dis) {
 // ---------------------------------------------------------------------------
 //  メッセージ追加
 //
-bool StatusDisplay::Show(int priority, int duration, char* msg, ...) {
+bool StatusDisplayImpl::Show(int priority, int duration, char* msg, ...) {
   CriticalSection::Lock lock(cs);
 
   if (currentpriority < priority)
@@ -170,7 +171,7 @@ bool StatusDisplay::Show(int priority, int duration, char* msg, ...) {
 // ---------------------------------------------------------------------------
 //  更新
 //
-void StatusDisplay::Update() {
+void StatusDisplayImpl::Update() {
   updatemessage = false;
   if (hwnd) {
     CriticalSection::Lock lock(cs);
@@ -215,7 +216,7 @@ void StatusDisplay::Update() {
 // ---------------------------------------------------------------------------
 //  必要ないエントリの削除
 //
-void StatusDisplay::Clean() {
+void StatusDisplayImpl::Clean() {
   List** prev = &list;
   int c = GetTickCount();
   while (*prev) {
@@ -231,7 +232,7 @@ void StatusDisplay::Clean() {
 // ---------------------------------------------------------------------------
 //
 //
-void StatusDisplay::FDAccess(uint32_t dr, bool hd, bool active) {
+void StatusDisplayImpl::FDAccess(uint32_t dr, bool hd, bool active) {
   dr &= 1;
   if (!(litstat[dr] & 4)) {
     litstat[dr] = (hd ? 0x22 : 0) | (active ? 0x11 : 0) | 4;
@@ -240,7 +241,7 @@ void StatusDisplay::FDAccess(uint32_t dr, bool hd, bool active) {
   }
 }
 
-void StatusDisplay::UpdateDisplay() {
+void StatusDisplayImpl::UpdateDisplay() {
   bool update = false;
   for (int d = 0; d < 3; d++) {
     if ((litstat[d] ^ litcurrent[d]) & 3) {

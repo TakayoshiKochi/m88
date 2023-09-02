@@ -203,7 +203,7 @@ bool WinCore::SaveShapshot(const char* filename) {
     for (uint32_t i = 0; i < 2; i++)
       ssh.disk[i] = (int8_t)diskmgr->GetCurrentDisk(i);
 
-    FileIO file;
+    FileIOWin file;
     if (file.Open(filename, FileIO::create)) {
       file.Write(&ssh, sizeof(ssh));
       if (esize < size)
@@ -222,7 +222,7 @@ bool WinCore::SaveShapshot(const char* filename) {
 bool WinCore::LoadShapshot(const char* filename, const char* diskname) {
   LockObj lock(this);
 
-  FileIO file;
+  FileIOWin file;
   if (!file.Open(filename, FileIO::readonly))
     return false;
 

@@ -6,14 +6,16 @@
 
 #pragma once
 
+#include "common/status.h"
+
 #include <stdint.h>
 
 #include "win32/critsect.h"
 
-class StatusDisplay {
+class StatusDisplayImpl : public StatusDisplayInterface {
  public:
-  StatusDisplay();
-  ~StatusDisplay();
+  StatusDisplayImpl();
+  ~StatusDisplayImpl();
 
   bool Init(HWND hwndparent);
   void Cleanup();
@@ -22,12 +24,14 @@ class StatusDisplay {
   bool Disable();
   int GetHeight() { return height; }
   void DrawItem(DRAWITEMSTRUCT* dis);
-  void FDAccess(uint32_t dr, bool hd, bool active);
-  void UpdateDisplay();
-  void WaitSubSys() { litstat[2] = 9; }
+  // Implements StatusDisplayInterface
+  void FDAccess(uint32_t dr, bool hd, bool active) override;
+  void UpdateDisplay() override;
+  void WaitSubSys() override { litstat[2] = 9; }
 
-  bool Show(int priority, int duration, char* msg, ...);
-  void Update();
+  // Implements StatusDisplayInterface
+  bool Show(int priority, int duration, char* msg, ...) override;
+  void Update() override;
   UINT_PTR GetTimerID() { return timerid; }
 
   HWND GetHWnd() { return hwnd; }
@@ -66,4 +70,4 @@ class StatusDisplay {
   char buf[128];
 };
 
-extern StatusDisplay statusdisplay;
+extern StatusDisplayImpl statusdisplay;

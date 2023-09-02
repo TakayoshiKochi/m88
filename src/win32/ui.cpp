@@ -1025,7 +1025,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
     // 指定されたファイルは存在するか？
     bool createnew = false;
     if (!diskmgr->IsImageOpen(filename)) {
-      FileIO file;
+      FileIOWin file;
       if (!file.Open(filename, FileIO::readonly)) {
         if (file.GetError() == FileIO::file_not_found) {
           // ファイルが存在しない
@@ -1509,7 +1509,7 @@ void WinUI::CaptureScreen() {
       SetGUIFlag(false);
     }
     if (save) {
-      FileIO file;
+      FileIOWin file;
       if (file.Open(filename, FileIO::create))
         file.Write(bmp, bmpsize);
     }

@@ -26,7 +26,7 @@
 // #define NO_BITTYPE_EMULATION
 
 #ifdef BUILD_OPNA
-#include "win32/file.h"
+#include "common/file.h"
 #endif
 
 namespace FM {
@@ -1246,21 +1246,22 @@ bool OPNA::LoadRhythmSample(const char* path) {
     rhythm[i].pos = ~0;
 
   for (i = 0; i < 6; i++) {
-    FileIO file;
+    FileIODummy file;
     uint32_t fsize;
-    char buf[MAX_PATH] = "";
+    const int kMaxPathSize = 1024;
+    char buf[kMaxPathSize] = "";
     if (path)
-      strncpy(buf, path, MAX_PATH);
-    strncat(buf, "2608_", MAX_PATH);
-    strncat(buf, rhythmname[i], MAX_PATH);
-    strncat(buf, ".WAV", MAX_PATH);
+      strncpy(buf, path, kMaxPathSize);
+    strncat(buf, "2608_", kMaxPathSize);
+    strncat(buf, rhythmname[i], kMaxPathSize);
+    strncat(buf, ".WAV", kMaxPathSize);
 
     if (!file.Open(buf, FileIO::readonly)) {
       if (i != 5)
         break;
       if (path)
-        strncpy(buf, path, MAX_PATH);
-      strncpy(buf, "2608_RYM.WAV", MAX_PATH);
+        strncpy(buf, path, kMaxPathSize);
+      strncpy(buf, "2608_RYM.WAV", kMaxPathSize);
       if (!file.Open(buf, FileIO::readonly))
         break;
     }
