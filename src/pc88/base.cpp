@@ -10,10 +10,10 @@
 
 #include "common/draw.h"
 #include "common/io_bus.h"
+#include "common/status.h"
 #include "pc88/base.h"
 #include "pc88/config.h"
 #include "pc88/tapemgr.h"
-#include "win32/status.h"
 
 #define LOGNAME "base"
 #include "common/diag.h"
@@ -91,7 +91,7 @@ void IOCALL Base::Reset(uint32_t, uint32_t) {
       mode = "Unknown";
       break;
   };
-  statusdisplay.Show(100, 2000, "%s mode", mode);
+  g_status_display->Show(100, 2000, "%s mode", mode);
 }
 
 // ---------------------------------------------------------------------------

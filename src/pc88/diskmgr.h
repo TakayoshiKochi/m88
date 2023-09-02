@@ -6,10 +6,10 @@
 
 #pragma once
 
+#include "common/file.h"
 #include "pc88/fdu.h"
 #include "pc88/floppy.h"
 #include "win32/critsect.h"
-#include "win32/file.h"
 
 namespace D88 {
 struct ImageHeader {
@@ -66,7 +66,7 @@ class DiskImageHolder {
   void Close();
   bool IsValidHeader(D88::ImageHeader&);
 
-  FileIO fio;
+  FileIODummy fio;
   int ndisks;
   int ref;
   bool readonly;

@@ -109,8 +109,8 @@ int Scheduler::Proceed(int ticks) {
     }
 
     etime_ = time_ + ptime;
-    // 最短イベント発生時刻まで実行する。ただし、途中で新イベントが発生することにより、ptime 以前に終了して
-    // 帰ってくる可能性がある。
+    // 最短イベント発生時刻まで実行する。ただし、途中で新イベントが発生することにより、ptime
+    // 以前に終了して 帰ってくる可能性がある。
     int xtime = Execute(ptime);
     etime_ = time_ += xtime;
     t -= xtime;

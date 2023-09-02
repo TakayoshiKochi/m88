@@ -12,16 +12,16 @@
 //  構築/消滅
 // ---------------------------------------------------------------------------
 
-FileIO::FileIO() {
-  flags = 0;
+FileIOWin::FileIOWin() {
+  flags_ = 0;
 }
 
-FileIO::FileIO(const char* filename, uint32_t flg) {
-  flags = 0;
+FileIOWin::FileIOWin(const char* filename, uint32_t flg) {
+  flags_ = 0;
   Open(filename, flg);
 }
 
-FileIO::~FileIO() {
+FileIOWin::~FileIOWin() {
   Close();
 }
 
@@ -29,7 +29,7 @@ FileIO::~FileIO() {
 //  ファイルを開く
 // ---------------------------------------------------------------------------
 
-bool FileIO::Open(const char* filename, uint32_t flg) {
+bool FileIOWin::Open(const char* filename, uint32_t flg) {
   Close();
 
   strncpy_s(path, sizeof(path), filename, _TRUNCATE);
@@ -38,32 +38,32 @@ bool FileIO::Open(const char* filename, uint32_t flg) {
   DWORD share = (flg & readonly) ? FILE_SHARE_READ : 0;
   DWORD creation = flg & create ? CREATE_ALWAYS : OPEN_EXISTING;
 
-  hfile = ::CreateFile(filename, access, share, 0, creation, 0, 0);
+  hfile_ = ::CreateFile(filename, access, share, 0, creation, 0, 0);
 
-  flags = (flg & readonly) | (hfile == INVALID_HANDLE_VALUE ? 0 : open);
-  if (!(flags & open)) {
+  flags_ = (flg & readonly) | (hfile_ == INVALID_HANDLE_VALUE ? 0 : open);
+  if (!(flags_ & open)) {
     switch (GetLastError()) {
       case ERROR_FILE_NOT_FOUND:
-        error = file_not_found;
+        error_ = file_not_found;
         break;
       case ERROR_SHARING_VIOLATION:
-        error = sharing_violation;
+        error_ = sharing_violation;
         break;
       default:
-        error = unknown;
+        error_ = unknown;
         break;
     }
   }
   SetLogicalOrigin(0);
 
-  return !!(flags & open);
+  return !!(flags_ & open);
 }
 
 // ---------------------------------------------------------------------------
 //  ファイルがない場合は作成
 // ---------------------------------------------------------------------------
 
-bool FileIO::CreateNew(const char* filename) {
+bool FileIOWin::CreateNew(const char* filename) {
   Close();
 
   strncpy_s(path, sizeof(path), filename, _TRUNCATE);
@@ -72,25 +72,25 @@ bool FileIO::CreateNew(const char* filename) {
   DWORD share = 0;
   DWORD creation = CREATE_NEW;
 
-  hfile = ::CreateFile(filename, access, share, 0, creation, 0, 0);
+  hfile_ = ::CreateFile(filename, access, share, 0, creation, 0, 0);
 
-  flags = (hfile == INVALID_HANDLE_VALUE ? 0 : open);
+  flags_ = (hfile_ == INVALID_HANDLE_VALUE ? 0 : open);
   SetLogicalOrigin(0);
 
-  return !!(flags & open);
+  return !!(flags_ & open);
 }
 
 // ---------------------------------------------------------------------------
 //  ファイルを作り直す
 // ---------------------------------------------------------------------------
 
-bool FileIO::Reopen(uint32_t flg) {
-  if (!(flags & open))
+bool FileIOWin::Reopen(uint32_t flg) {
+  if (!(flags_ & open))
     return false;
-  if ((flags & readonly) && (flg & create))
+  if ((flags_ & readonly) && (flg & create))
     return false;
 
-  if (flags & readonly)
+  if (flags_ & readonly)
     flg |= readonly;
 
   Close();
@@ -99,22 +99,22 @@ bool FileIO::Reopen(uint32_t flg) {
   DWORD share = flg & readonly ? FILE_SHARE_READ : 0;
   DWORD creation = flg & create ? CREATE_ALWAYS : OPEN_EXISTING;
 
-  hfile = ::CreateFile(path, access, share, 0, creation, 0, 0);
+  hfile_ = ::CreateFile(path, access, share, 0, creation, 0, 0);
 
-  flags = (flg & readonly) | (hfile == INVALID_HANDLE_VALUE ? 0 : open);
+  flags_ = (flg & readonly) | (hfile_ == INVALID_HANDLE_VALUE ? 0 : open);
   SetLogicalOrigin(0);
 
-  return !!(flags & open);
+  return !!(flags_ & open);
 }
 
 // ---------------------------------------------------------------------------
 //  ファイルを閉じる
 // ---------------------------------------------------------------------------
 
-void FileIO::Close() {
+void FileIOWin::Close() {
   if (GetFlags() & open) {
-    ::CloseHandle(hfile);
-    flags = 0;
+    ::CloseHandle(hfile_);
+    flags_ = 0;
   }
 }
 
@@ -122,12 +122,12 @@ void FileIO::Close() {
 //  ファイル殻の読み出し
 // ---------------------------------------------------------------------------
 
-int32_t FileIO::Read(void* dest, int32_t size) {
+int32_t FileIOWin::Read(void* dest, int32_t size) {
   if (!(GetFlags() & open))
     return -1;
 
   DWORD readsize;
-  if (!::ReadFile(hfile, dest, size, &readsize, 0))
+  if (!::ReadFile(hfile_, dest, size, &readsize, 0))
     return -1;
   return readsize;
 }
@@ -136,12 +136,12 @@ int32_t FileIO::Read(void* dest, int32_t size) {
 //  ファイルへの書き出し
 // ---------------------------------------------------------------------------
 
-int32_t FileIO::Write(const void* dest, int32_t size) {
+int32_t FileIOWin::Write(const void* dest, int32_t size) {
   if (!(GetFlags() & open) || (GetFlags() & readonly))
     return -1;
 
   DWORD writtensize;
-  if (!::WriteFile(hfile, dest, size, &writtensize, 0))
+  if (!::WriteFile(hfile_, dest, size, &writtensize, 0))
     return -1;
   return writtensize;
 }
@@ -150,7 +150,7 @@ int32_t FileIO::Write(const void* dest, int32_t size) {
 //  ファイルをシーク
 // ---------------------------------------------------------------------------
 
-bool FileIO::Seek(int32_t pos, SeekMethod method) {
+bool FileIOWin::Seek(int32_t pos, SeekMethod method) {
   if (!(GetFlags() & open))
     return false;
 
@@ -158,7 +158,7 @@ bool FileIO::Seek(int32_t pos, SeekMethod method) {
   switch (method) {
     case begin:
       wmethod = FILE_BEGIN;
-      pos += lorigin;
+      pos += origin_;
       break;
     case current:
       wmethod = FILE_CURRENT;
@@ -170,26 +170,26 @@ bool FileIO::Seek(int32_t pos, SeekMethod method) {
       return false;
   }
 
-  return 0xffffffff != ::SetFilePointer(hfile, pos, 0, wmethod);
+  return 0xffffffff != ::SetFilePointer(hfile_, pos, 0, wmethod);
 }
 
 // ---------------------------------------------------------------------------
 //  ファイルの位置を得る
 // ---------------------------------------------------------------------------
 
-int32_t FileIO::Tellp() {
+int32_t FileIOWin::Tellp() {
   if (!(GetFlags() & open))
     return 0;
 
-  return ::SetFilePointer(hfile, 0, 0, FILE_CURRENT) - lorigin;
+  return ::SetFilePointer(hfile_, 0, 0, FILE_CURRENT) - origin_;
 }
 
 // ---------------------------------------------------------------------------
 //  現在の位置をファイルの終端とする
 // ---------------------------------------------------------------------------
 
-bool FileIO::SetEndOfFile() {
+bool FileIOWin::SetEndOfFile() {
   if (!(GetFlags() & open))
     return false;
-  return ::SetEndOfFile(hfile) != 0;
+  return ::SetEndOfFile(hfile_) != 0;
 }

@@ -141,9 +141,7 @@ class MemoryManager : public IMemoryManager,
 
   // Overrides IMemoryAccess
   uint32_t IFCALL Read8(uint32_t addr) override { return ReadMemManager::Read8(addr); }
-  void IFCALL Write8(uint32_t addr, uint32_t data) override {
-    WriteMemManager::Write8(addr, data);
-  }
+  void IFCALL Write8(uint32_t addr, uint32_t data) override { WriteMemManager::Write8(addr, data); }
 };
 
 // ---------------------------------------------------------------------------

@@ -7,7 +7,6 @@
 #include "pc88/ioview.h"
 
 #include "common/device.h"
-#include "win32/status.h"
 
 using namespace PC8801;
 

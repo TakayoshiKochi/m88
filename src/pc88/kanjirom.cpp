@@ -8,7 +8,7 @@
 
 #include "pc88/kanjirom.h"
 
-#include "win32/file.h"
+#include "common/file.h"
 
 using namespace PC8801;
 
@@ -35,7 +35,7 @@ bool KanjiROM::Init(const char* filename) {
     return false;
   memset(image, 0xff, 0x20000);
 
-  FileIO file(filename, FileIO::readonly);
+  FileIODummy file(filename, FileIO::readonly);
   if (file.GetFlags() & FileIO::open) {
     file.Seek(0, FileIO::begin);
     file.Read(image, 0x20000);

@@ -12,6 +12,8 @@
 
 #include <algorithm>
 
+#include "common/status.h"
+
 #include "pc88/base.h"
 #include "pc88/beep.h"
 #include "pc88/calendar.h"
@@ -30,7 +32,6 @@
 #include "pc88/subsys.h"
 #include "pc88/tapemgr.h"
 #include "win32/loadmon.h"
-#include "win32/status.h"
 
 // #define LOGNAME "pc88"
 #include "common/diag.h"
@@ -174,9 +175,10 @@ int PC88::GetTicks() {
 //  VSync
 //
 void PC88::VSync() {
-  statusdisplay.UpdateDisplay();
+  g_status_display->UpdateDisplay();
   if (cfgflags & Config::watchregister)
-    statusdisplay.Show(10, 0, "%.4X(%.2X)/%.4X", cpu1.GetPC(), cpu1.GetReg().ireg, cpu2.GetPC());
+    g_status_display->Show(10, 0, "%.4X(%.2X)/%.4X", cpu1.GetPC(), cpu1.GetReg().ireg,
+                           cpu2.GetPC());
 }
 
 // ---------------------------------------------------------------------------
@@ -275,7 +277,7 @@ void PC88::Reset() {
   bus1.Out(0xf1, 1);
   bus2.Out(pres2, 0);
 
-  //  statusdisplay.Show(10, 1000, "CPUMode = %d", cpumode);
+  //  g_status_display->Show(10, 1000, "CPUMode = %d", cpumode);
 }
 
 // ---------------------------------------------------------------------------

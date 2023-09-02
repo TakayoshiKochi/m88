@@ -14,13 +14,12 @@
 
 #include "common/device.h"
 #include "common/error.h"
+#include "common/file.h"
 #include "common/io_bus.h"
 #include "common/memory_bus.h"
 #include "common/memory_manager.h"
 #include "pc88/config.h"
 #include "pc88/crtc.h"
-#include "win32/file.h"
-#include "win32/status.h"
 
 // using namespace std;
 using namespace PC8801;
@@ -900,7 +899,7 @@ bool Memory::InitMemory() {
 //  必須でない ROM を読み込む
 //
 bool Memory::LoadOptROM(const char* name, std::unique_ptr<uint8_t[]>& rom, int size) {
-  FileIO file;
+  FileIODummy file;
   if (file.Open(name, FileIO::readonly)) {
     file.Seek(0, FileIO::begin);
     rom = std::make_unique<uint8_t[]>(size);
@@ -920,7 +919,7 @@ bool Memory::LoadOptROM(const char* name, std::unique_ptr<uint8_t[]>& rom, int s
 //  ROM を読み込む
 //
 bool Memory::LoadROM() {
-  FileIO file;
+  FileIODummy file;
 
   LoadOptROM("jisyo.rom", dicrom_, 512 * 1024);
   LoadOptROM("cdbios.rom", cdbios_, 0x10000);
@@ -958,7 +957,7 @@ bool Memory::LoadROM() {
 }
 
 bool Memory::LoadROMImage(uint8_t* dest, const char* filename, int size) {
-  FileIO file;
+  FileIODummy file;
   if (!file.Open(filename, FileIO::readonly))
     return false;
   file.Read(dest, size);

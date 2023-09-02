@@ -341,7 +341,7 @@ bool MemoryMonitor::SaveImage() {
     return false;
 
   // 書き込み
-  FileIO fio(filename, FileIO::create);
+  FileIOWin fio(filename, FileIO::create);
   if (!fio.GetFlags() & FileIO::open)
     return false;
 

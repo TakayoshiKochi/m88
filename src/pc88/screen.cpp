@@ -9,10 +9,10 @@
 #include "pc88/screen.h"
 
 #include "common/io_bus.h"
+// #include "common/status.h"
 #include "pc88/config.h"
 #include "pc88/crtc.h"
 #include "pc88/memory.h"
-#include "win32/status.h"
 
 #define LOGNAME "screen"
 #include "common/diag.h"
@@ -132,7 +132,7 @@ bool Screen::UpdatePalette(Draw* draw) {
     if (n80mode && (port33 & 0x80))
       pmode |= (port53 & (line320 ? 6 : 2)) << 1;
   }
-  //  statusdisplay.Show(10, 0, "SCRN: %.3x", pmode);
+  //  g_status_display->Show(10, 0, "SCRN: %.3x", pmode);
 
   if (pmode != prevpmode || modechanged) {
     Log("p:%.2x ", pmode);

@@ -8,9 +8,9 @@
 
 #include "common/io_bus.h"
 #include "common/scheduler.h"
+#include "common/status.h"
 #include "pc88/config.h"
 #include "win32/romeo/piccolo.h"
-#include "win32/status.h"
 
 // #include "romeo/juliet.h"
 
@@ -33,10 +33,10 @@ int OPNIF::prescaler = 0x2d;
 // ---------------------------------------------------------------------------
 //  生成・破棄
 //
-OPNIF::OPNIF(const ID& id) : Device(id), chip(0), piccolo(0) {
+OPNIF::OPNIF(const ID& id) : Device(id), chip(nullptr), piccolo(nullptr) {
   Log("Hello\n");
-  scheduler = 0;
-  soundcontrol = 0;
+  scheduler = nullptr;
+  soundcontrol = nullptr;
   opnamode = false;
   nextcount = 0;
   fmmixmode = true;
@@ -72,16 +72,16 @@ bool OPNIF::Init(IOBus* b, int intrport, int io, Scheduler* s) {
       Log(" success.\n");
       switch (piccolo->IsDriverBased()) {
         case 1:
-          statusdisplay.Show(100, 10000, "ROMEO/GIMIC: YMF288 enabled");
+          g_status_display->Show(100, 10000, "ROMEO/GIMIC: YMF288 enabled");
           opn.SetChannelMask(0xfdff);
           break;
         case 2:
-          statusdisplay.Show(100, 10000, "GIMIC: YM2608 enabled");
+          g_status_display->Show(100, 10000, "GIMIC: YM2608 enabled");
           opn.SetChannelMask(0xffff);
           break;
         default:
         case 0:
-          statusdisplay.Show(100, 10000, "ROMEO_JULIET: YMF288 enabled");
+          g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 enabled");
           break;
       }
 #ifdef USE_OPN

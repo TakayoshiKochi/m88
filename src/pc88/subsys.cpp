@@ -7,9 +7,9 @@
 #include "pc88/subsys.h"
 
 #include "common/device.h"
+#include "common/file.h"
 #include "common/memory_manager.h"
-#include "win32/file.h"
-#include "win32/status.h"
+#include "common/status.h"
 
 // #define LOGNAME "subsys"
 #include "common/diag.h"
@@ -81,7 +81,7 @@ bool SubSystem::InitMemory() {
 bool SubSystem::LoadROM() {
   memset(rom, 0xff, 0x2000);
 
-  FileIO fio;
+  FileIODummy fio;
   if (fio.Open("PC88.ROM", FileIO::readonly)) {
     fio.Seek(0x14000, FileIO::begin);
     fio.Read(rom, 0x2000);
@@ -169,7 +169,7 @@ uint32_t IOCALL SubSystem::M_Read1(uint32_t) {
 }
 
 uint32_t IOCALL SubSystem::M_Read2(uint32_t) {
-  statusdisplay.WaitSubSys();
+  g_status_display->WaitSubSys();
   idlecount = 0;
   return piom.Read2();
 }
@@ -228,7 +228,7 @@ bool SubSystem::IsBusy() {
     idlecount = 200;
     return false;
   }
-  statusdisplay.WaitSubSys();
+  g_status_display->WaitSubSys();
   return true;
 }
 

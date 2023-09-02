@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-#include "win32/status.h"
+#include "common/status.h"
 
 using namespace D88;
 
@@ -40,12 +40,12 @@ bool DiskImageHolder::Open(const char* filename, bool ro, bool create) {
   if (readonly || !fio.Open(filename, 0)) {
     if (fio.Open(filename, FileIO::readonly)) {
       if (!readonly)
-        statusdisplay.Show(100, 3000, "読取専用ファイルです");
+        g_status_display->Show(100, 3000, "読取専用ファイルです");
       readonly = true;
     } else {
       // 新しいディスクイメージ？
       if (!create || !fio.Open(filename, FileIO::create)) {
-        statusdisplay.Show(80, 3000, "ディスクイメージを開けません");
+        g_status_display->Show(80, 3000, "ディスクイメージを開けません");
         return false;
       }
     }
@@ -115,7 +115,7 @@ bool DiskImageHolder::ReadHeaders() {
 
     if (memcmp(ih.title, "M88 RawDiskImage", 16)) {
       if (!IsValidHeader(ih)) {
-        statusdisplay.Show(90, 3000, "イメージに無効なデータが含まれています");
+        g_status_display->Show(90, 3000, "イメージに無効なデータが含まれています");
         break;
       }
 
@@ -125,7 +125,7 @@ bool DiskImageHolder::ReadHeaders() {
       fio.Seek(disk.pos + disk.size, FileIO::begin);
     } else {
       if (ndisks != 0) {
-        statusdisplay.Show(80, 3000, "READER 系ディスクイメージは連結できません");
+        g_status_display->Show(80, 3000, "READER 系ディスクイメージは連結できません");
         return false;
       }
 
@@ -335,7 +335,7 @@ bool DiskManager::Mount(uint32_t dr, const char* diskname, bool readonly, int in
         for (uint32_t d = 0; d < max_drives; d++) {
           if ((d != dr) && (drive[d].holder == h) && (drive[d].index == index)) {
             index = -1;  // no disk
-            statusdisplay.Show(90, 3000, "このディスクは使用中です");
+            g_status_display->Show(90, 3000, "このディスクは使用中です");
             break;
           }
         }
@@ -416,7 +416,7 @@ bool DiskManager::Unmount(uint32_t dr) {
     drv.holder = 0;
   }
   if (!ret)
-    statusdisplay.Show(50, 3000, "ディスクの更新に失敗しました");
+    g_status_display->Show(50, 3000, "ディスクの更新に失敗しました");
   return ret;
 }
 
@@ -449,14 +449,14 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
       break;
 
     default:
-      statusdisplay.Show(90, 3000, "サポートしていないメディアです");
+      g_status_display->Show(90, 3000, "サポートしていないメディアです");
       return false;
   }
   bool readonly = drive->holder->IsReadOnly() || ih.readonly;
 
   FloppyDisk& disk = drive->disk;
   if (!disk.Init(type, readonly)) {
-    statusdisplay.Show(70, 3000, "作業用領域を割り当てることができませんでした");
+    g_status_display->Show(70, 3000, "作業用領域を割り当てることができませんでした");
     return false;
   }
 
@@ -468,7 +468,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
   if (t < 164)
     memset(&ih.trackptr[t], 0, (164 - t) * 4);
   if (t < (uint32_t)std::min(160U, disk.GetNumTracks()))
-    statusdisplay.Show(80, 3000, "ヘッダーに無効なデータが含まれています");
+    g_status_display->Show(80, 3000, "ヘッダーに無効なデータが含まれています");
 
   // trackptr のごみそうじ
   uint32_t trackstart = sizeof(ImageHeader);
@@ -545,7 +545,7 @@ bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive) {
 
   FloppyDisk& disk = drive->disk;
   if (!disk.Init(FloppyDisk::MD2D, readonly)) {
-    statusdisplay.Show(70, 3000, "作業用領域を割り当てることができませんでした");
+    g_status_display->Show(70, 3000, "作業用領域を割り当てることができませんでした");
     return false;
   }
 
@@ -806,7 +806,7 @@ bool DiskManager::AddDisk(uint32_t dr, const char* title, uint32_t type) {
 bool DiskManager::FormatDisk(uint32_t dr) {
   if (!drive[dr].holder || drive[dr].disk.GetType() != FloppyDisk::MD2D)
     return false;
-  //  statusdisplay.Show(10, 5000, "Format drive : %d", dr);
+  //  g_status_display->Show(10, 5000, "Format drive : %d", dr);
 
   uint8_t* buf = new uint8_t[80 * 16 * 256];
   if (!buf)
