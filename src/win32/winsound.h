@@ -15,10 +15,11 @@
 
 #include <string>
 
-#include <stdint.h>
+#include "common/critsect.h"
 #include "pc88/sound.h"
 #include "win32/sounddrv.h"
-#include "win32/critsect.h"
+
+#include <stdint.h>
 
 class PC88;
 class OPNMonitor;

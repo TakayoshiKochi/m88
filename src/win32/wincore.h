@@ -12,9 +12,9 @@
 
 #include <stdint.h>
 
+#include "common/critsect.h"
 #include "pc88/config.h"
 #include "pc88/pc88.h"
-#include "win32/critsect.h"
 #include "win32/sequence.h"
 #include "win32/winjoy.h"
 #include "win32/winsound.h"

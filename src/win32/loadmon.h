@@ -6,9 +6,9 @@
 
 #pragma once
 
+#include "common/critsect.h"
 #include "common/device.h"
 #include "win32/winmon.h"
-#include "win32/critsect.h"
 
 // #define ENABLE_LOADMONITOR
 

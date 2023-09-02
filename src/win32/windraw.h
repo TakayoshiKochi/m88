@@ -10,8 +10,8 @@
 
 #include <stdint.h>
 
+#include "common/critsect.h"
 #include "common/draw.h"
-#include "win32/critsect.h"
 
 // ---------------------------------------------------------------------------
 
