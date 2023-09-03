@@ -200,7 +200,7 @@ class Channel4 {
 
   ISample Calc();
   ISample CalcL();
-  ISample CalcN(uint32_t noise);  // OPM only
+  ISample CalcN(uint32_t noise);   // OPM only
   ISample CalcLN(uint32_t noise);  // OPM only
   void SetFNum(uint32_t fnum);
   void SetFB(uint32_t feedback);
@@ -251,7 +251,9 @@ class Chip {
   void SetPML(uint32_t l);
   void SetPMV(int pmv) { pmv_ = pmv; }
 
-  [[nodiscard]] uint32_t GetMulValue(uint32_t dt2, uint32_t mul) const { return multable_[dt2][mul]; }
+  [[nodiscard]] uint32_t GetMulValue(uint32_t dt2, uint32_t mul) const {
+    return multable_[dt2][mul];
+  }
   [[nodiscard]] uint32_t GetAML() const { return aml_; }
   [[nodiscard]] uint32_t GetPML() const { return pml_; }
   [[nodiscard]] int GetPMV() const { return pmv_; }
