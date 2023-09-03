@@ -121,7 +121,7 @@ class Screen : public Device {
   bool textpriority;
   bool grphpriority;
   uint8_t gmask;
-  Config::BASICMode newmode;
+  BasicMode newmode;
 
   static packed BETable0[1 << sizeof(packed)];
   static packed BETable1[1 << sizeof(packed)];

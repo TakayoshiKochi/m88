@@ -234,13 +234,13 @@ void PC88::UpdateScreen(bool refresh) {
 void PC88::Reset() {
   bool cd = false;
   if (IsCDSupported())
-    cd = (base->GetBasicMode() & 0x40) != 0;
+    cd = (static_cast<uint32_t>(base->GetBasicMode()) & 0x40) != 0;
 
   base->SetFDBoot(cd || diskmgr->GetCurrentDisk(0) >= 0);
   base->Reset();  // Switch 関係の更新
 
   bool isv2 = (bus1.In(0x31) & 0x40) != 0;
-  bool isn80v2 = (base->GetBasicMode() == Config::N80V2);
+  bool isn80v2 = (base->GetBasicMode() == BasicMode::kN80V2);
 
   if (isv2)
     dmac->ConnectRd(mem1->GetTVRAM(), 0xf000, 0x1000);
@@ -258,7 +258,7 @@ void PC88::Reset() {
   else
     opn1->SetIMask(0x33, 0x02);
 
-  bus1.Out(pres, base->GetBasicMode());
+  bus1.Out(pres, static_cast<uint32_t>(base->GetBasicMode()));
   bus1.Out(0x30, 1);
   bus1.Out(0x30, 0);
   bus1.Out(0x31, 0);

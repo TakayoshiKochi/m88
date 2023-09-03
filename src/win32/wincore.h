@@ -69,7 +69,7 @@ class WinCore : public PC88, public ISystem, public ILockCore {
 
     int8_t disk[2];
     int datasize;
-    PC8801::Config::BASICMode basicmode;
+    PC8801::BasicMode basicmode;
     int16_t clock;
     uint16_t erambanks;
     uint16_t cpumode;

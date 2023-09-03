@@ -53,7 +53,7 @@ bool WinKeyIF::Init(HWND hwndmsg) {
 //  リセット（というか、BASIC モードの変更）
 //
 void IOCALL WinKeyIF::Reset(uint32_t, uint32_t) {
-  pc80mode = (basicmode & 2) != 0;
+  pc80mode = (static_cast<uint32_t>(basicmode) & 2) != 0;
 }
 
 // ---------------------------------------------------------------------------

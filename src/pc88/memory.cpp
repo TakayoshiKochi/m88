@@ -85,7 +85,7 @@ void Memory::Reset(uint32_t, uint32_t newmode) {
   //  port33 = 0;
 
   n80mode = (newmode & 2) && (port33 & 0x80 ? n80v2rom_.get() : n80rom_.get());
-  n80srmode = (newmode == Config::N80V2);
+  n80srmode = (newmode == static_cast<uint32_t>(BasicMode::kN80V2));
 
   waitmode = ((sw31 & 0x40) || (n80mode && n80srmode) ? 12 : 0) + (high ? 24 : 0);
   selgvram = true;

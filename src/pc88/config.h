@@ -12,23 +12,23 @@
 
 namespace PC8801 {
 
+enum class BasicMode : uint32_t {
+  // bit0 H/L
+  // bit1 N/N80 (bit5=0)
+  // bit4 V1/V2
+  // bit5 N/N88
+  // bit6 CDROM 有効
+  kN80 = 0x00,
+  kN802 = 0x02,
+  kN80V2 = 0x12,
+  kN88V1 = 0x20,
+  kN88V1H = 0x21,
+  kN88V2 = 0x31,
+  kN88V2CD = 0x71,
+};
+
 class Config {
  public:
-  enum BASICMode {
-    // bit0 H/L
-    // bit1 N/N80 (bit5=0)
-    // bit4 V1/V2
-    // bit5 N/N88
-    // bit6 CDROM 有効
-    N80 = 0x00,
-    N802 = 0x02,
-    N80V2 = 0x12,
-    N88V1 = 0x20,
-    N88V1H = 0x21,
-    N88V2 = 0x31,
-    N88V2CD = 0x71,
-  };
-
   enum KeyType { AT106 = 0, PC98 = 1, AT101 = 2 };
 
   enum CPUType {
@@ -110,11 +110,11 @@ class Config {
   int winposx;
   int winposy;
 
-  BASICMode basicmode;
+  BasicMode basicmode;
 
   // 15kHz モードの判定を行う．
   // (条件: option 又は N80/SR モード時)
-  bool IsFV15k() const { return (basicmode & 2) || (flags & fv15k); }
+  bool IsFV15k() const { return (static_cast<uint32_t>(basicmode) & 2) || (flags & fv15k); }
 };
 
 }  // namespace PC8801

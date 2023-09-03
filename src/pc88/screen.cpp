@@ -93,7 +93,7 @@ bool Screen::Init(IOBus* _bus, Memory* mem, CRTC* _crtc) {
 }
 
 void IOCALL Screen::Reset(uint32_t, uint32_t) {
-  n80mode = (newmode & 2) != 0;
+  n80mode = (static_cast<uint32_t>(newmode) & 2) != 0;
   palettechanged = true;
   displaygraphics = false;
   textpriority = false;
