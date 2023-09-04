@@ -34,7 +34,7 @@ class WinDrawSub {
   virtual uint32_t GetStatus() { return status; }
   virtual void Flip() {}
   virtual bool SetFlipMode(bool flip) { return false; }
-  virtual void WindowMoved(int cx, int cy) { return; }
+  virtual void WindowMoved(int cx, int cy) {}
 
  protected:
   uint32_t status = 0;
@@ -45,23 +45,23 @@ class WinDrawSub {
 class WinDraw : public Draw {
  public:
   WinDraw();
-  ~WinDraw();
+  ~WinDraw() override;
   bool Init0(HWND hwindow);
 
   // - Draw Common Interface
-  bool Init(uint32_t w, uint32_t h, uint32_t bpp);
-  bool Cleanup();
+  bool Init(uint32_t w, uint32_t h, uint32_t bpp) override;
+  bool Cleanup() override;
 
-  bool Lock(uint8_t** pimage, int* pbpl);
-  bool Unlock();
+  bool Lock(uint8_t** pimage, int* pbpl) override;
+  bool Unlock() override;
 
-  void Resize(uint32_t width, uint32_t height);
-  void SetPalette(uint32_t index, uint32_t nents, const Palette* pal);
-  void DrawScreen(const Region& region);
+  void Resize(uint32_t width, uint32_t height) override;
+  void SetPalette(uint32_t index, uint32_t nents, const Palette* pal) override;
+  void DrawScreen(const Region& region) override;
 
-  uint32_t GetStatus();
-  void Flip();
-  bool SetFlipMode(bool f);
+  uint32_t GetStatus() override;
+  void Flip() override;
+  bool SetFlipMode(bool f) override;
 
   // - Unique Interface
   int GetDrawCount() {
@@ -114,15 +114,15 @@ class WinDraw : public Draw {
   int width;
   int height;
 
-  HWND hwnd;
-  HANDLE hevredraw;
-  WinDrawSub* draw;
+  HWND hwnd = 0;
+  HANDLE hevredraw = 0;
+  WinDrawSub* drawsub_ = nullptr;
 
   CriticalSection csdraw;
-  bool locked;
-  bool flipmode;
+  bool locked_;
+  bool flipmode_;
 
-  HMONITOR hmonitor;  // 探索中の hmonitor
+  HMONITOR hmonitor = 0;  // 探索中の hmonitor
   GUID gmonitor;      // hmonitor に対応する GUID
 
   PALETTEENTRY palette[0x100];

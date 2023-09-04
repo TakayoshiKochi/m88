@@ -14,8 +14,8 @@
 
 class WinDrawD2D : public WinDrawSub {
  public:
-  WinDrawD2D();
-  virtual ~WinDrawD2D();
+  WinDrawD2D() = default;
+  ~WinDrawD2D() override;
 
   bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID*) override;
   bool Resize(uint32_t width, uint32_t height) override;
@@ -43,12 +43,12 @@ class WinDrawD2D : public WinDrawSub {
   ID2D1GdiInteropRenderTarget* m_GDIRT = nullptr;
 
   bool m_UpdatePal = false;
-  HWND m_hWnd = 0;
-  HWND m_hCWnd = 0;
-  uint32_t m_width;
-  uint32_t m_height;
+  HWND m_hWnd = nullptr;
+  HWND m_hCWnd = nullptr;
+  uint32_t m_width{};
+  uint32_t m_height{};
   BYTE* m_image = nullptr;  // 画像Bitmap
-  BI256 m_bmpinfo;
-  HBITMAP m_hBitmap = 0;
+  BI256 m_bmpinfo{};
+  HBITMAP m_hBitmap = nullptr;
   int bpl = 0;
 };

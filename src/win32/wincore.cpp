@@ -123,7 +123,7 @@ void WinCore::ApplyConfig(PC8801::Config* cfg) {
 
   PC88::ApplyConfig(cfg);
   sound.ApplyConfig(cfg);
-  draw->SetFlipMode(false);
+  draw_->SetFlipMode(false);
 }
 
 // ---------------------------------------------------------------------------

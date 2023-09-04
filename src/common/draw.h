@@ -27,7 +27,7 @@ class Draw {
       top = left = 32767;
       bottom = right = -1;
     }
-    bool Valid() { return top <= bottom; }
+    [[nodiscard]] bool Valid() const { return top <= bottom; }
     void Update(int l, int t, int r, int b) {
       left = std::min(left, l), right = std::max(right, r);
       top = std::min(top, t), bottom = std::max(bottom, b);
@@ -45,8 +45,8 @@ class Draw {
   };
 
  public:
-  Draw() {}
-  virtual ~Draw() {}
+  Draw() = default;
+  virtual ~Draw() = default;
 
   virtual bool Init(uint32_t width, uint32_t height, uint32_t bpp) = 0;
   virtual bool Cleanup() = 0;

@@ -88,15 +88,15 @@ PC88::~PC88() {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool PC88::Init(Draw* _draw, DiskManager* disk, TapeManager* tape) {
-  draw = _draw;
+bool PC88::Init(Draw* draw, DiskManager* disk, TapeManager* tape) {
+  draw_ = draw;
   diskmgr = disk;
   tapemgr = tape;
 
   if (!Scheduler::Init())
     return false;
 
-  if (!draw->Init(640, 400, 8))
+  if (!draw_->Init(640, 400, 8))
     return false;
 
   if (!tapemgr->Init(this, 0, 0))
@@ -185,7 +185,7 @@ void PC88::VSync() {
 //  画面更新
 //
 void PC88::UpdateScreen(bool refresh) {
-  uint32_t dstat = draw->GetStatus();
+  uint32_t dstat = draw_->GetStatus();
   if (dstat & static_cast<uint32_t>(Draw::Status::kShouldRefresh))
     refresh = true;
 
@@ -201,29 +201,29 @@ void PC88::UpdateScreen(bool refresh) {
       uint8_t* image;
 
       //          crtc->SetSize();
-      if (draw->Lock(&image, &bpl)) {
+      if (draw_->Lock(&image, &bpl)) {
         Log("(%d -> %d) ", region.top, region.bottom);
         crtc->UpdateScreen(image, bpl, region, refresh);
         Log("(%d -> %d) ", region.top, region.bottom);
         scrn->UpdateScreen(image, bpl, region, refresh);
         Log("(%d -> %d)\n", region.top, region.bottom);
 
-        bool palchanged = scrn->UpdatePalette(draw);
-        draw->Unlock();
+        bool palchanged = scrn->UpdatePalette(draw_);
+        draw_->Unlock();
         updated = palchanged || region.Valid();
       }
     }
   }
   LOADEND("Screen");
-  if (draw->GetStatus() & static_cast<uint32_t>(Draw::Status::kReadyToDraw)) {
+  if (draw_->GetStatus() & static_cast<uint32_t>(Draw::Status::kReadyToDraw)) {
     if (updated) {
       updated = false;
-      draw->DrawScreen(region);
+      draw_->DrawScreen(region);
       region.Reset();
     } else {
       Draw::Region r;
       r.Reset();
-      draw->DrawScreen(r);
+      draw_->DrawScreen(r);
     }
   }
 }
