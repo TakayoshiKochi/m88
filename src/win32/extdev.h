@@ -11,7 +11,6 @@
 #include "pc88/sound.h"
 
 class IOBus;
-class PC88;
 class Scheduler;
 
 namespace PC8801 {
@@ -27,7 +26,7 @@ class ExternalDevice : public Device, public ISoundSource {
   ~ExternalDevice();
 
   bool Init(const char* dllname,
-            PC88* pc,
+            Scheduler* sched,
             IOBus* bus,
             PD8257* dmac,
             ISoundControl* sound,
@@ -57,7 +56,7 @@ class ExternalDevice : public Device, public ISoundSource {
   HMODULE hdll;
   IOBus* bus;
   PD8257* dmac;
-  PC88* pc;
+  Scheduler* sched_;
   ISoundControl* sound;
   IMemoryManager* mm;
   int mid;

@@ -14,7 +14,7 @@ using namespace PC8801;
 Beep::Beep(const ID& id) : Device(id), soundcontrol(0) {}
 
 Beep::~Beep() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -29,7 +29,7 @@ bool Beep::Init() {
 // ---------------------------------------------------------------------------
 //  後片付け
 //
-void Beep::Cleanup() {
+void Beep::CleanUp() {
   Connect(0);
 }
 

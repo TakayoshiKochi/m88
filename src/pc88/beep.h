@@ -31,7 +31,7 @@ class Beep : public Device, public ISoundSource {
   ~Beep();
 
   bool Init();
-  void Cleanup();
+  void CleanUp();
   void EnableSING(bool s) {
     p40mask = s ? 0xa0 : 0x20;
     port40 &= p40mask;

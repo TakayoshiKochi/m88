@@ -97,8 +97,8 @@ CRTC::~CRTC() {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool CRTC::Init(IOBus* b, Scheduler* s, PD8257* d, Draw* _draw) {
-  bus = b, scheduler = s, dmac = d, draw = _draw;
+bool CRTC::Init(IOBus* b, Scheduler* s, PD8257* d) {
+  bus = b, scheduler = s, dmac = d;
 
   delete[] font;
   delete[] fontrom;

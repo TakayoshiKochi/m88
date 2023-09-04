@@ -54,6 +54,8 @@ class OPNIF : public Device, public ISoundSource {
   bool Init(IOBus* bus, int intrport, int io, Scheduler* s);
   void SetIMask(uint32_t port, uint32_t bit);
 
+  void CleanUp();
+
   bool IFCALL Connect(ISoundControl* c);
   bool IFCALL SetRate(uint32_t rate);
   void IFCALL Mix(int32_t* buffer, int nsamples);

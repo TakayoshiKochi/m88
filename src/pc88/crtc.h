@@ -33,7 +33,7 @@ class CRTC : public Device {
  public:
   CRTC(const ID& id);
   ~CRTC();
-  bool Init(IOBus* bus, Scheduler* s, PD8257* dmac, Draw* draw);
+  bool Init(IOBus* bus, Scheduler* s, PD8257* dmac);
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
   void UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool refresh);
@@ -140,11 +140,10 @@ class CRTC : public Device {
   void PutLineNormalW(packed* dest, uint8_t attr);
   void PutLineReversedW(packed* dest, uint8_t attr);
 
-  IOBus* bus;
-  PD8257* dmac;
-  Scheduler* scheduler;
-  Scheduler::Event* sev;
-  Draw* draw;
+  IOBus* bus = nullptr;
+  PD8257* dmac = nullptr;
+  Scheduler* scheduler = nullptr;
+  Scheduler::Event* sev = nullptr;
 
   int cmdm, cmdc;
   uint32_t cursormode;

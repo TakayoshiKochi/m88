@@ -46,8 +46,6 @@ OPNIF::OPNIF(const ID& id) : Device(id), chip(nullptr), piccolo(nullptr) {
 }
 
 OPNIF::~OPNIF() {
-  Piccolo::DeleteInstance();
-  Connect(0);
 }
 
 // ---------------------------------------------------------------------------
@@ -99,6 +97,11 @@ bool OPNIF::Init(IOBus* b, int intrport, int io, Scheduler* s) {
 void OPNIF::SetIMask(uint32_t port, uint32_t bit) {
   imaskport = port;
   imaskbit = bit;
+}
+
+void OPNIF::CleanUp() {
+  Piccolo::DeleteInstance();
+  Connect(nullptr);
 }
 
 // ---------------------------------------------------------------------------

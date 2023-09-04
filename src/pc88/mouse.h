@@ -9,7 +9,7 @@
 #include "common/device.h"
 #include "if/ifui.h"
 
-class PC88;
+class Scheduler;
 
 namespace PC8801 {
 
@@ -28,7 +28,7 @@ class Mouse : public Device {
   Mouse(const ID& id);
   ~Mouse();
 
-  bool Init(PC88* pc);
+  bool Init(Scheduler* sched);
   bool Connect(IUnk* ui);
 
   const Descriptor* IFCALL GetDesc() const { return &descriptor; }
@@ -41,7 +41,7 @@ class Mouse : public Device {
   void ApplyConfig(const Config* config);
 
  private:
-  PC88* pc;
+  Scheduler* sched_ = nullptr;
   POINT move;
   uint8_t port40;
   bool joymode;
