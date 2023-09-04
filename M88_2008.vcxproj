@@ -897,20 +897,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="src\win32\keybconn.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">true</ExcludedFromBuild>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">true</ExcludedFromBuild>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
-    </ClCompile>
     <ClCompile Include="src\win32\loadmon.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -1385,7 +1371,6 @@
     <ClInclude Include="src\win32\file.h" />
     <ClInclude Include="src\win32\filetest.h" />
     <ClInclude Include="src\win32\iomon.h" />
-    <ClInclude Include="src\win32\keybconn.h" />
     <ClInclude Include="src\win32\loadmon.h" />
     <ClInclude Include="src\win32\memmon.h" />
     <ClInclude Include="src\win32\messages.h" />
