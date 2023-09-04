@@ -9,13 +9,12 @@
 #include "common/device.h"
 #include "common/scheduler.h"
 #include "devices/z80c.h"
+#include "pc88/config.h"
 
 class PC88;
 class TapeManager;
 
 namespace PC8801 {
-
-class Config;
 
 class Base : public Device {
  public:
@@ -29,7 +28,7 @@ class Base : public Device {
   const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   void SetSwitch(const Config* cfg);
-  uint32_t GetBasicMode() { return bmode; }
+  BasicMode GetBasicMode() { return basic_mode_; }
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
   void SetFDBoot(bool autoboot_) { autoboot = autoboot_; }
 
@@ -47,7 +46,7 @@ class Base : public Device {
   int dipsw;
   int flags;
   int clock;
-  int bmode;
+  BasicMode basic_mode_;
 
   uint8_t port40 = 0;
   uint8_t sw30;

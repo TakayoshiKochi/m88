@@ -10,6 +10,7 @@
 
 #include "common/critsect.h"
 #include "common/device.h"
+#include "pc88/config.h"
 
 // ---------------------------------------------------------------------------
 namespace PC8801 {
@@ -77,7 +78,7 @@ class WinKeyIF : public Device {
   bool pc80mode;
   HWND hwnd;
   HANDLE hevent;
-  uint32_t basicmode;
+  BasicMode basicmode;
   int keyport[16];
   uint8_t keyboard[256];
   uint8_t keystate[512];

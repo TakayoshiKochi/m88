@@ -136,13 +136,13 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
 //  設定更新
 //
 void WinSound::ApplyConfig(const Config* config) {
-  useds2 = !!(config->flag2 & Config::usedsnotify);
+  useds2 = !!(config->flag2 & Config::kUseDSNotify);
 
-  bool wo = (config->flag2 & Config::usewaveoutdrv) != 0;
+  bool wo = (config->flag2 & Config::kUseWaveOutDrv) != 0;
   ChangeRate(config->sound, config->soundbuffer, wo);
 
   if (driver)
-    driver->MixAlways(0 != (config->flags & Config::mixsoundalways));
+    driver->MixAlways(0 != (config->flags & Config::kMixSoundAlways));
 
   Sound::ApplyConfig(config);
 }

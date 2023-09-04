@@ -1063,8 +1063,8 @@ void IOCALL CRTC::SetKanaMode(uint32_t, uint32_t data) {
 //  apply config
 //
 void CRTC::ApplyConfig(const Config* cfg) {
-  kanaenable = cfg->basicmode == Config::N80V2;
-  EnablePCG((cfg->flags & Config::enablepcg) != 0);
+  kanaenable = cfg->basicmode == BasicMode::kN80V2;
+  EnablePCG((cfg->flags & Config::kEnablePCG) != 0);
 }
 
 // ---------------------------------------------------------------------------
