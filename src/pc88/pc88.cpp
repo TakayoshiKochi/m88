@@ -43,7 +43,8 @@ using namespace PC8801;
 //  構築・破棄
 //
 PC88::PC88()
-    : cpu1(DEV_ID('C', 'P', 'U', '1')),
+    : scheduler_(this),
+      cpu1(DEV_ID('C', 'P', 'U', '1')),
       cpu2(DEV_ID('C', 'P', 'U', '2')),
       base(0),
       scrn(0),
@@ -80,13 +81,13 @@ bool PC88::Init(Draw* draw, DiskManager* disk, TapeManager* tape) {
   diskmgr = disk;
   tapemgr = tape;
 
-  if (!Scheduler::Init())
+  if (!scheduler_.Init())
     return false;
 
   if (!draw_->Init(640, 400, 8))
     return false;
 
-  if (!tapemgr->Init(this, 0, 0))
+  if (!tapemgr->Init(&scheduler_, 0, 0))
     return false;
 
   MemoryPage *read, *write;
@@ -107,7 +108,7 @@ bool PC88::Init(Draw* draw, DiskManager* disk, TapeManager* tape) {
 
   Reset();
   region.Reset();
-  clock_ = 1;
+  scheduler_.set_clock(1);
   return true;
 }
 
@@ -122,39 +123,45 @@ void PC88::DeInit() {
 //  1 tick = 10μs
 //
 int PC88::Proceed(uint32_t ticks, uint32_t clk, uint32_t ecl) {
-  clock_ = std::max(1U, clk);
+  scheduler_.set_clock(std::max(1U, clk));
   eclock_ = std::max(1U, ecl);
-  return Scheduler::Proceed(ticks);
+  return scheduler_.Proceed(ticks);
 }
 
 // ---------------------------------------------------------------------------
 //  実行
 //
-int PC88::Execute(int ticks) {
-  LOADBEGIN("Core.CPU");
+int SchedulerImpl::Execute(int ticks) {
   int exc = ticks * clock_;
+  int ex = ex_->Execute(exc);
+  ex += dexc_;
+  dexc_ = ex % clock_;
+  return ex / clock_;
+}
+
+int PC88::Execute(int clocks) {
+  LOADBEGIN("Core.CPU");
+  int ex = 0;
   if (!(cpumode & stopwhenidle) || subsys_->IsBusy() || fdc->IsBusy()) {
     if ((cpumode & 1) == ms11)
-      exc = Z80::ExecDual(&cpu1, &cpu2, exc);
+      ex = Z80::ExecDual(&cpu1, &cpu2, clocks);
     else
-      exc = Z80::ExecDual2(&cpu1, &cpu2, exc);
+      ex = Z80::ExecDual2(&cpu1, &cpu2, clocks);
   } else {
-    exc = Z80::ExecSingle(&cpu1, &cpu2, exc);
+    ex = Z80::ExecSingle(&cpu1, &cpu2, clocks);
   }
-  exc += dexc_;
-  dexc_ = exc % clock_;
+  return ex;
   LOADEND("Core.CPU");
-  return exc / clock_;
 }
 
 // ---------------------------------------------------------------------------
 //  実行クロック数変更
 //
-void PC88::Shorten(int ticks) {
+void SchedulerImpl::Shorten(int ticks) {
   Z80::StopDual(ticks * clock_);
 }
 
-int PC88::GetTicks() {
+int SchedulerImpl::GetTicks() {
   return (Z80::GetCCount() + dexc_) / clock_;
 }
 
@@ -351,7 +358,7 @@ bool PC88::ConnectDevices() {
     return false;
 
   // TODO: CRTC is dependent on DMAC's object lifetime. (do not pass unique_ptr here)
-  if (!crtc->Init(&bus1, this, dmac_.get()))
+  if (!crtc->Init(&bus1, &scheduler_, dmac_.get()))
     return false;
 
   static const IOBus::Connector c_knj1[] = {{0xe8, IOBus::portout, KanjiROM::setl},
@@ -443,7 +450,7 @@ bool PC88::ConnectDevices() {
                                             {0, 0, 0}};
   if (!bus1.Connect(tapemgr, c_tape))
     return false;
-  if (!tapemgr->Init(this, &bus1, psioin))
+  if (!tapemgr->Init(&scheduler_, &bus1, psioin))
     return false;
 
   static const IOBus::Connector c_opn1[] = {
@@ -454,7 +461,7 @@ bool PC88::ConnectDevices() {
       {0x45, IOBus::portin, OPNIF::readdata0},  {0x46, IOBus::portin, OPNIF::readstatusex},
       {0x47, IOBus::portin, OPNIF::readdata1},  {0, 0, 0}};
   opn1_ = std::make_unique<PC8801::OPNIF>(DEV_ID('O', 'P', 'N', '1'));
-  if (!opn1_ || !opn1_->Init(&bus1, pint4, popnio, this))
+  if (!opn1_ || !opn1_->Init(&bus1, pint4, popnio, &scheduler_))
     return false;
   if (!bus1.Connect(opn1_.get(), c_opn1))
     return false;
@@ -472,7 +479,7 @@ bool PC88::ConnectDevices() {
                                             {0xad, IOBus::portin, OPNIF::readdata1},
                                             {0, 0, 0}};
   opn2_ = std::make_unique<PC8801::OPNIF>(DEV_ID('O', 'P', 'N', '2'));
-  if (!opn2_->Init(&bus1, pint4, popnio, this))
+  if (!opn2_->Init(&bus1, pint4, popnio, &scheduler_))
     return false;
   if (!opn2_ || !bus1.Connect(opn2_.get(), c_opn2))
     return false;
@@ -556,7 +563,7 @@ bool PC88::ConnectDevices2() {
   fdc = new PC8801::FDC(DEV_ID('F', 'D', 'C', ' '));
   if (!bus2.Connect(fdc, c_fdc))
     return false;
-  if (!fdc->Init(diskmgr, this, &bus2, pirq2, pfdstat))
+  if (!fdc->Init(diskmgr, &scheduler_, &bus2, pirq2, pfdstat))
     return false;
 
   return true;

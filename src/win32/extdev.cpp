@@ -29,12 +29,13 @@ ExternalDevice::~ExternalDevice() {
 //  初期化
 //
 bool ExternalDevice::Init(const char* dllname,
-                          PC88* p,
+                          Scheduler* sched,
                           IOBus* b,
                           PD8257* dm,
                           ISoundControl* s,
                           IMemoryManager* _mm) {
-  bus = b, dmac = dm, pc = p, mm = _mm, sound = s;
+  sched_ = sched;
+  bus = b, dmac = dm, mm = _mm, sound = s;
 
   InitPCInfo();
   if (!LoadDLL(dllname))
@@ -175,7 +176,7 @@ bool ExternalDevice::S_MemRelease(void* h, uint32_t p, uint32_t n, uint32_t) {
 //
 void* ExternalDevice::S_AddEvent(void* h, uint32_t c, uint32_t f) {
   ExternalDevice* e = reinterpret_cast<ExternalDevice*>(h);
-  return e->pc->AddEvent(c, e, static_cast<TimeFunc>(&ExternalDevice::EventProc), f, false);
+  return e->sched_->AddEvent(c, e, static_cast<TimeFunc>(&ExternalDevice::EventProc), f, false);
 }
 
 // ---------------------------------------------------------------------------
@@ -184,9 +185,9 @@ void* ExternalDevice::S_AddEvent(void* h, uint32_t c, uint32_t f) {
 bool ExternalDevice::S_DelEvent(void* h, void* ev) {
   ExternalDevice* e = reinterpret_cast<ExternalDevice*>(h);
   if (ev)
-    return e->pc->DelEvent((Scheduler::Event*)ev);
+    return e->sched_->DelEvent((Scheduler::Event*)ev);
   else
-    return e->pc->DelEvent(e);
+    return e->sched_->DelEvent(e);
 }
 
 // ---------------------------------------------------------------------------
@@ -201,7 +202,7 @@ void IOCALL ExternalDevice::EventProc(uint32_t arg) {
 //
 uint32_t ExternalDevice::S_GetTime(void* h) {
   ExternalDevice* e = reinterpret_cast<ExternalDevice*>(h);
-  return e->pc->GetTime();
+  return e->sched_->GetTime();
 }
 
 // ---------------------------------------------------------------------------

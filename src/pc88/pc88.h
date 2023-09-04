@@ -27,6 +27,7 @@
 //
 class DiskManager;
 class TapeManager;
+class SchedulerImpl;
 
 namespace PC8801 {
 class Config;
@@ -48,14 +49,45 @@ class Beep;
 class JoyPad;
 }  // namespace PC8801
 
-// ---------------------------------------------------------------------------
-//  PC8801 クラス
-//
-class PC88 : public Scheduler, public ICPUTime {
+class SchedulerExecutable {
+ public:
+  SchedulerExecutable() = default;
+  virtual ~SchedulerExecutable() = default;
+
+  // Note: parameter is clocks, not ticks.
+  virtual int Execute(int clocks) = 0;
+};
+
+class SchedulerImpl : public Scheduler {
  public:
   using Z80 = Z80C;
 
+  explicit SchedulerImpl(SchedulerExecutable* ex) : ex_(ex) {}
+  ~SchedulerImpl() override = default;
+
+  // Overrides Scheduler
+  int Execute(int ticks) override;
+  void Shorten(int ticks) override;
+  int GetTicks() override;
+
+  void set_clock(int clock) { clock_ = clock; }
+  [[nodiscard]] int clock() const { return clock_; }
+
+ private:
+  SchedulerExecutable* ex_;
+  // 1Tickあたりのクロック数 (e.g. 4MHz のとき 40)
+  int clock_ = 100;
+  // Tick単位で実行した時のクロックの剰余、次回分に加算して誤差を防止する
+  int dexc_ = 0;
+};
+
+// ---------------------------------------------------------------------------
+//  PC8801 クラス
+//
+class PC88 : public SchedulerExecutable, public ICPUTime {
  public:
+  using Z80 = Z80C;
+
   PC88();
   ~PC88() override;
 
@@ -67,9 +99,12 @@ class PC88 : public Scheduler, public ICPUTime {
   void ApplyConfig(PC8801::Config*);
   void SetVolume(PC8801::Config*);
 
+  // Overrides SchedulerExecutor
+  int Execute(int ticks) override;
+
   // Overrides ICPUTime
   [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1.GetCount(); }
-  [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override { return clock_; }
+  [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override { return scheduler_.clock(); }
 
   [[nodiscard]] uint32_t GetEffectiveSpeed() const { return eclock_; }
   void TimeSync();
@@ -87,6 +122,8 @@ class PC88 : public Scheduler, public ICPUTime {
   Z80* GetCPU2() { return &cpu2; }
   PC8801::PD8257* GetDMAC() { return dmac_.get(); }
   PC8801::Beep* GetBEEP() { return beep_.get(); }
+
+  Scheduler* GetScheduler() { return &scheduler_; }
 
   // bool SaveShapshot(const char* filename);
   // bool LoadShapshot(const char* filename);
@@ -125,11 +162,6 @@ class PC88 : public Scheduler, public ICPUTime {
  private:
   void VSync();
 
-  // Overrides Scheduler
-  int Execute(int ticks) override;
-  void Shorten(int ticks) override;
-  int GetTicks() override;
-
   bool ConnectDevices();
   bool ConnectDevices2();
 
@@ -140,13 +172,11 @@ class PC88 : public Scheduler, public ICPUTime {
     stopwhenidle = 4,  // bit 2
   };
 
+  SchedulerImpl scheduler_;
+
   Draw::Region region;
 
-  // 1Tickあたりのクロック数 (e.g. 4MHz のとき 40)
-  int clock_ = 100;
   int cpumode;
-  // Tick単位で実行した時のクロックの剰余、次回分に加算して誤差を防止する
-  int dexc_ = 0;
   // 実効速度 (単位はTick)
   int eclock_;
 

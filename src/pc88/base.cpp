@@ -4,13 +4,13 @@
 // ---------------------------------------------------------------------------
 //  $Id: base.cpp,v 1.19 2003/09/28 14:35:35 cisc Exp $
 
-#include "pc88/pc88.h"
+#include "pc88/base.h"
 
 #include <stdlib.h>
 
 #include "common/io_bus.h"
 #include "common/status.h"
-#include "pc88/base.h"
+#include "pc88/pc88.h"
 #include "pc88/config.h"
 #include "pc88/tapemgr.h"
 
@@ -33,7 +33,7 @@ bool Base::Init(PC88* pc88) {
   sw30 = 0xcb;
   sw31 = 0x79;
   sw6e = 0xff;
-  pc_->AddEvent(167, this, static_cast<TimeFunc>(&Base::RTC), 0, true);
+  pc_->GetScheduler()->AddEvent(167, this, static_cast<TimeFunc>(&Base::RTC), 0, true);
   return true;
 }
 

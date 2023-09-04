@@ -318,9 +318,9 @@ void* WinCore::QueryIF(REFIID id) {
   if (id == M88IID_SoundControl)
     return static_cast<ISoundControl*>(&sound);
   if (id == M88IID_Scheduler)
-    return static_cast<IScheduler*>(this);
+    return static_cast<IScheduler*>(this->GetScheduler());
   if (id == M88IID_Time)
-    return static_cast<ITime*>(this);
+    return static_cast<ITime*>(this->GetScheduler());
   if (id == M88IID_CPUTime)
     return static_cast<ICPUTime*>(this);
   if (id == M88IID_DMA)
@@ -351,7 +351,7 @@ bool WinCore::ConnectExternalDevices() {
       } else {
         ExternalDevice* extdevice = new ExternalDevice();
         if (extdevice) {
-          if (extdevice->Init(modname, this, &bus1, GetDMAC(), &sound, &mm1)) {
+          if (extdevice->Init(modname, this->GetScheduler(), &bus1, GetDMAC(), &sound, &mm1)) {
             devlist.Add(extdevice);
             extdevices.push_back(extdevice);
           } else {
