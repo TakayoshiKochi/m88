@@ -73,8 +73,8 @@ bool FDC::Init(DiskManager* dm, Scheduler* s, IOBus* b, int ip, int sp) {
 //  設定反映
 //
 void FDC::ApplyConfig(const Config* cfg) {
-  diskwait = !(cfg->flag2 & Config::fddnowait);
-  showstatus = (cfg->flags & Config::showfdcstatus) != 0;
+  diskwait = !(cfg->flag2 & Config::kFDDNoWait);
+  showstatus = (cfg->flags & Config::kShowFDCStatus) != 0;
 }
 
 // ---------------------------------------------------------------------------

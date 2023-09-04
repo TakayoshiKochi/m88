@@ -27,65 +27,65 @@ enum class BasicMode : uint32_t {
   kN88V2CD = 0x71,
 };
 
+enum class KeyboardType : uint32_t { kAT106 = 0, kPC98 = 1, kAT101 = 2 };
+
 class Config {
  public:
-  enum KeyType { AT106 = 0, PC98 = 1, AT101 = 2 };
-
   enum CPUType {
-    ms11 = 0,
-    ms21,
-    msauto,
+    kMainSub11 = 0,
+    kMainSub21,
+    kMainSubAuto,
   };
 
   enum Flags {
-    subcpucontrol = 1 << 0,     // Sub CPU の駆動を制御する
-    savedirectory = 1 << 1,     // 起動時に前回終了時のディレクトリに移動
-    fullspeed = 1 << 2,         // 全力動作
-    enablepad = 1 << 3,         // パッド有効
-    enableopna = 1 << 4,        // OPNA モード (44h)
-    watchregister = 1 << 5,     // レジスタ表示
-    askbeforereset = 1 << 6,    // 終了・リセット時に確認
-    enablepcg = 1 << 7,         // PCG 系のフォント書き換えを有効
-    fv15k = 1 << 8,             // 15KHz モニターモード
-    cpuburst = 1 << 9,          // ノーウェイト
-    suppressmenu = 1 << 10,     // ALT を GRPH に
-    cpuclockmode = 1 << 11,     // クロック単位で切り替え
-    usearrowfor10 = 1 << 12,    // 方向キーをテンキーに
-    swappadbuttons = 1 << 13,   // パッドのボタンを入れ替え
-    disablesing = 1 << 14,      // CMD SING 無効
-    digitalpalette = 1 << 15,   // ディジタルパレットモード
-    useqpc = 1 << 16,           // QueryPerformanceCounter つかう
-    force480 = 1 << 17,         // 全画面を常に 640x480 で
-    opnona8 = 1 << 18,          // OPN (a8h)
-    opnaona8 = 1 << 19,         // OPNA (a8h)
-    drawprioritylow = 1 << 20,  // 描画の優先度を落とす
-    disablef12reset = 1 << 21,  // F12 を RESET として使用しない(COPY キーになる)
-    fullline = 1 << 22,         // 偶数ライン表示
-    showstatusbar = 1 << 23,    // ステータスバー表示
-    showfdcstatus = 1 << 24,    // FDC のステータスを表示
-    enablewait = 1 << 25,       // Wait をつける
-    enablemouse = 1 << 26,      // Mouse を使用
-    mousejoymode = 1 << 27,     // Mouse をジョイスティックモードで使用
-    specialpalette = 1 << 28,   // デバックパレットモード
-    mixsoundalways = 1 << 29,   // 処理が重い時も音の合成を続ける
-    precisemixing = 1 << 30,    // 高精度な合成を行う
+    kSubCPUControl = 1 << 0,     // Sub CPU の駆動を制御する
+    kSaveDirectory = 1 << 1,     // 起動時に前回終了時のディレクトリに移動
+    kFullSpeed = 1 << 2,         // 全力動作
+    kEnablePad = 1 << 3,         // パッド有効
+    kEnableOPNA = 1 << 4,        // OPNA モード (44h)
+    kWatchRegister = 1 << 5,     // レジスタ表示
+    kAskBeforeReset = 1 << 6,    // 終了・リセット時に確認
+    kEnablePCG = 1 << 7,         // PCG 系のフォント書き換えを有効
+    kFv15k = 1 << 8,             // 15KHz モニターモード
+    kCPUBurst = 1 << 9,          // ノーウェイト
+    kSuppressMenu = 1 << 10,     // ALT を GRPH に
+    kCPUClockMode = 1 << 11,     // クロック単位で切り替え
+    kUseArrowFor10 = 1 << 12,    // 方向キーをテンキーに
+    kSwappedButtons = 1 << 13,   // パッドのボタンを入れ替え
+    kDisableSing = 1 << 14,      // CMD SING 無効
+    kDigitalPalette = 1 << 15,   // ディジタルパレットモード
+    useqpc = 1 << 16,            // QueryPerformanceCounter つかう (not used)
+    kForce480 = 1 << 17,         // 全画面を常に 640x480 で
+    kOPNonA8 = 1 << 18,          // OPN (a8h)
+    kOPNAonA8 = 1 << 19,         // OPNA (a8h)
+    kDrawPriorityLow = 1 << 20,  // 描画の優先度を落とす
+    kDisableF12Reset = 1 << 21,  // F12 を RESET として使用しない(COPY キーになる)
+    kFullline = 1 << 22,         // 偶数ライン表示
+    kShowStatusBar = 1 << 23,    // ステータスバー表示
+    kShowFDCStatus = 1 << 24,    // FDC のステータスを表示
+    kEnableWait = 1 << 25,       // Wait をつける
+    kEnableMouse = 1 << 26,      // Mouse を使用
+    kMouseJoyMode = 1 << 27,     // Mouse をジョイスティックモードで使用
+    kSpecialPalette = 1 << 28,   // デバックパレットモード
+    kMixSoundAlways = 1 << 29,   // 処理が重い時も音の合成を続ける
+    kPreciseMixing = 1 << 30,    // 高精度な合成を行う
   };
 
   enum Flag2 {
-    disableopn44 = 1 << 0,   // OPN(44h) を無効化 (V2 モード時は OPN)
-    usewaveoutdrv = 1 << 1,  // PCM の再生に waveOut を使用する
-    mask0 = 1 << 2,          // 選択表示モード
-    mask1 = 1 << 3,
-    mask2 = 1 << 4,
-    genscrnshotname = 1 << 5,   // スクリーンショットファイル名を自動生成
-    usefmclock = 1 << 6,        // FM 音源の合成に本来のクロックを使用
-    compresssnapshot = 1 << 7,  // スナップショットを圧縮する
-    synctovsync = 1 << 8,       // 全画面モード時 vsync と同期する
-    showplacesbar = 1 << 9,     // ファイルダイアログで PLACESBAR を表示する
-    lpfenable = 1 << 10,        // LPF を使ってみる
-    fddnowait = 1 << 11,        // FDD ノーウェイト
-    usedsnotify = 1 << 12,
-    saveposition = 1 << 13,  // 起動時に前回終了時のウインドウ位置を復元
+    kDisableOPN44 = 1 << 0,   // OPN(44h) を無効化 (V2 モード時は OPN)
+    kUseWaveOutDrv = 1 << 1,  // PCM の再生に waveOut を使用する
+    kMask0 = 1 << 2,          // 選択表示モード
+    kMask1 = 1 << 3,
+    kMask2 = 1 << 4,
+    kGenScrnShotName = 1 << 5,   // スクリーンショットファイル名を自動生成
+    kUseFMClock = 1 << 6,        // FM 音源の合成に本来のクロックを使用
+    kCompressSnapshot = 1 << 7,  // スナップショットを圧縮する
+    kSyncToVsync = 1 << 8,       // 全画面モード時 vsync と同期する
+    kShowPlaceBar = 1 << 9,      // ファイルダイアログで PLACESBAR を表示する
+    kEnableLPF = 1 << 10,        // LPF を使ってみる
+    kFDDNoWait = 1 << 11,        // FDD ノーウェイト
+    kUseDSNotify = 1 << 12,
+    kSavePosition = 1 << 13,  // 起動時に前回終了時のウインドウ位置を復元
   };
 
   int flags;
@@ -97,7 +97,7 @@ class Config {
   int opnclock;
   int sound;
   int erambanks;
-  int keytype;
+  KeyboardType keytype;
   int volfm, volssg, voladpcm, volrhythm;
   int volbd, volsd, voltop, volhh, voltom, volrim;
   int dipsw;
@@ -114,7 +114,7 @@ class Config {
 
   // 15kHz モードの判定を行う．
   // (条件: option 又は N80/SR モード時)
-  bool IsFV15k() const { return (static_cast<uint32_t>(basicmode) & 2) || (flags & fv15k); }
+  bool IsFV15k() const { return (static_cast<uint32_t>(basicmode) & 2) || (flags & kFv15k); }
 };
 
 }  // namespace PC8801

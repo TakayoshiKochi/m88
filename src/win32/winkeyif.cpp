@@ -60,19 +60,19 @@ void IOCALL WinKeyIF::Reset(uint32_t, uint32_t) {
 //  設定反映
 //
 void WinKeyIF::ApplyConfig(const Config* config) {
-  usearrow = 0 != (config->flags & Config::usearrowfor10);
+  usearrow = 0 != (config->flags & Config::kUseArrowFor10);
   basicmode = config->basicmode;
 
   switch (config->keytype) {
-    case Config::PC98:
+    case KeyboardType::kPC98:
       keytable = KeyTable98[0];
       break;
 
-    case Config::AT101:
+    case KeyboardType::kAT101:
       keytable = KeyTable101[0];
       break;
 
-    case Config::AT106:
+    case KeyboardType::kAT106:
     default:
       keytable = KeyTable106[0];
       break;

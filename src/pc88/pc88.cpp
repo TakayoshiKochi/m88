@@ -176,7 +176,7 @@ int PC88::GetTicks() {
 //
 void PC88::VSync() {
   g_status_display->UpdateDisplay();
-  if (cfgflags & Config::watchregister)
+  if (cfgflags & Config::kWatchRegister)
     g_status_display->Show(10, 0, "%.4X(%.2X)/%.4X", cpu1.GetPC(), cpu1.GetReg().ireg,
                            cpu2.GetPC());
 }
@@ -192,7 +192,7 @@ void PC88::UpdateScreen(bool refresh) {
   LOADBEGIN("Screen");
 
   if (!updated || refresh) {
-    if (!(cfgflags & Config::drawprioritylow) ||
+    if (!(cfgflags & Config::kDrawPriorityLow) ||
         (dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) |
                   static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
     //      if (dstat & (Draw::readytodraw | Draw::shouldrefresh))
@@ -248,10 +248,10 @@ void PC88::Reset() {
     dmac->ConnectRd(mem1->GetRAM(), 0, 0x10000);
   dmac->ConnectWr(mem1->GetRAM(), 0, 0x10000);
 
-  opn1->SetOPNMode((cfgflags & Config::enableopna) != 0);
-  opn1->Enable(isv2 || !(cfgflag2 & Config::disableopn44));
-  opn2->SetOPNMode((cfgflags & Config::opnaona8) != 0);
-  opn2->Enable((cfgflags & (Config::opnaona8 | Config::opnona8)) != 0);
+  opn1->SetOPNMode((cfgflags & Config::kEnableOPNA) != 0);
+  opn1->Enable(isv2 || !(cfgflag2 & Config::kDisableOPN44));
+  opn2->SetOPNMode((cfgflags & Config::kOPNAonA8) != 0);
+  opn2->Enable((cfgflags & (Config::kOPNAonA8 | Config::kOPNonA8)) != 0);
 
   if (!isn80v2)
     opn1->SetIMask(0x32, 0x80);
@@ -586,19 +586,19 @@ void PC88::ApplyConfig(Config* cfg) {
   mem1->ApplyConfig(cfg);
   crtc->ApplyConfig(cfg);
   fdc->ApplyConfig(cfg);
-  beep->EnableSING(!(cfg->flags & Config::disablesing));
-  opn1->SetFMMixMode(!!(cfg->flag2 & Config::usefmclock));
+  beep->EnableSING(!(cfg->flags & Config::kDisableSing));
+  opn1->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
   opn1->SetVolume(cfg);
-  opn2->SetFMMixMode(!!(cfg->flag2 & Config::usefmclock));
+  opn2->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
   opn2->SetVolume(cfg);
 
-  cpumode =
-      (cfg->cpumode == Config::msauto) ? (cfg->mainsubratio > 1 ? ms21 : ms11) : (cfg->cpumode & 1);
-  if ((cfg->flags & Config::subcpucontrol) != 0)
+  cpumode = (cfg->cpumode == Config::kMainSubAuto) ? (cfg->mainsubratio > 1 ? ms21 : ms11)
+                                                   : (cfg->cpumode & 1);
+  if ((cfg->flags & Config::kSubCPUControl) != 0)
     cpumode |= stopwhenidle;
 
-  if (cfg->flags & PC8801::Config::enablepad) {
-    joypad->SetButtonMode(cfg->flags & Config::swappadbuttons ? JoyPad::SWAPPED : JoyPad::NORMAL);
+  if (cfg->flags & PC8801::Config::kEnablePad) {
+    joypad->SetButtonMode(cfg->flags & Config::kSwappedButtons ? JoyPad::SWAPPED : JoyPad::NORMAL);
   } else {
     joypad->SetButtonMode(JoyPad::DISABLED);
   }

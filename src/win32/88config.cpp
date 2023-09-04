@@ -35,7 +35,7 @@ static bool LoadConfigEntry(const char* inifile,
 //  LoadConfigDirectory
 //
 void LoadConfigDirectory(Config* cfg, const char* inifile, const char* entry, bool readalways) {
-  if (readalways || (cfg->flags & Config::savedirectory)) {
+  if (readalways || (cfg->flags & Config::kSaveDirectory)) {
     char path[MAX_PATH];
     if (GetPrivateProfileString(AppName, entry, ";", path, MAX_PATH, inifile)) {
       if (path[0] != ';')
@@ -56,13 +56,13 @@ void LoadConfigDirectory(Config* cfg, const char* inifile, const char* entry, bo
 void LoadConfig(Config* cfg, const char* inifile, bool applydefault) {
   int n;
 
-  n = Config::subcpucontrol | Config::savedirectory | Config::force480 | Config::enablewait;
+  n = Config::kSubCPUControl | Config::kSaveDirectory | Config::kForce480 | Config::kEnableWait;
   LoadConfigEntry(inifile, "Flags", &cfg->flags, n, applydefault);
-  cfg->flags &= ~Config::specialpalette;
+  cfg->flags &= ~Config::kSpecialPalette;
 
-  n = Config::genscrnshotname;
+  n = Config::kGenScrnShotName;
   LoadConfigEntry(inifile, "Flag2", &cfg->flag2, n, applydefault);
-  cfg->flag2 &= ~(Config::mask0 | Config::mask1 | Config::mask2);
+  cfg->flag2 &= ~(Config::kMask0 | Config::kMask1 | Config::kMask2);
 
   if (LoadConfigEntry(inifile, "CPUClock", &n, 40, applydefault))
     cfg->clock = Limit(n, 1000, 1);
@@ -100,7 +100,7 @@ void LoadConfig(Config* cfg, const char* inifile, bool applydefault) {
     cfg->erambanks = Limit(n, 256, 0);
 
   if (LoadConfigEntry(inifile, "KeyboardType", &n, 0, applydefault))
-    cfg->keytype = Config::KeyType(n);
+    cfg->keytype = static_cast<KeyboardType>(n);
 
   if (LoadConfigEntry(inifile, "Switches", &n, 1829, applydefault))
     cfg->dipsw = n;
@@ -111,7 +111,7 @@ void LoadConfig(Config* cfg, const char* inifile, bool applydefault) {
   if (LoadConfigEntry(inifile, "MouseSensibility", &n, 4, applydefault))
     cfg->mousesensibility = Limit(n, 10, 1);
 
-  if (LoadConfigEntry(inifile, "CPUMode", &n, Config::msauto, applydefault))
+  if (LoadConfigEntry(inifile, "CPUMode", &n, Config::kMainSubAuto, applydefault))
     cfg->cpumode = Limit(n, 2, 0);
 
   if (LoadConfigEntry(inifile, "LPFCutoff", &n, 8000, applydefault))
@@ -186,7 +186,7 @@ void SaveConfig(Config* cfg, const char* inifile, bool writedefault) {
   SaveEntry(inifile, "SoundBuffer", cfg->soundbuffer, writedefault);
   SaveEntry(inifile, "MouseSensibility", cfg->mousesensibility, writedefault);
   SaveEntry(inifile, "CPUMode", cfg->cpumode, writedefault);
-  SaveEntry(inifile, "KeyboardType", cfg->keytype, writedefault);
+  SaveEntry(inifile, "KeyboardType", static_cast<int>(cfg->keytype), writedefault);
   SaveEntry(inifile, "ERAMBank", cfg->erambanks, writedefault);
   SaveEntry(inifile, "LPFCutoff", cfg->lpffc, writedefault);
   SaveEntry(inifile, "LPFOrder", cfg->lpforder, writedefault);

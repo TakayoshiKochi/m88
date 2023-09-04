@@ -237,7 +237,7 @@ void WinUI::SaveWindowPosition() {
 }
 
 void WinUI::LoadWindowPosition() {
-  if (config.flag2 & Config::saveposition) {
+  if (config.flag2 & Config::kSavePosition) {
     WINDOWPLACEMENT wp;
     wp.length = sizeof(WINDOWPLACEMENT);
     ::GetWindowPlacement(hwnd, &wp);
@@ -282,7 +282,7 @@ int WinUI::Main(const char* cmdline) {
 
     if (!TranslateAccelerator(msg.hwnd, accel, &msg)) {
       if ((msg.message == WM_SYSKEYDOWN || msg.message == WM_SYSKEYUP) &&
-          !(config.flags & Config::suppressmenu))
+          !(config.flags & Config::kSuppressMenu))
         TranslateMessage(&msg);
     }
     DispatchMessage(&msg);
@@ -382,7 +382,7 @@ inline LRESULT WinUI::M88SendKeyState(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::disablef12reset))
+  if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::kDisableF12Reset))
     ;
   else
     keyif.KeyDown((uint32_t)wparam, (uint32_t)lparam);
@@ -391,7 +391,7 @@ inline LRESULT WinUI::WmKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::disablef12reset))
+  if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::kDisableF12Reset))
     Reset();
   else
     keyif.KeyUp((uint32_t)wparam, (uint32_t)lparam);
@@ -400,7 +400,7 @@ inline LRESULT WinUI::WmKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  if (config.flags & Config::suppressmenu) {
+  if (config.flags & Config::kSuppressMenu) {
     keyif.KeyDown((uint32_t)wparam, (uint32_t)lparam);
     return 0;
   }
@@ -408,7 +408,7 @@ inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmSysKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  if (config.flags & Config::suppressmenu) {
+  if (config.flags & Config::kSuppressMenu) {
     keyif.KeyUp((uint32_t)wparam, (uint32_t)lparam);
     return 0;
   }
@@ -475,9 +475,9 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM lparam) {
       break;
 
     case IDM_CPU_BURST:
-      config.flags ^= Config::cpuburst;
-      if (config.flags & Config::cpuburst)
-        config.flags &= ~Config::fullspeed;
+      config.flags ^= Config::kCPUBurst;
+      if (config.flags & Config::kCPUBurst)
+        config.flags &= ~Config::kFullSpeed;
       ApplyConfig();
       break;
 
@@ -562,32 +562,32 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM lparam) {
       break;
 
     case IDM_DEBUG_TEXT:
-      config.flags ^= PC8801::Config::specialpalette;
+      config.flags ^= PC8801::Config::kSpecialPalette;
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM0:
-      config.flag2 ^= PC8801::Config::mask0;
+      config.flag2 ^= PC8801::Config::kMask0;
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM1:
-      config.flag2 ^= PC8801::Config::mask1;
+      config.flag2 ^= PC8801::Config::kMask1;
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM2:
-      config.flag2 ^= PC8801::Config::mask2;
+      config.flag2 ^= PC8801::Config::kMask2;
       ApplyConfig();
       break;
 
     case IDM_STATUSBAR:
-      config.flags ^= PC8801::Config::showstatusbar;
+      config.flags ^= PC8801::Config::kShowStatusBar;
       ShowStatusWindow();
       break;
 
     case IDM_FDC_STATUS:
-      config.flags ^= PC8801::Config::showfdcstatus;
+      config.flags ^= PC8801::Config::kShowFDCStatus;
       ApplyConfig();
       break;
 
@@ -616,7 +616,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM lparam) {
       break;
 
     case IDM_WATCHREGISTER:
-      config.flags &= ~PC8801::Config::watchregister;
+      config.flags &= ~PC8801::Config::kWatchRegister;
       regmon.Show(hinst, hwnd, !regmon.IsOpen());
       break;
 
@@ -736,7 +736,7 @@ LRESULT WinUI::WmDestroy(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //
 LRESULT WinUI::WmClose(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   // 確認
-  if (config.flags & Config::askbeforereset) {
+  if (config.flags & Config::kAskBeforeReset) {
     SetGUIFlag(true);
     int res = MessageBox(hwnd, "M88 を終了します", "M88",
                          MB_ICONEXCLAMATION | MB_OKCANCEL | MB_DEFBUTTON2);
@@ -850,15 +850,15 @@ LRESULT WinUI::WmInitMenu(HWND hwnd, WPARAM wp, LPARAM lp) {
   EnableMenuItem(hmenu, IDM_N88V2CD, core.IsCDSupported() ? MF_ENABLED : MF_GRAYED);
 
   CheckMenuItem(hmenu, IDM_CPU_BURST,
-                (config.flags & Config::cpuburst) ? MF_CHECKED : MF_UNCHECKED);
+                (config.flags & Config::kCPUBurst) ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu, IDM_WATCHREGISTER,
                 (config.dipsw != 1 && regmon.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu, IDM_STATUSBAR,
-                (config.flags & Config::showstatusbar) ? MF_CHECKED : MF_UNCHECKED);
+                (config.flags & Config::kShowStatusBar) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu, IDM_STATUSBAR, fullscreen ? MF_GRAYED : MF_ENABLED);
   CheckMenuItem(hmenu, IDM_FDC_STATUS,
-                (config.flags & Config::showfdcstatus) ? MF_CHECKED : MF_UNCHECKED);
+                (config.flags & Config::kShowFDCStatus) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu, IDM_SOUNDMON, opnmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu, IDM_MEMMON, memmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu, IDM_CODEMON, codemon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
@@ -878,8 +878,8 @@ LRESULT WinUI::WmInitMenu(HWND hwnd, WPARAM wp, LPARAM lp) {
 
   if (hmenudbg) {
     CheckMenuItem(hmenudbg, IDM_DEBUG_TEXT,
-                  (config.flags & Config::specialpalette) ? MF_CHECKED : MF_UNCHECKED);
-    int mask = (config.flag2 / Config::mask0) & 7;
+                  (config.flags & Config::kSpecialPalette) ? MF_CHECKED : MF_UNCHECKED);
+    int mask = (config.flag2 / Config::kMask0) & 7;
     CheckMenuItem(hmenudbg, IDM_DEBUG_GVRAM0, (mask & 1) ? MF_CHECKED : MF_UNCHECKED);
     CheckMenuItem(hmenudbg, IDM_DEBUG_GVRAM1, (mask & 2) ? MF_CHECKED : MF_UNCHECKED);
     CheckMenuItem(hmenudbg, IDM_DEBUG_GVRAM2, (mask & 4) ? MF_CHECKED : MF_UNCHECKED);
@@ -931,22 +931,22 @@ LRESULT WinUI::M88ApplyConfig(HWND, WPARAM newconfig, LPARAM) {
 //  WinUI::ApplyConfig
 //
 void WinUI::ApplyConfig() {
-  config.mainsubratio = (config.clock >= 60 || (config.flags & Config::fullspeed)) ? 2 : 1;
+  config.mainsubratio = (config.clock >= 60 || (config.flags & Config::kFullSpeed)) ? 2 : 1;
   if (config.dipsw != 1) {
-    config.flags &= ~Config::specialpalette;
-    config.flag2 &= ~(Config::mask0 | Config::mask1 | Config::mask2);
+    config.flags &= ~Config::kSpecialPalette;
+    config.flag2 &= ~(Config::kMask0 | Config::kMask1 | Config::kMask2);
   }
 
   core.ApplyConfig(&config);
   keyif.ApplyConfig(&config);
-  draw.SetPriorityLow((config.flags & Config::drawprioritylow) != 0);
+  draw.SetPriorityLow((config.flags & Config::kDrawPriorityLow) != 0);
 
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(mii));
   mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
-  mii.dwTypeData = (config.flags & Config::disablef12reset) ? "&Reset" : "&Reset\tF12";
+  mii.dwTypeData = (config.flags & Config::kDisableF12Reset) ? "&Reset" : "&Reset\tF12";
   SetMenuItemInfo(GetMenu(hwnd), IDM_RESET, false, &mii);
   ShowStatusWindow();
 
@@ -974,7 +974,7 @@ void WinUI::ApplyConfig() {
 //  WinUI::Reset
 //
 void WinUI::Reset() {
-  if (config.flags & Config::askbeforereset) {
+  if (config.flags & Config::kAskBeforeReset) {
     SetGUIFlag(true);
     int res = MessageBox(hwnd, "リセットしますか？", "M88",
                          MB_ICONQUESTION | MB_OKCANCEL | MB_DEFBUTTON2);
@@ -1006,7 +1006,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
   ofn.lStructSize = sizeof(OPENFILENAME);
-  ofn.FlagsEx = config.flag2 & Config::showplacesbar ? 0 : OFN_EX_NOPLACESBAR;
+  ofn.FlagsEx = config.flag2 & Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];
   filename[0] = 0;
@@ -1215,7 +1215,7 @@ void WinUI::ChangeTapeImage() {
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
   ofn.lStructSize = sizeof(OPENFILENAME);
-  ofn.FlagsEx = config.flag2 & Config::showplacesbar ? 0 : OFN_EX_NOPLACESBAR;
+  ofn.FlagsEx = config.flag2 & Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];
   filename[0] = 0;
@@ -1283,8 +1283,8 @@ void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
 //
 void WinUI::ShowStatusWindow() {
   if (!fullscreen) {
-    if (config.flags & PC8801::Config::showstatusbar)
-      statusdisplay.Enable((config.flags & PC8801::Config::showfdcstatus) != 0);
+    if (config.flags & PC8801::Config::kShowStatusBar)
+      statusdisplay.Enable((config.flags & PC8801::Config::kShowFDCStatus) != 0);
     else
       statusdisplay.Disable();
     ResizeWindow(640, 400);
@@ -1343,7 +1343,7 @@ void WinUI::ChangeDisplayType(bool savepos) {
 LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
   // 画面ドライバの切替え
   // ドライバが false を返した場合 GDI ドライバが使用されることになる
-  if (!draw.ChangeDisplayMode(fullscreen, (config.flags & PC8801::Config::force480) != 0))
+  if (!draw.ChangeDisplayMode(fullscreen, (config.flags & PC8801::Config::kForce480) != 0))
     fullscreen = false;
 
   // ウィンドウスタイル関係の変更
@@ -1484,7 +1484,7 @@ void WinUI::CaptureScreen() {
     bool save;
     char filename[MAX_PATH];
 
-    if (config.flag2 & Config::genscrnshotname) {
+    if (config.flag2 & Config::kGenScrnShotName) {
       SYSTEMTIME time;
       GetLocalTime(&time);
       wsprintf(filename, "%.2d%.2d%.2d%.2d%.2d.bmp", time.wDay, time.wHour, time.wMinute,
@@ -1504,7 +1504,7 @@ void WinUI::CaptureScreen() {
       ofn.Flags = OFN_CREATEPROMPT | OFN_NOREADONLYRETURN;
       ofn.lpstrDefExt = "bmp";
       ofn.lpstrTitle = "Save captured image";
-      ofn.FlagsEx = config.flag2 & Config::showplacesbar ? 0 : OFN_EX_NOPLACESBAR;
+      ofn.FlagsEx = config.flag2 & Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
 
       SetGUIFlag(true);
       (*EnableIME)(hwnd, true);
