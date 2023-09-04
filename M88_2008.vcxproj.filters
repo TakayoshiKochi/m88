@@ -22,6 +22,9 @@
     <Filter Include="zlib">
       <UniqueIdentifier>{27c2946e-319c-49f6-94cf-6373f14dd6d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="win32\monitor">
+      <UniqueIdentifier>{20aa401b-de2a-4cd5-b947-4c1b333fbd72}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\device.cpp">
@@ -138,13 +141,7 @@
     <ClCompile Include="src\win32\about.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\basmon.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\cfgpage.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\codemon.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\dderr.cpp">
@@ -174,22 +171,10 @@
     <ClCompile Include="src\win32\guid.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\iomon.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\loadmon.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\main.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\memmon.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\module.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\mvmon.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\newdisk.cpp">
@@ -205,9 +190,6 @@
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\soundds2.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\soundmon.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\soundwo.cpp">
@@ -238,9 +220,6 @@
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\winkeyif.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\winmon.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\winmouse.cpp">
@@ -305,6 +284,30 @@
     </ClCompile>
     <ClCompile Include="src\common\file_.cpp">
       <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\basmon.cpp">
+      <Filter>win32\monitor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\codemon.cpp">
+      <Filter>win32\monitor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\iomon.cpp">
+      <Filter>win32\monitor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\loadmon.cpp">
+      <Filter>win32\monitor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\memmon.cpp">
+      <Filter>win32\monitor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\mvmon.cpp">
+      <Filter>win32\monitor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\soundmon.cpp">
+      <Filter>win32\monitor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\winmon.cpp">
+      <Filter>win32\monitor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -440,13 +443,7 @@
     <ClInclude Include="src\win32\about.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\basmon.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\cfgpage.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\codemon.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\critsect.h">
@@ -476,22 +473,10 @@
     <ClInclude Include="src\win32\filetest.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\iomon.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\loadmon.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\memmon.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\messages.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\module.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\mvmon.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\newdisk.h">
@@ -513,9 +498,6 @@
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\soundds2.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\soundmon.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\soundwo.h">
@@ -549,9 +531,6 @@
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\winkeyif.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\winmon.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\winmouse.h">
@@ -631,6 +610,30 @@
     </ClInclude>
     <ClInclude Include="src\common\status.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\basmon.h">
+      <Filter>win32\monitor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\codemon.h">
+      <Filter>win32\monitor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\iomon.h">
+      <Filter>win32\monitor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\loadmon.h">
+      <Filter>win32\monitor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\memmon.h">
+      <Filter>win32\monitor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\mvmon.h">
+      <Filter>win32\monitor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\soundmon.h">
+      <Filter>win32\monitor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\winmon.h">
+      <Filter>win32\monitor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
