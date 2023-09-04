@@ -8,7 +8,6 @@
 
 #include <stdlib.h>
 
-#include "common/draw.h"
 #include "common/io_bus.h"
 #include "common/status.h"
 #include "pc88/base.h"

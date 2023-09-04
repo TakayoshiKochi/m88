@@ -194,10 +194,10 @@ class PC88 : public Scheduler, public ICPUTime {
   PC8801::PD8257* dmac;
 
  protected:
-  Draw* draw;
-  DiskManager* diskmgr;
-  TapeManager* tapemgr;
-  PC8801::JoyPad* joypad;
+  Draw* draw_ = nullptr;
+  DiskManager* diskmgr = nullptr;
+  TapeManager* tapemgr = nullptr;
+  PC8801::JoyPad* joypad = nullptr;
 
   MemoryManager mm1, mm2;
   IOBus bus1, bus2;

@@ -31,7 +31,7 @@
 // 構築/消滅
 //
 WinDraw::WinDraw() {
-  draw = 0;
+  drawsub_ = 0;
   idthread = 0;
   hthread = 0;
   hevredraw = 0;
@@ -41,7 +41,7 @@ WinDraw::WinDraw() {
   drawall = false;
   drawing = false;
   refresh = false;
-  locked = false;
+  locked_ = false;
   active = false;
 }
 
@@ -54,7 +54,7 @@ WinDraw::~WinDraw() {
 //
 bool WinDraw::Init0(HWND hwindow) {
   hwnd = hwindow;
-  draw = 0;
+  drawsub_ = 0;
   drawtype = None;
 
   hthread = 0;
@@ -109,8 +109,8 @@ bool WinDraw::Cleanup() {
   if (hevredraw)
     CloseHandle(hevredraw), hevredraw = 0;
 
-  delete draw;
-  draw = 0;
+  delete drawsub_;
+  drawsub_ = 0;
   return true;
 }
 
@@ -147,8 +147,8 @@ void WinDraw::SetPriorityLow(bool low) {
 //
 void WinDraw::QueryNewPalette(bool /*bkgnd*/) {
   CriticalSection::Lock lock(csdraw);
-  if (draw)
-    draw->QueryNewPalette();
+  if (drawsub_)
+    drawsub_->QueryNewPalette();
 }
 
 // ---------------------------------------------------------------------------
@@ -193,16 +193,16 @@ void WinDraw::DrawScreen(const Region& region) {
 void WinDraw::PaintWindow() {
   LOADBEGIN("WinDraw");
   CriticalSection::Lock lock(csdraw);
-  if (drawing && draw && active) {
+  if (drawing && drawsub_ && active) {
     RECT rect = drawarea;
     if (palcngbegin <= palcngend) {
       palrgnbegin = std::min(palcngbegin, palrgnbegin);
       palrgnend = std::max(palcngend, palrgnend);
-      draw->SetPalette(palette + palcngbegin, palcngbegin, palcngend - palcngbegin + 1);
+      drawsub_->SetPalette(palette + palcngbegin, palcngbegin, palcngend - palcngbegin + 1);
       palcngbegin = 0x100;
       palcngend = -1;
     }
-    draw->DrawScreen(rect, drawall);
+    drawsub_->DrawScreen(rect, drawall);
     drawall = false;
     if (rect.left < rect.right && rect.top < rect.bottom) {
       drawcount++;
@@ -234,16 +234,16 @@ void WinDraw::SetPalette(uint32_t index, uint32_t nents, const Palette* pal) {
 bool WinDraw::Lock(uint8_t** pimage, int* pbpl) {
   assert(pimage && pbpl);
 
-  if (!locked) {
-    locked = true;
+  if (!locked_) {
+    locked_ = true;
     csdraw.lock();
-    if (draw && draw->Lock(pimage, pbpl)) {
+    if (drawsub_ && drawsub_->Lock(pimage, pbpl)) {
       // Lock に失敗することがある？
       assert(**pimage >= 0);
       return true;
     }
     csdraw.unlock();
-    locked = false;
+    locked_ = false;
   }
   return false;
 }
@@ -253,11 +253,11 @@ bool WinDraw::Lock(uint8_t** pimage, int* pbpl) {
 //
 bool WinDraw::Unlock() {
   bool result = false;
-  if (locked) {
-    if (draw)
-      result = draw->Unlock();
+  if (locked_) {
+    if (drawsub_)
+      result = drawsub_->Unlock();
     csdraw.unlock();
-    locked = false;
+    locked_ = false;
     if (refresh == 1)
       refresh = 0;
   }
@@ -271,9 +271,9 @@ void WinDraw::Resize(uint32_t w, uint32_t h) {
   //  statusdisplay.Show(50, 2500, "Resize (%d, %d)", width, height);
   width = w;
   height = h;
-  if (draw) {
+  if (drawsub_) {
     csdraw.lock();
-    draw->Resize(width, height);
+    drawsub_->Resize(width, height);
     csdraw.unlock();
   }
 }
@@ -282,8 +282,8 @@ void WinDraw::Resize(uint32_t w, uint32_t h) {
 //  画面位置を変える
 //
 void WinDraw::WindowMoved(int x, int y) {
-  if (draw)
-    draw->WindowMoved(x, y);
+  if (drawsub_)
+    drawsub_->WindowMoved(x, y);
 }
 
 // ---------------------------------------------------------------------------
@@ -300,12 +300,12 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
 
   if (type != drawtype) {
     // 今までのドライバを廃棄
-    if (draw)
-      draw->SetGUIMode(true);
+    if (drawsub_)
+      drawsub_->SetGUIMode(true);
     {
       CriticalSection::Lock lock(csdraw);
-      delete draw;
-      draw = 0;
+      delete drawsub_;
+      drawsub_ = 0;
     }
 
     // 新しいドライバの用意
@@ -345,7 +345,7 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
     }
 
     if (newdraw) {
-      newdraw->SetFlipMode(flipmode);
+      newdraw->SetFlipMode(flipmode_);
       newdraw->SetGUIMode(false);
     }
 
@@ -353,7 +353,7 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
     {
       CriticalSection::Lock lock(csdraw);
       guicount = 0;
-      draw = newdraw;
+      drawsub_ = newdraw;
     }
 
     drawall = true, refresh = true;
@@ -379,11 +379,12 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
 //  現在の状態を得る
 //
 uint32_t WinDraw::GetStatus() {
-  if (draw) {
+  if (drawsub_) {
     if (refresh)
       refresh = 1;
     return (!drawing && active ? static_cast<uint32_t>(Draw::Status::kReadyToDraw) : 0) |
-           (refresh ? static_cast<uint32_t>(Draw::Status::kShouldRefresh) : 0) | draw->GetStatus();
+           (refresh ? static_cast<uint32_t>(Draw::Status::kShouldRefresh) : 0) |
+           drawsub_->GetStatus();
   }
   return 0;
 }
@@ -392,9 +393,9 @@ uint32_t WinDraw::GetStatus() {
 //  flip モードの設定
 //
 bool WinDraw::SetFlipMode(bool f) {
-  flipmode = f;
-  if (draw)
-    return draw->SetFlipMode(flipmode);
+  flipmode_ = f;
+  if (drawsub_)
+    return drawsub_->SetFlipMode(flipmode_);
   return false;
 }
 
@@ -402,8 +403,8 @@ bool WinDraw::SetFlipMode(bool f) {
 //  flip する
 //
 void WinDraw::Flip() {
-  if (draw)
-    draw->Flip();
+  if (drawsub_)
+    drawsub_->Flip();
 }
 
 // ---------------------------------------------------------------------------
@@ -412,13 +413,13 @@ void WinDraw::Flip() {
 void WinDraw::SetGUIFlag(bool usegui) {
   CriticalSection::Lock lock(csdraw);
   if (usegui) {
-    if (!guicount++ && draw) {
-      draw->SetGUIMode(true);
+    if (!guicount++ && drawsub_) {
+      drawsub_->SetGUIMode(true);
       ShowCursor(true);
     }
   } else {
-    if (!--guicount && draw) {
-      draw->SetGUIMode(false);
+    if (!--guicount && drawsub_) {
+      drawsub_->SetGUIMode(false);
       ShowCursor(false);
     }
   }
@@ -431,7 +432,7 @@ void WinDraw::SetGUIFlag(bool usegui) {
 //
 int WinDraw::CaptureScreen(uint8_t* dest) {
   const bool half = false;
-  if (!draw)
+  if (!drawsub_)
     return false;
 
   uint8_t* src = new uint8_t[640 * 400];
@@ -440,19 +441,19 @@ int WinDraw::CaptureScreen(uint8_t* dest) {
 
   uint8_t* s;
   int bpl;
-  if (draw->Lock(&s, &bpl)) {
+  if (drawsub_->Lock(&s, &bpl)) {
     uint8_t* d = src;
     for (int y = 0; y < 400; y++) {
       memcpy(d, s, 640);
       d += 640, s += bpl;
     }
-    draw->Unlock();
+    drawsub_->Unlock();
   }
 
   // 構造体の準備
 
-  BITMAPFILEHEADER* filehdr = (BITMAPFILEHEADER*)dest;
-  BITMAPINFO* binfo = (BITMAPINFO*)(filehdr + 1);
+  auto* filehdr = reinterpret_cast<BITMAPFILEHEADER*>(dest);
+  auto* binfo = reinterpret_cast<BITMAPINFO*>(filehdr + 1);
 
   // headers
   ((char*)&filehdr->bfType)[0] = 'B';

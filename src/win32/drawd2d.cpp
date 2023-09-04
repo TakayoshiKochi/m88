@@ -14,15 +14,13 @@ template <class T>
 void SafeRelease(T** ppT) {
   if (*ppT) {
     (*ppT)->Release();
-    *ppT = NULL;
+    *ppT = nullptr;
   }
 }
 
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-WinDrawD2D::WinDrawD2D() {}
-
 WinDrawD2D::~WinDrawD2D() {
   Cleanup();
 }
@@ -53,21 +51,19 @@ void WinDrawD2D::SetGUIMode(bool _mode) {
 bool WinDrawD2D::CreateD2D() {
   Cleanup();
 
-  if (m_hCWnd == 0) {
+  if (m_hCWnd == nullptr) {
     // Base windowを生成
     m_hCWnd = ::CreateWindowEx(WS_EX_TRANSPARENT, "M88p2 WinUI", "", WS_CHILD, 0, 0, 640, 480,
-                               m_hWnd, NULL, NULL, NULL);
+                               m_hWnd, nullptr, nullptr, nullptr);
   }
 
-  if (m_hCWnd == 0) {
+  if (m_hCWnd == nullptr)
     return false;
-  } else {
-    ::ShowWindow(m_hCWnd, SW_SHOW);
-  }
+
+  ::ShowWindow(m_hCWnd, SW_SHOW);
 
   // D2D factory作成
   HRESULT hr = ::D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &m_D2DFact);
-
   return SUCCEEDED(hr);
 }
 
@@ -98,7 +94,7 @@ bool WinDrawD2D::Resize(uint32_t _width, uint32_t _height) {
       hr = m_RenderTarget->QueryInterface(__uuidof(ID2D1GdiInteropRenderTarget), (void**)&m_GDIRT);
     }
 
-    if (MakeBitmap() == false) {
+    if (!MakeBitmap()) {
       return false;
     }
     memset(m_image, 0x40, _width * _height);
@@ -120,11 +116,11 @@ bool WinDrawD2D::Cleanup() {
   SafeRelease(&m_D2DFact);
   if (m_hBitmap) {
     ::DeleteObject(m_hBitmap);
-    m_hBitmap = 0;
+    m_hBitmap = nullptr;
   }
   if (m_hCWnd) {
     ::DestroyWindow(m_hCWnd);
-    m_hCWnd = 0;
+    m_hCWnd = nullptr;
   }
   return true;
 }
@@ -157,7 +153,7 @@ bool WinDrawD2D::MakeBitmap() {
   }
   BYTE* bitmapimage = 0;
   m_hBitmap = ::CreateDIBSection(hdc, (BITMAPINFO*)&m_bmpinfo, DIB_RGB_COLORS,
-                                 (void**)(&bitmapimage), NULL, 0);
+                                 (void**)(&bitmapimage), nullptr, 0);
 
   RECT rect = {0, 0, 640, 400};
   m_GDIRT->ReleaseDC(&rect);
