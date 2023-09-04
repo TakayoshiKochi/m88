@@ -177,9 +177,6 @@
     <ClCompile Include="src\win32\iomon.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\keybconn.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\loadmon.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
@@ -480,9 +477,6 @@
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\iomon.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\keybconn.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\loadmon.h">
