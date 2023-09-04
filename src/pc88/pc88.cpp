@@ -11,6 +11,7 @@
 #include "pc88/pc88.h"
 
 #include <algorithm>
+#include <memory>
 
 #include "common/status.h"
 
@@ -45,21 +46,13 @@ PC88::PC88()
     : cpu1(DEV_ID('C', 'P', 'U', '1')),
       cpu2(DEV_ID('C', 'P', 'U', '2')),
       base(0),
-      mem1(0),
-      dmac(0),
-      knj1(0),
-      knj2(0),
       scrn(0),
       intc(0),
       crtc(0),
       fdc(0),
-      subsys(0),
       siotape(0),
-      opn1(0),
-      opn2(0),
       caln(0),
       diskmgr(0),
-      beep(0),
       siomidi(0),
       joypad(0) {
   assert((1 << MemoryManager::pagebits) <= 0x400);
@@ -68,17 +61,11 @@ PC88::PC88()
 
 PC88::~PC88() {
   //  devlist.Cleanup();
-
   delete base;
-  delete mem1;
-  delete dmac;
-  delete knj1;
-  delete knj2;
   delete scrn;
   delete intc;
   delete crtc;
   delete fdc;
-  delete subsys;
   delete siotape;
   delete siomidi;
   delete caln;
@@ -125,9 +112,9 @@ bool PC88::Init(Draw* draw, DiskManager* disk, TapeManager* tape) {
 }
 
 void PC88::DeInit() {
-  delete beep;
-  delete opn1;
-  delete opn2;
+  opn1_->CleanUp();
+  opn2_->CleanUp();
+  beep_->CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -146,7 +133,7 @@ int PC88::Proceed(uint32_t ticks, uint32_t clk, uint32_t ecl) {
 int PC88::Execute(int ticks) {
   LOADBEGIN("Core.CPU");
   int exc = ticks * clock_;
-  if (!(cpumode & stopwhenidle) || subsys->IsBusy() || fdc->IsBusy()) {
+  if (!(cpumode & stopwhenidle) || subsys_->IsBusy() || fdc->IsBusy()) {
     if ((cpumode & 1) == ms11)
       exc = Z80::ExecDual(&cpu1, &cpu2, exc);
     else
@@ -243,20 +230,20 @@ void PC88::Reset() {
   bool isn80v2 = (base->GetBasicMode() == BasicMode::kN80V2);
 
   if (isv2)
-    dmac->ConnectRd(mem1->GetTVRAM(), 0xf000, 0x1000);
+    dmac_->ConnectRd(mem1_->GetTVRAM(), 0xf000, 0x1000);
   else
-    dmac->ConnectRd(mem1->GetRAM(), 0, 0x10000);
-  dmac->ConnectWr(mem1->GetRAM(), 0, 0x10000);
+    dmac_->ConnectRd(mem1_->GetRAM(), 0, 0x10000);
+  dmac_->ConnectWr(mem1_->GetRAM(), 0, 0x10000);
 
-  opn1->SetOPNMode((cfgflags & Config::kEnableOPNA) != 0);
-  opn1->Enable(isv2 || !(cfgflag2 & Config::kDisableOPN44));
-  opn2->SetOPNMode((cfgflags & Config::kOPNAonA8) != 0);
-  opn2->Enable((cfgflags & (Config::kOPNAonA8 | Config::kOPNonA8)) != 0);
+  opn1_->SetOPNMode((cfgflags & Config::kEnableOPNA) != 0);
+  opn1_->Enable(isv2 || !(cfgflag2 & Config::kDisableOPN44));
+  opn2_->SetOPNMode((cfgflags & Config::kOPNAonA8) != 0);
+  opn2_->Enable((cfgflags & (Config::kOPNAonA8 | Config::kOPNonA8)) != 0);
 
   if (!isn80v2)
-    opn1->SetIMask(0x32, 0x80);
+    opn1_->SetIMask(0x32, 0x80);
   else
-    opn1->SetIMask(0x33, 0x02);
+    opn1_->SetIMask(0x33, 0x02);
 
   bus1.Out(pres, static_cast<uint32_t>(base->GetBasicMode()));
   bus1.Out(0x30, 1);
@@ -316,8 +303,8 @@ bool PC88::ConnectDevices() {
       {0x64, IOBus::portin, PD8257::getaddr},   {0x65, IOBus::portin, PD8257::getcount},
       {0x66, IOBus::portin, PD8257::getaddr},   {0x67, IOBus::portin, PD8257::getcount},
       {0x68, IOBus::portin, PD8257::getstat},   {0, 0, 0}};
-  dmac = new PC8801::PD8257(DEV_ID('D', 'M', 'A', 'C'));
-  if (!bus1.Connect(dmac, c_dmac))
+  dmac_ = std::make_unique<PC8801::PD8257>(DEV_ID('D', 'M', 'A', 'C'));
+  if (!bus1.Connect(dmac_.get(), c_dmac))
     return false;
 
   static const IOBus::Connector c_crtc[] = {
@@ -357,13 +344,14 @@ bool PC88::ConnectDevices() {
                                             {0xe2, IOBus::portin, Memory::ine2},
                                             {0xe3, IOBus::portin, Memory::ine3},
                                             {0, 0, 0}};
-  mem1 = new PC8801::Memory(DEV_ID('M', 'E', 'M', '1'));
-  if (!mem1 || !bus1.Connect(mem1, c_mem1))
+  mem1_ = std::make_unique<PC8801::Memory>(DEV_ID('M', 'E', 'M', '1'));
+  if (!mem1_ || !bus1.Connect(mem1_.get(), c_mem1))
     return false;
-  if (!mem1->Init(&mm1, &bus1, crtc, cpu1.GetWaits()))
+  if (!mem1_->Init(&mm1, &bus1, crtc, cpu1.GetWaits()))
     return false;
 
-  if (!crtc->Init(&bus1, this, dmac, draw))
+  // TODO: CRTC is dependent on DMAC's object lifetime. (do not pass unique_ptr here)
+  if (!crtc->Init(&bus1, this, dmac_.get()))
     return false;
 
   static const IOBus::Connector c_knj1[] = {{0xe8, IOBus::portout, KanjiROM::setl},
@@ -371,10 +359,10 @@ bool PC88::ConnectDevices() {
                                             {0xe8, IOBus::portin, KanjiROM::readl},
                                             {0xe9, IOBus::portin, KanjiROM::readh},
                                             {0, 0, 0}};
-  knj1 = new PC8801::KanjiROM(DEV_ID('K', 'N', 'J', '1'));
-  if (!knj1 || !bus1.Connect(knj1, c_knj1))
+  knj1_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '1'));
+  if (!knj1_ || !bus1.Connect(knj1_.get(), c_knj1))
     return false;
-  if (!knj1->Init("kanji1.rom"))
+  if (!knj1_->Init("kanji1.rom"))
     return false;
 
   static const IOBus::Connector c_knj2[] = {{0xec, IOBus::portout, KanjiROM::setl},
@@ -382,10 +370,10 @@ bool PC88::ConnectDevices() {
                                             {0xec, IOBus::portin, KanjiROM::readl},
                                             {0xed, IOBus::portin, KanjiROM::readh},
                                             {0, 0, 0}};
-  knj2 = new PC8801::KanjiROM(DEV_ID('K', 'N', 'J', '2'));
-  if (!knj2 || !bus1.Connect(knj2, c_knj2))
+  knj2_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '2'));
+  if (!knj2_ || !bus1.Connect(knj2_.get(), c_knj2))
     return false;
-  if (!knj2->Init("kanji2.rom"))
+  if (!knj2_->Init("kanji2.rom"))
     return false;
 
   static const IOBus::Connector c_scrn[] = {
@@ -400,7 +388,7 @@ bool PC88::ConnectDevices() {
   scrn = new PC8801::Screen(DEV_ID('S', 'C', 'R', 'N'));
   if (!scrn || !bus1.Connect(scrn, c_scrn))
     return false;
-  if (!scrn->Init(&bus1, mem1, crtc))
+  if (!scrn->Init(&bus1, mem1_.get(), crtc))
     return false;
 
   static const IOBus::Connector c_intc[] = {{pres, IOBus::portout, INTC::reset},
@@ -432,8 +420,8 @@ bool PC88::ConnectDevices() {
       {0xfd, IOBus::portin | IOBus::sync, SubSystem::m_read1},
       {0xfe, IOBus::portin | IOBus::sync, SubSystem::m_read2},
       {0, 0, 0}};
-  subsys = new PC8801::SubSystem(DEV_ID('S', 'U', 'B', ' '));
-  if (!subsys || !bus1.Connect(subsys, c_subsys))
+  subsys_ = std::make_unique<PC8801::SubSystem>(DEV_ID('S', 'U', 'B', ' '));
+  if (!subsys_ || !bus1.Connect(subsys_.get(), c_subsys))
     return false;
 
   static const IOBus::Connector c_sio[] = {{pres, IOBus::portout, SIO::reset},
@@ -465,12 +453,12 @@ bool PC88::ConnectDevices() {
       {ptimesync, IOBus::portout, OPNIF::sync}, {0x44, IOBus::portin, OPNIF::readstatus},
       {0x45, IOBus::portin, OPNIF::readdata0},  {0x46, IOBus::portin, OPNIF::readstatusex},
       {0x47, IOBus::portin, OPNIF::readdata1},  {0, 0, 0}};
-  opn1 = new PC8801::OPNIF(DEV_ID('O', 'P', 'N', '1'));
-  if (!opn1 || !opn1->Init(&bus1, pint4, popnio, this))
+  opn1_ = std::make_unique<PC8801::OPNIF>(DEV_ID('O', 'P', 'N', '1'));
+  if (!opn1_ || !opn1_->Init(&bus1, pint4, popnio, this))
     return false;
-  if (!bus1.Connect(opn1, c_opn1))
+  if (!bus1.Connect(opn1_.get(), c_opn1))
     return false;
-  opn1->SetIMask(0x32, 0x80);
+  opn1_->SetIMask(0x32, 0x80);
 
   static const IOBus::Connector c_opn2[] = {{pres, IOBus::portout, OPNIF::reset},
                                             {0xaa, IOBus::portout, OPNIF::setintrmask},
@@ -483,12 +471,12 @@ bool PC88::ConnectDevices() {
                                             {0xac, IOBus::portin, OPNIF::readstatusex},
                                             {0xad, IOBus::portin, OPNIF::readdata1},
                                             {0, 0, 0}};
-  opn2 = new PC8801::OPNIF(DEV_ID('O', 'P', 'N', '2'));
-  if (!opn2->Init(&bus1, pint4, popnio, this))
+  opn2_ = std::make_unique<PC8801::OPNIF>(DEV_ID('O', 'P', 'N', '2'));
+  if (!opn2_->Init(&bus1, pint4, popnio, this))
     return false;
-  if (!opn2 || !bus1.Connect(opn2, c_opn2))
+  if (!opn2_ || !bus1.Connect(opn2_.get(), c_opn2))
     return false;
-  opn2->SetIMask(0xaa, 0x80);
+  opn2_->SetIMask(0xaa, 0x80);
 
   static const IOBus::Connector c_caln[] = {{pres, IOBus::portout, Calendar::reset},
                                             {0x10, IOBus::portout, Calendar::out10},
@@ -502,10 +490,10 @@ bool PC88::ConnectDevices() {
     return false;
 
   static const IOBus::Connector c_beep[] = {{0x40, IOBus::portout, Beep::out40}, {0, 0, 0}};
-  beep = new PC8801::Beep(DEV_ID('B', 'E', 'E', 'P'));
-  if (!beep || !beep->Init())
+  beep_ = std::make_unique<PC8801::Beep>(DEV_ID('B', 'E', 'E', 'P'));
+  if (!beep_ || !beep_->Init())
     return false;
-  if (!bus1.Connect(beep, c_beep))
+  if (!bus1.Connect(beep_.get(), c_beep))
     return false;
 
   static const IOBus::Connector c_siom[] = {{pres, IOBus::portout, SIO::reset},
@@ -555,9 +543,9 @@ bool PC88::ConnectDevices2() {
       {0xfd, IOBus::portin | IOBus::sync, SubSystem::s_read1},
       {0xfe, IOBus::portin | IOBus::sync, SubSystem::s_read2},
       {0, 0, 0}};
-  if (!subsys || !bus2.Connect(subsys, c_mem2))
+  if (!subsys_ || !bus2.Connect(subsys_.get(), c_mem2))
     return false;
-  if (!subsys->Init(&mm2))
+  if (!subsys_->Init(&mm2))
     return false;
 
   static const IOBus::Connector c_fdc[] = {
@@ -583,14 +571,14 @@ void PC88::ApplyConfig(Config* cfg) {
 
   base->SetSwitch(cfg);
   scrn->ApplyConfig(cfg);
-  mem1->ApplyConfig(cfg);
+  mem1_->ApplyConfig(cfg);
   crtc->ApplyConfig(cfg);
   fdc->ApplyConfig(cfg);
-  beep->EnableSING(!(cfg->flags & Config::kDisableSing));
-  opn1->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
-  opn1->SetVolume(cfg);
-  opn2->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
-  opn2->SetVolume(cfg);
+  beep_->EnableSING(!(cfg->flags & Config::kDisableSing));
+  opn1_->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
+  opn1_->SetVolume(cfg);
+  opn2_->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
+  opn2_->SetVolume(cfg);
 
   cpumode = (cfg->cpumode == Config::kMainSubAuto) ? (cfg->mainsubratio > 1 ? ms21 : ms11)
                                                    : (cfg->cpumode & 1);
@@ -613,8 +601,8 @@ void PC88::ApplyConfig(Config* cfg) {
 //  音量変更
 //
 void PC88::SetVolume(PC8801::Config* cfg) {
-  opn1->SetVolume(cfg);
-  opn2->SetVolume(cfg);
+  opn1_->SetVolume(cfg);
+  opn2_->SetVolume(cfg);
 }
 
 // ---------------------------------------------------------------------------
@@ -632,9 +620,9 @@ void PC88::TimeSync() {
 }
 
 bool PC88::IsN80Supported() {
-  return mem1->IsN80Ready();
+  return mem1_->IsN80Ready();
 }
 
 bool PC88::IsN80V2Supported() {
-  return mem1->IsN80V2Ready();
+  return mem1_->IsN80V2Ready();
 }

@@ -10,23 +10,9 @@
 #include "common/draw.h"
 #include "common/io_bus.h"
 #include "common/scheduler.h"
-
-// ---------------------------------------------------------------------------
-//  使用する Z80 エンジンの種類を決める
-//  標準では C++ 版の Z80 エンジンは Release 版ではコンパイルしない設定に
-//  なっているので注意！
-//
-#ifdef USE_Z80_X86
-#define CPU_Z80X86  // x86 版の Z80 エンジンを使用する
-#endif
-// #define   CPU_TEST            // 2 つの Z80 エンジンを比較実行する
-// #define   CPU_DEBUG           // Z80 エンジンテスト用
-
-#ifdef CPU_Z80X86
-#include "devices/z80_x86.h"
-#else
 #include "devices/z80c.h"
-#endif
+
+#include <memory>
 
 #ifdef CPU_TEST
 #include "devices/z80test.h"
@@ -67,19 +53,11 @@ class JoyPad;
 //
 class PC88 : public Scheduler, public ICPUTime {
  public:
-#if defined(CPU_DEBUG)
-  typedef Z80Debug Z80;
-#elif defined(CPU_TEST)
-  typedef Z80Test Z80;
-#elif defined(CPU_Z80X86) && defined(USE_Z80_X86)
-  typedef Z80_x86 Z80;
-#else
-  typedef Z80C Z80;
-#endif
+  using Z80 = Z80C;
 
  public:
   PC88();
-  ~PC88();
+  ~PC88() override;
 
   bool Init(Draw* draw, DiskManager* diskmgr, TapeManager* tape);
   void DeInit();
@@ -90,10 +68,10 @@ class PC88 : public Scheduler, public ICPUTime {
   void SetVolume(PC8801::Config*);
 
   // Overrides ICPUTime
-  uint32_t IFCALL GetCPUTick() const override { return cpu1.GetCount(); }
-  uint32_t IFCALL GetCPUSpeed() const override { return clock_; }
+  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1.GetCount(); }
+  [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override { return clock_; }
 
-  uint32_t GetEffectiveSpeed() const { return eclock_; }
+  [[nodiscard]] uint32_t GetEffectiveSpeed() const { return eclock_; }
   void TimeSync();
 
   void UpdateScreen(bool refresh = false);
@@ -101,14 +79,14 @@ class PC88 : public Scheduler, public ICPUTime {
   bool IsN80Supported();
   bool IsN80V2Supported();
 
-  PC8801::Memory* GetMem1() { return mem1; }
-  PC8801::SubSystem* GetMem2() { return subsys; }
-  PC8801::OPNIF* GetOPN1() { return opn1; }
-  PC8801::OPNIF* GetOPN2() { return opn2; }
+  PC8801::Memory* GetMem1() { return mem1_.get(); }
+  PC8801::SubSystem* GetMem2() { return subsys_.get(); }
+  PC8801::OPNIF* GetOPN1() { return opn1_.get(); }
+  PC8801::OPNIF* GetOPN2() { return opn2_.get(); }
   Z80* GetCPU1() { return &cpu1; }
   Z80* GetCPU2() { return &cpu2; }
-  PC8801::PD8257* GetDMAC() { return dmac; }
-  PC8801::Beep* GetBEEP() { return beep; }
+  PC8801::PD8257* GetDMAC() { return dmac_.get(); }
+  PC8801::Beep* GetBEEP() { return beep_.get(); }
 
   // bool SaveShapshot(const char* filename);
   // bool LoadShapshot(const char* filename);
@@ -176,22 +154,22 @@ class PC88 : public Scheduler, public ICPUTime {
   uint32_t cfgflag2;
   bool updated;
 
-  PC8801::Memory* mem1;
-  PC8801::KanjiROM* knj1;
-  PC8801::KanjiROM* knj2;
-  PC8801::Screen* scrn;
-  PC8801::INTC* intc;
-  PC8801::CRTC* crtc;
-  PC8801::Base* base;
-  PC8801::FDC* fdc;
-  PC8801::SubSystem* subsys;
-  PC8801::SIO* siotape;
-  PC8801::SIO* siomidi;
-  PC8801::OPNIF* opn1;
-  PC8801::OPNIF* opn2;
-  PC8801::Calendar* caln;
-  PC8801::Beep* beep;
-  PC8801::PD8257* dmac;
+  std::unique_ptr<PC8801::Memory> mem1_;
+  std::unique_ptr<PC8801::KanjiROM> knj1_;
+  std::unique_ptr<PC8801::KanjiROM> knj2_;
+  PC8801::Screen* scrn = nullptr;
+  PC8801::INTC* intc = nullptr;
+  PC8801::CRTC* crtc = nullptr;
+  PC8801::Base* base = nullptr;
+  PC8801::FDC* fdc = nullptr;
+  std::unique_ptr<PC8801::SubSystem> subsys_;
+  PC8801::SIO* siotape = nullptr;
+  PC8801::SIO* siomidi = nullptr;
+  std::unique_ptr<PC8801::OPNIF> opn1_;
+  std::unique_ptr<PC8801::OPNIF> opn2_;
+  PC8801::Calendar* caln = nullptr;
+  std::unique_ptr<PC8801::Beep> beep_;
+  std::unique_ptr<PC8801::PD8257> dmac_;
 
  protected:
   Draw* draw_ = nullptr;
