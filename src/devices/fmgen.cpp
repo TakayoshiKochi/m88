@@ -39,7 +39,7 @@
 //
 namespace FM {
 const uint8_t Operator::notetable[128] = {
-  // clang-format off
+    // clang-format off
    0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  3,  3,  3,  3,  3,  3,
    4,  4,  4,  4,  4,  4,  4,  5,  6,  7,  7,  7,  7,  7,  7,  7,
    8,  8,  8,  8,  8,  8,  8,  9, 10, 11, 11, 11, 11, 11, 11, 11,
@@ -48,11 +48,11 @@ const uint8_t Operator::notetable[128] = {
   20, 20, 20, 20, 20, 20, 20, 21, 22, 23, 23, 23, 23, 23, 23, 23,
   24, 24, 24, 24, 24, 24, 24, 25, 26, 27, 27, 27, 27, 27, 27, 27,
   28, 28, 28, 28, 28, 28, 28, 29, 30, 31, 31, 31, 31, 31, 31, 31,
-  // clang-format on
+    // clang-format on
 };
 
 const int8_t Operator::dttable[256] = {
-  // clang-format off
+    // clang-format off
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
     0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  4,  4,  4,  4,
@@ -69,11 +69,11 @@ const int8_t Operator::dttable[256] = {
   -10,-12,-12,-14,-16,-16,-18,-20,-22,-24,-26,-28,-32,-32,-32,-32,
    -4, -4, -4, -4, -4, -6, -6, -6, -8, -8, -8,-10,-10,-12,-12,-14,
   -16,-16,-18,-20,-22,-24,-26,-28,-32,-34,-38,-40,-44,-44,-44,-44,
-  // clang-format on
+    // clang-format on
 };
 
 const int8_t Operator::decaytable1[64][8] = {
-  // clang-format off
+    // clang-format off
   0, 0, 0, 0, 0, 0, 0, 0,     0, 0, 0, 0, 0, 0, 0, 0,
   1, 1, 1, 1, 1, 1, 1, 1,     1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1,     1, 1, 1, 1, 1, 1, 1, 1,
@@ -113,17 +113,17 @@ const int8_t Operator::decaytable1[64][8] = {
   8, 4, 8, 4, 8, 4, 8, 4,     8, 8, 8, 4, 8, 8, 8, 4,
   16,16,16,16,16,16,16,16,    16,16,16,16,16,16,16,16,
   16,16,16,16,16,16,16,16,    16,16,16,16,16,16,16,16,
-  // clang-format on
+    // clang-format on
 };
 
 const int Operator::decaytable2[16] = {
-  // clang-format off
+    // clang-format off
   1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2047, 2047, 2047, 2047, 2047
-  // clang-format on
+    // clang-format on
 };
 
 const int8_t Operator::attacktable[64][8] = {
-  // clang-format off
+    // clang-format off
   -1,-1,-1,-1,-1,-1,-1,-1,    -1,-1,-1,-1,-1,-1,-1,-1,
    4, 4, 4, 4, 4, 4, 4, 4,     4, 4, 4, 4, 4, 4, 4, 4,
    4, 4, 4, 4, 4, 4, 4, 4,     4, 4, 4, 4, 4, 4, 4, 4,
@@ -156,7 +156,7 @@ const int8_t Operator::attacktable[64][8] = {
    1, 2, 1, 2, 1, 2, 1, 2,     1, 1, 1, 2, 1, 1, 1, 2,
    0, 0, 0, 0, 0, 0, 0, 0,     0, 0 ,0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 0, 0,     0, 0 ,0, 0, 0, 0, 0, 0,
-  // clang-format on
+    // clang-format on
 };
 
 // fixed equasion-based tables
@@ -180,12 +180,12 @@ void MakeLFOTable() {
   int i;
 
   static const double pms[2][8] = {
-    // clang-format off
+      // clang-format off
     { 0, 1/360., 2/360., 3/360.,  4/360.,  6/360., 12/360.,  24/360., },    // OPNA
 //  { 0, 1/240., 2/240., 4/240., 10/240., 20/240., 80/240., 140/240., },    // OPM
     { 0, 1/480., 2/480., 4/480., 10/480., 20/480., 80/480., 140/480., },    // OPM
 //  { 0, 1/960., 2/960., 4/960., 10/960., 20/960., 80/960., 140/960., },    // OPM
-    // clang-format on
+      // clang-format on
   };
   //       3       6,      12      30       60       240      420     / 720
   //  1.000963
@@ -708,10 +708,10 @@ void Channel4::SetFNum(uint32_t f) {
 //  KC/KF を設定 (OPM only)
 void Channel4::SetKCKF(uint32_t kc, uint32_t kf) {
   const static uint32_t kctable[16] = {
-    // clang-format off
+      // clang-format off
     5197, 5506, 5833, 6180, 6180, 6547, 6937, 7349,
     7349, 7786, 8249, 8740, 8740, 9259, 9810, 10394,
-    // clang-format on
+      // clang-format on
   };
 
   int oct = 19 - ((kc >> 4) & 7);
@@ -780,12 +780,12 @@ void Channel4::KeyOffCsm(uint32_t key) {
 //  アルゴリズムを設定
 void Channel4::SetAlgorithm(uint32_t algo) {
   static const uint8_t table1[8][6] = {
-    // clang-format off
+      // clang-format off
     { 0, 1, 1, 2, 2, 3 },   { 1, 0, 0, 1, 1, 2 },
     { 1, 1, 1, 0, 0, 2 },   { 0, 1, 2, 1, 1, 2 },
     { 0, 1, 2, 2, 2, 1 },   { 0, 1, 0, 1, 0, 1 },
     { 0, 1, 2, 1, 2, 1 },   { 1, 0, 1, 0, 1, 0 },
-    // clang-format on
+      // clang-format on
   };
 
   in[0] = &buf[table1[algo][0]];

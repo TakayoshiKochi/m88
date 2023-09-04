@@ -27,7 +27,7 @@ int32_t FileIODummy::Read(void* dest, int32_t len) {
 }
 
 int32_t FileIODummy::Write(const void* src, int32_t len) {
-  return fwrite(src,1, len, fp_);
+  return fwrite(src, 1, len, fp_);
 }
 
 bool FileIODummy::Seek(int32_t fpos, SeekMethod method) {

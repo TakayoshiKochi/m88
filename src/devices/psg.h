@@ -63,7 +63,9 @@ class PSG {
   [[nodiscard]] int GetVolume(int ch) const { return reg_[8 + ch] & 0x1f; }
   [[nodiscard]] bool IsNoiseEnabled(int ch) const { return (GetVolume(ch) & 0x10) != 0; }
   // Get tone tune (12bits).
-  [[nodiscard]] int GetTune(int ch) const { return (reg_[ch * 2] | (reg_[ch * 2 + 1] << 8)) & 0xfff; }
+  [[nodiscard]] int GetTune(int ch) const {
+    return (reg_[ch * 2] | (reg_[ch * 2 + 1] << 8)) & 0xfff;
+  }
   uint8_t reg_[16] = {0};
 
   const uint32_t* envelop_ = nullptr;

@@ -12,11 +12,11 @@
 
 #include <algorithm>
 
+#include "common/critsect.h"
 #include "common/io_bus.h"
 #include "common/status.h"
 #include "pc88/config.h"
 #include "pc88/diskmgr.h"
-#include "win32/critsect.h"
 
 #define LOGNAME "fdc"
 #include "common/diag.h"

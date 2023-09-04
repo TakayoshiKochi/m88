@@ -37,7 +37,7 @@ using Sample = PSG::Sample;
 void MakeNoiseTable() {
   if (!noisetable[0]) {
     int noise = 14321;
-    for (unsigned int & i : noisetable) {
+    for (unsigned int& i : noisetable) {
       int n = 0;
       for (int j = 0; j < 32; j++) {
         n = n * 2 + (noise & 1);
@@ -58,7 +58,7 @@ void MakeEnvelopTable() {
       2, 2, 2, 0, 2, 1, 2, 3, 1, 1, 1, 3, 1, 2, 1, 0,
   };
   constexpr uint8_t table2[4] = {0, 0, 31, 31};
-  constexpr  int8_t table3[4] = {0, 1, -1, 0};
+  constexpr int8_t table3[4] = {0, 1, -1, 0};
 
   uint32_t* ptr = enveloptable[0];
 
@@ -263,9 +263,9 @@ void PSG::Mix(Sample* dest, int nsamples) {
         for (int i = 0; i < nsamples; ++i) {
           sample = 0;
           for (int j = 0; j < (1 << kOverSamplingShift); ++j) {
-            noise =
-                noisetable[(noise_count_ >> (kNoiseShift + kOverSamplingShift + 6)) & (kNoiseTableSize - 1)] >>
-                (noise_count_ >> (kNoiseShift + kOverSamplingShift + 1) & 31);
+            noise = noisetable[(noise_count_ >> (kNoiseShift + kOverSamplingShift + 6)) &
+                               (kNoiseTableSize - 1)] >>
+                    (noise_count_ >> (kNoiseShift + kOverSamplingShift + 1) & 31);
             noise_count_ += noise_period_;
 
             int x = ((SCOUNT(0) & ch_enable[0]) | (noise_enable[0] & noise)) - 1;  // 0 or -1
@@ -305,7 +305,8 @@ void PSG::Mix(Sample* dest, int nsamples) {
               env_count_ |= (1 << (kEnvShift + 5 + kOverSamplingShift));
             env_count_ &= (1 << (kEnvShift + 6 + kOverSamplingShift)) - 1;
           }
-          noise = noisetable[(noise_count_ >> (kNoiseShift + kOverSamplingShift + 6)) & (kNoiseTableSize - 1)] >>
+          noise = noisetable[(noise_count_ >> (kNoiseShift + kOverSamplingShift + 6)) &
+                             (kNoiseTableSize - 1)] >>
                   (noise_count_ >> (kNoiseShift + kOverSamplingShift + 1) & 31);
           noise_count_ += noise_period_;
           int x = ((SCOUNT(0) & ch_enable[0]) | (noise_enable[0] & noise)) - 1;  // 0 or -1

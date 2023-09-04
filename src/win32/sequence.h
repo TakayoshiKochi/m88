@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#include "win32/critsect.h"
+#include "common/critsect.h"
 #include "win32/timekeep.h"
 
 class PC88;

@@ -128,10 +128,7 @@ class Z80C : public Device {
   Statistics* GetStatistics();
 
  private:
-  enum {
-    pagebits = MemoryManagerBase::pagebits,
-    pagemask = MemoryManagerBase::pagemask
-  };
+  enum { pagebits = MemoryManagerBase::pagebits, pagemask = MemoryManagerBase::pagemask };
 
   enum {
     ssrev = 1,
