@@ -3,12 +3,24 @@
 #include <stdio.h>
 
 bool FileIODummy::Open(const char* filename, uint32_t flg) {
+  Close();
+
+  flags_ = 0;
+
   fp_ = fopen(filename, (flg & readonly) ? "rb" : "r+b");
+  if (fp_) {
+	flags_ = open;
+	if (flg & readonly)
+	  flags_ |= readonly;
+  }
   return fp_ != nullptr;
 }
 
 bool FileIODummy::CreateNew(const char* filename) {
   fp_ = fopen(filename, "wb");
+  if (fp_) {
+    flags_ = open;
+  }
   return true;
 }
 
