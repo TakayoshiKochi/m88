@@ -35,8 +35,6 @@ using namespace PC8801;
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-WinCore::WinCore() {}
-
 WinCore::~WinCore() {
   PC88::DeInit();
   Cleanup();

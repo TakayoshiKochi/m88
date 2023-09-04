@@ -31,8 +31,8 @@ class WinUI;
 
 class WinCore : public PC88, public ISystem, public ILockCore {
  public:
-  WinCore();
-  ~WinCore();
+  WinCore() = default;
+  ~WinCore() override;
   bool Init(WinUI* ui,
             HWND hwnd,
             Draw* draw,
