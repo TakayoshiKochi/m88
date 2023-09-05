@@ -363,7 +363,6 @@ add_library(sample2 ${LIB_TYPE}
         sample2/src/config.h
         sample2/src/config.cpp
         sample2/src/guid.cpp
-        sample2/src/headers.h
         sample2/src/mem.h
         sample2/src/mem.cpp
         sample2/src/moduleif.cpp
@@ -375,3 +374,6 @@ target_include_directories(sample2
 
 target_link_libraries(sample2
         common devices)
+
+add_executable(writetag
+        tools/writetag.cpp)
