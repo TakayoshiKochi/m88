@@ -128,8 +128,8 @@ void WinCore::ApplyConfig(PC8801::Config* cfg) {
 //  Windows 用のデバイスを接続
 //
 bool WinCore::ConnectDevices(WinKeyIF* keyb) {
-  static const IOBus::Connector c_keyb[] = {{PC88::pres, IOBus::portout, WinKeyIF::reset},
-                                            {PC88::vrtc, IOBus::portout, WinKeyIF::vsync},
+  static const IOBus::Connector c_keyb[] = {{PC88::kPReset, IOBus::portout, WinKeyIF::reset},
+                                            {PC88::kVrtc, IOBus::portout, WinKeyIF::vsync},
                                             {0x00, IOBus::portin, WinKeyIF::in},
                                             {0x01, IOBus::portin, WinKeyIF::in},
                                             {0x02, IOBus::portin, WinKeyIF::in},

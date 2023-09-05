@@ -22,7 +22,7 @@ class Device : public IDevice {
   Device(const ID& id) : id_(id) {}
   virtual ~Device() {}
 
-  const ID& IFCALL GetID() const override { return id_; }
+  const ID& IFCALL GetID() const final { return id_; }
   const Descriptor* IFCALL GetDesc() const override { return nullptr; }
   uint32_t IFCALL GetStatusSize() override { return 0; }
   bool IFCALL LoadStatus(const uint8_t* status) override { return false; }

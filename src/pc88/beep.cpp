@@ -11,7 +11,7 @@ using namespace PC8801;
 // ---------------------------------------------------------------------------
 //  生成・破棄
 //
-Beep::Beep(const ID& id) : Device(id), soundcontrol(0) {}
+Beep::Beep(const ID& id) : Device(id) {}
 
 Beep::~Beep() {
   CleanUp();
@@ -21,8 +21,8 @@ Beep::~Beep() {
 //  初期化とか
 //
 bool Beep::Init() {
-  port40 = 0;
-  p40mask = 0xa0;
+  port40_ = 0;
+  p40mask_ = 0xa0;
   return true;
 }
 
@@ -30,15 +30,15 @@ bool Beep::Init() {
 //  後片付け
 //
 void Beep::CleanUp() {
-  Connect(0);
+  Connect(nullptr);
 }
 
 bool IFCALL Beep::Connect(ISoundControl* control) {
-  if (soundcontrol)
-    soundcontrol->Disconnect(this);
-  soundcontrol = control;
-  if (soundcontrol)
-    soundcontrol->Connect(this);
+  if (sound_control_)
+    sound_control_->Disconnect(this);
+  sound_control_ = control;
+  if (sound_control_)
+    sound_control_->Connect(this);
   return true;
 }
 
@@ -46,10 +46,10 @@ bool IFCALL Beep::Connect(ISoundControl* control) {
 //  レート設定
 //
 bool Beep::SetRate(uint32_t rate) {
-  pslice = 0;
-  bslice = 0;
-  bcount = 0;
-  bperiod = int(2400.0 / rate * (1 << 14));
+  pslice_ = 0;
+  bslice_ = 0;
+  bcount_ = 0;
+  bperiod_ = int(2400.0 / rate * (1 << 14));
   return true;
 }
 
@@ -63,22 +63,22 @@ bool Beep::SetRate(uint32_t rate) {
 //  15 - 19     0001
 //
 void IFCALL Beep::Mix(int32_t* dest, int nsamples) {
-  int i;
-  int p = port40 & 0x80 ? 0 : 0x10000;
-  int b = port40 & 0x20 ? 0 : 0x10000;
+  int i = 0;
+  int p = port40_ & 0x80 ? 0 : 0x10000;
+  int b = port40_ & 0x20 ? 0 : 0x10000;
 
-  uint32_t ps = pslice, bs = bslice;
-  pslice = bslice = 0;
+  uint32_t ps = pslice_, bs = bslice_;
+  pslice_ = bslice_ = 0;
 
   int sample = 0;
-  for (i = 0; i < 8; i++) {
+  for (i = 0; i < 8; ++i) {
     if (ps < 500)
       p ^= 0x10000;
     if (bs < 500)
       b ^= 0x10000;
 
-    sample += (b & bcount) | p;
-    bcount += bperiod;
+    sample += (b & bcount_) | p;
+    bcount_ += bperiod_;
     ps -= 500;
     bs -= 500;
   }
@@ -87,11 +87,11 @@ void IFCALL Beep::Mix(int32_t* dest, int nsamples) {
   *dest++ += sample;
 
   if (p | b) {
-    for (i = nsamples - 1; i > 0; i--) {
+    for (i = nsamples - 1; i > 0; --i) {
       sample = 0;
-      for (int j = 0; j < 8; j++) {
-        sample += (b & bcount) | p;
-        bcount += bperiod;
+      for (int j = 0; j < 8; ++j) {
+        sample += (b & bcount_) | p;
+        bcount_ += bperiod_;
       }
       sample >>= 6;
       *dest++ += sample;
@@ -104,19 +104,19 @@ void IFCALL Beep::Mix(int32_t* dest, int nsamples) {
 //  BEEP Port への Out
 //
 void IOCALL Beep::Out40(uint32_t, uint32_t data) {
-  data &= p40mask;
-  int i = data ^ port40;
+  data &= p40mask_;
+  int i = data ^ port40_;
   if (i & 0xa0) {
-    if (soundcontrol) {
-      soundcontrol->Update(this);
+    if (sound_control_) {
+      sound_control_->Update(this);
 
-      int tdiff = soundcontrol->GetSubsampleTime(this);
+      int tdiff = sound_control_->GetSubsampleTime(this);
       if (i & 0x80)
-        pslice = tdiff;
+        pslice_ = tdiff;
       if (i & 0x20)
-        bslice = tdiff;
+        bslice_ = tdiff;
     }
-    port40 = data;
+    port40_ = data;
   }
 }
 
@@ -130,7 +130,7 @@ uint32_t IFCALL Beep::GetStatusSize() {
 bool IFCALL Beep::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
-  st->port40 = port40;
+  st->port40 = port40_;
   return true;
 }
 
@@ -138,7 +138,7 @@ bool IFCALL Beep::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;
-  port40 = st->port40;
+  port40_ = st->port40;
   return true;
 }
 

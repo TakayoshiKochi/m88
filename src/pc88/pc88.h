@@ -114,6 +114,9 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   bool IsN80Supported();
   bool IsN80V2Supported();
 
+  // For tests
+  PC8801::Base* GetBase() { return base_.get(); }
+
   PC8801::Memory* GetMem1() { return mem1_.get(); }
   PC8801::SubSystem* GetMem2() { return subsys_.get(); }
   PC8801::OPNIF* GetOPN1() { return opn1_.get(); }
@@ -132,31 +135,31 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
  public:
   enum SpecialPort {
-    pint0 = 0x100,
-    pint1,
-    pint2,
-    pint3,
-    pint4,
-    pint5,
-    pint6,
-    pint7,
-    pres,     // reset
-    pirq,     // IRQ
-    piack,    // interrupt acknowledgement
-    vrtc,     // vertical retrace
-    popnio,   // OPN の入出力ポート 1
-    popnio2,  // OPN の入出力ポート 2 (連番)
-    psioin,   // SIO 関係
-    psioreq,
-    ptimesync,
-    portend
+    kPint0 = 0x100,
+    kPint1,
+    kPint2,
+    kPint3,
+    kPint4,
+    kPint5,
+    kPint6,
+    kPint7,
+    kPReset,     // reset
+    kPIRQ,     // IRQ
+    kPIAck,    // interrupt acknowledgement
+    kVrtc,     // vertical retrace
+    kPOPNio1,   // OPN の入出力ポート 1
+    kPOPNio2,  // OPN の入出力ポート 2 (連番)
+    kPSIOin,   // SIO 関係
+    kPSIOReq,
+    kPTimeSync,
+    kPortEnd
   };
   enum SpecialPort2 {
-    pres2 = 0x100,
-    pirq2,
-    piac2,
-    pfdstat,  // FD の動作状況 (b0-1 = LAMP, b2-3 = MODE, b4=SEEK)
-    portend2
+    kPReset2 = 0x100,
+    kPIRQ2,
+    kPIAck2,
+    kPFDStat,  // FD の動作状況 (b0-1 = LAMP, b2-3 = MODE, b4=SEEK)
+    kPortEnd2
   };
 
  private:
@@ -190,7 +193,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   PC8801::Screen* scrn = nullptr;
   PC8801::INTC* intc = nullptr;
   PC8801::CRTC* crtc = nullptr;
-  PC8801::Base* base = nullptr;
+  std::unique_ptr<PC8801::Base> base_;
   PC8801::FDC* fdc = nullptr;
   std::unique_ptr<PC8801::SubSystem> subsys_;
   PC8801::SIO* siotape = nullptr;

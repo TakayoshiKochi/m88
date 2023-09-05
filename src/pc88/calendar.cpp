@@ -30,7 +30,7 @@ inline unsigned int BCDtoN(unsigned int v) {
 //  Construct/Destruct
 //
 Calendar::Calendar(const ID& id) : Device(id) {
-  diff = 0;
+  diff_ = 0;
   Reset();
 }
 
@@ -40,19 +40,19 @@ Calendar::~Calendar() {}
 //  入・出力
 //
 void IOCALL Calendar::Reset(uint32_t, uint32_t) {
-  datain = 0;
-  dataoutmode = 0;
-  strobe = 0;
-  cmd = 0x80;
-  scmd = 0;
+  datain_ = 0;
+  dataout_mode_ = 0;
+  strobe_ = 0;
+  cmd_ = 0x80;
+  scmd_ = 0;
   for (int i = 0; i < 6; i++)
-    reg[i] = 0;
+    reg_[i] = 0;
 }
 
 // Bit4 : CDI
 uint32_t IOCALL Calendar::In40(uint32_t) {
-  if (dataoutmode)
-    return IOBus::Active((reg[0] & 1) << 4, 0x10);
+  if (dataout_mode_)
+    return IOBus::Active((reg_[0] & 1) << 4, 0x10);
   else {
     //      SYSTEMTIME st;
     //      GetLocalTime(&st);
@@ -64,16 +64,16 @@ uint32_t IOCALL Calendar::In40(uint32_t) {
 // Bit3   : CD0
 // Bit0~2 : C0-C2
 void IOCALL Calendar::Out10(uint32_t, uint32_t data) {
-  pcmd = data & 7;
-  datain = (data >> 3) & 1;
+  pcmd_ = data & 7;
+  datain_ = (data >> 3) & 1;
 }
 
 // Bit2 : CCLK (0:off / 1:on)
 // Bit1 : CSTB (0:on / 1:off)
 void IOCALL Calendar::Out40(uint32_t, uint32_t data) {
   uint32_t modified;
-  modified = strobe ^ data;
-  strobe = data;
+  modified = strobe_ ^ data;
+  strobe_ = data;
   if (modified & data & 2)
     Command();
   if (modified & data & 4)
@@ -84,33 +84,33 @@ void IOCALL Calendar::Out40(uint32_t, uint32_t data) {
 //  制御
 //
 void Calendar::Command() {
-  if (pcmd == 7)
-    cmd = scmd | 0x80;
+  if (pcmd_ == 7)
+    cmd_ = scmd_ | 0x80;
   else
-    cmd = pcmd;
+    cmd_ = pcmd_;
 
-  Log("Command = %.2x\n", cmd);
-  switch (cmd & 15) {
+  Log("Command = %.2x\n", cmd_);
+  switch (cmd_ & 15) {
     case 0x00:  // register hold
-      hold = true;
-      dataoutmode = false;
+      hold_ = true;
+      dataout_mode_ = false;
       break;
 
     case 0x01:  // register shift
-      hold = false;
-      dataoutmode = true;
+      hold_ = false;
+      dataout_mode_ = true;
       break;
 
     case 0x02:  // time set
       SetTime();
-      hold = true;
-      dataoutmode = true;
+      hold_ = true;
+      dataout_mode_ = true;
       break;
 
     case 0x03:  // time read
       GetTime();
-      hold = true;
-      dataoutmode = false;
+      hold_ = true;
+      dataout_mode_ = false;
       break;
 #if 0  // 未実装
     case 0x04:          // timing pulse   64Hz
@@ -134,31 +134,31 @@ void Calendar::Command() {
 //  データシフト
 //
 void Calendar::ShiftData() {
-  if (hold) {
-    if (cmd & 0x80) {
+  if (hold_) {
+    if (cmd_ & 0x80) {
       // shift sreg only
-      Log("Shift HS %d\n", datain);
-      scmd = (scmd >> 1) | (datain << 3);
+      Log("Shift HS %d\n", datain_);
+      scmd_ = (scmd_ >> 1) | (datain_ << 3);
     } else {
-      Log("Shift HP -\n", datain);
+      Log("Shift HP -\n", datain_);
     }
   } else {
-    if (cmd & 0x80) {
-      reg[0] = (reg[0] >> 1) | (reg[1] << 7);
-      reg[1] = (reg[1] >> 1) | (reg[2] << 7);
-      reg[2] = (reg[2] >> 1) | (reg[3] << 7);
-      reg[3] = (reg[3] >> 1) | (reg[4] << 7);
-      reg[4] = (reg[4] >> 1) | (reg[5] << 7);
-      reg[5] = (reg[5] >> 1) | (scmd << 7);
-      scmd = (scmd >> 1) | (datain << 3);
-      Log("Shift -S %d\n", datain);
+    if (cmd_ & 0x80) {
+      reg_[0] = (reg_[0] >> 1) | (reg_[1] << 7);
+      reg_[1] = (reg_[1] >> 1) | (reg_[2] << 7);
+      reg_[2] = (reg_[2] >> 1) | (reg_[3] << 7);
+      reg_[3] = (reg_[3] >> 1) | (reg_[4] << 7);
+      reg_[4] = (reg_[4] >> 1) | (reg_[5] << 7);
+      reg_[5] = (reg_[5] >> 1) | (scmd_ << 7);
+      scmd_ = (scmd_ >> 1) | (datain_ << 3);
+      Log("Shift -S %d\n", datain_);
     } else {
-      reg[0] = (reg[0] >> 1) | (reg[1] << 7);
-      reg[1] = (reg[1] >> 1) | (reg[2] << 7);
-      reg[2] = (reg[2] >> 1) | (reg[3] << 7);
-      reg[3] = (reg[3] >> 1) | (reg[4] << 7);
-      reg[4] = (reg[4] >> 1) | (datain << 7);
-      Log("Shift -P %d\n", datain);
+      reg_[0] = (reg_[0] >> 1) | (reg_[1] << 7);
+      reg_[1] = (reg_[1] >> 1) | (reg_[2] << 7);
+      reg_[2] = (reg_[2] >> 1) | (reg_[3] << 7);
+      reg_[3] = (reg_[3] >> 1) | (reg_[4] << 7);
+      reg_[4] = (reg_[4] >> 1) | (datain_ << 7);
+      Log("Shift -P %d\n", datain_);
     }
   }
 }
@@ -170,16 +170,16 @@ void Calendar::GetTime() {
   time_t ct;
   tm lt;
 
-  ct = time(&ct) + diff;
+  ct = time(&ct) + diff_;
 
   localtime_s(&lt, &ct);
 
-  reg[5] = NtoBCD(lt.tm_year % 100);
-  reg[4] = (lt.tm_mon + 1) * 16 + lt.tm_wday;
-  reg[3] = NtoBCD(lt.tm_mday);
-  reg[2] = NtoBCD(lt.tm_hour);
-  reg[1] = NtoBCD(lt.tm_min);
-  reg[0] = NtoBCD(lt.tm_sec);
+  reg_[5] = NtoBCD(lt.tm_year % 100);
+  reg_[4] = (lt.tm_mon + 1) * 16 + lt.tm_wday;
+  reg_[3] = NtoBCD(lt.tm_mday);
+  reg_[2] = NtoBCD(lt.tm_hour);
+  reg_[1] = NtoBCD(lt.tm_min);
+  reg_[0] = NtoBCD(lt.tm_sec);
 }
 
 // ---------------------------------------------------------------------------
@@ -193,18 +193,18 @@ void Calendar::SetTime() {
   localtime_s(&lt, &ct);
 
   tm nt;
-  nt.tm_year = (cmd & 0x80) ? BCDtoN(reg[5]) : lt.tm_year;
+  nt.tm_year = (cmd_ & 0x80) ? BCDtoN(reg_[5]) : lt.tm_year;
   if (nt.tm_year < 70)
     nt.tm_year += 100;
-  nt.tm_mon = (reg[4] - 1) >> 4;
-  nt.tm_mday = BCDtoN(reg[3]);
-  nt.tm_hour = BCDtoN(reg[2]);
-  nt.tm_min = BCDtoN(reg[1]);
-  nt.tm_sec = BCDtoN(reg[0]);
+  nt.tm_mon = (reg_[4] - 1) >> 4;
+  nt.tm_mday = BCDtoN(reg_[3]);
+  nt.tm_hour = BCDtoN(reg_[2]);
+  nt.tm_min = BCDtoN(reg_[1]);
+  nt.tm_sec = BCDtoN(reg_[0]);
   nt.tm_isdst = 0;
 
   time_t at = mktime(&nt);
-  diff = at - ct;
+  diff_ = at - ct;
 }
 
 // ---------------------------------------------------------------------------
@@ -217,15 +217,15 @@ uint32_t IFCALL Calendar::GetStatusSize() {
 bool IFCALL Calendar::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
-  st->t = time(&st->t) + diff;
-  st->dataoutmode = dataoutmode;
-  st->hold = hold;
-  st->datain = datain;
-  st->strobe = strobe;
-  st->cmd = cmd;
-  st->scmd = scmd;
-  st->pcmd = pcmd;
-  memcpy(st->reg, reg, 6);
+  st->t = time(&st->t) + diff_;
+  st->dataoutmode = dataout_mode_;
+  st->hold = hold_;
+  st->datain = datain_;
+  st->strobe = strobe_;
+  st->cmd = cmd_;
+  st->scmd = scmd_;
+  st->pcmd = pcmd_;
+  memcpy(st->reg, reg_, 6);
   return true;
 }
 
@@ -234,15 +234,15 @@ bool IFCALL Calendar::LoadStatus(const uint8_t* s) {
   if (st->rev != ssrev)
     return false;
   time_t ct;
-  diff = st->t - time(&ct);
-  dataoutmode = st->dataoutmode;
-  hold = st->hold;
-  datain = st->datain;
-  strobe = st->strobe;
-  cmd = st->cmd;
-  scmd = st->scmd;
-  pcmd = st->pcmd;
-  memcpy(reg, st->reg, 6);
+  diff_ = st->t - time(&ct);
+  dataout_mode_ = st->dataoutmode;
+  hold_ = st->hold;
+  datain_ = st->datain;
+  strobe_ = st->strobe;
+  cmd_ = st->cmd;
+  scmd_ = st->scmd;
+  pcmd_ = st->pcmd;
+  memcpy(reg_, st->reg, 6);
   return true;
 }
 
