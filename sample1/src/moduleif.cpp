@@ -1,6 +1,5 @@
 //  $Id: moduleif.cpp,v 1.2 1999/11/26 10:13:01 cisc Exp $
 
-#include "headers.h"
 #include "if/ifcommon.h"
 #include "if/ifguid.h"
 #include "sine.h"

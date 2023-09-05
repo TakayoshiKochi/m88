@@ -1,6 +1,5 @@
 //  $Id: sine.cpp,v 1.1 1999/10/10 01:41:59 cisc Exp $
 
-#include "headers.h"
 #include "sine.h"
 
 Sine::Sine()
@@ -49,7 +48,7 @@ void IOCALL Sine::SetVolume(uint32_t, uint32_t data)
     volume = data;
 }
 
-void IFCALL Sine::Mix(int32* dest, int length)
+void IFCALL Sine::Mix(int32_t* dest, int length)
 {
     for (; length > 0; length --)
     {
@@ -88,8 +87,8 @@ const Device::Descriptor Sine::descriptor = { indef, outdef };
 
 const Device::OutFuncPtr Sine::outdef[] =
 {
-	static_cast<Device::OutFuncPtr>(SetVolume),
-	static_cast<Device::OutFuncPtr>(SetPitch),
+	static_cast<Device::OutFuncPtr>(&SetVolume),
+	static_cast<Device::OutFuncPtr>(&SetPitch),
 };
 
 const Device::InFuncPtr Sine::indef[] =

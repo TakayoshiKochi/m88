@@ -3,7 +3,7 @@
 #ifndef incl_sine_h
 #define incl_sine_h
 
-#include "device.h"
+#include "common/device.h"
 #include "if/ifcommon.h"
 
 // ---------------------------------------------------------------------------
@@ -26,7 +26,7 @@ public:
 	// ISoundSource method
 	bool IFCALL Connect(ISoundControl* sc);
 	bool IFCALL SetRate(uint32_t rate);
-	void IFCALL Mix(int32*, int);
+	void IFCALL Mix(int32_t*, int);
 
 	// IDevice Method
 	const Descriptor* IFCALL GetDesc() const { return &descriptor; }

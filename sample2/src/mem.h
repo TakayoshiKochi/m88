@@ -3,7 +3,7 @@
 #ifndef incl_mem_h
 #define incl_mem_h
 
-#include "device.h"
+#include "common/device.h"
 #include "if/ifcommon.h"
 
 // ---------------------------------------------------------------------------
