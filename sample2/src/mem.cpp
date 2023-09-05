@@ -1,6 +1,5 @@
 //  $Id: mem.cpp,v 1.1 1999/10/10 01:43:28 cisc Exp $
 
-#include "headers.h"
 #include "mem.h"
 
 GVRAMReverse::GVRAMReverse()
@@ -119,9 +118,9 @@ const Device::Descriptor GVRAMReverse::descriptor = { /*indef*/ 0, outdef };
 
 const Device::OutFuncPtr GVRAMReverse::outdef[] =
 {
-	static_cast<Device::OutFuncPtr>(Out32),
-	static_cast<Device::OutFuncPtr>(Out35),
-	static_cast<Device::OutFuncPtr>(Out5x),
+	static_cast<Device::OutFuncPtr>(&Out32),
+	static_cast<Device::OutFuncPtr>(&Out35),
+	static_cast<Device::OutFuncPtr>(&Out5x),
 };
 
 /*

@@ -12,6 +12,8 @@ endif (WIN32)
 if (MSVC)
     set(CMAKE_CXX_STANDARD 17)
     add_compile_definitions(NOMINMAX)
+    add_compile_definitions(STRICT)
+    add_compile_definitions(WIN32_LEAN_AND_MEAN)
     add_compile_options(/utf-8)
     #add_compile_options(/source-charset:utf-8)
 
@@ -306,3 +308,70 @@ target_link_libraries(m88
         winmm.lib
         comctl32.lib
         d2d1.lib)
+
+add_library(cdif ${LIB_TYPE}
+        cdif/src/aspi.h
+        cdif/src/aspi.cpp
+        cdif/src/aspidef.h
+        cdif/src/cdctrl.h
+        cdif/src/cdctrl.cpp
+        cdif/src/cdif.h
+        cdif/src/cdif.cpp
+        cdif/src/cdrom.h
+        cdif/src/cdrom.cpp
+        cdif/src/cdromdef.h
+        cdif/src/config.h
+        cdif/src/config.cpp
+        cdif/src/guid.cpp
+        cdif/src/moduleif.cpp
+        cdif/src/resource.h)
+
+target_include_directories(cdif
+        PUBLIC ${CMAKE_SOURCE_DIR}
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+target_link_libraries(cdif
+        common devices)
+
+add_library(diskdrv ${LIB_TYPE}
+        diskdrv/src/diskio.h
+        diskdrv/src/diskio.cpp
+        diskdrv/src/guid.cpp
+        diskdrv/src/moduleif.cpp)
+
+target_include_directories(diskdrv
+        PUBLIC ${CMAKE_SOURCE_DIR}
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+target_link_libraries(diskdrv
+        common devices)
+
+add_library(sample1 ${LIB_TYPE}
+        sample1/src/guid.cpp
+        sample1/src/moduleif.cpp
+        sample1/src/sine.h
+        sample1/src/sine.cpp)
+
+target_include_directories(sample1
+        PUBLIC ${CMAKE_SOURCE_DIR}
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+target_link_libraries(sample1
+        common devices)
+
+add_library(sample2 ${LIB_TYPE}
+        sample2/src/config.h
+        sample2/src/config.cpp
+        sample2/src/guid.cpp
+        sample2/src/headers.h
+        sample2/src/mem.h
+        sample2/src/mem.cpp
+        sample2/src/moduleif.cpp
+        sample2/src/resource.h)
+
+target_include_directories(sample2
+        PUBLIC ${CMAKE_SOURCE_DIR}
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+target_link_libraries(sample2
+        common devices)

@@ -4,7 +4,7 @@
 #define incl_config_h
 
 #include "if/ifcommon.h"
-#include "instthnk.h"
+// #include "instthnk.h"
 
 class ConfigMP : public IConfigPropSheet
 {
@@ -19,7 +19,7 @@ private:
     
     HINSTANCE hinst;
     IConfigPropBase* base;
-    InstanceThunk gate;
+    // InstanceThunk gate;
 };
 
 #endif // incl_config_h
