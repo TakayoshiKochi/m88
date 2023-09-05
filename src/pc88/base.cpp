@@ -15,7 +15,7 @@
 #include "pc88/tapemgr.h"
 
 #define LOGNAME "base"
-#include "common/diag.h"
+// #include "common/diag.h"
 
 using namespace PC8801;
 
@@ -30,9 +30,9 @@ Base::Base(const ID& id) : Device(id) {}
 bool Base::Init(PC88* pc88) {
   pc_ = pc88;
   RTC();
-  sw30 = 0xcb;
-  sw31 = 0x79;
-  sw6e = 0xff;
+  sw30_ = 0xcb;
+  sw31_ = 0x79;
+  sw6e_ = 0xff;
   pc_->GetScheduler()->AddEvent(167, this, static_cast<TimeFunc>(&Base::RTC), 0, true);
   return true;
 }
@@ -42,26 +42,26 @@ bool Base::Init(PC88* pc88) {
 //
 void Base::SetSwitch(const Config* cfg) {
   basic_mode_ = cfg->basicmode;
-  clock = cfg->clock;
-  dipsw = cfg->dipsw;
-  flags = cfg->flags;
-  fv15k = cfg->IsFV15k();
+  clock_ = cfg->clock;
+  dipsw_ = cfg->dipsw;
+  //  flags_ = cfg->flags;
+  fv15k_ = cfg->IsFV15k();
 }
 
 // ---------------------------------------------------------------------------
 //  りせっと
 //
 void IOCALL Base::Reset(uint32_t, uint32_t) {
-  port40 = 0xc0 + (fv15k ? 2 : 0) + ((dipsw & (1 << 11)) || !autoboot ? 8 : 0);
-  sw6e = (sw6e & 0x7f) | ((!clock || abs(clock) >= 60) ? 0 : 0x80);
+  port40_ = 0xc0 + (fv15k_ ? 2 : 0) + ((dipsw_ & (1 << 11)) || !autoboot_ ? 8 : 0);
+  sw6e_ = (sw6e_ & 0x7f) | ((!clock_ || abs(clock_) >= 60) ? 0 : 0x80);
   auto basic_mode = static_cast<uint32_t>(basic_mode_);
-  sw31 = ((dipsw >> 5) & 0x3f) | (basic_mode & 1 ? 0x40 : 0) | (basic_mode & 0x10 ? 0 : 0x80);
+  sw31_ = ((dipsw_ >> 5) & 0x3f) | (basic_mode & 1 ? 0x40 : 0) | (basic_mode & 0x10 ? 0 : 0x80);
 
   if (basic_mode & 2) {
     //  N80モードのときもDipSWを返すようにする(Xanadu対策)
-    sw30 = ~((basic_mode & 0x10) >> 3);
+    sw30_ = ~((basic_mode & 0x10) >> 3);
   } else {
-    sw30 = 0xc0 | ((dipsw << 1) & 0x3e) | (basic_mode & 0x22 ? 1 : 0);
+    sw30_ = 0xc0 | ((dipsw_ << 1) & 0x3e) | (basic_mode & 0x22 ? 1 : 0);
   }
 
   const char* mode;
@@ -90,7 +90,7 @@ void IOCALL Base::Reset(uint32_t, uint32_t) {
     default:
       mode = "Unknown";
       break;
-  };
+  }
   g_status_display->Show(100, 2000, "%s mode", mode);
 }
 
@@ -98,7 +98,7 @@ void IOCALL Base::Reset(uint32_t, uint32_t) {
 //  Real Time Clock Interrupt (600Hz)
 //
 void IOCALL Base::RTC(uint32_t) {
-  pc_->bus1.Out(PC88::pint2, 1);
+  pc_->bus1.Out(PC88::kPint2, 1);
   //  Log("RTC\n");
 }
 
@@ -108,11 +108,11 @@ void IOCALL Base::RTC(uint32_t) {
 void IOCALL Base::VRTC(uint32_t, uint32_t en) {
   if (en) {
     pc_->VSync();
-    pc_->bus1.Out(PC88::pint1, 1);
-    port40 |= 0x20;
+    pc_->bus1.Out(PC88::kPint1, 1);
+    port40_ |= 0x20;
     //      Log("CRTC: Retrace\n");
   } else {
-    port40 &= ~0x20;
+    port40_ &= ~0x20;
     //      Log("CRTC: Display\n");
   }
 }
@@ -121,19 +121,19 @@ void IOCALL Base::VRTC(uint32_t, uint32_t en) {
 //  In
 //
 uint32_t IOCALL Base::In30(uint32_t) {
-  return sw30;
+  return sw30_;
 }
 
 uint32_t IOCALL Base::In31(uint32_t) {
-  return sw31;
+  return sw31_;
 }
 
 uint32_t IOCALL Base::In40(uint32_t) {
-  return IOBus::Active(port40, 0x2a);
+  return IOBus::Active(port40_, 0x2a) & 0xff;
 }
 
 uint32_t IOCALL Base::In6e(uint32_t) {
-  return sw6e | 0x7f;
+  return sw6e_ | 0x7f;
 }
 
 // ---------------------------------------------------------------------------
@@ -142,13 +142,13 @@ uint32_t IOCALL Base::In6e(uint32_t) {
 const Device::Descriptor Base::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr Base::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&Reset),
-    static_cast<Device::OutFuncPtr>(&VRTC),
+    static_cast<Device::OutFuncPtr>(&Base::Reset),
+    static_cast<Device::OutFuncPtr>(&Base::VRTC),
 };
 
 const Device::InFuncPtr Base::indef[] = {
-    static_cast<Device::InFuncPtr>(&In30),
-    static_cast<Device::InFuncPtr>(&In31),
-    static_cast<Device::InFuncPtr>(&In40),
-    static_cast<Device::InFuncPtr>(&In6e),
+    static_cast<Device::InFuncPtr>(&Base::In30),
+    static_cast<Device::InFuncPtr>(&Base::In31),
+    static_cast<Device::InFuncPtr>(&Base::In40),
+    static_cast<Device::InFuncPtr>(&Base::In6e),
 };

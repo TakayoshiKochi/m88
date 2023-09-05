@@ -21,7 +21,7 @@ class Base : public Device {
   enum IDOut { reset = 0, vrtc };
   enum IDIn { in30 = 0, in31, in40, in6e };
 
-  Base(const ID& id);
+  explicit Base(const ID& id);
   virtual ~Base() = default;
 
   bool Init(PC88* pc88);
@@ -30,7 +30,7 @@ class Base : public Device {
   void SetSwitch(const Config* cfg);
   BasicMode GetBasicMode() { return basic_mode_; }
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
-  void SetFDBoot(bool autoboot_) { autoboot = autoboot_; }
+  void SetFDBoot(bool autoboot) { autoboot_ = autoboot; }
 
   void IOCALL RTC(uint32_t = 0);
   void IOCALL VRTC(uint32_t, uint32_t en);
@@ -43,17 +43,17 @@ class Base : public Device {
  private:
   PC88* pc_ = nullptr;
 
-  int dipsw;
-  int flags;
-  int clock;
-  BasicMode basic_mode_;
+  int dipsw_ = 0;
+  // int flags_;
+  int clock_ = 0;
+  BasicMode basic_mode_ = BasicMode::kN88V1;
 
-  uint8_t port40 = 0;
-  uint8_t sw30;
-  uint8_t sw31;
-  uint8_t sw6e;
-  bool autoboot = true;
-  bool fv15k;
+  uint8_t port40_ = 0;
+  uint8_t sw30_ = 0;
+  uint8_t sw31_ = 0;
+  uint8_t sw6e_ = 0;
+  bool autoboot_ = true;
+  bool fv15k_ = false;
 
   static const Descriptor descriptor;
   static const InFuncPtr indef[];

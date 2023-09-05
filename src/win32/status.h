@@ -30,7 +30,7 @@ class StatusDisplayImpl : public StatusDisplayInterface {
   void WaitSubSys() override { litstat[2] = 9; }
 
   // Implements StatusDisplayInterface
-  bool Show(int priority, int duration, char* msg, ...) override;
+  bool Show(int priority, int duration, const char* msg, ...) override;
   void Update() override;
   UINT_PTR GetTimerID() { return timerid; }
 

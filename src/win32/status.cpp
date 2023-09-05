@@ -139,7 +139,7 @@ void StatusDisplayImpl::DrawItem(DRAWITEMSTRUCT* dis) {
 // ---------------------------------------------------------------------------
 //  メッセージ追加
 //
-bool StatusDisplayImpl::Show(int priority, int duration, char* msg, ...) {
+bool StatusDisplayImpl::Show(int priority, int duration, const char* msg, ...) {
   CriticalSection::Lock lock(cs);
 
   if (currentpriority < priority)
