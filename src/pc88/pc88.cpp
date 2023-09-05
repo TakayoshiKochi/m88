@@ -483,10 +483,10 @@ bool PC88::ConnectDevices() {
     return false;
   opn2_->SetIMask(0xaa, 0x80);
 
-  static const IOBus::Connector c_caln[] = {{kPReset, IOBus::portout, Calendar::reset},
-                                            {0x10, IOBus::portout, Calendar::out10},
-                                            {0x40, IOBus::portout, Calendar::out40},
-                                            {0x40, IOBus::portin, Calendar::in40},
+  static const IOBus::Connector c_caln[] = {{kPReset, IOBus::portout, Calendar::kReset},
+                                            {0x10, IOBus::portout, Calendar::kOut10},
+                                            {0x40, IOBus::portout, Calendar::kOut40},
+                                            {0x40, IOBus::portin, Calendar::kIn40},
                                             {0, 0, 0}};
   caln = new PC8801::Calendar(DEV_ID('C', 'A', 'L', 'N'));
   if (!caln || !caln->Init())

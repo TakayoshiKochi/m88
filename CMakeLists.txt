@@ -152,6 +152,7 @@ target_link_libraries(devices_unittests
 add_executable(pc88_unittests
         src/pc88/base_test.cc
         src/pc88/beep_test.cc
+        src/pc88/calendar_test.cc
         src/pc88/config_test.cc
         src/pc88/pc88_test.cc)
 
