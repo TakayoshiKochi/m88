@@ -13,9 +13,9 @@
 class PC88;
 
 namespace PC8801 {
-class Sound;
 class Config;
 class OPNIF;
+class Sound;
 
 // ---------------------------------------------------------------------------
 //
@@ -26,25 +26,26 @@ class Beep : public Device, public ISoundSource {
     out40 = 0,
   };
 
- public:
-  Beep(const ID& id);
+  explicit Beep(const ID& id);
   ~Beep();
 
   bool Init();
   void CleanUp();
   void EnableSING(bool s) {
-    p40mask = s ? 0xa0 : 0x20;
-    port40 &= p40mask;
+    p40mask_ = s ? 0xa0 : 0x20;
+    port40_ &= p40mask_;
   }
 
-  bool IFCALL Connect(ISoundControl* sc);
-  bool IFCALL SetRate(uint32_t rate);
-  void IFCALL Mix(int32_t*, int);
+  // Implements Device
+  const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
 
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* status);
-  bool IFCALL LoadStatus(const uint8_t* status);
+  // Implements ISoundSource
+  bool IFCALL Connect(ISoundControl* sc) override;
+  bool IFCALL SetRate(uint32_t rate) override;
+  void IFCALL Mix(int32_t*, int) override;
 
   void IOCALL Out40(uint32_t, uint32_t data);
 
@@ -55,17 +56,17 @@ class Beep : public Device, public ISoundSource {
   struct Status {
     uint8_t rev;
     uint8_t port40;
-    uint32_t prevtime;
+    // uint32_t prevtime;
   };
 
-  ISoundControl* soundcontrol;
-  int bslice;
-  int pslice;
-  int bcount;
-  int bperiod;
+  ISoundControl* sound_control_ = nullptr;
+  int bslice_ = 0;
+  int pslice_ = 0;
+  int bcount_ = 0;
+  int bperiod_ = 0;
 
-  uint32_t port40;
-  uint32_t p40mask;
+  uint32_t port40_ = 0;
+  uint32_t p40mask_ = 0;
 
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];
