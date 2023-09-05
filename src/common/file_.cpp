@@ -9,9 +9,9 @@ bool FileIODummy::Open(const char* filename, uint32_t flg) {
 
   fp_ = fopen(filename, (flg & readonly) ? "rb" : "r+b");
   if (fp_) {
-	flags_ = open;
-	if (flg & readonly)
-	  flags_ |= readonly;
+    flags_ = open;
+    if (flg & readonly)
+      flags_ |= readonly;
   }
   return fp_ != nullptr;
 }

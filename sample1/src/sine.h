@@ -8,47 +8,43 @@
 
 // ---------------------------------------------------------------------------
 
-class Sine : public Device, public ISoundSource
-{
-public:
-    enum IDFunc
-    {
-        setvolume = 0, setpitch
-    };
+class Sine : public Device, public ISoundSource {
+ public:
+  enum IDFunc { setvolume = 0, setpitch };
 
-public:
-	Sine();
-	~Sine();
+ public:
+  Sine();
+  ~Sine();
 
-	bool Init();
-	void Cleanup();
+  bool Init();
+  void Cleanup();
 
-	// ISoundSource method
-	bool IFCALL Connect(ISoundControl* sc);
-	bool IFCALL SetRate(uint32_t rate);
-	void IFCALL Mix(int32_t*, int);
+  // ISoundSource method
+  bool IFCALL Connect(ISoundControl* sc);
+  bool IFCALL SetRate(uint32_t rate);
+  void IFCALL Mix(int32_t*, int);
 
-	// IDevice Method
-	const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  // IDevice Method
+  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
 
-	// I/O port functions
-	void IOCALL SetVolume(uint32_t, uint32_t data);
-	void IOCALL SetPitch(uint32_t, uint32_t data);
+  // I/O port functions
+  void IOCALL SetVolume(uint32_t, uint32_t data);
+  void IOCALL SetPitch(uint32_t, uint32_t data);
 
-private:
-    ISoundControl* sc;
+ private:
+  ISoundControl* sc;
 
-    int volume;
-    int rate;
-    int pitch;
-    int pos;
-    int step;
+  int volume;
+  int rate;
+  int pitch;
+  int pos;
+  int step;
 
-    static const int table[];
+  static const int table[];
 
-    static const Descriptor descriptor;
-    static const InFuncPtr  indef[];
-    static const OutFuncPtr outdef[];
+  static const Descriptor descriptor;
+  static const InFuncPtr indef[];
+  static const OutFuncPtr outdef[];
 };
 
-#endif // incl_sine_h
+#endif  // incl_sine_h

@@ -45,8 +45,7 @@ OPNIF::OPNIF(const ID& id) : Device(id), chip(nullptr), piccolo(nullptr) {
   delay = 100000;
 }
 
-OPNIF::~OPNIF() {
-}
+OPNIF::~OPNIF() {}
 
 // ---------------------------------------------------------------------------
 //  初期化

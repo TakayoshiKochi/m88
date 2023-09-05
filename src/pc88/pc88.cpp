@@ -48,7 +48,6 @@ PC88::PC88()
       cpu2(DEV_ID('C', 'P', 'U', '2')),
       scrn(0),
       intc(0),
-      crtc(0),
       fdc(0),
       siotape(0),
       caln(0),
@@ -63,7 +62,6 @@ PC88::~PC88() {
   //  devlist.Cleanup();
   delete scrn;
   delete intc;
-  delete crtc;
   delete fdc;
   delete siotape;
   delete siomidi;
@@ -195,7 +193,7 @@ void PC88::UpdateScreen(bool refresh) {
       //          crtc->SetSize();
       if (draw_->Lock(&image, &bpl)) {
         Log("(%d -> %d) ", region.top, region.bottom);
-        crtc->UpdateScreen(image, bpl, region, refresh);
+        crtc_->UpdateScreen(image, bpl, region, refresh);
         Log("(%d -> %d) ", region.top, region.bottom);
         scrn->UpdateScreen(image, bpl, region, refresh);
         Log("(%d -> %d)\n", region.top, region.bottom);
@@ -298,7 +296,7 @@ bool PC88::ConnectDevices() {
   devlist.Add(tapemgr);
 
   static const IOBus::Connector c_dmac[] = {
-      {kPReset, IOBus::portout, PD8257::reset},    {0x60, IOBus::portout, PD8257::setaddr},
+      {kPReset, IOBus::portout, PD8257::reset}, {0x60, IOBus::portout, PD8257::setaddr},
       {0x61, IOBus::portout, PD8257::setcount}, {0x62, IOBus::portout, PD8257::setaddr},
       {0x63, IOBus::portout, PD8257::setcount}, {0x64, IOBus::portout, PD8257::setaddr},
       {0x65, IOBus::portout, PD8257::setcount}, {0x66, IOBus::portout, PD8257::setaddr},
@@ -313,13 +311,13 @@ bool PC88::ConnectDevices() {
     return false;
 
   static const IOBus::Connector c_crtc[] = {
-      {kPReset, IOBus::portout, CRTC::reset},       {0x50, IOBus::portout, CRTC::out},
-      {0x51, IOBus::portout, CRTC::out},         {0x50, IOBus::portin, CRTC::getstatus},
-      {0x51, IOBus::portin, CRTC::in},           {0x00, IOBus::portout, CRTC::pcgout},
-      {0x01, IOBus::portout, CRTC::pcgout},      {0x02, IOBus::portout, CRTC::pcgout},
-      {0x33, IOBus::portout, CRTC::setkanamode}, {0, 0, 0}};
-  crtc = new PC8801::CRTC(DEV_ID('C', 'R', 'T', 'C'));
-  if (!crtc || !bus1.Connect(crtc, c_crtc))
+      {kPReset, IOBus::portout, CRTC::kReset},    {0x50, IOBus::portout, CRTC::kOut},
+      {0x51, IOBus::portout, CRTC::kOut},         {0x50, IOBus::portin, CRTC::kGetStatus},
+      {0x51, IOBus::portin, CRTC::kIn},           {0x00, IOBus::portout, CRTC::kPCGOut},
+      {0x01, IOBus::portout, CRTC::kPCGOut},      {0x02, IOBus::portout, CRTC::kPCGOut},
+      {0x33, IOBus::portout, CRTC::kSetKanaMode}, {0, 0, 0}};
+  crtc_ = std::make_unique<PC8801::CRTC>(DEV_ID('C', 'R', 'T', 'C'));
+  if (!crtc_ || !bus1.Connect(crtc_.get(), c_crtc))
     return false;
 
   static const IOBus::Connector c_mem1[] = {{kPReset, IOBus::portout, Memory::reset},
@@ -352,11 +350,11 @@ bool PC88::ConnectDevices() {
   mem1_ = std::make_unique<PC8801::Memory>(DEV_ID('M', 'E', 'M', '1'));
   if (!mem1_ || !bus1.Connect(mem1_.get(), c_mem1))
     return false;
-  if (!mem1_->Init(&mm1, &bus1, crtc, cpu1.GetWaits()))
+  if (!mem1_->Init(&mm1, &bus1, crtc_.get(), cpu1.GetWaits()))
     return false;
 
   // TODO: CRTC is dependent on DMAC's object lifetime. (do not pass unique_ptr here)
-  if (!crtc->Init(&bus1, &scheduler_, dmac_.get()))
+  if (!crtc_->Init(&bus1, &scheduler_, dmac_.get()))
     return false;
 
   static const IOBus::Connector c_knj1[] = {{0xe8, IOBus::portout, KanjiROM::setl},
@@ -382,7 +380,7 @@ bool PC88::ConnectDevices() {
     return false;
 
   static const IOBus::Connector c_scrn[] = {
-      {kPReset, IOBus::portout, Screen::reset},     {0x30, IOBus::portout, Screen::out30},
+      {kPReset, IOBus::portout, Screen::reset},  {0x30, IOBus::portout, Screen::out30},
       {0x31, IOBus::portout, Screen::out31},     {0x32, IOBus::portout, Screen::out32},
       {0x33, IOBus::portout, Screen::out33},     {0x52, IOBus::portout, Screen::out52},
       {0x53, IOBus::portout, Screen::out53},     {0x54, IOBus::portout, Screen::out54},
@@ -393,7 +391,7 @@ bool PC88::ConnectDevices() {
   scrn = new PC8801::Screen(DEV_ID('S', 'C', 'R', 'N'));
   if (!scrn || !bus1.Connect(scrn, c_scrn))
     return false;
-  if (!scrn->Init(&bus1, mem1_.get(), crtc))
+  if (!scrn->Init(&bus1, mem1_.get(), crtc_.get()))
     return false;
 
   static const IOBus::Connector c_intc[] = {{kPReset, IOBus::portout, INTC::reset},
@@ -452,12 +450,12 @@ bool PC88::ConnectDevices() {
     return false;
 
   static const IOBus::Connector c_opn1[] = {
-      {kPReset, IOBus::portout, OPNIF::reset},     {0x32, IOBus::portout, OPNIF::setintrmask},
-      {0x44, IOBus::portout, OPNIF::setindex0}, {0x45, IOBus::portout, OPNIF::writedata0},
-      {0x46, IOBus::portout, OPNIF::setindex1}, {0x47, IOBus::portout, OPNIF::writedata1},
+      {kPReset, IOBus::portout, OPNIF::reset},   {0x32, IOBus::portout, OPNIF::setintrmask},
+      {0x44, IOBus::portout, OPNIF::setindex0},  {0x45, IOBus::portout, OPNIF::writedata0},
+      {0x46, IOBus::portout, OPNIF::setindex1},  {0x47, IOBus::portout, OPNIF::writedata1},
       {kPTimeSync, IOBus::portout, OPNIF::sync}, {0x44, IOBus::portin, OPNIF::readstatus},
-      {0x45, IOBus::portin, OPNIF::readdata0},  {0x46, IOBus::portin, OPNIF::readstatusex},
-      {0x47, IOBus::portin, OPNIF::readdata1},  {0, 0, 0}};
+      {0x45, IOBus::portin, OPNIF::readdata0},   {0x46, IOBus::portin, OPNIF::readstatusex},
+      {0x47, IOBus::portin, OPNIF::readdata1},   {0, 0, 0}};
   opn1_ = std::make_unique<PC8801::OPNIF>(DEV_ID('O', 'P', 'N', '1'));
   if (!opn1_ || !opn1_->Init(&bus1, kPint4, kPOPNio1, &scheduler_))
     return false;
@@ -554,7 +552,7 @@ bool PC88::ConnectDevices2() {
     return false;
 
   static const IOBus::Connector c_fdc[] = {
-      {kPReset2, IOBus::portout, FDC::reset},       {0xfb, IOBus::portout, FDC::setdata},
+      {kPReset2, IOBus::portout, FDC::reset},    {0xfb, IOBus::portout, FDC::setdata},
       {0xf4, IOBus::portout, FDC::drivecontrol}, {0xf8, IOBus::portout, FDC::motorcontrol},
       {0xf8, IOBus::portin, FDC::tcin},          {0xfa, IOBus::portin, FDC::getstatus},
       {0xfb, IOBus::portin, FDC::getdata},       {0, 0, 0}};
@@ -577,7 +575,7 @@ void PC88::ApplyConfig(Config* cfg) {
   base_->SetSwitch(cfg);
   scrn->ApplyConfig(cfg);
   mem1_->ApplyConfig(cfg);
-  crtc->ApplyConfig(cfg);
+  crtc_->ApplyConfig(cfg);
   fdc->ApplyConfig(cfg);
   beep_->EnableSING(!(cfg->flags & Config::kDisableSing));
   opn1_->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
@@ -614,7 +612,7 @@ void PC88::SetVolume(PC8801::Config* cfg) {
 //  1 フレーム分の時間を求める．
 //
 int PC88::GetFramePeriod() {
-  return crtc ? crtc->GetFramePeriod() : 100000 / 60;
+  return crtc_ ? crtc_->GetFramePeriod() : 100000 / 60;
 }
 
 // ---------------------------------------------------------------------------

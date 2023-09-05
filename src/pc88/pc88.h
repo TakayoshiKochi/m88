@@ -143,11 +143,11 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
     kPint5,
     kPint6,
     kPint7,
-    kPReset,     // reset
+    kPReset,   // reset
     kPIRQ,     // IRQ
     kPIAck,    // interrupt acknowledgement
     kVrtc,     // vertical retrace
-    kPOPNio1,   // OPN の入出力ポート 1
+    kPOPNio1,  // OPN の入出力ポート 1
     kPOPNio2,  // OPN の入出力ポート 2 (連番)
     kPSIOin,   // SIO 関係
     kPSIOReq,
@@ -192,7 +192,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   std::unique_ptr<PC8801::KanjiROM> knj2_;
   PC8801::Screen* scrn = nullptr;
   PC8801::INTC* intc = nullptr;
-  PC8801::CRTC* crtc = nullptr;
+  std::unique_ptr<PC8801::CRTC> crtc_;
   std::unique_ptr<PC8801::Base> base_;
   PC8801::FDC* fdc = nullptr;
   std::unique_ptr<PC8801::SubSystem> subsys_;

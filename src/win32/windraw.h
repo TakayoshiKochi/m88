@@ -123,7 +123,7 @@ class WinDraw : public Draw {
   bool flipmode_;
 
   HMONITOR hmonitor = 0;  // 探索中の hmonitor
-  GUID gmonitor;      // hmonitor に対応する GUID
+  GUID gmonitor;          // hmonitor に対応する GUID
 
   PALETTEENTRY palette[0x100];
 };

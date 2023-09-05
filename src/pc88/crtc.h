@@ -12,38 +12,40 @@
 #include "common/draw.h"
 #include "common/scheduler.h"
 
+#include <memory>
+
 class IOBus;
 class Scheduler;
 
 namespace PC8801 {
-class PD8257;
 class Config;
+class PD8257;
 
 // ---------------------------------------------------------------------------
 //  CRTC (μPD3301) 及びテキスト画面合成
 //
 class CRTC : public Device {
  public:
-  enum IDOut { reset = 0, out, pcgout, setkanamode };
+  enum IDOut { kReset = 0, kOut, kPCGOut, kSetKanaMode };
   enum IDIn {
-    in = 0,
-    getstatus,
+    kIn = 0,
+    kGetStatus,
   };
 
- public:
-  CRTC(const ID& id);
-  ~CRTC();
-  bool Init(IOBus* bus, Scheduler* s, PD8257* dmac);
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  explicit CRTC(const ID& id);
+  ~CRTC() override = default;
+  bool Init(IOBus* bus, Scheduler* sched, PD8257* dmac);
 
   void UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool refresh);
   void SetSize();
   void ApplyConfig(const Config* config);
-  int GetFramePeriod();
+  [[nodiscard]] int GetFramePeriod() const;
 
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* status);
-  bool IFCALL LoadStatus(const uint8_t* status);
+  // Implements Device
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
 
   // CRTC Control
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
@@ -58,30 +60,30 @@ class CRTC : public Device {
 
  private:
   enum Mode {
-    inverse = 1 << 0,  // reverse bit と同じ
-    color = 1 << 1,
-    control = 1 << 2,
-    skipline = 1 << 3,
-    nontransparent = 1 << 4,
-    attribute = 1 << 5,
-    clear = 1 << 6,
-    refresh = 1 << 7,
-    enable = 1 << 8,
-    suppressdisplay = 1 << 9,
-    resize = 1 << 10,
+    kInverse = 1 << 0,  // reverse bit と同じ
+    kColor = 1 << 1,
+    kControl = 1 << 2,
+    kSkipline = 1 << 3,
+    kNonTransparent = 1 << 4,
+    kAttribute = 1 << 5,
+    kClear = 1 << 6,
+    kRefresh = 1 << 7,
+    kEnable = 1 << 8,
+    kSuppressDisplay = 1 << 9,
+    kResize = 1 << 10,
   };
 
   //  ATTR BIT 配置     G  R  B  CG UL OL SE RE
   enum TextAttr {
-    reverse = 1 << 0,
-    secret = 1 << 1,
-    overline = 1 << 2,
-    underline = 1 << 3,
-    graphics = 1 << 4,
+    kReverse = 1 << 0,
+    kSecret = 1 << 1,
+    kOverline = 1 << 2,
+    kUnderline = 1 << 3,
+    kGraphics = 1 << 4,
   };
 
   enum {
-    dmabank = 2,
+    kDMABank = 2,
   };
 
  private:
@@ -128,6 +130,9 @@ class CRTC : public Device {
   void ModifyFont(uint32_t off, uint32_t d);
   void EnablePCG(bool);
 
+  // TODO:
+  void CRTC::DRAW(packed& dest, packed data);
+
   void PutChar(packed* dest, uint8_t c, uint8_t a);
   void PutNormal(packed* dest, const packed* src);
   void PutReversed(packed* dest, const packed* src);
@@ -140,63 +145,84 @@ class CRTC : public Device {
   void PutLineNormalW(packed* dest, uint8_t attr);
   void PutLineReversedW(packed* dest, uint8_t attr);
 
-  IOBus* bus = nullptr;
-  PD8257* dmac = nullptr;
-  Scheduler* scheduler = nullptr;
-  Scheduler::Event* sev = nullptr;
+  IOBus* bus_ = nullptr;
+  PD8257* dmac_ = nullptr;
+  Scheduler* scheduler_ = nullptr;
+  Scheduler::Event* sev_ = nullptr;
 
-  int cmdm, cmdc;
-  uint32_t cursormode;
-  uint32_t linesize;
-  bool line200;  // 15KHz モード
-  uint8_t attr;
-  uint8_t attr_cursor;
-  uint8_t attr_blink;
-  uint32_t status;
-  uint32_t column;
-  int linetime;
-  uint32_t frametime;
-  uint32_t pcgadr;
-  uint32_t pcgdat;
+  int cmdm_ = 0;
+  int cmdc_ = 0;
+  uint32_t cursor_mode_ = 0;
+  uint32_t line_size_ = 0;
+  bool line200_ = false;  // 15KHz モード
+  uint8_t attr_ = 0;
+  uint8_t attr_cursor_ = 0;
+  uint8_t attr_blink_ = 0;
+  uint32_t status_ = 0;
+  uint32_t column_ = 0;
+  int line_time_ = 0;
+  uint32_t frame_time_ = 0;
+  uint32_t pcg_adr_ = 0;
+  uint32_t pcg_dat_ = 0;
 
-  int bpl;
-  packed pat_col;
-  packed pat_mask;
-  packed pat_rev;
-  int underlineptr;
+  int bpl_ = 1;
+  packed pat_col_ = 0;
+  // mask pattern
+  packed pat_mask_ = 0;
+  // reverse pattern
+  packed pat_rev_ = 0;
+  int underline_ptr_ = 0;
 
-  uint8_t* fontrom;
-  uint8_t* cg80rom;  // PC-8001mkIISR CGROM
-  uint8_t* font;
-  uint8_t* pcgram;
-  uint8_t* vram[2];
-  uint8_t* attrcache;
+  std::unique_ptr<uint8_t[]> font_;
+  std::unique_ptr<uint8_t[]> fontrom_;
+  std::unique_ptr<uint8_t[]> pcgram_;
+  // PC-8001mkIISR CGROM
+  std::unique_ptr<uint8_t[]> cg80rom_;
+  std::unique_ptr<uint8_t[]> vram_;
+  uint8_t* vram_ptr_[2] = {nullptr, nullptr};
+  uint8_t* attrcache_ = nullptr;
 
-  uint32_t bank;          // VRAM Cache のバンク
-                          //  uint32_t tvramsize;         // 1画面のテキストサイズ
-                          //  uint32_t screenwidth;       // 画面の幅
-  uint32_t screenheight;  // 画面の高さ
+  // VRAM Cache のバンク
+  uint32_t bank_ = 0;
 
-  uint32_t cursor_x;  // カーソル位置
-  uint32_t cursor_y;
-  uint32_t attrperline;    // 1行あたりのアトリビュート数
-  uint32_t linecharlimit;  // 1行あたりのテキスト高さ
-  uint32_t linesperchar;   // 1行のドット数
-  uint32_t width;          // テキスト画面の幅
-  uint32_t height;         // テキスト画面の高さ
-  uint32_t blinkrate;      // ブリンクの速度
-  int cursor_type;         // b0:blink, b1:underline (-1=none)
-  uint32_t vretrace;       //
-  uint32_t mode;
-  bool widefont;
-  bool pcgenable;
-  bool kanaenable;   // ひらカナ選択有効
-  uint8_t kanamode;  // b4 = ひらがなモード
+  // 1画面のテキストサイズ
+  // uint32_t tvramsize_;
+  // 画面の幅
+  // uint32_t screen_width_;
+  // 画面の高さ
+  uint32_t screen_height_ = 400;
 
-  uint8_t pcount[2];
-  uint8_t param0[6];
-  uint8_t param1;
-  uint8_t event;
+  // カーソル位置
+  uint32_t cursor_x_ = 0;
+  uint32_t cursor_y_ = 0;
+
+  // 1行あたりのアトリビュート数
+  uint32_t attr_per_line_ = 1;
+  // 1行あたりのテキスト高さ
+  uint32_t line_char_limit_ = 1;
+  // 1行のドット数
+  uint32_t lines_per_char_ = 1;
+  // テキスト画面の幅
+  uint32_t width_ = 80;
+  // テキスト画面の高さ
+  uint32_t height_ = 25;
+  // ブリンクの速度
+  uint32_t blink_rate_ = 1;
+  // b0:blink, b1:underline (-1=none)
+  int cursor_type = 0;
+  uint32_t v_retrace_ = 0;
+  uint32_t mode_ = 0;
+  bool widefont_ = false;
+  bool pcg_enable_ = false;
+  // ひらカナ選択有効
+  bool kana_enable_ = false;
+  // b4 = ひらがなモード
+  uint8_t kana_mode_ = 0;
+
+  uint8_t pcount[2] = {0, 0};
+  uint8_t param0_[6] = {0, 0, 0, 0, 0, 0};
+  uint8_t param1_ = 0;
+  uint8_t event_ = 0;
 
  private:
   static const Descriptor descriptor;
@@ -209,8 +235,8 @@ class CRTC : public Device {
 // ---------------------------------------------------------------------------
 //  1 フレーム分に相当する時間を求める
 //
-inline int CRTC::GetFramePeriod() {
-  return linetime * (height + vretrace);
+inline int CRTC::GetFramePeriod() const {
+  return line_time_ * (height_ + v_retrace_);
 }
 
 }  // namespace PC8801
