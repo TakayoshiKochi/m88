@@ -296,16 +296,16 @@ bool PC88::ConnectDevices() {
   devlist.Add(tapemgr);
 
   static const IOBus::Connector c_dmac[] = {
-      {kPReset, IOBus::portout, PD8257::reset}, {0x60, IOBus::portout, PD8257::setaddr},
-      {0x61, IOBus::portout, PD8257::setcount}, {0x62, IOBus::portout, PD8257::setaddr},
-      {0x63, IOBus::portout, PD8257::setcount}, {0x64, IOBus::portout, PD8257::setaddr},
-      {0x65, IOBus::portout, PD8257::setcount}, {0x66, IOBus::portout, PD8257::setaddr},
-      {0x67, IOBus::portout, PD8257::setcount}, {0x68, IOBus::portout, PD8257::setmode},
-      {0x60, IOBus::portin, PD8257::getaddr},   {0x61, IOBus::portin, PD8257::getcount},
-      {0x62, IOBus::portin, PD8257::getaddr},   {0x63, IOBus::portin, PD8257::getcount},
-      {0x64, IOBus::portin, PD8257::getaddr},   {0x65, IOBus::portin, PD8257::getcount},
-      {0x66, IOBus::portin, PD8257::getaddr},   {0x67, IOBus::portin, PD8257::getcount},
-      {0x68, IOBus::portin, PD8257::getstat},   {0, 0, 0}};
+      {kPReset, IOBus::portout, PD8257::kReset}, {0x60, IOBus::portout, PD8257::kSetAddr},
+      {0x61, IOBus::portout, PD8257::kSetCount}, {0x62, IOBus::portout, PD8257::kSetAddr},
+      {0x63, IOBus::portout, PD8257::kSetCount}, {0x64, IOBus::portout, PD8257::kSetAddr},
+      {0x65, IOBus::portout, PD8257::kSetCount}, {0x66, IOBus::portout, PD8257::kSetAddr},
+      {0x67, IOBus::portout, PD8257::kSetCount}, {0x68, IOBus::portout, PD8257::kSetMode},
+      {0x60, IOBus::portin, PD8257::kGetAddr},   {0x61, IOBus::portin, PD8257::kGetCount},
+      {0x62, IOBus::portin, PD8257::kGetAddr},   {0x63, IOBus::portin, PD8257::kGetCount},
+      {0x64, IOBus::portin, PD8257::kGetAddr},   {0x65, IOBus::portin, PD8257::kGetCount},
+      {0x66, IOBus::portin, PD8257::kGetAddr},   {0x67, IOBus::portin, PD8257::kGetCount},
+      {0x68, IOBus::portin, PD8257::kGetStat},   {0, 0, 0}};
   dmac_ = std::make_unique<PC8801::PD8257>(DEV_ID('D', 'M', 'A', 'C'));
   if (!bus1.Connect(dmac_.get(), c_dmac))
     return false;
