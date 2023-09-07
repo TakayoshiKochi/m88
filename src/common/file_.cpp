@@ -47,6 +47,7 @@ bool FileIODummy::Seek(int32_t fpos, SeekMethod method) {
   switch (method) {
     case begin:
       origin = SEEK_SET;
+      fpos += origin_;
       break;
     case current:
       origin = SEEK_CUR;
