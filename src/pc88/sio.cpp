@@ -21,13 +21,13 @@ using namespace PC8801;
 //
 SIO::SIO(const ID& id) : Device(id) {}
 
-SIO::~SIO() {}
+SIO::~SIO() = default;
 
 // ---------------------------------------------------------------------------
 //  初期化
 //
 bool SIO::Init(IOBus* _bus, uint32_t _prxrdy, uint32_t _preq) {
-  bus = _bus, prxrdy = _prxrdy, prequest = _preq;
+  bus_ = _bus, prxrdy = _prxrdy, prequest = _preq;
   Log("SIO::Init\n");
 
   return true;
@@ -37,7 +37,7 @@ bool SIO::Init(IOBus* _bus, uint32_t _prxrdy, uint32_t _preq) {
 //  りせっと
 //
 void SIO::Reset(uint32_t, uint32_t) {
-  mode = clear;
+  mode = Mode::kClear;
   status = TXRDY | TXE;
   baseclock = 1200 * 64;
 }
@@ -49,17 +49,17 @@ void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
   Log("[%.2x] ", d);
 
   switch (mode) {
-    case clear:
+    case Mode::kClear:
       // Mode Instruction
       if (d & 3) {
         // Asynchronus mode
-        mode = async;
+        mode = Mode::kAsync;
         // b7 b6 b5 b4 b3 b2 b1 b0
         // STOP  EP PE CHAR  RATE
         static const int clockdiv[] = {1, 1, 16, 64};
         clock = baseclock / clockdiv[d & 3];
         datalen = 5 + ((d >> 2) & 3);
-        parity = d & 0x10 ? (d & 0x20 ? even : odd) : none;
+        parity = d & 0x10 ? (d & 0x20 ? Parity::kEven : Parity::kOdd) : Parity::kNone;
         stop = (d >> 6) & 3;
         Log("Async: %d baud, Parity:%c Data:%d Stop:%s\n", clock, parity, datalen,
             stop == 3   ? "2"
@@ -67,31 +67,31 @@ void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
                         : "1");
       } else {
         // Synchronus mode
-        mode = sync1;
+        mode = Mode::kSync1;
         clock = 0;
-        parity = d & 0x10 ? (d & 0x20 ? even : odd) : none;
+        parity = d & 0x10 ? (d & 0x20 ? Parity::kEven : Parity::kOdd) : Parity::kNone;
         Log("Sync: %d baud, Parity:%c / ", clock, parity);
       }
       break;
 
-    case sync1:
-      mode = sync2;
+    case Mode::kSync1:
+      mode = Mode::kSync2;
       break;
 
-    case sync2:
-      mode = sync;
+    case Mode::kSync2:
+      mode = Mode::kSync;
       Log("\n");
       break;
 
-    case async:
-    case sync:
+    case Mode::kAsync:
+    case Mode::kSync:
       // Command Instruction
       // b7 - enter hunt mode
       // b6 - internal reset
       if (d & 0x40) {
         // Reset!
         Log(" Internal Reset!\n");
-        mode = clear;
+        mode = Mode::kClear;
         break;
       }
       // b5 - request to send
@@ -143,7 +143,7 @@ uint32_t IOCALL SIO::GetData(uint32_t) {
   status &= ~RXRDY;
 
   if (f)
-    bus->Out(prequest, 0);
+    bus_->Out(prequest, 0);
 
   return data;
 }
@@ -157,7 +157,7 @@ void IOCALL SIO::AcceptData(uint32_t, uint32_t d) {
       Log(" - overrun");
     }
     status |= RXRDY;
-    bus->Out(prxrdy, 1);  // 割り込み
+    bus_->Out(prxrdy, 1);  // 割り込み
     Log("\n");
   } else {
     Log(" - ignored\n");
@@ -174,7 +174,7 @@ uint32_t IFCALL SIO::GetStatusSize() {
 bool IFCALL SIO::SaveStatus(uint8_t* s) {
   Status* status = (Status*)s;
   status->rev = ssrev;
-  status->baseclock = baseclock;
+  status->base_clock_ = baseclock;
   status->clock = clock;
   status->datalen = datalen;
   status->stop = stop;
@@ -188,7 +188,7 @@ bool IFCALL SIO::LoadStatus(const uint8_t* s) {
   const Status* status = (const Status*)s;
   if (status->rev != ssrev)
     return false;
-  baseclock = status->baseclock;
+  baseclock = status->base_clock_;
   clock = status->clock;
   datalen = status->datalen;
   stop = status->stop;
@@ -204,13 +204,13 @@ bool IFCALL SIO::LoadStatus(const uint8_t* s) {
 const Device::Descriptor SIO::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr SIO::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&Reset),
-    static_cast<Device::OutFuncPtr>(&SetControl),
-    static_cast<Device::OutFuncPtr>(&SetData),
-    static_cast<Device::OutFuncPtr>(&AcceptData),
+    static_cast<Device::OutFuncPtr>(&SIO::Reset),
+    static_cast<Device::OutFuncPtr>(&SIO::SetControl),
+    static_cast<Device::OutFuncPtr>(&SIO::SetData),
+    static_cast<Device::OutFuncPtr>(&SIO::AcceptData),
 };
 
 const Device::InFuncPtr SIO::indef[] = {
-    static_cast<Device::InFuncPtr>(&GetStatus),
-    static_cast<Device::InFuncPtr>(&GetData),
+    static_cast<Device::InFuncPtr>(&SIO::GetStatus),
+    static_cast<Device::InFuncPtr>(&SIO::GetData),
 };

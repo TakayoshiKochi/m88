@@ -158,7 +158,7 @@ uint32_t IOCALL PD8257::GetCount(uint32_t p) {
 // ---------------------------------------------------------------------------
 //  ステータスを取得
 //
-inline uint32_t IOCALL PD8257::GetStatus(uint32_t) const {
+inline uint32_t IOCALL PD8257::GetStatus (uint32_t) {
   //  stat.ff = false;
   return stat_.status;
 }
@@ -251,7 +251,7 @@ uint32_t IFCALL PD8257::RequestWrite(uint32_t bank, uint8_t* data, uint32_t nbyt
           Log("DMA WRITE: Bank%d auto init (%.4x:%.4x).\n", bank, stat_.ptr[2], stat_.count[2] + 1);
         } else {
           stat_.status |= 1 << bank;  // TC
-          Log("DMA WRITE: Bank%d end transmittion.\n", bank);
+          Log("DMA WRITE: Bank%d end transmission.\n", bank);
         }
       }
       n -= size;
@@ -288,14 +288,14 @@ bool IFCALL PD8257::LoadStatus(const uint8_t* s) {
 const Device::Descriptor PD8257::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr PD8257::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&Reset),
-    static_cast<Device::OutFuncPtr>(&SetAddr),
-    static_cast<Device::OutFuncPtr>(&SetCount),
-    static_cast<Device::OutFuncPtr>(&SetMode),
+    static_cast<Device::OutFuncPtr>(&PD8257::Reset),
+    static_cast<Device::OutFuncPtr>(&PD8257::SetAddr),
+    static_cast<Device::OutFuncPtr>(&PD8257::SetCount),
+    static_cast<Device::OutFuncPtr>(&PD8257::SetMode),
 };
 
 const Device::InFuncPtr PD8257::indef[] = {
-    static_cast<Device::InFuncPtr>(&GetAddr),
-    static_cast<Device::InFuncPtr>(&GetCount),
-    static_cast<Device::InFuncPtr>(&GetStatus),
+    static_cast<Device::InFuncPtr>(&PD8257::GetAddr),
+    static_cast<Device::InFuncPtr>(&PD8257::GetCount),
+    static_cast<Device::InFuncPtr>(&PD8257::GetStatus),
 };

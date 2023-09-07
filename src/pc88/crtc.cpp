@@ -646,7 +646,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
   //  image += y * linestep;
   uint8_t* src = vram_ptr_[bank_];         // + y * linesize;
   uint8_t* cache = vram_ptr_[bank_ ^= 1];  // + y * linesize;
-  uint8_t* cache_attr = attrcache_;   // + y * width;
+  uint8_t* cache_attr = attrcache_;        // + y * width;
 
   uint32_t left = 999;
   int right = -1;

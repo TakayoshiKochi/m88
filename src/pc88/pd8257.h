@@ -33,7 +33,7 @@ class PD8257 : public Device, public IDMAAccess {
   void IOCALL SetMode(uint32_t, uint32_t data);
   uint32_t IOCALL GetAddr(uint32_t port);
   uint32_t IOCALL GetCount(uint32_t port);
-  [[nodiscard]] uint32_t IOCALL GetStatus(uint32_t) const;
+  [[nodiscard]] uint32_t IOCALL GetStatus(uint32_t);
 
   // Implements Device
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
