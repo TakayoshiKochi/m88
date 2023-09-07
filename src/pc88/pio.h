@@ -17,7 +17,7 @@ class PIO {
  public:
   PIO() { Reset(); }
 
-  void Connect(PIO* p) { partner = p; }
+  void Connect(PIO* p) { partner_ = p; }
 
   void Reset();
   void SetData(uint32_t adr, uint32_t data);
@@ -26,12 +26,12 @@ class PIO {
   uint32_t Read1();
   uint32_t Read2();
 
-  uint32_t Port(uint32_t num) { return port[num]; }
+  uint32_t Port(uint32_t num) { return port_[num]; }
 
  private:
-  uint8_t port[4];
-  uint8_t readmask[4];
-  PIO* partner;
+  uint8_t port_[4] = {0, 0, 0, 0};
+  uint8_t readmask_[4] = {0, 0, 0, 0};
+  PIO* partner_ = nullptr;
 };
 
 }  // namespace PC8801
@@ -41,24 +41,24 @@ class PIO {
 //
 inline void PC8801::PIO::SetData(uint32_t adr, uint32_t data) {
   adr &= 3;
-  port[adr] = data;
+  port_[adr] = data;
 }
 
 // ---------------------------------------------------------------------------
 //  ポートから入力
 //
 inline uint32_t PC8801::PIO::Read0() {
-  uint32_t data = partner->Port(1);
-  return (data & readmask[0]) | (port[1] & ~readmask[0]);
+  uint32_t data = partner_->Port(1);
+  return (data & readmask_[0]) | (port_[1] & ~readmask_[0]);
 }
 
 inline uint32_t PC8801::PIO::Read1() {
-  uint32_t data = partner->Port(0);
-  return (data & readmask[1]) | (port[1] & ~readmask[1]);
+  uint32_t data = partner_->Port(0);
+  return (data & readmask_[1]) | (port_[1] & ~readmask_[1]);
 }
 
 inline uint32_t PC8801::PIO::Read2() {
-  uint32_t data = partner->Port(2);
+  uint32_t data = partner_->Port(2);
   data = ((data << 4) & 0xf0) + ((data >> 4) & 0x0f);  // rotate 4 bits
-  return (data & readmask[2]) | (port[2] & ~readmask[2]);
+  return (data & readmask_[2]) | (port_[2] & ~readmask_[2]);
 }

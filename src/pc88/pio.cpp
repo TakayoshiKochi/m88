@@ -15,7 +15,7 @@ using namespace PC8801;
 //  Reset
 //
 void PIO::Reset() {
-  port[0] = port[1] = port[2] = 0;
+  port_[0] = port_[1] = port_[2] = 0;
   SetCW(0);
 }
 
@@ -23,13 +23,13 @@ void PIO::SetCW(uint32_t data) {
   // Control Word
   if (!(data & 0x80)) {
     if (data & 0x01)
-      port[2] |= 1 << ((data >> 1) & 7);
+      port_[2] |= 1 << ((data >> 1) & 7);
     else
-      port[2] &= ~(1 << ((data >> 1) & 7));
+      port_[2] &= ~(1 << ((data >> 1) & 7));
   } else {
-    readmask[0] = (data & 0x10 ? 0xff : 0x00);
-    readmask[1] = (data & 0x02 ? 0xff : 0x00);
-    readmask[2] = (data & 0x08 ? 0xf0 : 0x00) | (data & 0x01 ? 0x0f : 0x00);
-    port[0] = port[1] = port[2] = 0;
+    readmask_[0] = (data & 0x10 ? 0xff : 0x00);
+    readmask_[1] = (data & 0x02 ? 0xff : 0x00);
+    readmask_[2] = (data & 0x08 ? 0xf0 : 0x00) | (data & 0x01 ? 0x0f : 0x00);
+    port_[0] = port_[1] = port_[2] = 0;
   }
 }
