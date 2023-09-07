@@ -154,6 +154,7 @@ add_executable(pc88_unittests
         src/pc88/beep_test.cc
         src/pc88/calendar_test.cc
         src/pc88/config_test.cc
+        src/pc88/crtc_test.cc
         src/pc88/pc88_test.cc)
 
 target_link_libraries(pc88_unittests
@@ -268,14 +269,14 @@ target_include_directories(win32
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
 add_executable(win32_unittests
-        src/pc88/base_test.cc)
+        src/pc88/pc88_test.cc)
 
 target_link_libraries(win32_unittests
         PUBLIC gtest gtest_main
         common devices pc88 win32)
 
 add_executable(win32mon_unittests
-        src/pc88/base_test.cc)
+        src/pc88/pc88_test.cc)
 
 target_link_libraries(win32mon_unittests
         PUBLIC gtest gtest_main

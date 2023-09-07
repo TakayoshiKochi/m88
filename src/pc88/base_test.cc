@@ -18,9 +18,9 @@ class DummyDraw : public Draw {
   bool Unlock() override { return true; };
 
   uint32_t GetStatus() override { return 0; };
-  void Resize(uint32_t width, uint32_t height) override {};
-  void DrawScreen(const Region& region) override {};
-  void SetPalette(uint32_t index, uint32_t nents, const Palette* pal) override {};
+  void Resize(uint32_t width, uint32_t height) override{};
+  void DrawScreen(const Region& region) override{};
+  void SetPalette(uint32_t index, uint32_t nents, const Palette* pal) override{};
   bool SetFlipMode(bool) override { return true; };
 };
 

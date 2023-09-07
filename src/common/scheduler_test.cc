@@ -3,10 +3,10 @@
 #include "common/device.h"
 #include "gtest/gtest.h"
 
-class TestScheduler : public Scheduler {
+class MockScheduler : public Scheduler {
  public:
-  TestScheduler() = default;
-  ~TestScheduler() override = default;
+  MockScheduler() = default;
+  ~MockScheduler() override = default;
 
  private:
   int Execute(int ticks) override { return ticks; };
@@ -43,7 +43,7 @@ class SchedulerTest : public testing::Test {
   ~SchedulerTest() override = default;
 
   void SetUp() override {
-    sched_ = new TestScheduler();
+    sched_ = new MockScheduler();
     sched_->Init();
   }
 
@@ -54,7 +54,7 @@ class SchedulerTest : public testing::Test {
   TestDevice dev_;
 };
 
-TEST_F(SchedulerTest, TestScheduler) {
+TEST_F(SchedulerTest, MockScheduler) {
   EXPECT_EQ(sched_->GetTime(), 0);
   sched_->Proceed(1);
   EXPECT_EQ(sched_->GetTime(), 1);
