@@ -21,13 +21,12 @@ class FileIO {
   enum Error { success = 0, file_not_found, sharing_violation, unknown = -1 };
 
  public:
-  FileIO() {}
-  FileIO(const char* filename, uint32_t flg = 0);
+  FileIO() = default;
   virtual ~FileIO() = default;
 
-  virtual bool Open(const char* filename, uint32_t flg = 0) = 0;
+  virtual bool Open(const char* filename, uint32_t flg) = 0;
   virtual bool CreateNew(const char* filename) = 0;
-  virtual bool Reopen(uint32_t flg = 0) = 0;
+  virtual bool Reopen(uint32_t flg) = 0;
   virtual void Close() = 0;
   [[nodiscard]] Error GetError() const { return error_; }
 
@@ -52,12 +51,12 @@ class FileIO {
 class FileIODummy : public FileIO {
  public:
   FileIODummy() = default;
-  FileIODummy(const char* filename, uint32_t flg = 0) { Open(filename, flg); }
+  FileIODummy(const char* filename, uint32_t flg) { Open(filename, flg); }
   ~FileIODummy() override = default;
 
-  bool Open(const char* filename, uint32_t flg = 0) override;
+  bool Open(const char* filename, uint32_t flg) override;
   bool CreateNew(const char* filename) override;
-  bool Reopen(uint32_t flg = 0) override;
+  bool Reopen(uint32_t flg) override;
   void Close() override;
 
   int32_t Read(void* dest, int32_t len) override;

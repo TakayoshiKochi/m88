@@ -20,12 +20,15 @@
 class FileIOWin : public FileIO {
  public:
   FileIOWin();
-  FileIOWin(const char* filename, uint32_t flg = 0);
+  explicit FileIOWin(const char* filename, uint32_t flg);
   ~FileIOWin() override;
 
-  bool Open(const char* filename, uint32_t flg = 0) override;
+  FileIOWin(const FileIOWin&) = delete;
+  const FileIOWin& operator=(const FileIOWin&) = delete;
+
+  bool Open(const char* filename, uint32_t flg) override;
   bool CreateNew(const char* filename) override;
-  bool Reopen(uint32_t flg = 0) override;
+  bool Reopen(uint32_t flg) override;
   void Close() override;
 
   int32_t Read(void* dest, int32_t len) override;
@@ -37,9 +40,6 @@ class FileIOWin : public FileIO {
  private:
   HANDLE hfile_;
   char path[MAX_PATH];
-
-  FileIOWin(const FileIO&);
-  const FileIOWin& operator=(const FileIOWin&);
 };
 
 // ---------------------------------------------------------------------------
