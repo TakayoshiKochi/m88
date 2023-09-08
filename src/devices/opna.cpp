@@ -1291,7 +1291,7 @@ bool OPNA::LoadRhythmSample(const char* path) {
     fsize /= 2;
     if (fsize >= 0x100000 || whdr.tag != 1 || whdr.nch != 1)
       break;
-    fsize = std::max(fsize, (1U << 31) / 1024);
+    // fsize = std::max(fsize, (1U << 31) / 1024);
 
     delete rhythm[i].sample;
     rhythm[i].sample = new int16_t[fsize];
