@@ -7,17 +7,11 @@
 #include "pc88/diskmgr.h"
 
 #include <algorithm>
+#include <memory>
 
 #include "common/status.h"
 
 using namespace D88;
-
-// ---------------------------------------------------------------------------
-//  構築・破棄
-//
-DiskImageHolder::DiskImageHolder() {
-  ref = 0;
-}
 
 DiskImageHolder::~DiskImageHolder() {
   Close();
@@ -31,20 +25,20 @@ bool DiskImageHolder::Open(const char* filename, bool ro, bool create) {
   if (Connect(filename))
     return true;
 
-  if (ref > 0)
+  if (ref_ > 0)
     return false;
 
   // ファイルを開く
-  readonly = ro;
+  readonly_ = ro;
 
-  if (readonly || !fio.Open(filename, 0)) {
-    if (fio.Open(filename, FileIO::readonly)) {
-      if (!readonly)
+  if (readonly_ || !fio_.Open(filename, 0)) {
+    if (fio_.Open(filename, FileIO::readonly)) {
+      if (!readonly_)
         g_status_display->Show(100, 3000, "読取専用ファイルです");
-      readonly = true;
+      readonly_ = true;
     } else {
       // 新しいディスクイメージ？
-      if (!create || !fio.Open(filename, FileIO::create)) {
+      if (!create || !fio_.Open(filename, FileIO::create)) {
         g_status_display->Show(80, 3000, "ディスクイメージを開けません");
         return false;
       }
@@ -52,13 +46,13 @@ bool DiskImageHolder::Open(const char* filename, bool ro, bool create) {
   }
 
   // ファイル名を登録
-  strncpy(diskname, filename, MAX_PATH - 1);
-  diskname[MAX_PATH - 1] = 0;
+  strncpy(diskname_, filename, MAX_PATH - 1);
+  diskname_[MAX_PATH - 1] = 0;
 
   if (!ReadHeaders())
     return false;
 
-  ref = 1;
+  ref_ = 1;
   return true;
 }
 
@@ -67,14 +61,14 @@ bool DiskImageHolder::Open(const char* filename, bool ro, bool create) {
 //  type:   2D 0 / 2DD 1 / 2HD 2
 //
 bool DiskImageHolder::AddDisk(const char* title, uint32_t type) {
-  if (ndisks >= max_disks)
+  if (ndisks_ >= kMaxDisks)
     return false;
 
   int32_t diskpos = 0;
-  if (ndisks > 0) {
-    diskpos = disks[ndisks - 1].pos + disks[ndisks - 1].size;
+  if (ndisks_ > 0) {
+    diskpos = disks_[ndisks_ - 1].pos + disks_[ndisks_ - 1].size;
   }
-  DiskInfo& disk = disks[ndisks++];
+  DiskInfo& disk = disks_[ndisks_++];
   disk.pos = diskpos;
   disk.size = sizeof(ImageHeader);
 
@@ -83,9 +77,9 @@ bool DiskImageHolder::AddDisk(const char* title, uint32_t type) {
   strncpy(ih.title, title, 16);
   ih.disktype = type * 0x10;
   ih.disksize = sizeof(ImageHeader);
-  fio.SetLogicalOrigin(0);
-  fio.Seek(diskpos, FileIO::begin);
-  fio.Write(&ih, sizeof(ImageHeader));
+  fio_.SetLogicalOrigin(0);
+  fio_.Seek(diskpos, FileIO::begin);
+  fio_.Write(&ih, sizeof(ImageHeader));
   return true;
 }
 
@@ -93,24 +87,24 @@ bool DiskImageHolder::AddDisk(const char* title, uint32_t type) {
 //  ディスクイメージの情報を得る
 //
 bool DiskImageHolder::ReadHeaders() {
-  fio.SetLogicalOrigin(0);
-  fio.Seek(0, FileIO::end);
-  if (fio.Tellp() == 0) {
+  fio_.SetLogicalOrigin(0);
+  fio_.Seek(0, FileIO::end);
+  if (fio_.Tellp() == 0) {
     // new file
-    ndisks = 0;
+    ndisks_ = 0;
     return true;
   }
 
-  fio.Seek(0, FileIO::begin);
+  fio_.Seek(0, FileIO::begin);
 
   ImageHeader ih;
-  for (ndisks = 0; ndisks < max_disks; ndisks++) {
+  for (ndisks_ = 0; ndisks_ < kMaxDisks; ndisks_++) {
     // ヘッダー読み込み
-    DiskInfo& disk = disks[ndisks];
-    disk.pos = fio.Tellp();
+    DiskInfo& disk = disks_[ndisks_];
+    disk.pos = fio_.Tellp();
 
     // 256+16 は Raw イメージの最小サイズ
-    if (fio.Read(&ih, sizeof(ImageHeader)) < 256 + 16)
+    if (fio_.Read(&ih, sizeof(ImageHeader)) < 256 + 16)
       break;
 
     if (memcmp(ih.title, "M88 RawDiskImage", 16)) {
@@ -122,19 +116,19 @@ bool DiskImageHolder::ReadHeaders() {
       strncpy(disk.title, ih.title, 16);
       disk.title[16] = 0;
       disk.size = ih.disksize;
-      fio.Seek(disk.pos + disk.size, FileIO::begin);
+      fio_.Seek(disk.pos + disk.size, FileIO::begin);
     } else {
-      if (ndisks != 0) {
+      if (ndisks_ != 0) {
         g_status_display->Show(80, 3000, "READER 系ディスクイメージは連結できません");
         return false;
       }
 
       strncpy(disk.title, "(no name)", 16);
-      fio.Seek(0, FileIO::end);
-      disk.size = fio.Tellp() - disk.pos;
+      fio_.Seek(0, FileIO::end);
+      disk.size = fio_.Tellp() - disk.pos;
     }
   }
-  if (!ndisks)
+  if (!ndisks_)
     return false;
 
   return true;
@@ -144,10 +138,10 @@ bool DiskImageHolder::ReadHeaders() {
 //  とじる
 //
 void DiskImageHolder::Close() {
-  fio.Close();
-  ndisks = 0;
-  diskname[0] = 0;
-  ref = 0;
+  fio_.Close();
+  ndisks_ = 0;
+  diskname_[0] = 0;
+  ref_ = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -155,8 +149,8 @@ void DiskImageHolder::Close() {
 //
 bool DiskImageHolder::Connect(const char* filename) {
   // 既に持っているファイルかどうかを確認
-  if (!strnicmp(diskname, filename, MAX_PATH)) {
-    ref++;
+  if (!strnicmp(diskname_, filename, MAX_PATH)) {
+    ref_++;
     return true;
   }
   return false;
@@ -166,7 +160,7 @@ bool DiskImageHolder::Connect(const char* filename) {
 //  Disconnect
 //
 bool DiskImageHolder::Disconnect() {
-  if (--ref <= 0)
+  if (--ref_ <= 0)
     Close();
   return true;
 }
@@ -210,8 +204,8 @@ bool DiskImageHolder::IsValidHeader(ImageHeader& ih) {
 //  GetTitle
 //
 const char* DiskImageHolder::GetTitle(int index) {
-  if (index < ndisks)
-    return disks[index].title;
+  if (index < ndisks_)
+    return disks_[index].title;
   return 0;
 }
 
@@ -219,9 +213,9 @@ const char* DiskImageHolder::GetTitle(int index) {
 //  GetDisk
 //
 FileIO* DiskImageHolder::GetDisk(int index) {
-  if (index < ndisks) {
-    fio.SetLogicalOrigin(disks[index].pos);
-    return &fio;
+  if (index < ndisks_) {
+    fio_.SetLogicalOrigin(disks_[index].pos);
+    return &fio_;
   }
   return 0;
 }
@@ -231,40 +225,38 @@ FileIO* DiskImageHolder::GetDisk(int index) {
 //
 bool DiskImageHolder::SetDiskSize(int index, int newsize) {
   int i;
-  if (index >= ndisks)
+  if (index >= ndisks_)
     return false;
 
-  int32_t sizediff = newsize - disks[index].size;
+  int32_t sizediff = newsize - disks_[index].size;
   if (!sizediff)
     return true;
 
   // 移動させる必要のあるデータのサイズを計算する
   int32_t sizemove = 0;
-  for (i = index + 1; i < ndisks; i++) {
-    sizemove += disks[i].size;
+  for (i = index + 1; i < ndisks_; i++) {
+    sizemove += disks_[i].size;
   }
 
-  fio.SetLogicalOrigin(0);
+  fio_.SetLogicalOrigin(0);
   if (sizemove) {
-    int32_t moveorg = disks[index + 1].pos;
-    uint8_t* data = new uint8_t[sizemove];
+    int32_t moveorg = disks_[index + 1].pos;
+    auto data = std::make_unique<uint8_t[]>(sizemove);
     if (!data)
       return false;
 
-    fio.Seek(moveorg, FileIO::begin);
-    fio.Read(data, sizemove);
-    fio.Seek(moveorg + sizediff, FileIO::begin);
-    fio.Write(data, sizemove);
+    fio_.Seek(moveorg, FileIO::begin);
+    fio_.Read(data.get(), sizemove);
+    fio_.Seek(moveorg + sizediff, FileIO::begin);
+    fio_.Write(data.get(), sizemove);
 
-    delete[] data;
-
-    for (i = index + 1; i < ndisks; i++)
-      disks[i].pos += sizemove;
+    for (i = index + 1; i < ndisks_; i++)
+      disks_[i].pos += sizemove;
   } else {
-    fio.Seek(disks[index].pos + newsize, FileIO::begin);
+    fio_.Seek(disks_[index].pos + newsize, FileIO::begin);
   }
-  fio.SetEndOfFile();
-  disks[index].size = newsize;
+  fio_.SetEndOfFile();
+  disks_[index].size = newsize;
   return true;
 }
 
@@ -272,15 +264,15 @@ bool DiskImageHolder::SetDiskSize(int index, int newsize) {
 //  構築・破棄
 //
 DiskManager::DiskManager() {
-  for (int i = 0; i < max_drives; i++) {
-    drive[i].holder = 0;
-    drive[i].index = -1;
-    drive[i].fdu.Init(this, i);
+  for (int i = 0; i < kMaxDrives; i++) {
+    drive_[i].holder = nullptr;
+    drive_[i].index = -1;
+    drive_[i].fdu.Init(this, i);
   }
 }
 
 DiskManager::~DiskManager() {
-  for (int i = 0; i < max_drives; i++)
+  for (int i = 0; i < kMaxDrives; i++)
     Unmount(i);
 }
 
@@ -288,9 +280,9 @@ DiskManager::~DiskManager() {
 //  初期化
 //
 bool DiskManager::Init() {
-  for (int i = 0; i < max_drives; i++) {
-    drive[i].holder = 0;
-    if (!drive[i].fdu.Init(this, i))
+  for (int i = 0; i < kMaxDrives; i++) {
+    drive_[i].holder = 0;
+    if (!drive_[i].fdu.Init(this, i))
       return false;
   }
   return true;
@@ -301,11 +293,11 @@ bool DiskManager::Init() {
 //  arg:diskname    ディスクイメージのファイルネーム
 //
 bool DiskManager::IsImageOpen(const char* diskname) {
-  CriticalSection::Lock lock(cs);
+  CriticalSection::Lock lock(cs_);
 
-  for (int i = 0; i < max_drives; i++) {
-    if (holder[i].Connect(diskname)) {
-      holder[i].Disconnect();
+  for (auto & i : holder_) {
+    if (i.Connect(diskname)) {
+      i.Disconnect();
       return true;
     }
   }
@@ -324,16 +316,16 @@ bool DiskManager::Mount(uint32_t dr, const char* diskname, bool readonly, int in
 
   Unmount(dr);
 
-  CriticalSection::Lock lock(cs);
+  CriticalSection::Lock lock(cs_);
   // ディスクイメージがすでに hold されているかどうかを確認
-  DiskImageHolder* h = 0;
-  for (i = 0; i < max_drives; i++) {
-    if (holder[i].Connect(diskname)) {
-      h = &holder[i];
+  DiskImageHolder* h = nullptr;
+  for (i = 0; i < kMaxDrives; i++) {
+    if (holder_[i].Connect(diskname)) {
+      h = &holder_[i];
       // これから開くディスクが既に開かれていないことを確認する
       if (index >= 0) {
-        for (uint32_t d = 0; d < max_drives; d++) {
-          if ((d != dr) && (drive[d].holder == h) && (drive[d].index == index)) {
+        for (uint32_t d = 0; d < kMaxDrives; d++) {
+          if ((d != dr) && (drive_[d].holder == h) && (drive_[d].index == index)) {
             index = -1;  // no disk
             g_status_display->Show(90, 3000, "このディスクは使用中です");
             break;
@@ -345,16 +337,16 @@ bool DiskManager::Mount(uint32_t dr, const char* diskname, bool readonly, int in
   }
   if (!h)  // 空いている holder に hold させる
   {
-    for (i = 0; i < max_drives; i++) {
-      if (!holder[i].IsOpen()) {
-        h = &holder[i];
+    for (i = 0; i < kMaxDrives; i++) {
+      if (!holder_[i].IsOpen()) {
+        h = &holder_[i];
         break;
       }
     }
     if (!h || !h->Open(diskname, readonly, create)) {
       if (h)
         h->Disconnect();
-      return 0;
+      return false;
     }
   }
 
@@ -369,20 +361,20 @@ bool DiskManager::Mount(uint32_t dr, const char* diskname, bool readonly, int in
       return false;
     }
   }
-  drive[dr].holder = h;
-  drive[dr].index = index;
-  drive[dr].sizechanged = false;
+  drive_[dr].holder = h;
+  drive_[dr].index = index;
+  drive_[dr].sizechanged = false;
 
   if (fio) {
     fio->Seek(0, FileIO::begin);
-    if (!ReadDiskImage(fio, &drive[dr])) {
+    if (!ReadDiskImage(fio, &drive_[dr])) {
       h->Disconnect();
-      drive[dr].holder = 0;
+      drive_[dr].holder = 0;
       return false;
     }
-    memset(drive[dr].modified, 0, 164);
+    memset(drive_[dr].modified, 0, 164);
 
-    drive[dr].fdu.Mount(&drive[dr].disk);
+    drive_[dr].fdu.Mount(&drive_[dr].disk);
   }
   return true;
 }
@@ -391,11 +383,11 @@ bool DiskManager::Mount(uint32_t dr, const char* diskname, bool readonly, int in
 //  ディスクを取り外す
 //
 bool DiskManager::Unmount(uint32_t dr) {
-  CriticalSection::Lock lock(cs);
+  CriticalSection::Lock lock(cs_);
 
   bool ret = true;
-  Drive& drv = drive[dr];
-  drive[dr].fdu.Unmount();
+  Drive& drv = drive_[dr];
+  drive_[dr].fdu.Unmount();
   if (drv.holder) {
     if (drv.index >= 0) {
       for (int t = 0; t < 164; t++) {
@@ -407,13 +399,13 @@ bool DiskManager::Unmount(uint32_t dr) {
           }
 
           FileIO* fio = drv.holder->GetDisk(drv.index);
-          ret = fio ? WriteDiskImage(fio, &drv) : false;
+          ret = fio != nullptr && WriteDiskImage(fio, &drv);
           break;
         }
       }
     }
     drv.holder->Disconnect();
-    drv.holder = 0;
+    drv.holder = nullptr;
   }
   if (!ret)
     g_status_display->Show(50, 3000, "ディスクの更新に失敗しました");
@@ -702,8 +694,8 @@ bool DiskManager::WriteTrackImage(FileIO* fio, Drive* drv, int t) {
 //  Disk 変更宣言
 //
 void DiskManager::Modified(int dr, int tr) {
-  if (0 <= tr && tr < 164 && !drive[dr].disk.IsReadOnly()) {
-    drive[dr].modified[tr] = true;
+  if (0 <= tr && tr < 164 && !drive_[dr].disk.IsReadOnly()) {
+    drive_[dr].modified[tr] = true;
   }
 }
 
@@ -712,8 +704,8 @@ void DiskManager::Modified(int dr, int tr) {
 //  トラックの位置を変えずに更新できる変更をかきこむ
 //
 void DiskManager::Update() {
-  for (int d = 0; d < max_drives; d++)
-    UpdateDrive(&drive[d]);
+  for (auto & d : drive_)
+    UpdateDrive(&d);
 }
 
 // ---------------------------------------------------------------------------
@@ -723,7 +715,7 @@ void DiskManager::UpdateDrive(Drive* drv) {
   if (!drv->holder || drv->sizechanged)
     return;
 
-  CriticalSection::Lock lock(cs);
+  CriticalSection::Lock lock(cs_);
   int t;
   for (t = 0; t < 164 && !drv->modified[t]; t++)
     ;
@@ -756,8 +748,8 @@ void DiskManager::UpdateDrive(Drive* drv) {
 //  イメージタイトル取得
 //
 const char* DiskManager::GetImageTitle(uint32_t dr, uint32_t index) {
-  if (dr < max_drives && drive[dr].holder) {
-    return drive[dr].holder->GetTitle(index);
+  if (dr < kMaxDrives && drive_[dr].holder) {
+    return drive_[dr].holder->GetTitle(index);
   }
   return 0;
 }
@@ -766,9 +758,9 @@ const char* DiskManager::GetImageTitle(uint32_t dr, uint32_t index) {
 //  イメージの数取得
 //
 uint32_t DiskManager::GetNumDisks(uint32_t dr) {
-  if (dr < max_drives) {
-    if (drive[dr].holder)
-      return drive[dr].holder->GetNumDisks();
+  if (dr < kMaxDrives) {
+    if (drive_[dr].holder)
+      return drive_[dr].holder->GetNumDisks();
   }
   return 0;
 }
@@ -777,9 +769,9 @@ uint32_t DiskManager::GetNumDisks(uint32_t dr) {
 //  現在選択されているディスクの番号を取得
 //
 int DiskManager::GetCurrentDisk(uint32_t dr) {
-  if (dr < max_drives) {
-    if (drive[dr].holder)
-      return drive[dr].index;
+  if (dr < kMaxDrives) {
+    if (drive_[dr].holder)
+      return drive_[dr].index;
   }
   return -1;
 }
@@ -792,8 +784,8 @@ int DiskManager::GetCurrentDisk(uint32_t dr) {
 //                  00 = 2D, 01 = 2DD, 10 = 2HD
 //
 bool DiskManager::AddDisk(uint32_t dr, const char* title, uint32_t type) {
-  if (dr < max_drives) {
-    if (drive[dr].holder && drive[dr].holder->AddDisk(title, type))
+  if (dr < kMaxDrives) {
+    if (drive_[dr].holder && drive_[dr].holder->AddDisk(title, type))
       return true;
   }
   return false;
@@ -804,16 +796,16 @@ bool DiskManager::AddDisk(uint32_t dr, const char* title, uint32_t type) {
 //  豪快な方法で(^^;
 //
 bool DiskManager::FormatDisk(uint32_t dr) {
-  if (!drive[dr].holder || drive[dr].disk.GetType() != FloppyDisk::MD2D)
+  if (!drive_[dr].holder || drive_[dr].disk.GetType() != FloppyDisk::MD2D)
     return false;
   //  g_status_display->Show(10, 5000, "Format drive : %d", dr);
 
-  uint8_t* buf = new uint8_t[80 * 16 * 256];
+  auto buf = std::make_unique<uint8_t[]>(80 * 16 * 256);
   if (!buf)
     return false;
 
   // フォーマット
-  memset(buf, 0xff, 80 * 16 * 256);
+  memset(buf.get(), 0xff, 80 * 16 * 256);
   // IPL
   buf[0] = 0xc9;
   // ID
@@ -828,10 +820,10 @@ bool DiskManager::FormatDisk(uint32_t dr) {
   buf[0x25f4b] = 0xfe;
 
   // 書き込み
-  FloppyDisk& disk = drive[dr].disk;
+  FloppyDisk& disk = drive_[dr].disk;
   FloppyDisk::IDR id;
   id.n = 1;
-  uint8_t* dest = buf;
+  uint8_t* dest = buf.get();
 
   for (int t = 0; t < 80; t++) {
     id.c = t / 2, id.h = t & 1;
@@ -851,8 +843,7 @@ bool DiskManager::FormatDisk(uint32_t dr) {
       dest += 256;
     }
   }
-  drive->sizechanged = true;
-  drive->modified[0] = true;
-  delete[] buf;
+  drive_->sizechanged = true;
+  drive_->modified[0] = true;
   return true;
 }
