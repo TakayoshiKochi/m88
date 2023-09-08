@@ -23,7 +23,7 @@ class Config;
 class Sound : public Device, public ISoundControl, protected SoundSourceL {
  public:
   Sound();
-  ~Sound();
+  ~Sound() override;
 
   bool Init(PC88* pc, uint32_t rate, int bufsize);
   void Cleanup();
@@ -33,26 +33,28 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
 
   void IOCALL UpdateCounter(uint32_t);
 
-  bool IFCALL Connect(ISoundSource* src);
-  bool IFCALL Disconnect(ISoundSource* src);
-  bool IFCALL Update(ISoundSource* src = 0);
-  int IFCALL GetSubsampleTime(ISoundSource* src);
+  // Overrides ISoundControl
+  bool IFCALL Connect(ISoundSource* src) override;
+  bool IFCALL Disconnect(ISoundSource* src) override;
+  bool IFCALL Update(ISoundSource* src) override;
+  int IFCALL GetSubsampleTime(ISoundSource* src) override;
 
-  void FillWhenEmpty(bool f) { soundbuf.FillWhenEmpty(f); }
+  // void FillWhenEmpty(bool f) { soundbuf.FillWhenEmpty(f); }
 
-  SoundSource* GetSoundSource() { return &soundbuf; }
+  SoundSource* GetSoundSource() { return &soundbuf_; }
 
   int Get(Sample* dest, int size);
-  int Get(SampleL* dest, int size);
-  uint32_t GetRate() { return mixrate; }
-  int GetChannels() { return 2; }
 
-  int GetAvail() { return INT_MAX; }
+  // Overrides SoundSourceL
+  int Get(SampleL* dest, int size) override;
+  uint32_t GetRate() override { return mix_rate_; }
+  int GetChannels() override { return 2; }
+  int GetAvail() override { return INT_MAX; }
 
  protected:
-  uint32_t mixrate;
-  uint32_t samplingrate;  // サンプリングレート
-  uint32_t rate50;        // samplingrate / 50
+  uint32_t mix_rate_ = 0;
+  uint32_t sampling_rate_  = 0;  // サンプリングレート
+  uint32_t rate50_ = 0;        // samplingrate / 50
 
  private:
   struct SSNode {
@@ -60,23 +62,22 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
     SSNode* next;
   };
 
-  //  SoundBuffer2 soundbuf;
-  SamplingRateConverter soundbuf;
+  SamplingRateConverter soundbuf_;
 
-  PC88* pc;
+  PC88* pc_ = nullptr;
 
-  int32_t* mixingbuf;
-  int buffersize;
+  int32_t* mixing_buf_ = nullptr;
+  int buffer_size_ = 0;
 
-  uint32_t prevtime;
-  uint32_t cfgflg;
-  int tdiff;
-  uint32_t mixthreshold;
+  uint32_t prev_time_ = 0;
+  // uint32_t cfgflg = 0;
+  int tdiff_ = 0;
+  uint32_t mix_threshold_ = 0;
 
-  bool enabled;
+  bool enabled_ = false;
 
-  SSNode* sslist;
-  CriticalSection cs_ss;
+  SSNode* sslist_ = nullptr;
+  CriticalSection cs_ss_;
 };
 
 }  // namespace PC8801
