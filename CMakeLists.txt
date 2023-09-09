@@ -56,17 +56,15 @@ target_include_directories(common
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+add_executable(common_unittests
+        src/common/device_test.cc
+        src/common/scheduler_test.cc)
+
+target_link_libraries(common_unittests
+        PUBLIC gtest gtest_main
+        common)
+
 add_library(devices ${LIB_TYPE}
-        src/devices/fmgen.h
-        src/devices/fmgen.cpp
-        src/devices/fmtimer.h
-        src/devices/fmtimer.cpp
-        src/devices/opm.h
-        src/devices/opm.cpp
-        src/devices/opna.h
-        src/devices/opna.cpp
-        src/devices/psg.h
-        src/devices/psg.cpp
         src/devices/z80.h
         src/devices/z80c.cpp
         src/devices/z80diag.h
@@ -76,7 +74,34 @@ target_include_directories(devices
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
-add_library(pc88 ${LIB_TYPE}
+add_executable(devices_unittests
+        src/devices/fmgen_test.cc
+        src/devices/fmtimer_test.cc
+        src/devices/opna_test.cc
+        src/devices/psg_test.cc
+        src/devices/z80c_test.cc)
+
+target_link_libraries(devices_unittests
+        PUBLIC gtest gtest_main
+        common devices fmgen)
+
+add_library(fmgen ${LIB_TYPE}
+        src/devices/fmgen.h
+        src/devices/fmgen.cpp
+        src/devices/fmtimer.h
+        src/devices/fmtimer.cpp
+        src/devices/opm.h
+        src/devices/opm.cpp
+        src/devices/opna.h
+        src/devices/opna.cpp
+        src/devices/psg.h
+        src/devices/psg.cpp)
+
+target_include_directories(fmgen
+        PUBLIC ${CMAKE_SOURCE_DIR}/src
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+add_library(pc88core ${LIB_TYPE}
         src/pc88/base.h
         src/pc88/base.cpp
         src/pc88/beep.h
@@ -85,8 +110,6 @@ add_library(pc88 ${LIB_TYPE}
         src/pc88/calendar.cpp
         src/pc88/crtc.h
         src/pc88/crtc.cpp
-        src/pc88/diskmgr.h
-        src/pc88/diskmgr.cpp
         src/pc88/fdc.h
         src/pc88/fdc.cpp
         src/pc88/fdu.h
@@ -95,20 +118,14 @@ add_library(pc88 ${LIB_TYPE}
         src/pc88/floppy.cpp
         src/pc88/intc.h
         src/pc88/intc.cpp
-        src/pc88/ioview.h
-        src/pc88/ioview.cpp
         src/pc88/joypad.h
         src/pc88/joypad.cpp
         src/pc88/kanjirom.h
         src/pc88/kanjirom.cpp
         src/pc88/memory.h
         src/pc88/memory.cpp
-        src/pc88/memview.h
-        src/pc88/memview.cpp
         src/pc88/mouse.h
         src/pc88/mouse.cpp
-        src/pc88/opnif.h
-        src/pc88/opnif.cpp
         src/pc88/pc88.h
         src/pc88/pc88.cpp
         src/pc88/pd8257.h
@@ -122,34 +139,13 @@ add_library(pc88 ${LIB_TYPE}
         src/pc88/sound.h
         src/pc88/sound.cpp
         src/pc88/subsys.h
-        src/pc88/subsys.cpp
-        src/pc88/tapemgr.h
-        src/pc88/tapemgr.cpp)
+        src/pc88/subsys.cpp)
 
-target_include_directories(pc88
+target_include_directories(pc88core
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
-add_executable(common_unittests
-        src/common/device_test.cc
-        src/common/scheduler_test.cc)
-
-target_link_libraries(common_unittests
-        PUBLIC gtest gtest_main
-        common)
-
-add_executable(devices_unittests
-        src/devices/fmgen_test.cc
-        src/devices/fmtimer_test.cc
-        src/devices/opna_test.cc
-        src/devices/psg_test.cc
-        src/devices/z80c_test.cc)
-
-target_link_libraries(devices_unittests
-        PUBLIC gtest gtest_main
-        common devices)
-
-add_executable(pc88_unittests
+add_executable(pc88core_unittests
         src/pc88/base_test.cc
         src/pc88/beep_test.cc
         src/pc88/calendar_test.cc
@@ -157,9 +153,25 @@ add_executable(pc88_unittests
         src/pc88/crtc_test.cc
         src/pc88/pc88_test.cc)
 
-target_link_libraries(pc88_unittests
+target_link_libraries(pc88core_unittests
         PUBLIC gtest gtest_main
-        common devices pc88)
+        common devices fmgen pc88core pc88shell)
+
+add_library(pc88shell ${LIB_TYPE}
+        src/pc88/diskmgr.h
+        src/pc88/diskmgr.cpp
+        src/pc88/ioview.h
+        src/pc88/ioview.cpp
+        src/pc88/memview.h
+        src/pc88/memview.cpp
+        src/pc88/opnif.h
+        src/pc88/opnif.cpp
+        src/pc88/tapemgr.h
+        src/pc88/tapemgr.cpp)
+
+target_include_directories(pc88shell
+        PUBLIC ${CMAKE_SOURCE_DIR}/src
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
 add_library(win32 ${LIB_TYPE}
         src/win32/88config.h
@@ -225,6 +237,13 @@ target_include_directories(win32
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+add_executable(win32_unittests
+        src/pc88/pc88_test.cc)
+
+target_link_libraries(win32_unittests
+        PUBLIC gtest gtest_main
+        common devices fmgen pc88core pc88shell win32)
+
 add_library(win32mon ${LIB_TYPE}
         src/win32/basmon.h
         src/win32/basmon.cpp
@@ -249,6 +268,13 @@ target_include_directories(win32mon
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+add_executable(win32mon_unittests
+        src/pc88/pc88_test.cc)
+
+target_link_libraries(win32mon_unittests
+        PUBLIC gtest gtest_main
+        common devices fmgen pc88core pc88shell win32 win32mon)
+
 add_library(romeo ${LIB_TYPE}
         src/piccolo/piioctl.h
         src/win32/romeo/c86ctl.h
@@ -263,24 +289,6 @@ add_library(romeo ${LIB_TYPE}
 target_include_directories(romeo
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
-
-target_include_directories(win32
-        PUBLIC ${CMAKE_SOURCE_DIR}/src
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
-
-add_executable(win32_unittests
-        src/pc88/pc88_test.cc)
-
-target_link_libraries(win32_unittests
-        PUBLIC gtest gtest_main
-        common devices pc88 win32)
-
-add_executable(win32mon_unittests
-        src/pc88/pc88_test.cc)
-
-target_link_libraries(win32mon_unittests
-        PUBLIC gtest gtest_main
-        common devices pc88 win32 win32mon)
 
 add_library(zlib ${LIB_TYPE}
         src/zlib/adler32.c
@@ -307,7 +315,7 @@ add_executable(m88 WIN32
         src/win32/main.cpp)
 
 target_link_libraries(m88
-        common devices pc88 win32 win32mon romeo zlib
+        common devices fmgen pc88core pc88shell win32 win32mon romeo zlib
         winmm.lib
         comctl32.lib
         d2d1.lib)
@@ -328,6 +336,8 @@ add_library(cdif ${LIB_TYPE}
         cdif/src/guid.cpp
         cdif/src/moduleif.cpp
         cdif/src/resource.h)
+
+# modules
 
 target_include_directories(cdif
         PUBLIC ${CMAKE_SOURCE_DIR}
@@ -377,6 +387,8 @@ target_include_directories(sample2
 
 target_link_libraries(sample2
         common devices)
+
+# tools
 
 add_executable(writetag
         tools/writetag.cpp)
