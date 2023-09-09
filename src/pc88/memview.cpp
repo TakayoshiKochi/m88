@@ -14,27 +14,25 @@ using namespace PC8801;
 // ----------------------------------------------------------------------------
 //
 //
-MemoryViewer::MemoryViewer() {
-  mem1 = 0;
-}
+MemoryViewer::MemoryViewer() = default;
 
-MemoryViewer::~MemoryViewer() {}
+MemoryViewer::~MemoryViewer() = default;
 
 // ----------------------------------------------------------------------------
 //
 //
 bool MemoryViewer::Init(PC88* _pc) {
-  if (!bus.Init(0x10000 >> MemoryBus::pagebits))
+  if (!bus_.Init(0x10000 >> MemoryBus::pagebits))
     return false;
-  pc = _pc;
-  mem1 = pc->GetMem1();
-  mem2 = pc->GetMem2();
-  z80 = 0;
+  pc_ = _pc;
+  mem1_ = pc_->GetMem1();
+  mem2_ = pc_->GetMem2();
+  z80_ = nullptr;
 #ifdef Z80C_STATISTICSS
   stat = 0;
 #endif
 
-  SelectBank(mainram, mainram, mainram, mainram, mainram);
+  SelectBank(kMainRam, kMainRam, kMainRam, kMainRam, kMainRam);
   return true;
 }
 
@@ -43,90 +41,90 @@ bool MemoryViewer::Init(PC88* _pc) {
 //
 void MemoryViewer::SelectBank(Type a0, Type a6, Type a8, Type ac, Type af) {
   uint8_t* p;
-  bank[0] = a0;
-  bank[2] = a8;
-  bank[3] = ac;
-  bank[4] = af;
+  bank_[0] = a0;
+  bank_[2] = a8;
+  bank_[3] = ac;
+  bank_[4] = af;
 
-  if (a0 != sub) {
-    z80 = pc->GetCPU1();
+  if (a0 != kSub) {
+    z80_ = pc_->GetCPU1();
     // a0
     switch (a0) {
-      case n88rom:
-        p = mem1->GetROM() + Memory::n88;
+      case kN88Rom:
+        p = mem1_->GetROM() + Memory::n88;
         break;
-      case nrom:
-        p = mem1->GetROM() + Memory::n80;
+      case kNRom:
+        p = mem1_->GetROM() + Memory::n80;
         break;
-      case eram0:
-        p = mem1->GetERAM(0);
+      case kERam0:
+        p = mem1_->GetERAM(0);
         break;
-      case eram1:
-        p = mem1->GetERAM(1);
+      case kERam1:
+        p = mem1_->GetERAM(1);
         break;
-      case eram2:
-        p = mem1->GetERAM(2);
+      case kERam2:
+        p = mem1_->GetERAM(2);
         break;
-      case eram3:
-        p = mem1->GetERAM(3);
+      case kERam3:
+        p = mem1_->GetERAM(3);
         break;
       default:
-        p = mem1->GetRAM();
+        p = mem1_->GetRAM();
         break;
     }
-    bus.SetMemorys(0x0000, 0x6000, p);
+    bus_.SetMemorys(0x0000, 0x6000, p);
     // a6
-    bank[1] = a6;
+    bank_[1] = a6;
     switch (a6) {
-      case n88rom:
-        p = mem1->GetROM() + Memory::n88 + 0x6000;
+      case kN88Rom:
+        p = mem1_->GetROM() + Memory::n88 + 0x6000;
         break;
-      case nrom:
-        p = mem1->GetROM() + Memory::n80 + 0x6000;
+      case kNRom:
+        p = mem1_->GetROM() + Memory::n80 + 0x6000;
         break;
-      case n88e0:
-      case n88e1:
-      case n88e2:
-      case n88e3:
-        p = mem1->GetROM() + Memory::n88e + (a6 - n88e0) * 0x2000;
+      case kN88E0:
+      case kN88E1:
+      case kN88E2:
+      case kN88E3:
+        p = mem1_->GetROM() + Memory::n88e + (a6 - kN88E0) * 0x2000;
         break;
-      case eram0:
-        p = mem1->GetERAM(0) + 0x6000;
+      case kERam0:
+        p = mem1_->GetERAM(0) + 0x6000;
         break;
-      case eram1:
-        p = mem1->GetERAM(1) + 0x6000;
+      case kERam1:
+        p = mem1_->GetERAM(1) + 0x6000;
         break;
-      case eram2:
-        p = mem1->GetERAM(2) + 0x6000;
+      case kERam2:
+        p = mem1_->GetERAM(2) + 0x6000;
         break;
-      case eram3:
-        p = mem1->GetERAM(3) + 0x6000;
+      case kERam3:
+        p = mem1_->GetERAM(3) + 0x6000;
         break;
       default:
-        p = mem1->GetRAM() + 0x6000;
+        p = mem1_->GetRAM() + 0x6000;
         break;
     }
-    bus.SetMemorys(0x6000, 0x2000, p);
+    bus_.SetMemorys(0x6000, 0x2000, p);
   } else {
-    bank[1] = sub;
-    z80 = pc->GetCPU2();
-    bus.SetMemorys(0x0000, 0x2000, mem2->GetROM());
-    bus.SetMemorys(0x2000, 0x2000, mem2->GetROM());
-    bus.SetMemorys(0x4000, 0x4000, mem2->GetRAM());
+    bank_[1] = kSub;
+    z80_ = pc_->GetCPU2();
+    bus_.SetMemorys(0x0000, 0x2000, mem2_->GetROM());
+    bus_.SetMemorys(0x2000, 0x2000, mem2_->GetROM());
+    bus_.SetMemorys(0x4000, 0x4000, mem2_->GetRAM());
   }
 #ifdef Z80C_STATISTICS
-  stat = z80->GetStatistics();
+  stat_ = z80_->GetStatistics();
 #endif
-  bus.SetMemorys(0x8000, 0x7000, mem1->GetRAM() + 0x8000);
+  bus_.SetMemorys(0x8000, 0x7000, mem1_->GetRAM() + 0x8000);
   //  bus.SetMemorys(0xc000, 0x3000, mem1->GetRAM()+0xc000);
   // af
   switch (af) {
-    case tvram:
-      p = mem1->GetTVRAM();
+    case kTVRam:
+      p = mem1_->GetTVRAM();
       break;
     default:
-      p = mem1->GetRAM() + 0xf000;
+      p = mem1_->GetRAM() + 0xf000;
       break;
   }
-  bus.SetMemorys(0xf000, 0x1000, p);
+  bus_.SetMemorys(0xf000, 0x1000, p);
 }

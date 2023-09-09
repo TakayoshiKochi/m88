@@ -27,8 +27,8 @@ class SIO : public Device {
   };
 
  public:
-  SIO(const ID& id);
-  ~SIO();
+  explicit SIO(const ID& id);
+  ~SIO() override;
   bool Init(IOBus* bus, uint32_t prxrdy, uint32_t prequest);
 
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
@@ -39,17 +39,17 @@ class SIO : public Device {
 
   void IOCALL AcceptData(uint32_t, uint32_t);
 
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* s);
-  bool IFCALL LoadStatus(const uint8_t* s);
-
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  // Overrides Device
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* s) override;
+  bool IFCALL LoadStatus(const uint8_t* s) override;
 
  private:
-  enum Mode { clear = 0, async, sync1, sync2, sync };
-  enum Parity { none = 'N', odd = 'O', even = 'E' };
+  enum class Mode { kClear = 0, kAsync, kSync1, kSync2, kSync };
+  enum class Parity { kNone = 'N', kOdd = 'O', kEven = 'E' };
 
-  IOBus* bus;
+  IOBus* bus_;
   uint32_t prxrdy;
   uint32_t prequest;
 
@@ -82,7 +82,7 @@ class SIO : public Device {
     bool rxen;
     bool txen;
 
-    uint32_t baseclock;
+    uint32_t base_clock_;
     uint32_t clock;
     uint32_t datalen;
     uint32_t stop;

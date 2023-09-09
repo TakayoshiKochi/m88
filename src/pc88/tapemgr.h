@@ -11,10 +11,6 @@
 #include "devices/psg.h"
 #include "common/scheduler.h"
 
-// ---------------------------------------------------------------------------
-//
-//
-
 class IOBus;
 
 class TapeManager : public Device {
@@ -26,7 +22,7 @@ class TapeManager : public Device {
   };
 
   TapeManager();
-  ~TapeManager();
+  ~TapeManager() override;
 
   bool Init(Scheduler* s, IOBus* bus, int pin);
 
@@ -34,7 +30,7 @@ class TapeManager : public Device {
   bool Close();
   bool Rewind(bool timer = true);
 
-  bool IsOpen() { return !!tags; }
+  bool IsOpen() { return !!tags_; }
 
   bool Motor(bool on);
   bool Carrier();
@@ -42,17 +38,17 @@ class TapeManager : public Device {
   bool Seek(uint32_t pos, uint32_t offset);
   uint32_t GetPos();
 
-  uint32_t ReadByte();
+  // uint32_t ReadByte();
   void IOCALL RequestData(uint32_t = 0, uint32_t = 0);
 
   void IOCALL Out30(uint32_t, uint32_t en);
   uint32_t IOCALL In40(uint32_t);
 
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* status);
-  bool IFCALL LoadStatus(const uint8_t* status);
-
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  // Overrides Device
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
 
  private:
   enum {
@@ -101,24 +97,24 @@ class TapeManager : public Device {
   void Send(uint32_t);
   void SetTimer(int t);
 
-  Scheduler* scheduler;
-  SchedulerEvent* event;
-  Tag* tags;
-  Tag* pos;
-  int offset;
-  uint32_t tick;
-  Mode mode;
-  uint32_t time;  // motor on: タイマー開始時間
-  uint32_t timercount;
-  uint32_t timerremain;  // タイマー残り
-  bool motor;
+  Scheduler* scheduler_ = nullptr;
+  SchedulerEvent* event_ = nullptr;
+  Tag* tags_ = nullptr;
+  Tag* pos_ = nullptr;
+  int offset_ = 0;
+  uint32_t tick_ = 0;
+  Mode mode_ = T_BLANK;
+  uint32_t time_ = 0;  // motor on: タイマー開始時間
+  uint32_t timer_count_ = 0;
+  uint32_t timer_remain_ = 0;  // タイマー残り
+  bool motor_ = false;
 
-  IOBus* bus;
-  int pinput;
+  IOBus* bus_ = nullptr;
+  int pinput_ = false;
 
-  uint8_t* data;
-  int datasize;
-  int datatype;
+  uint8_t* data_ = nullptr;
+  int data_size_ = 0;
+  int data_type_ = 0;
 
  private:
   static const Descriptor descriptor;

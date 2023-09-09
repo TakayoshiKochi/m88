@@ -37,11 +37,11 @@ struct SectorHeader {
 class DiskImageHolder {
  public:
   enum {
-    max_disks = 64,
+    kMaxDisks = 64,
   };
 
  public:
-  DiskImageHolder();
+  DiskImageHolder() = default;
   ~DiskImageHolder();
 
   bool Open(const char* filename, bool readonly, bool create);
@@ -50,10 +50,10 @@ class DiskImageHolder {
 
   const char* GetTitle(int index);
   FileIO* GetDisk(int index);
-  uint32_t GetNumDisks() { return ndisks; }
+  [[nodiscard]] uint32_t GetNumDisks() const { return ndisks_; }
   bool SetDiskSize(int index, int newsize);
-  bool IsReadOnly() { return readonly; }
-  uint32_t IsOpen() { return ref > 0; }
+  [[nodiscard]] bool IsReadOnly() const { return readonly_; }
+  [[nodiscard]] uint32_t IsOpen() const { return ref_ > 0; }
   bool AddDisk(const char* title, uint32_t type);
 
  private:
@@ -66,12 +66,12 @@ class DiskImageHolder {
   void Close();
   bool IsValidHeader(D88::ImageHeader&);
 
-  FileIODummy fio;
-  int ndisks;
-  int ref;
-  bool readonly;
-  DiskInfo disks[max_disks];
-  char diskname[MAX_PATH];
+  FileIODummy fio_;
+  int ndisks_;
+  int ref_ = 0;
+  bool readonly_;
+  DiskInfo disks_[kMaxDisks];
+  char diskname_[MAX_PATH];
 };
 
 // ---------------------------------------------------------------------------
@@ -79,7 +79,7 @@ class DiskImageHolder {
 class DiskManager {
  public:
   enum {
-    max_drives = 2,
+    kMaxDrives = 2,
   };
 
  public:
@@ -99,9 +99,9 @@ class DiskManager {
   void Update();
 
   void Modified(int drive = -1, int track = -1);
-  CriticalSection& GetCS() { return cs; }
+  CriticalSection& GetCS() { return cs_; }
 
-  PC8801::FDU* GetFDU(int dr) { return dr < max_drives ? &drive[dr].fdu : 0; }
+  PC8801::FDU* GetFDU(int dr) { return dr < kMaxDrives ? &drive_[dr].fdu : 0; }
 
  private:
   struct Drive {
@@ -123,8 +123,8 @@ class DiskManager {
   uint32_t GetDiskImageSize(Drive* drive);
   void UpdateDrive(Drive* drive);
 
-  DiskImageHolder holder[max_drives];
-  Drive drive[max_drives];
+  DiskImageHolder holder_[kMaxDrives];
+  Drive drive_[kMaxDrives];
 
-  CriticalSection cs;
+  CriticalSection cs_;
 };

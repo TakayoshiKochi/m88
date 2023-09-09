@@ -25,29 +25,29 @@ namespace PC8801 {
 class MemoryViewer {
  public:
   enum Type {
-    mainram = Memory::mRAM,
-    eram0 = Memory::mERAM,
-    eram1 = Memory::mERAM + 1,
-    eram2 = Memory::mERAM + 2,
-    eram3 = Memory::mERAM + 3,
-    n88rom = Memory::mN88,
-    nrom = Memory::mN,
-    n88e0 = Memory::mN88E0,
-    n88e1 = Memory::mN88E1,
-    n88e2 = Memory::mN88E2,
-    n88e3 = Memory::mN88E3,
-    gvram0 = Memory::mG0,
-    gvram1 = Memory::mG1,
-    gvram2 = Memory::mG2,
-    tvram = Memory::mTV,
-    sub = -1
+    kMainRam = Memory::mRAM,
+    kERam0 = Memory::mERAM,
+    kERam1 = Memory::mERAM + 1,
+    kERam2 = Memory::mERAM + 2,
+    kERam3 = Memory::mERAM + 3,
+    kN88Rom = Memory::mN88,
+    kNRom = Memory::mN,
+    kN88E0 = Memory::mN88E0,
+    kN88E1 = Memory::mN88E1,
+    kN88E2 = Memory::mN88E2,
+    kN88E3 = Memory::mN88E3,
+    kGVRam0 = Memory::mG0,
+    kGVRam1 = Memory::mG1,
+    kGVRam2 = Memory::mG2,
+    kTVRam = Memory::mTV,
+    kSub = -1
   };
 
   MemoryViewer();
   ~MemoryViewer();
 
   bool Init(PC88* pc);
-  MemoryBus* GetBus() { return &bus; }
+  MemoryBus* GetBus() { return &bus_; }
   void SelectBank(Type a0, Type a6, Type a8, Type ac, Type af);
 
   void StatClear();
@@ -57,47 +57,47 @@ class MemoryViewer {
   uint32_t GetCurrentBank(uint32_t addr);
 
  private:
-  Memory* mem1;
-  SubSystem* mem2;
-  MemoryBus bus;
+  Memory* mem1_ = nullptr;
+  SubSystem* mem2_ = nullptr;
+  MemoryBus bus_;
 
-  PC88* pc;
-  PC88::Z80* z80;
+  PC88* pc_ = nullptr;
+  PC88::Z80* z80_ = nullptr;
 
-  Type bank[5];
+  Type bank_[5];
 
  protected:
 #ifdef Z80C_STATISTICS
-  Z80C::Statistics* stat;
+  Z80C::Statistics* stat_ = nullptr;
 #endif
 };
 
 inline uint32_t MemoryViewer::GetCurrentBank(uint32_t addr) {
   static const int ref[16] = {0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4};
-  return bank[ref[addr >> 12]];
+  return bank_[ref[addr >> 12]];
 }
 
 inline void MemoryViewer::StatClear() {
 #ifdef Z80C_STATISTICS
-  if (stat)
-    stat->Clear();
+  if (stat_)
+    stat_->Clear();
 #endif
 }
 
 inline uint32_t MemoryViewer::StatExec(uint32_t pc) {
 #ifdef Z80C_STATISTICS
-  if (stat)
-    return stat->execute[pc];
+  if (stat_)
+    return stat_->execute[pc];
 #endif
   return 0;
 }
 
 inline uint32_t* MemoryViewer::StatExecBuf() {
 #ifdef Z80C_STATISTICS
-  if (stat)
-    return stat->execute;
+  if (stat_)
+    return stat_->execute;
 #endif
-  return 0;
+  return nullptr;
 }
 
 };  // namespace PC8801

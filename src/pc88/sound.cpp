@@ -22,7 +22,7 @@ using namespace PC8801;
 // ---------------------------------------------------------------------------
 //  生成・破棄
 //
-Sound::Sound() : Device(0), sslist(0), mixingbuf(0), enabled(false), cfgflg(0) {}
+Sound::Sound() : Device(0) {}
 
 Sound::~Sound() {
   Cleanup();
@@ -32,10 +32,10 @@ Sound::~Sound() {
 //  初期化とか
 //
 bool Sound::Init(PC88* pc88, uint32_t rate, int bufsize) {
-  pc = pc88;
-  prevtime = pc->GetCPUTick();
-  enabled = false;
-  mixthreshold = 16;
+  pc_ = pc88;
+  prev_time_ = pc_->GetCPUTick();
+  enabled_ = false;
+  mix_threshold_ = 16;
 
   if (!SetRate(rate, bufsize))
     return false;
@@ -51,35 +51,35 @@ bool Sound::Init(PC88* pc88, uint32_t rate, int bufsize) {
 //  bufsize:    バッファ長 (サンプル単位?)
 //
 bool Sound::SetRate(uint32_t rate, int bufsize) {
-  mixrate = 55467;
+  mix_rate_ = 55467;
 
   // 各音源のレート設定を変更
-  for (SSNode* n = sslist; n; n = n->next)
-    n->ss->SetRate(mixrate);
+  for (SSNode* n = sslist_; n; n = n->next)
+    n->ss->SetRate(mix_rate_);
 
-  enabled = false;
+  enabled_ = false;
 
   // 古いバッファを削除
-  soundbuf.Cleanup();
-  delete[] mixingbuf;
-  mixingbuf = 0;
+  soundbuf_.Cleanup();
+  delete[] mixing_buf_;
+  mixing_buf_ = 0;
 
   // 新しいバッファを用意
-  samplingrate = rate;
-  buffersize = bufsize;
+  sampling_rate_ = rate;
+  buffer_size_ = bufsize;
   if (bufsize > 0) {
     //      if (!soundbuf.Init(this, bufsize))
     //          return false;
-    if (!soundbuf.Init(this, bufsize, rate))
+    if (!soundbuf_.Init(this, bufsize, rate))
       return false;
 
-    mixingbuf = new int32_t[2 * bufsize];
-    if (!mixingbuf)
+    mixing_buf_ = new int32_t[2 * bufsize];
+    if (!mixing_buf_)
       return false;
 
-    rate50 = mixrate / 50;
-    tdiff = 0;
-    enabled = true;
+    rate50_ = mix_rate_ / 50;
+    tdiff_ = 0;
+    enabled_ = true;
   }
   return true;
 }
@@ -89,34 +89,34 @@ bool Sound::SetRate(uint32_t rate, int bufsize) {
 //
 void Sound::Cleanup() {
   // 各音源を切り離す。(音源自体の削除は行わない)
-  for (SSNode* n = sslist; n;) {
+  for (SSNode* n = sslist_; n;) {
     SSNode* next = n->next;
     delete[] n;
     n = next;
   }
-  sslist = 0;
+  sslist_ = nullptr;
 
   // バッファを開放
-  soundbuf.Cleanup();
-  delete[] mixingbuf;
-  mixingbuf = 0;
+  soundbuf_.Cleanup();
+  delete[] mixing_buf_;
+  mixing_buf_ = nullptr;
 }
 
 // ---------------------------------------------------------------------------
 //  音合成
 //
 int Sound::Get(Sample* dest, int nsamples) {
-  int mixsamples = std::min(nsamples, buffersize);
+  int mixsamples = std::min(nsamples, buffer_size_);
   if (mixsamples > 0) {
     // 合成
     {
-      memset(mixingbuf, 0, mixsamples * 2 * sizeof(int32_t));
-      CriticalSection::Lock lock(cs_ss);
-      for (SSNode* s = sslist; s; s = s->next)
-        s->ss->Mix(mixingbuf, mixsamples);
+      memset(mixing_buf_, 0, mixsamples * 2 * sizeof(int32_t));
+      CriticalSection::Lock lock(cs_ss_);
+      for (SSNode* s = sslist_; s; s = s->next)
+        s->ss->Mix(mixing_buf_, mixsamples);
     }
 
-    int32_t* src = mixingbuf;
+    int32_t* src = mixing_buf_;
     for (int n = mixsamples; n > 0; n--) {
       *dest++ = Limit(*src++, 32767, -32768);
       *dest++ = Limit(*src++, 32767, -32768);
@@ -131,8 +131,8 @@ int Sound::Get(Sample* dest, int nsamples) {
 int Sound::Get(SampleL* dest, int nsamples) {
   // 合成
   memset(dest, 0, nsamples * 2 * sizeof(int32_t));
-  CriticalSection::Lock lock(cs_ss);
-  for (SSNode* s = sslist; s; s = s->next)
+  CriticalSection::Lock lock(cs_ss_);
+  for (SSNode* s = sslist_; s; s = s->next)
     s->ss->Mix(dest, nsamples);
   return nsamples;
 }
@@ -141,7 +141,7 @@ int Sound::Get(SampleL* dest, int nsamples) {
 //  設定更新
 //
 void Sound::ApplyConfig(const Config* config) {
-  mixthreshold = (config->flags & Config::kPreciseMixing) ? 100 : 2000;
+  mix_threshold_ = (config->flags & Config::kPreciseMixing) ? 100 : 2000;
 }
 
 // ---------------------------------------------------------------------------
@@ -153,24 +153,24 @@ void Sound::ApplyConfig(const Config* config) {
 //  ret:    S_OK, E_FAIL, E_OUTOFMEMORY
 //
 bool Sound::Connect(ISoundSource* ss) {
-  CriticalSection::Lock lock(cs_ss);
+  CriticalSection::Lock lock(cs_ss_);
 
   // 音源は既に登録済みか？;
   SSNode** n;
-  for (n = &sslist; *n; n = &((*n)->next)) {
+  for (n = &sslist_; *n; n = &((*n)->next)) {
     if ((*n)->ss == ss)
       return false;
   }
 
-  SSNode* nn = new SSNode;
-  if (nn) {
-    *n = nn;
-    nn->next = 0;
-    nn->ss = ss;
-    ss->SetRate(mixrate);
-    return true;
-  }
-  return false;
+  auto* nn = new SSNode;
+  if (!nn)
+    return false;
+
+  *n = nn;
+  nn->next = 0;
+  nn->ss = ss;
+  ss->SetRate(mix_rate_);
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -180,9 +180,9 @@ bool Sound::Connect(ISoundSource* ss) {
 //  ret:    S_OK, E_HANDLE
 //
 bool Sound::Disconnect(ISoundSource* ss) {
-  CriticalSection::Lock lock(cs_ss);
+  CriticalSection::Lock lock(cs_ss_);
 
-  for (SSNode** r = &sslist; *r; r = &((*r)->next)) {
+  for (SSNode** r = &sslist_; *r; r = &((*r)->next)) {
     if ((*r)->ss == ss) {
       SSNode* d = *r;
       *r = d->next;
@@ -202,23 +202,23 @@ bool Sound::Disconnect(ISoundSource* ss) {
 //  arg:    src     更新する音源を指定(今の実装では無視されます)
 //
 bool Sound::Update(ISoundSource* /*src*/) {
-  uint32_t currenttime = pc->GetCPUTick();
+  uint32_t currenttime = pc_->GetCPUTick();
 
-  uint32_t time = currenttime - prevtime;
-  if (enabled && time > mixthreshold) {
-    prevtime = currenttime;
+  uint32_t time = currenttime - prev_time_;
+  if (enabled_ && time > mix_threshold_) {
+    prev_time_ = currenttime;
     // nsamples = 経過時間(s) * サンプリングレート
     // sample = ticks * rate / clock / 100000
     // sample = ticks * (rate/50) / clock / 2000
 
     // MulDiv(a, b, c) = (int64) a * b / c
-    int a = MulDiv(time, rate50, pc->GetEffectiveSpeed()) + tdiff;
+    int a = MulDiv(time, rate50_, pc_->GetEffectiveSpeed()) + tdiff_;
     //      a = MulDiv(a, mixrate, samplingrate);
     int samples = a / 2000;
-    tdiff = a % 2000;
+    tdiff_ = a % 2000;
 
     Log("Store = %5d samples\n", samples);
-    soundbuf.Fill(samples);
+    soundbuf_.Fill(samples);
   }
   return true;
 }
@@ -227,14 +227,14 @@ bool Sound::Update(ISoundSource* /*src*/) {
 //  今まで合成された時間の，1サンプル未満の端数(0-1999)を求める
 //
 int IFCALL Sound::GetSubsampleTime(ISoundSource* /*src*/) {
-  return tdiff;
+  return tdiff_;
 }
 
 // ---------------------------------------------------------------------------
 //  定期的に内部カウンタを更新
 //
 void IOCALL Sound::UpdateCounter(uint32_t) {
-  if ((pc->GetCPUTick() - prevtime) > 40000) {
+  if ((pc_->GetCPUTick() - prev_time_) > 40000) {
     Log("Update Counter\n");
     Update(0);
   }

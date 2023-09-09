@@ -12,7 +12,7 @@ class MockScheduler : public Scheduler {
 
  private:
   int Execute(int ticks) override { return ticks; };
-  void Shorten(int ticks) override {};
+  void Shorten(int ticks) override{};
   int GetTicks() override { return 0; }
 };
 

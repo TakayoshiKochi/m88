@@ -7,6 +7,7 @@
 #include "pc88/tapemgr.h"
 
 #include <algorithm>
+#include <memory>
 
 #include "common/io_bus.h"
 #include "common/file.h"
@@ -20,16 +21,7 @@
 // ---------------------------------------------------------------------------
 //  構築
 //
-TapeManager::TapeManager() : Device(DEV_ID('T', 'A', 'P', 'E')), tags(0), scheduler(0), event(0) {
-  datasize = 0;
-  datatype = 0;
-  pinput = 0;
-  pos = 0;
-  bus = 0;
-  offset = 0;
-  mode = T_BLANK;
-  motor = false;
-}
+TapeManager::TapeManager() : Device(DEV_ID('T', 'A', 'P', 'E')) {}
 
 // ---------------------------------------------------------------------------
 //  破棄
@@ -42,14 +34,14 @@ TapeManager::~TapeManager() {
 //  初期化
 //
 bool TapeManager::Init(Scheduler* s, IOBus* b, int pi) {
-  scheduler = s;
-  bus = b;
-  pinput = pi;
+  scheduler_ = s;
+  bus_ = b;
+  pinput_ = pi;
 
-  motor = false;
-  timercount = 0;
-  timerremain = 0;
-  tick = 0;
+  motor_ = false;
+  timer_count_ = 0;
+  timer_remain_ = 0;
+  tick_ = 0;
   return true;
 }
 
@@ -70,7 +62,7 @@ bool TapeManager::Open(const char* file) {
     return false;
 
   // タグのリスト構造を展開
-  Tag* prv = 0;
+  Tag* prv = nullptr;
   do {
     TagHdr hdr;
     fio.Read(&hdr, 4);
@@ -82,8 +74,8 @@ bool TapeManager::Open(const char* file) {
     }
 
     tag->prev = prv;
-    tag->next = 0;
-    (prv ? prv->next : tags) = tag;
+    tag->next = nullptr;
+    (prv ? prv->next : tags_) = tag;
     tag->id = hdr.id;
     tag->length = hdr.length;
     fio.Read(tag->data, tag->length);
@@ -99,12 +91,12 @@ bool TapeManager::Open(const char* file) {
 //  とじる
 //
 bool TapeManager::Close() {
-  if (scheduler)
+  if (scheduler_)
     SetTimer(0);
-  while (tags) {
-    Tag* n = tags->next;
-    delete[] tags;
-    tags = n;
+  while (tags_) {
+    Tag* n = tags_->next;
+    delete[] tags_;
+    tags_ = n;
   }
   return true;
 }
@@ -113,17 +105,17 @@ bool TapeManager::Close() {
 //  まきもどす
 //
 bool TapeManager::Rewind(bool timer) {
-  pos = tags;
-  scheduler->DelEvent(event), event = 0;
-  if (pos) {
-    tick = 0;
+  pos_ = tags_;
+  scheduler_->DelEvent(event_), event_ = 0;
+  if (pos_) {
+    tick_ = 0;
 
     // バージョン確認
     // 最初のタグはバージョンタグになるはず？
-    if (pos->id != T_VERSION || pos->length < 2 || *(uint16_t*)pos->data != T88VER)
+    if (pos_->id != T_VERSION || pos_->length < 2 || *(uint16_t*)pos_->data != T88VER)
       return false;
 
-    pos = pos->next;
+    pos_ = pos_->next;
     Proceed(timer);
   }
   return true;
@@ -133,23 +125,23 @@ bool TapeManager::Rewind(bool timer) {
 //  モータ
 //
 bool TapeManager::Motor(bool s) {
-  if (motor == s)
+  if (motor_ == s)
     return true;
   if (s) {
-    g_status_display->Show(10, 2000, "Motor on: %d %d", timerremain, timercount);
-    time = scheduler->GetTime();
-    if (timerremain)
-      event = scheduler->AddEvent(timercount * 125 / 6, this,
+    g_status_display->Show(10, 2000, "Motor on: %d %d", timer_remain_, timer_count_);
+    time_ = scheduler_->GetTime();
+    if (timer_remain_)
+      event_ = scheduler_->AddEvent(timer_count_ * 125 / 6, this,
                                   static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
-    motor = true;
+    motor_ = true;
   } else {
-    if (timercount) {
-      int td = (scheduler->GetTime() - time) * 6 / 125;
-      timerremain = std::max(10U, timerremain - td);
-      scheduler->DelEvent(event), event = 0;
-      g_status_display->Show(10, 2000, "Motor off: %d %d", timerremain, timercount);
+    if (timer_count_) {
+      int td = (scheduler_->GetTime() - time_) * 6 / 125;
+      timer_remain_ = std::max(10U, timer_remain_ - td);
+      scheduler_->DelEvent(event_), event_ = 0;
+      g_status_display->Show(10, 2000, "Motor off: %d %d", timer_remain_, timer_count_);
     }
-    motor = false;
+    motor_ = false;
   }
   return true;
 }
@@ -157,13 +149,13 @@ bool TapeManager::Motor(bool s) {
 // ---------------------------------------------------------------------------
 
 uint32_t TapeManager::GetPos() {
-  if (motor) {
-    if (timercount)
-      return tick + (scheduler->GetTime() - time) * 6 / 125;
+  if (motor_) {
+    if (timer_count_)
+      return tick_ + (scheduler_->GetTime() - time_) * 6 / 125;
     else
-      return tick;
+      return tick_;
   } else {
-    return tick + timercount - timerremain;
+    return tick_ + timer_count_ - timer_remain_;
   }
 }
 
@@ -171,55 +163,55 @@ uint32_t TapeManager::GetPos() {
 //  タグを処理
 //
 void TapeManager::Proceed(bool timer) {
-  while (pos) {
-    Log("TAG %d\n", pos->id);
-    switch (pos->id) {
+  while (pos_) {
+    Log("TAG %d\n", pos_->id);
+    switch (pos_->id) {
       case T_END:
-        mode = T_BLANK;
-        pos = 0;
-        g_status_display->Show(50, 0, "end of tape", tick);
-        timercount = 0;
+        mode_ = T_BLANK;
+        pos_ = nullptr;
+        g_status_display->Show(50, 0, "end of tape", tick_);
+        timer_count_ = 0;
         return;
 
       case T_BLANK:
       case T_SPACE:
       case T_MARK: {
-        BlankTag* t = (BlankTag*)pos->data;
-        mode = (Mode)pos->id;
+        BlankTag* t = (BlankTag*)pos_->data;
+        mode_ = (Mode)pos_->id;
 
-        if (t->pos + t->tick - tick <= 0)
+        if (t->pos + t->tick - tick_ <= 0)
           break;
 
         if (timer)
-          SetTimer(t->pos + t->tick - tick);
+          SetTimer(t->pos + t->tick - tick_);
         else
-          timercount = t->pos + t->tick - tick;
+          timer_count_ = t->pos + t->tick - tick_;
 
-        pos = pos->next;
+        pos_ = pos_->next;
         return;
       }
 
       case T_DATA: {
-        DataTag* t = (DataTag*)pos->data;
-        mode = T_DATA;
+        DataTag* t = (DataTag*)pos_->data;
+        mode_ = T_DATA;
 
-        data = t->data;
-        datasize = t->length;
-        datatype = t->type;
-        offset = 0;
+        data_ = t->data;
+        data_size_ = t->length;
+        data_type_ = t->type;
+        offset_ = 0;
 
-        if (!datasize)
+        if (!data_size_)
           break;
 
-        pos = pos->next;
+        pos_ = pos_->next;
         if (timer)
-          SetTimer(datatype & 0x100 ? 44 : 88);
+          SetTimer(data_type_ & 0x100 ? 44 : 88);
         else
-          timercount = t->tick;
+          timer_count_ = t->tick;
         return;
       }
     }
-    pos = pos->next;
+    pos_ = pos_->next;
   }
 }
 
@@ -227,14 +219,14 @@ void TapeManager::Proceed(bool timer) {
 //
 //
 void IOCALL TapeManager::Timer(uint32_t) {
-  tick += timercount;
-  g_status_display->Show(50, 0, "tape: %d", tick);
+  tick_ += timer_count_;
+  g_status_display->Show(50, 0, "tape: %d", tick_);
 
-  if (mode == T_DATA) {
-    Send(*data++);
-    offset++;
-    if (--datasize > 0) {
-      SetTimer(datatype & 0x100 ? 44 : 88);
+  if (mode_ == T_DATA) {
+    Send(*data_++);
+    offset_++;
+    if (--data_size_ > 0) {
+      SetTimer(data_type_ & 0x100 ? 44 : 88);
       return;
     }
     Log("\n");
@@ -246,7 +238,7 @@ void IOCALL TapeManager::Timer(uint32_t) {
 //  キャリア確認
 //
 bool TapeManager::Carrier() {
-  if (mode == T_MARK) {
+  if (mode_ == T_MARK) {
     Log("*");
     return true;
   }
@@ -259,15 +251,15 @@ bool TapeManager::Carrier() {
 void TapeManager::SetTimer(int count) {
   if (count > 100)
     Log("Timer: %d\n", count);
-  scheduler->DelEvent(event), event = 0;
-  timercount = count;
-  if (motor) {
-    time = scheduler->GetTime();
+  scheduler_->DelEvent(event_), event_ = nullptr;
+  timer_count_ = count;
+  if (motor_) {
+    time_ = scheduler_->GetTime();
     if (count)  // 100000/4800
-      event = scheduler->AddEvent(count * 125 / 6, this, static_cast<TimeFunc>(&TapeManager::Timer),
+      event_ = scheduler_->AddEvent(count * 125 / 6, this, static_cast<TimeFunc>(&TapeManager::Timer),
                                   0, false);
   } else
-    timerremain = count;
+    timer_remain_ = count;
 }
 
 // ---------------------------------------------------------------------------
@@ -275,15 +267,15 @@ void TapeManager::SetTimer(int count) {
 //
 inline void TapeManager::Send(uint32_t byte) {
   Log("%.2x ", byte);
-  bus->Out(pinput, byte);
+  bus_->Out(pinput_, byte);
 }
 
 // ---------------------------------------------------------------------------
 //  即座にデータを要求する
 //
 void TapeManager::RequestData(uint32_t, uint32_t) {
-  if (mode == T_DATA) {
-    scheduler->SetEvent(event, 1, this, static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
+  if (mode_ == T_DATA) {
+    scheduler_->SetEvent(event_, 1, this, static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
   }
 }
 
@@ -294,32 +286,32 @@ bool TapeManager::Seek(uint32_t newpos, uint32_t off) {
   if (!Rewind(false))
     return false;
 
-  while (pos && (tick + timercount) < newpos) {
-    tick += timercount;
+  while (pos_ && (tick_ + timer_count_) < newpos) {
+    tick_ += timer_count_;
     Proceed(false);
   }
-  if (!pos)
+  if (!pos_)
     return false;
 
-  switch (pos->prev->id) {
+  switch (pos_->prev->id) {
     int l;
 
     case T_BLANK:
     case T_SPACE:
     case T_MARK:
-      mode = (Mode)pos->prev->id;
-      l = tick + timercount - newpos;
-      tick = newpos;
+      mode_ = (Mode)pos_->prev->id;
+      l = tick_ + timer_count_ - newpos;
+      tick_ = newpos;
       SetTimer(l);
       break;
 
     case T_DATA:
-      mode = T_DATA;
-      offset = off;
-      newpos = tick + offset * (datatype ? 44 : 88);
-      data += offset;
-      datasize -= offset;
-      SetTimer(datatype ? 44 : 88);
+      mode_ = T_DATA;
+      offset_ = off;
+      newpos = tick_ + offset_ * (data_type_ ? 44 : 88);
+      data_ += offset_;
+      data_size_ -= offset_;
+      SetTimer(data_type_ ? 44 : 88);
       break;
 
     default:
@@ -348,9 +340,9 @@ uint32_t IFCALL TapeManager::GetStatusSize() {
 bool IFCALL TapeManager::SaveStatus(uint8_t* s) {
   Status* status = (Status*)s;
   status->rev = ssrev;
-  status->motor = motor;
+  status->motor = motor_;
   status->pos = GetPos();
-  status->offset = offset;
+  status->offset = offset_;
   g_status_display->Show(0, 1000, "tapesave: %d", status->pos);
   return true;
 }
@@ -359,7 +351,7 @@ bool IFCALL TapeManager::LoadStatus(const uint8_t* s) {
   const Status* status = (const Status*)s;
   if (status->rev != ssrev)
     return false;
-  motor = status->motor;
+  motor_ = status->motor;
   Seek(status->pos, status->offset);
   g_status_display->Show(0, 1000, "tapesave: %d", GetPos());
   return true;
@@ -371,10 +363,10 @@ bool IFCALL TapeManager::LoadStatus(const uint8_t* s) {
 const Device::Descriptor TapeManager::descriptor = {TapeManager::indef, TapeManager::outdef};
 
 const Device::OutFuncPtr TapeManager::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&RequestData),
-    static_cast<Device::OutFuncPtr>(&Out30),
+    static_cast<Device::OutFuncPtr>(&TapeManager::RequestData),
+    static_cast<Device::OutFuncPtr>(&TapeManager::Out30),
 };
 
 const Device::InFuncPtr TapeManager::indef[] = {
-    static_cast<Device::InFuncPtr>(&In40),
+    static_cast<Device::InFuncPtr>(&TapeManager::In40),
 };

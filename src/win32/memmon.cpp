@@ -78,7 +78,7 @@ void MemoryMonitor::SetWatch(uint32_t addr, uint32_t range) {
 
 void MemoryMonitor::Start() {
   core->Lock();
-  if (GetA0() == MemoryViewer::sub) {
+  if (GetA0() == MemoryViewer::kSub) {
     mm = (IMemoryManager*)core->QueryIF(M88IID_MemoryManager2);
   } else {
     mm = (IMemoryManager*)core->QueryIF(M88IID_MemoryManager1);
