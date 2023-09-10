@@ -158,7 +158,7 @@ uint32_t IOCALL PD8257::GetCount(uint32_t p) {
 // ---------------------------------------------------------------------------
 //  ステータスを取得
 //
-inline uint32_t IOCALL PD8257::GetStatus (uint32_t) {
+inline uint32_t IOCALL PD8257::GetStatus(uint32_t) {
   //  stat.ff = false;
   return stat_.status;
 }

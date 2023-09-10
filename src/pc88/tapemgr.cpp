@@ -132,7 +132,7 @@ bool TapeManager::Motor(bool s) {
     time_ = scheduler_->GetTime();
     if (timer_remain_)
       event_ = scheduler_->AddEvent(timer_count_ * 125 / 6, this,
-                                  static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
+                                    static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
     motor_ = true;
   } else {
     if (timer_count_) {
@@ -256,8 +256,8 @@ void TapeManager::SetTimer(int count) {
   if (motor_) {
     time_ = scheduler_->GetTime();
     if (count)  // 100000/4800
-      event_ = scheduler_->AddEvent(count * 125 / 6, this, static_cast<TimeFunc>(&TapeManager::Timer),
-                                  0, false);
+      event_ = scheduler_->AddEvent(count * 125 / 6, this,
+                                    static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
   } else
     timer_remain_ = count;
 }

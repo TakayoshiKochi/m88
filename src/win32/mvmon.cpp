@@ -122,7 +122,8 @@ BOOL MemViewMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
       HMENU hmenu = (HMENU)wp;
       CheckMenuItem(hmenu, IDM_MEM_0_RAM,
                     (a0 == MemoryViewer::kMainRam) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_0_N88, (a0 == MemoryViewer::kN88Rom) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_0_N88,
+                    (a0 == MemoryViewer::kN88Rom) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_N, (a0 == MemoryViewer::kNRom) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_ERAM0,
                     (a0 == MemoryViewer::kERam0) ? MF_CHECKED : MF_UNCHECKED);
@@ -133,7 +134,8 @@ BOOL MemViewMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
       CheckMenuItem(hmenu, IDM_MEM_0_ERAM3,
                     (a0 == MemoryViewer::kERam3) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_SUB, (a0 == MemoryViewer::kSub) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_N88, (a6 == MemoryViewer::kN88Rom) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_N88,
+                    (a6 == MemoryViewer::kN88Rom) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_E0, (a6 == MemoryViewer::kN88E0) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_E1, (a6 == MemoryViewer::kN88E1) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_E2, (a6 == MemoryViewer::kN88E2) ? MF_CHECKED : MF_UNCHECKED);

@@ -295,7 +295,7 @@ bool DiskManager::Init() {
 bool DiskManager::IsImageOpen(const char* diskname) {
   CriticalSection::Lock lock(cs_);
 
-  for (auto & i : holder_) {
+  for (auto& i : holder_) {
     if (i.Connect(diskname)) {
       i.Disconnect();
       return true;
@@ -704,7 +704,7 @@ void DiskManager::Modified(int dr, int tr) {
 //  トラックの位置を変えずに更新できる変更をかきこむ
 //
 void DiskManager::Update() {
-  for (auto & d : drive_)
+  for (auto& d : drive_)
     UpdateDrive(&d);
 }
 

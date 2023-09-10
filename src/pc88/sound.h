@@ -53,8 +53,8 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
 
  protected:
   uint32_t mix_rate_ = 0;
-  uint32_t sampling_rate_  = 0;  // サンプリングレート
-  uint32_t rate50_ = 0;        // samplingrate / 50
+  uint32_t sampling_rate_ = 0;  // サンプリングレート
+  uint32_t rate50_ = 0;         // samplingrate / 50
 
  private:
   struct SSNode {
