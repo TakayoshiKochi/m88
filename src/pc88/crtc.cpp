@@ -24,6 +24,13 @@
 
 using namespace PC8801;
 
+namespace {
+
+const packed kColorPattern[8] = {PACK(0), PACK(1), PACK(2), PACK(3),
+                                 PACK(4), PACK(5), PACK(6), PACK(7)};
+
+}  // namespace
+
 // ---------------------------------------------------------------------------
 //  CRTC 部の機能
 //  ・VSYNC 割り込み管理
@@ -63,14 +70,8 @@ using namespace PC8801;
 #define TEXT_SETP PACK(TEXT_SET)
 #define TEXT_RESP PACK(TEXT_RES)
 
-// ---------------------------------------------------------------------------
-// 構築/消滅
-//
 CRTC::CRTC(const ID& id) : Device(id) {}
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
 bool CRTC::Init(IOBus* bus, Scheduler* sched, PD8257* dmac) {
   bus_ = bus;
   scheduler_ = sched;
@@ -99,7 +100,7 @@ bool CRTC::Init(IOBus* bus, Scheduler* sched, PD8257* dmac) {
   attrcache_ = vram_ptr_[1] + 0x1e00;
 
   bank_ = 0;
-  mode_ = 0;
+  flags_ = 0;
   column_ = 0;
   SetTextMode(true);
   EnablePCG(true);
@@ -150,7 +151,7 @@ void CRTC::HotReset() {
   line_time_ = line200_ ? int(6.258 * 8) : int(4.028 * 16);
   v_retrace_ = line200_ ? 7 : 3;
 
-  mode_ = kClear | kResize;
+  flags_ = kClear | kResize;
 
   pcount[0] = 0;
   pcount[1] = 0;
@@ -170,7 +171,7 @@ void CRTC::SetTextMode(bool color) {
     pat_rev_ = PACK(0x10);
     pat_mask_ = ~PACK(0x1f);
   }
-  mode_ |= kRefresh;
+  SetFlag(kRefresh);
 }
 
 // ---------------------------------------------------------------------------
@@ -185,7 +186,7 @@ void CRTC::SetTextSize(bool wide) {
 //  コマンド処理
 //
 uint32_t CRTC::Command(bool a0, uint32_t data) {
-  static const uint32_t modetbl[8] = {
+  static const uint32_t flag_table[8] = {
       kEnable | kControl | kAttribute,           // transparent b/w
       kEnable,                                   // no attribute
       kEnable | kColor | kControl | kAttribute,  // transparent color
@@ -215,7 +216,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
         case 0:
           status_ = 0;  // 1
           attr_ = 7 << 5;
-          mode_ |= kClear;
+          SetFlag(kClear);
           pcount[1] = 0;
           break;
 
@@ -241,7 +242,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
 
           line_time_ = (line200_ ? int(6.258 * 1024) : int(4.028 * 1024)) * lines_per_char_ / 1024;
           if (data & 0x80)
-            mode_ |= kSkipline;
+            SetFlag(kSkipline);
           if (line200_)
             lines_per_char_ *= 2;
 
@@ -259,17 +260,17 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
         //  b0-b4   １行あたりのアトリビュート数 - 1
         //  b5-b7   テキスト画面モード
         case 5:
-          mode_ &= ~(kEnable | kColor | kControl | kAttribute | kNonTransparent);
-          mode_ |= modetbl[(data >> 5) & 7];
-          attr_per_line_ = mode_ & kAttribute ? (data & 0x1f) + 1 : 0;
+          ResetFlag(kEnable | kColor | kControl | kAttribute | kNonTransparent);
+          SetFlag(flag_table[(data >> 5) & 7]);
+          attr_per_line_ = IsSet(kAttribute) ? (data & 0x1f) + 1 : 0;
           if (attr_per_line_ + width_ > 120)
-            mode_ &= ~kEnable;
+            ResetFlag(kEnable);
 
           //          screenwidth = 640;
           screen_height_ = std::min(400U, lines_per_char_ * height_);
           Log("\nscrn=(640, %d), vrtc = %d, linetime = %d0 us, frametime0 = %d us\n",
               screen_height_, v_retrace_, line_time_, line_time_ * (height_ + v_retrace_));
-          mode_ |= kResize;
+          SetFlag(kResize);
           break;
       }
       break;
@@ -282,11 +283,11 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
         param1_ = data;
 
         line_size_ = width_ + attr_per_line_ * 2;
-        int tvramsize = (mode_ & kSkipline ? (height_ + 1) / 2 : height_) * line_size_;
+        int tvramsize = (IsSet(kSkipline) ? (height_ + 1) / 2 : height_) * line_size_;
 
         Log("[%.2x]", status_);
-        mode_ = (mode_ & ~kInverse) | (data & 1 ? kInverse : 0);
-        if (mode_ & kEnable) {
+        flags_ = (flags_ & ~kInverse) | (data & 1 ? kInverse : 0);
+        if (IsSet(kEnable)) {
           if (!(status_ & 0x10)) {
             status_ |= 0x10;
             scheduler_->DelEvent(sev_);
@@ -297,14 +298,14 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
         } else
           status_ &= ~0x10;
 
-        Log(" Start Display [%.2x;%.3x;%2d] vrtc %d  tvram size = %.4x ", status_, mode_, width_,
+        Log(" Start Display [%.2x;%.3x;%2d] vrtc %d  tvram size = %.4x ", status_, flags_, width_,
             v_retrace_, tvramsize);
       }
       break;
 
     case 2:  // SET INTERRUPT MASK
       if (!(data & 1)) {
-        mode_ |= kClear;
+        SetFlag(kClear);
         status_ = 0;
       }
       break;
@@ -332,7 +333,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
       break;
 
     case 6:             // RESET COUNTERS
-      mode_ |= kClear;  // タイミングによっては
+      SetFlag(kClear);  // タイミングによっては
       status_ = 0;      // 消えないこともあるかも？
       break;
 
@@ -373,20 +374,20 @@ bool CRTC::LoadFontFile() {
 //  src     フォント ROM
 //
 void CRTC::CreateTFont() {
-  CreateTFont(fontrom_.get(), 0, 0xa0);
+  CreateTFontSub(fontrom_.get(), 0, 0xa0);
   CreateKanaFont();
-  CreateTFont(fontrom_.get() + 8 * 0xe0, 0xe0, 0x20);
+  CreateTFontSub(fontrom_.get() + 8 * 0xe0, 0xe0, 0x20);
 }
 
 void CRTC::CreateKanaFont() {
   if (kana_enable_ && cg80rom_) {
-    CreateTFont(cg80rom_.get() + 0x800 * (kana_mode_ >> 4), 0x00, 0x100);
+    CreateTFontSub(cg80rom_.get() + 0x800 * (kana_mode_ >> 4), 0x00, 0x100);
   } else {
-    CreateTFont(fontrom_.get() + 8 * 0xa0, 0xa0, 0x40);
+    CreateTFontSub(fontrom_.get() + 8 * 0xa0, 0xa0, 0x40);
   }
 }
 
-void CRTC::CreateTFont(const uint8_t* src, int idx, int num) {
+void CRTC::CreateTFontSub(const uint8_t* src, int idx, int num) {
   uint8_t* dest = &font_[64 * idx];
   uint8_t* destw = &font_[0x8000 + 128 * idx];
 
@@ -411,7 +412,7 @@ void CRTC::ModifyFont(uint32_t off, uint32_t d) {
     *destw++ = b;
     *destw++ = b;
   }
-  mode_ |= kRefresh;
+  SetFlag(kRefresh);
 }
 
 // ---------------------------------------------------------------------------
@@ -446,7 +447,7 @@ void CRTC::CreateGFont() {
 void IOCALL CRTC::StartDisplay(uint32_t) {
   sev_ = 0;
   column_ = 0;
-  mode_ &= ~kSuppressDisplay;
+  ResetFlag(kSuppressDisplay);
   //  Log("DisplayStart\n");
   bus_->Out(PC88::kVrtc, 0);
   if (++frame_time_ > blink_rate_)
@@ -476,19 +477,19 @@ void IOCALL CRTC::ExpandLine(uint32_t) {
 int CRTC::ExpandLineSub() {
   uint8_t* dest;
   dest = vram_ptr_[bank_] + line_size_ * column_;
-  if (!(mode_ & kSkipline) || !(column_ & 1)) {
+  if (!IsSet(kSkipline) || !(column_ & 1)) {
     if (status_ & 0x10) {
       if (line_size_ > dmac_->RequestRead(kDMABank, dest, line_size_)) {
         // DMA アンダーラン
-        mode_ = (mode_ & ~(kEnable)) | kClear;
+        flags_ = (flags_ & ~(kEnable)) | kClear;
         status_ = (status_ & ~0x10) | 0x08;
         memset(dest, 0, line_size_);
         Log("DMA underrun\n");
       } else {
-        if (mode_ & kSuppressDisplay)
+        if (IsSet(kSuppressDisplay))
           memset(dest, 0, line_size_);
 
-        if (mode_ & kControl) {
+        if (IsSet(kControl)) {
           bool docontrol = false;
 #if 0  // XXX: 要検証
                     for (int i=1; i<=attrperline; i++)
@@ -513,7 +514,7 @@ int CRTC::ExpandLineSub() {
               }
             }
             if (sc & 2)
-              mode_ |= kSuppressDisplay;
+              SetFlag(kSuppressDisplay);
           }
         }
       }
@@ -532,35 +533,30 @@ inline void IOCALL CRTC::ExpandLineEnd(uint32_t) {
 }
 
 // ---------------------------------------------------------------------------
-//  画面サイズ変更の必要があれば変更
-//
-void CRTC::SetSize() {}
-
-// ---------------------------------------------------------------------------
 //  画面をイメージに展開する
 //  region  更新領域
 //
 void CRTC::UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool ref) {
   bpl_ = bpl;
   Log("UpdateScreen:");
-  if (mode_ & kClear) {
+  if (IsSet(kClear)) {
     Log(" clear\n");
-    mode_ &= ~(kClear | kRefresh);
+    ResetFlag(kClear | kRefresh);
     ClearText(image);
     region.Update(0, screen_height_);
     return;
   }
-  if (mode_ & kResize) {
+  if (IsSet(kResize)) {
     Log(" resize");
     // 仮想画面自体の大きさを変えてしまうのが理想的だが，
     // 色々面倒なので実際はテキストマスクを貼る
-    mode_ &= ~kResize;
-    //      draw->Resize(screenwidth, screenheight);
+    ResetFlag(kResize);
+    // draw->Resize(screenwidth, screenheight);
     ref = true;
   }
-  if ((mode_ & kRefresh) || ref) {
+  if (IsSet(kRefresh) || ref) {
     Log(" refresh");
-    mode_ &= ~kRefresh;
+    ResetFlag(kRefresh);
     ClearText(image);
   }
 
@@ -608,7 +604,7 @@ void CRTC::ClearText(uint8_t* dest) {
     dest += bpl_;
   }
 
-  packed pat0 = colorpattern[0] | TEXT_SETP;
+  packed pat0 = kColorPattern[0] | TEXT_SETP;
   for (; y < 400; ++y) {
     packed* d = reinterpret_cast<packed*>(dest);
     packed mask = pat_mask_;
@@ -652,7 +648,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
   int right = -1;
 
   for (int y = 0; y <= yy; ++y, image += linestep) {
-    if (!(mode_ & kSkipline) || !(y & 1)) {
+    if (!IsSet(kSkipline) || !(y & 1)) {
       attr_ &= ~(kOverline | kUnderline);
       ExpandAttributes(attrflag, src + width_, y);
 
@@ -661,7 +657,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
         for (uint32_t x = 0; x < width_; x += 2) {
           uint8_t a = attrflag[x];
           if ((src[x] ^ cache[x]) | (a ^ cache_attr[x])) {
-            pat_col_ = colorpattern[(a >> 5) & 7];
+            pat_col_ = kColorPattern[(a >> 5) & 7];
             cache_attr[x] = a;
             rightl = x + 1;
             if (x < left)
@@ -674,7 +670,7 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
           uint8_t a = attrflag[x];
           //                  Log("%.2x ", a);
           if ((src[x] ^ cache[x]) | (a ^ cache_attr[x])) {
-            pat_col_ = colorpattern[(a >> 5) & 7];
+            pat_col_ = kColorPattern[(a >> 5) & 7];
             cache_attr[x] = a;
             rightl = x;
             if (x < left)
@@ -740,42 +736,28 @@ void CRTC::ExpandAttributes(uint8_t* dest, const uint8_t* src, uint32_t y) {
 //  アトリビュートコードを内部のフラグに変換
 //
 void CRTC::ChangeAttr(uint8_t code) {
-  if (mode_ & kColor) {
+  if (IsSet(kColor)) {
     if (code & 0x8) {
       attr_ = (attr_ & 0x0f) | (code & 0xf0);
       //          attr ^= mode & inverse;
     } else {
       attr_ = (attr_ & 0xf0) | ((code >> 2) & 0xd) | ((code & 1) << 1);
-      attr_ ^= mode_ & kInverse;
+      attr_ ^= flags_ & kInverse;
       attr_ ^= ((code & 2) && !(code & 1)) ? attr_blink_ : 0;
     }
   } else {
     attr_ = 0xe0 | ((code >> 2) & 0x0d) | ((code & 1) << 1) | ((code & 0x80) >> 3);
-    attr_ ^= mode_ & kInverse;
+    attr_ ^= flags_ & kInverse;
     attr_ ^= ((code & 2) && !(code & 1)) ? attr_blink_ : 0;
   }
-}
-
-// ---------------------------------------------------------------------------
-//  フォントのアドレスを取得
-//
-inline const uint8_t* CRTC::GetFont(uint32_t c) {
-  return &font_[c * 64];
-}
-
-// ---------------------------------------------------------------------------
-//  フォント(40文字)のアドレスを取得
-//
-inline const uint8_t* CRTC::GetFontW(uint32_t c) {
-  return &font_[0x8000 + c * 128];
 }
 
 // ---------------------------------------------------------------------------
 //  テキスト表示
 //
 inline void CRTC::PutChar(packed* dest, uint8_t ch, uint8_t attr) {
-  const packed* src = (const packed*)GetFont(((attr << 4) & 0x100) + (attr & kSecret ? 0 : ch));
-
+  const auto* src =
+      reinterpret_cast<const packed*>(GetFont(((attr << 4) & 0x100) + (attr & kSecret ? 0 : ch)));
   if (attr & kReverse)
     PutReversed(dest, src), PutLineReversed(dest, attr);
   else
@@ -1014,7 +996,7 @@ void CRTC::EnablePCG(bool enable) {
   pcg_enable_ = enable;
   if (!pcg_enable_) {
     CreateTFont();
-    mode_ |= kRefresh;
+    SetFlag(kRefresh);
   } else {
     for (int i = 0; i < 0x400; ++i)
       ModifyFont(0x400 + i, pcgram_[i]);
@@ -1036,34 +1018,22 @@ void IOCALL CRTC::SetKanaMode(uint32_t, uint32_t data) {
   if (data != kana_mode_) {
     kana_mode_ = data;
     CreateKanaFont();
-    mode_ |= kRefresh;
+    SetFlag(kRefresh);
   }
 }
 
-// ---------------------------------------------------------------------------
-//  apply config
-//
 void CRTC::ApplyConfig(const Config* cfg) {
   kana_enable_ = cfg->basicmode == BasicMode::kN80V2;
   EnablePCG((cfg->flags & Config::kEnablePCG) != 0);
 }
 
 // ---------------------------------------------------------------------------
-//  table
-//
-const packed CRTC::colorpattern[8] = {PACK(0), PACK(1), PACK(2), PACK(3),
-                                      PACK(4), PACK(5), PACK(6), PACK(7)};
-
-// ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL CRTC::GetStatusSize() {
-  return sizeof(Status);
-}
 
 bool IFCALL CRTC::SaveStatus(uint8_t* s) {
   Log("*** Save Status\n");
-  Status* st = (Status*)s;
+  auto* st = reinterpret_cast<Status*>(s);
 
   st->rev = ssrev;
   st->cmdm = cmdm_;
@@ -1076,7 +1046,8 @@ bool IFCALL CRTC::SaveStatus(uint8_t* s) {
   st->cursor_t = cursor_type;
   st->attr = attr_;
   st->column = column_;
-  st->mode = mode_;
+  // Note: uint32_t -> uint8_t narrowing
+  st->flags = flags_;
   st->status = status_;
   st->event = event_;
   st->color = (pat_rev_ == PACK(0x08));
@@ -1088,18 +1059,19 @@ bool IFCALL CRTC::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev < 1 || ssrev < st->rev)
     return false;
-  int i;
-  for (i = 0; i < st->pcount[0]; ++i)
+  for (int i = 0; i < st->pcount[0]; ++i)
     Out(i ? 0 : 1, st->param0[i]);
   if (st->pcount[1])
     Out(1, st->param1);
-  cmdm_ = st->cmdm, cmdc_ = st->cmdc;
+
+  cmdm_ = st->cmdm;
+  cmdc_ = st->cmdc;
   cursor_x_ = st->cursor_x;
   cursor_y_ = st->cursor_y;
   cursor_type = st->cursor_t;
   attr_ = st->attr;
   column_ = st->column;
-  mode_ = st->mode;
+  flags_ = st->flags;
   status_ = st->status | kClear;
   event_ = st->event;
   SetTextMode(st->color);
@@ -1124,13 +1096,13 @@ bool IFCALL CRTC::LoadStatus(const uint8_t* s) {
 const Device::Descriptor CRTC::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr CRTC::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&Reset),
-    static_cast<Device::OutFuncPtr>(&Out),
-    static_cast<Device::OutFuncPtr>(&PCGOut),
-    static_cast<Device::OutFuncPtr>(&SetKanaMode),
+    static_cast<Device::OutFuncPtr>(&CRTC::Reset),
+    static_cast<Device::OutFuncPtr>(&CRTC::Out),
+    static_cast<Device::OutFuncPtr>(&CRTC::PCGOut),
+    static_cast<Device::OutFuncPtr>(&CRTC::SetKanaMode),
 };
 
 const Device::InFuncPtr CRTC::indef[] = {
-    static_cast<Device::InFuncPtr>(&In),
-    static_cast<Device::InFuncPtr>(&GetStatus),
+    static_cast<Device::InFuncPtr>(&CRTC::In),
+    static_cast<Device::InFuncPtr>(&CRTC::GetStatus),
 };
