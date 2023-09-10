@@ -130,8 +130,9 @@ class CRTC : public Device {
   void ModifyFont(uint32_t off, uint32_t d);
   void EnablePCG(bool);
 
-  // TODO:
-  void CRTC::DRAW(packed& dest, packed data);
+  void DrawInline(packed& dest, packed data) {
+    dest = (dest & pat_mask_) | data;
+  }
 
   void PutChar(packed* dest, uint8_t c, uint8_t a);
   void PutNormal(packed* dest, const packed* src);

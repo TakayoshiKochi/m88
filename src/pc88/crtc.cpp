@@ -784,11 +784,7 @@ inline void CRTC::PutChar(packed* dest, uint8_t ch, uint8_t attr) {
 
 #define NROW (bpl_ / sizeof(packed))
 // constexpr static int NROW = bpl_ / sizeof(packed);
-#define DRAW_(dest, data) (dest) = ((dest)&pat_mask_) | (data)
 
-inline void CRTC::DRAW(packed& dest, packed data) {
-  dest = (dest & pat_mask_) | data;
-}
 // ---------------------------------------------------------------------------
 //  普通のテキスト文字
 //
@@ -799,16 +795,16 @@ void CRTC::PutNormal(packed* dest, const packed* src) {
     packed x = *src++ | pat_col_;
     packed y = *src++ | pat_col_;
 
-    DRAW(dest[0], x);
-    DRAW(dest[1], y);
-    DRAW(dest[NROW + 0], x);
-    DRAW(dest[NROW + 1], y);
+    DrawInline(dest[0], x);
+    DrawInline(dest[1], y);
+    DrawInline(dest[NROW + 0], x);
+    DrawInline(dest[NROW + 1], y);
     dest += bpl_ * 2 / sizeof(packed);
   }
   packed p = pat_col_ | TEXT_RESP;
   for (; h < lines_per_char_; ++h) {
-    DRAW(dest[0], p);
-    DRAW(dest[1], p);
+    DrawInline(dest[0], p);
+    DrawInline(dest[1], p);
     dest += bpl_ / sizeof(packed);
   }
 }
@@ -823,17 +819,17 @@ void CRTC::PutReversed(packed* dest, const packed* src) {
     packed x = (*src++ ^ pat_rev_) | pat_col_;
     packed y = (*src++ ^ pat_rev_) | pat_col_;
 
-    DRAW(dest[0], x);
-    DRAW(dest[1], y);
-    DRAW(dest[NROW + 0], x);
-    DRAW(dest[NROW + 1], y);
+    DrawInline(dest[0], x);
+    DrawInline(dest[1], y);
+    DrawInline(dest[NROW + 0], x);
+    DrawInline(dest[NROW + 1], y);
     dest += bpl_ * 2 / sizeof(packed);
   }
 
   packed p = pat_col_ ^ pat_rev_;
   for (; h < lines_per_char_; ++h) {
-    DRAW(dest[0], p);
-    DRAW(dest[1], p);
+    DrawInline(dest[0], p);
+    DrawInline(dest[1], p);
     dest += bpl_ / sizeof(packed);
   }
 }
@@ -845,26 +841,26 @@ void CRTC::PutLineNormal(packed* dest, uint8_t attr) {
   packed d = pat_col_ | TEXT_SETP;
   if (attr & kOverline)  // overline
   {
-    DRAW(dest[0], d);
-    DRAW(dest[1], d);
+    DrawInline(dest[0], d);
+    DrawInline(dest[1], d);
   }
   if ((attr & kUnderline) && lines_per_char_ > 14) {
     dest = (packed*)(((uint8_t*)dest) + underline_ptr_);
-    DRAW(dest[0], d);
-    DRAW(dest[1], d);
+    DrawInline(dest[0], d);
+    DrawInline(dest[1], d);
   }
 }
 
 void CRTC::PutLineReversed(packed* dest, uint8_t attr) {
   packed d = (pat_col_ | TEXT_SETP) ^ pat_rev_;
   if (attr & kOverline) {
-    DRAW(dest[0], d);
-    DRAW(dest[1], d);
+    DrawInline(dest[0], d);
+    DrawInline(dest[1], d);
   }
   if ((attr & kUnderline) && lines_per_char_ > 14) {
     dest = (packed*)(((uint8_t*)dest) + underline_ptr_);
-    DRAW(dest[0], d);
-    DRAW(dest[1], d);
+    DrawInline(dest[0], d);
+    DrawInline(dest[1], d);
   }
 }
 
@@ -890,25 +886,25 @@ void CRTC::PutNormalW(packed* dest, const packed* src) {
   for (h = 0; h < line_char_limit_; h += 2) {
     x = *src++ | pat_col_;
     y = *src++ | pat_col_;
-    DRAW(dest[0], x);
-    DRAW(dest[1], y);
-    DRAW(dest[NROW + 0], x);
-    DRAW(dest[NROW + 1], y);
+    DrawInline(dest[0], x);
+    DrawInline(dest[1], y);
+    DrawInline(dest[NROW + 0], x);
+    DrawInline(dest[NROW + 1], y);
 
     x = *src++ | pat_col_;
     y = *src++ | pat_col_;
-    DRAW(dest[2], x);
-    DRAW(dest[3], y);
-    DRAW(dest[NROW + 2], x);
-    DRAW(dest[NROW + 3], y);
+    DrawInline(dest[2], x);
+    DrawInline(dest[3], y);
+    DrawInline(dest[NROW + 2], x);
+    DrawInline(dest[NROW + 3], y);
     dest += bpl_ * 2 / sizeof(packed);
   }
   x = pat_col_ | TEXT_RESP;
   for (; h < lines_per_char_; ++h) {
-    DRAW(dest[0], x);
-    DRAW(dest[1], x);
-    DRAW(dest[2], x);
-    DRAW(dest[3], x);
+    DrawInline(dest[0], x);
+    DrawInline(dest[1], x);
+    DrawInline(dest[2], x);
+    DrawInline(dest[3], x);
     dest += bpl_ / sizeof(packed);
   }
 }
@@ -923,27 +919,27 @@ void CRTC::PutReversedW(packed* dest, const packed* src) {
   for (h = 0; h < line_char_limit_; h += 2) {
     x = (*src++ ^ pat_rev_) | pat_col_;
     y = (*src++ ^ pat_rev_) | pat_col_;
-    DRAW(dest[0], x);
-    DRAW(dest[1], y);
-    DRAW(dest[NROW + 0], x);
-    DRAW(dest[NROW + 1], y);
+    DrawInline(dest[0], x);
+    DrawInline(dest[1], y);
+    DrawInline(dest[NROW + 0], x);
+    DrawInline(dest[NROW + 1], y);
 
     x = (*src++ ^ pat_rev_) | pat_col_;
     y = (*src++ ^ pat_rev_) | pat_col_;
-    DRAW(dest[2], x);
-    DRAW(dest[3], y);
-    DRAW(dest[NROW + 2], x);
-    DRAW(dest[NROW + 3], y);
+    DrawInline(dest[2], x);
+    DrawInline(dest[3], y);
+    DrawInline(dest[NROW + 2], x);
+    DrawInline(dest[NROW + 3], y);
 
     dest += bpl_ * 2 / sizeof(packed);
   }
 
   x = pat_col_ ^ pat_rev_;
   for (; h < lines_per_char_; ++h) {
-    DRAW(dest[0], x);
-    DRAW(dest[1], x);
-    DRAW(dest[2], x);
-    DRAW(dest[3], x);
+    DrawInline(dest[0], x);
+    DrawInline(dest[1], x);
+    DrawInline(dest[2], x);
+    DrawInline(dest[3], x);
     dest += bpl_ / sizeof(packed);
   }
 }
@@ -955,34 +951,34 @@ void CRTC::PutLineNormalW(packed* dest, uint8_t attr) {
   packed d = pat_col_ | TEXT_SETP;
   if (attr & kOverline)  // overline
   {
-    DRAW(dest[0], d);
-    DRAW(dest[1], d);
-    DRAW(dest[2], d);
-    DRAW(dest[3], d);
+    DrawInline(dest[0], d);
+    DrawInline(dest[1], d);
+    DrawInline(dest[2], d);
+    DrawInline(dest[3], d);
   }
   if ((attr & kUnderline) && lines_per_char_ > 14) {
     dest = (packed*)(((uint8_t*)dest) + underline_ptr_);
-    DRAW(dest[0], d);
-    DRAW(dest[1], d);
-    DRAW(dest[2], d);
-    DRAW(dest[3], d);
+    DrawInline(dest[0], d);
+    DrawInline(dest[1], d);
+    DrawInline(dest[2], d);
+    DrawInline(dest[3], d);
   }
 }
 
 void CRTC::PutLineReversedW(packed* dest, uint8_t attr) {
   packed d = (pat_col_ | TEXT_SETP) ^ pat_rev_;
   if (attr & kOverline) {
-    DRAW(dest[0], d);
-    DRAW(dest[1], d);
-    DRAW(dest[2], d);
-    DRAW(dest[3], d);
+    DrawInline(dest[0], d);
+    DrawInline(dest[1], d);
+    DrawInline(dest[2], d);
+    DrawInline(dest[3], d);
   }
   if ((attr & kUnderline) && lines_per_char_ > 14) {
     dest = (packed*)(((uint8_t*)dest) + underline_ptr_);
-    DRAW(dest[0], d);
-    DRAW(dest[1], d);
-    DRAW(dest[2], d);
-    DRAW(dest[3], d);
+    DrawInline(dest[0], d);
+    DrawInline(dest[1], d);
+    DrawInline(dest[2], d);
+    DrawInline(dest[3], d);
   }
 }
 

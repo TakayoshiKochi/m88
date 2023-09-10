@@ -25,7 +25,7 @@ class FloppyDisk {
   struct IDR {
     uint8_t c, h, r, n;
 
-    bool operator==(const IDR& i) { return ((c == i.c) && (h == i.h) && (r == i.r) && (n == i.n)); }
+    bool operator==(const IDR& i) const { return ((c == i.c) && (h == i.h) && (r == i.r) && (n == i.n)); }
   };
 
   struct Sector {
