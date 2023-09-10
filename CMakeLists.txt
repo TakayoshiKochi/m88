@@ -61,7 +61,7 @@ add_executable(common_unittests
         src/common/scheduler_test.cc)
 
 target_link_libraries(common_unittests
-        PUBLIC gtest gtest_main
+        PRIVATE gtest gtest_main
         common)
 
 add_library(devices ${LIB_TYPE}
@@ -82,7 +82,7 @@ add_executable(devices_unittests
         src/devices/z80c_test.cc)
 
 target_link_libraries(devices_unittests
-        PUBLIC gtest gtest_main
+        PRIVATE gtest gtest_main
         common devices fmgen)
 
 add_library(fmgen ${LIB_TYPE}
@@ -154,7 +154,7 @@ add_executable(pc88core_unittests
         src/pc88/pc88_test.cc)
 
 target_link_libraries(pc88core_unittests
-        PUBLIC gtest gtest_main
+        PRIVATE gtest gtest_main
         common devices fmgen pc88core pc88shell)
 
 add_library(pc88shell ${LIB_TYPE}
@@ -241,7 +241,7 @@ add_executable(win32_unittests
         src/pc88/pc88_test.cc)
 
 target_link_libraries(win32_unittests
-        PUBLIC gtest gtest_main
+        PRIVATE gtest gtest_main
         common devices fmgen pc88core pc88shell win32)
 
 add_library(win32mon ${LIB_TYPE}
@@ -315,10 +315,8 @@ add_executable(m88 WIN32
         src/win32/main.cpp)
 
 target_link_libraries(m88
-        common devices fmgen pc88core pc88shell win32 win32mon romeo zlib
-        winmm.lib
-        comctl32.lib
-        d2d1.lib)
+        PRIVATE common devices fmgen pc88core pc88shell win32 win32mon romeo zlib
+        winmm.lib comctl32.lib d2d1.lib)
 
 add_library(cdif ${LIB_TYPE}
         cdif/src/aspi.h
@@ -340,8 +338,8 @@ add_library(cdif ${LIB_TYPE}
 # modules
 
 target_include_directories(cdif
-        PUBLIC ${CMAKE_SOURCE_DIR}
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+        PRIVATE ${CMAKE_SOURCE_DIR}
+        PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(cdif
         common devices)
@@ -353,8 +351,8 @@ add_library(diskdrv ${LIB_TYPE}
         diskdrv/src/moduleif.cpp)
 
 target_include_directories(diskdrv
-        PUBLIC ${CMAKE_SOURCE_DIR}
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+        PRIVATE ${CMAKE_SOURCE_DIR}
+        PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(diskdrv
         common devices)
@@ -366,8 +364,8 @@ add_library(sample1 ${LIB_TYPE}
         sample1/src/sine.cpp)
 
 target_include_directories(sample1
-        PUBLIC ${CMAKE_SOURCE_DIR}
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+        PRIVATE ${CMAKE_SOURCE_DIR}
+        PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(sample1
         common devices)
@@ -382,8 +380,8 @@ add_library(sample2 ${LIB_TYPE}
         sample2/src/resource.h)
 
 target_include_directories(sample2
-        PUBLIC ${CMAKE_SOURCE_DIR}
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+        PRIVATE ${CMAKE_SOURCE_DIR}
+        PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(sample2
         common devices)
