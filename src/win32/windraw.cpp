@@ -17,7 +17,6 @@
 #include "win32/drawd2d.h"
 #include "win32/drawgdi.h"
 #include "win32/drawdds.h"
-#include "win32/drawddw.h"
 #include "win32/loadmon.h"
 #include "win32/messages.h"
 #include "win32/status.h"
@@ -309,14 +308,11 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
     }
 
     // 新しいドライバの用意
-    WinDrawSub* newdraw;
+    WinDrawSub* newdraw = nullptr;
     switch (type) {
       case GDI:
       default:
         newdraw = new WinDrawGDI;
-        break;
-      case DDWin:
-        newdraw = new WinDrawDDW;
         break;
       case DDFull:
         newdraw = new WinDrawDDS(force480);

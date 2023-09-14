@@ -153,9 +153,6 @@
     <ClCompile Include="src\win32\drawdds.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\drawddw.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\drawgdi.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
@@ -456,9 +453,6 @@
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\drawdds.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\drawddw.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\drawgdi.h">
