@@ -186,8 +186,6 @@ add_library(win32 ${LIB_TYPE}
         src/win32/drawd2d.cpp
         src/win32/drawdds.h
         src/win32/drawdds.cpp
-        src/win32/drawddw.h
-        src/win32/drawddw.cpp
         src/win32/drawgdi.h
         src/win32/drawgdi.cpp
         src/win32/extdev.h
