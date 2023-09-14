@@ -65,6 +65,9 @@ class CRTC : public Device {
   void SetTextSize(bool wide);
 
  private:
+  FRIEND_TEST(CRTCTest, ExpandAttributesTest);
+  FRIEND_TEST(CRTCTest, ChangeAttrTest);
+
   // Note: only lower 8bits are saved.
   enum Flags : uint32_t {
     kInverse = 1 << 0,  // reverse bit と同じ
@@ -93,7 +96,6 @@ class CRTC : public Device {
     kDMABank = 2,
   };
 
- private:
   // For state save/restore
   enum {
     ssrev = 2,
@@ -121,7 +123,7 @@ class CRTC : public Device {
   uint32_t Command(bool a0, uint32_t data);
   void SetFlag(uint32_t flags) { flags_ |= flags; }
   void ResetFlag(uint32_t flags) { flags_ &= ~flags; }
-  bool IsSet(uint32_t flags) { return (flags_ & flags) != 0; }
+  [[nodiscard]] bool IsSet(uint32_t flags) const { return (flags_ & flags) != 0; }
 
   // interface to font data
   bool LoadFontFile();
@@ -147,7 +149,7 @@ class CRTC : public Device {
   void ClearText(uint8_t* image);
   void ExpandImage(uint8_t* image, Draw::Region& region);
   void ExpandAttributes(uint8_t* dest, const uint8_t* src, uint32_t y);
-  void ChangeAttr(uint8_t code);
+  [[nodiscard]] uint8_t ChangeAttr(uint8_t code, uint8_t old_attr) const;
 
   void DrawInline(packed& dest, packed data) { dest = (dest & pat_mask_) | data; }
 
@@ -183,6 +185,12 @@ class CRTC : public Device {
   uint32_t column_ = 0;
   uint32_t flags_ = 0;
   // CRTC status (status return value)
+  //  Status Bit
+  //      b0      Light Pen
+  //      b1      E(?)
+  //      b2      N(?)
+  //      b3      DMA under run
+  //      b4      Video Enable
   uint32_t status_ = 0;
   uint8_t event_ = 0;
   // Note: color is saved from |pat_rev_|
@@ -194,6 +202,7 @@ class CRTC : public Device {
   // depends on I/O port 0x40 bit 1
   bool line200_ = false;
   uint8_t attr_cursor_ = 0;
+  // when blinking, 0 or 1 to control visibility
   uint8_t attr_blink_ = 0;
   int line_time_ = 0;
   uint32_t frame_time_ = 0;

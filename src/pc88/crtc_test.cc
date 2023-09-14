@@ -18,16 +18,44 @@ class MockScheduler : public Scheduler {
 
 namespace PC8801 {
 
-TEST(crtcTest, BasicTest) {
-  CRTC crtc(DEV_ID('C', 'R', 'T', 'C'));
-  IOBus bus;
-  MockScheduler sched;
-  PD8257 dmac(DEV_ID('D', 'M', 'A', 'C'));
+class CRTCTest : public ::testing::Test {
+ public:
+  CRTCTest() : crtc_(DEV_ID('C', 'R', 'T', 'C')), dmac_(DEV_ID('D', 'M', 'A', 'C')) {}
+  ~CRTCTest() override = default;
 
-  EXPECT_TRUE(crtc.Init(&bus, &sched, &dmac));
+  void SetUp() override {
+      crtc_.Init(&bus_, &sched_, &dmac_);
+  }
+
+ protected:
+  CRTC crtc_;
+  IOBus bus_;
+  MockScheduler sched_;
+  PD8257 dmac_;
+};
+
+
+TEST_F(CRTCTest, BasicTest) {
   // TODO: nonsense
-  EXPECT_EQ(crtc.GetID(), DEV_ID('C', 'R', 'T', 'C'));
-  const IDevice::Descriptor* desc = crtc.GetDesc();
+  EXPECT_EQ(crtc_.GetID(), DEV_ID('C', 'R', 'T', 'C'));
+  const IDevice::Descriptor* desc = crtc_.GetDesc();
   // EXPECT_EQ((&crtc)->*(desc->indef[0], &crtc)(0x50), 0);
 }
+
+TEST_F(CRTCTest, ExpandAttributesTest) {
+  uint8_t src[10000];
+  uint8_t dest[80];
+
+  memset(&src, 0, 10000);
+  memset(&dest, 0, 80);
+  crtc_.ExpandAttributes(dest, src, 0);
+  EXPECT_EQ(0, 0);
+}
+
+TEST_F(CRTCTest, ChangeAttrTest) {
+  //auto x = crtc_.ChangeAttr(3, 2);
+  EXPECT_EQ(crtc_.attr_, 0);
+}
+
+
 }  // namespace PC8801

@@ -40,12 +40,6 @@ const packed kColorPattern[8] = {PACK(0), PACK(1), PACK(2), PACK(3),
 //
 //  カーソルブリンク間隔 16n フレーム
 //
-//  Status Bit
-//      b0      Light Pen
-//      b1      E(?)
-//      b2      N(?)
-//      b3      DMA under run
-//      b4      Video Enable
 //
 //  画面イメージのビット配分
 //      GMode   b4 b3 b2 b1 b0
@@ -445,7 +439,7 @@ void CRTC::CreateGFont() {
 //  画面表示開始のタイミング処理
 //
 void IOCALL CRTC::StartDisplay(uint32_t) {
-  sev_ = 0;
+  sev_ = nullptr;
   column_ = 0;
   ResetFlag(kSuppressDisplay);
   //  Log("DisplayStart\n");
@@ -475,7 +469,7 @@ void IOCALL CRTC::ExpandLine(uint32_t) {
 }
 
 int CRTC::ExpandLineSub() {
-  uint8_t* dest;
+  uint8_t* dest = nullptr;
   dest = vram_ptr_[bank_] + line_size_ * column_;
   if (!IsSet(kSkipline) || !(column_ & 1)) {
     if (status_ & 0x10) {
@@ -576,8 +570,8 @@ void CRTC::UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool ref)
 
     Log(" update");
 
-    //      Log("time: %d  cursor: %d(%d)  blink: %d\n", frametime, attr_cursor, cursor_type,
-    //      attr_blink);
+    // Log("time: %d  cursor: %d(%d)  blink: %d\n", frametime, attr_cursor, cursor_type,
+    //     attr_blink);
     ExpandImage(image, region);
   }
   Log("\n");
@@ -701,8 +695,6 @@ void CRTC::ExpandImage(uint8_t* image, Draw::Region& region) {
 //  アトリビュート情報を展開
 //
 void CRTC::ExpandAttributes(uint8_t* dest, const uint8_t* src, uint32_t y) {
-  int i;
-
   if (attr_per_line_ == 0) {
     memset(dest, 0xe0, 80);
     return;
@@ -717,13 +709,18 @@ void CRTC::ExpandAttributes(uint8_t* dest, const uint8_t* src, uint32_t y) {
   //  1 byte 目は属性を反映させる桁(下位 7 bit 有効)
   //  2 byte 目は属性値
   memset(dest, 0, 80);
-  for (i = 2 * (nattrs - 1); i >= 0; i -= 2)
+
+  // Pass1: mark locations where attribute changes
+  for (int i = 2 * (nattrs - 1); i >= 0; i -= 2)
     dest[src[i] & 0x7f] = 1;
 
+  // Pass2: calculate attributes
   ++src;
-  for (i = 0; i < width_; ++i) {
-    if (dest[i])
-      ChangeAttr(*src), src += 2;
+  for (int i = 0; i < width_; ++i) {
+    if (dest[i]) {
+      attr_ = ChangeAttr(*src, attr_);
+      src += 2;
+    }
     dest[i] = attr_;
   }
 
@@ -735,21 +732,32 @@ void CRTC::ExpandAttributes(uint8_t* dest, const uint8_t* src, uint32_t y) {
 // ---------------------------------------------------------------------------
 //  アトリビュートコードを内部のフラグに変換
 //
-void CRTC::ChangeAttr(uint8_t code) {
+uint8_t CRTC::ChangeAttr(uint8_t code, uint8_t old_attr) const {
+  // attr_
+  // 7: G
+  // 6: R
+  // 5: B
+  // 4: 0:char / 1:semi-graphics
+  // 3: underline
+  // 2: upperline
+  // 1: bit0 (secret)
+  // 0: bit2 (reverse)
+  uint8_t attr = old_attr;
   if (IsSet(kColor)) {
-    if (code & 0x8) {
-      attr_ = (attr_ & 0x0f) | (code & 0xf0);
+    if (code & 0b00001000) {
+      attr = (attr & 0b00001111) | (code & 0b11110000);
       //          attr ^= mode & inverse;
     } else {
-      attr_ = (attr_ & 0xf0) | ((code >> 2) & 0xd) | ((code & 1) << 1);
-      attr_ ^= flags_ & kInverse;
-      attr_ ^= ((code & 2) && !(code & 1)) ? attr_blink_ : 0;
+      attr = (attr & 0b11110000) | ((code >> 2) & 0b00001101) | ((code & 1) << 1);
+      attr ^= flags_ & kInverse;
+      attr ^= ((code & 2) && !(code & 1)) ? attr_blink_ : 0;
     }
   } else {
-    attr_ = 0xe0 | ((code >> 2) & 0x0d) | ((code & 1) << 1) | ((code & 0x80) >> 3);
-    attr_ ^= flags_ & kInverse;
-    attr_ ^= ((code & 2) && !(code & 1)) ? attr_blink_ : 0;
+    attr = 0b11100000 | ((code >> 2) & 0b00001101) | ((code & 1) << 1) | ((code & 0b10000000) >> 3);
+    attr ^= flags_ & kInverse;
+    attr ^= ((code & 2) && !(code & 1)) ? attr_blink_ : 0;
   }
+  return attr;
 }
 
 // ---------------------------------------------------------------------------
