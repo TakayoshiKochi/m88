@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include "common/critsect.h"
 #include "common/device.h"
 #include "win32/winmon.h"
 
@@ -48,7 +47,7 @@ class LoadMonitor : public WinMonitor {
   int tidx;
   int tprv;
 
-  CriticalSection cs;
+  std::mutex mtx_;
   static LoadMonitor* instance;
 };
 

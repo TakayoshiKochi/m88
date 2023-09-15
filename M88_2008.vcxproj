@@ -1355,7 +1355,6 @@
     <ClInclude Include="src\win32\basmon.h" />
     <ClInclude Include="src\win32\cfgpage.h" />
     <ClInclude Include="src\win32\codemon.h" />
-    <ClInclude Include="src\win32\critsect.h" />
     <ClInclude Include="src\win32\dderr.h" />
     <ClInclude Include="src\win32\drawd2d.h" />
     <ClInclude Include="src\win32\drawdds.h" />

@@ -12,7 +12,6 @@
 
 #include <mmeapi.h>
 
-#include "common/critsect.h"
 #include "win32/sounddrv.h"
 
 // ---------------------------------------------------------------------------

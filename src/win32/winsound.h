@@ -13,9 +13,9 @@
 #include <mmsystem.h>
 #include <dsound.h>
 
+#include <mutex>
 #include <string>
 
-#include "common/critsect.h"
 #include "pc88/sound.h"
 #include "win32/sounddrv.h"
 
@@ -54,7 +54,7 @@ class SoundDumpPipe : public SoundSource {
   int dumpedsample_;
   uint32_t dumprate_;
 
-  CriticalSection cs_;
+  std::mutex mtx_;
 };
 
 namespace PC8801 {

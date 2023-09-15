@@ -293,7 +293,7 @@ bool DiskManager::Init() {
 //  arg:diskname    ディスクイメージのファイルネーム
 //
 bool DiskManager::IsImageOpen(const char* diskname) {
-  CriticalSection::Lock lock(cs_);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   for (auto& i : holder_) {
     if (i.Connect(diskname)) {
@@ -316,7 +316,7 @@ bool DiskManager::Mount(uint32_t dr, const char* diskname, bool readonly, int in
 
   Unmount(dr);
 
-  CriticalSection::Lock lock(cs_);
+  std::lock_guard<std::mutex> lock(mtx_);
   // ディスクイメージがすでに hold されているかどうかを確認
   DiskImageHolder* h = nullptr;
   for (i = 0; i < kMaxDrives; i++) {
@@ -383,7 +383,7 @@ bool DiskManager::Mount(uint32_t dr, const char* diskname, bool readonly, int in
 //  ディスクを取り外す
 //
 bool DiskManager::Unmount(uint32_t dr) {
-  CriticalSection::Lock lock(cs_);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   bool ret = true;
   Drive& drv = drive_[dr];
@@ -715,7 +715,7 @@ void DiskManager::UpdateDrive(Drive* drv) {
   if (!drv->holder || drv->sizechanged)
     return;
 
-  CriticalSection::Lock lock(cs_);
+  std::lock_guard<std::mutex> lock(mtx_);
   int t;
   for (t = 0; t < 164 && !drv->modified[t]; t++)
     ;

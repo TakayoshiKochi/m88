@@ -54,7 +54,7 @@ SamplingRateConverter::~SamplingRateConverter() {
 }
 
 bool SamplingRateConverter::Init(SoundSourceL* _source, int _buffersize, uint32_t outrate) {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   delete[] buffer;
   buffer = 0;
@@ -88,7 +88,7 @@ bool SamplingRateConverter::Init(SoundSourceL* _source, int _buffersize, uint32_
 }
 
 void SamplingRateConverter::Cleanup() {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   delete[] buffer;
   buffer = 0;
@@ -100,7 +100,7 @@ void SamplingRateConverter::Cleanup() {
 //  バッファに音を追加
 //
 int SamplingRateConverter::Fill(int samples) {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
   if (source)
     return FillMain(samples);
   return 0;
@@ -204,7 +204,7 @@ void SamplingRateConverter::MakeFilter(uint32_t out) {
 //  バッファから音を貰う
 //
 int SamplingRateConverter::Get(Sample* dest, int samples) {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
   if (!buffer)
     return 0;
 

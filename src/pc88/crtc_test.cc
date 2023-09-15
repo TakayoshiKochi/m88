@@ -53,8 +53,8 @@ TEST_F(CRTCTest, ExpandAttributesTest) {
 }
 
 TEST_F(CRTCTest, ChangeAttrTest) {
-  //auto x = crtc_.ChangeAttr(3, 2);
-  EXPECT_EQ(crtc_.attr_, 0);
+  auto x = crtc_.ChangeAttr(3, 4);
+  EXPECT_EQ(x, 0xe2);
 }
 
 

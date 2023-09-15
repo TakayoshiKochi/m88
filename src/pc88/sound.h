@@ -11,6 +11,8 @@
 #include "common/device.h"
 #include "common/srcbuf.h"
 
+#include <mutex>
+
 // ---------------------------------------------------------------------------
 
 class PC88;
@@ -77,7 +79,7 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
   bool enabled_ = false;
 
   SSNode* sslist_ = nullptr;
-  CriticalSection cs_ss_;
+  std::mutex mtx_;
 };
 
 }  // namespace PC8801

@@ -6,11 +6,13 @@
 
 #pragma once
 
+#include <windows.h>
+
 #include "common/status.h"
 
 #include <stdint.h>
 
-#include "common/critsect.h"
+#include <mutex>
 
 class StatusDisplayImpl : public StatusDisplayInterface {
  public:
@@ -56,7 +58,7 @@ class StatusDisplayImpl : public StatusDisplayInterface {
   HWND hwndparent;
   List* list;
   UINT_PTR timerid;
-  CriticalSection cs;
+  std::mutex mtx_;
   Border border;
   int height;
   int litstat[3];

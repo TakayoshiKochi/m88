@@ -94,7 +94,7 @@ uint32_t CALLBACK Sequencer::ThreadEntry(void* arg) {
 //  eff     実効クロック
 //
 inline void Sequencer::Execute(int32_t clk, int32_t length, int32_t eff) {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
   execcount += clk * vm->Proceed(length, clk, eff);
 }
 
@@ -158,7 +158,7 @@ void Sequencer::ExecuteAsynchronus() {
 //  実行クロックカウントの値を返し、カウンタをリセット
 //
 int32_t Sequencer::GetExecCount() {
-  //  CriticalSection::Lock lock(cs); // 正確な値が必要なときは有効にする
+  // std::lock_guard<std::mutex> lock(mtx_); // 正確な値が必要なときは有効にする
 
   int i = execcount;
   execcount = 0;
@@ -169,6 +169,6 @@ int32_t Sequencer::GetExecCount() {
 //  実行する
 //
 void Sequencer::Activate(bool a) {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
   active = a;
 }

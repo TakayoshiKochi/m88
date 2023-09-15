@@ -20,7 +20,7 @@ LoadMonitor* LoadMonitor::instance = 0;
 LoadMonitor::LoadMonitor() {}
 
 LoadMonitor::~LoadMonitor() {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
   instance = 0;
 }
 
@@ -64,7 +64,7 @@ BOOL LoadMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 //  状態を表示
 //
 void LoadMonitor::UpdateText() {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   LARGE_INTEGER t;
   QueryPerformanceCounter(&t);
@@ -97,7 +97,7 @@ void LoadMonitor::UpdateText() {
 //  記録開始
 //
 void LoadMonitor::ProcBegin(const char* name) {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   string key(name);
   States::iterator i = states.find(key);
@@ -123,7 +123,7 @@ void LoadMonitor::ProcEnd(const char* name) {
   LARGE_INTEGER t;
   QueryPerformanceCounter(&t);
 
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   States::iterator i = states.find(string(name));
 

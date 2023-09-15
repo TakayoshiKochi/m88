@@ -12,7 +12,6 @@
 
 #include <algorithm>
 
-#include "common/critsect.h"
 #include "common/io_bus.h"
 #include "common/status.h"
 #include "pc88/config.h"
@@ -546,7 +545,7 @@ void FDC::ReadData(bool deleted, bool scan) {
     g_status_display->Show(85, 0, "%s (%d) %.2x %.2x %.2x %.2x", scan ? "Scan" : "Read", hdu & 3,
                            idr.c, idr.h, idr.r, idr.n);
 
-  CriticalSection::Lock lock(diskmgr->GetCS());
+  std::lock_guard<std::mutex> lock(diskmgr->GetMutex());
   result = CheckCondition(false);
   if (result & ST1_MA) {
     // ディスクが無い場合，100ms 後に再挑戦
@@ -654,7 +653,7 @@ void FDC::Seek(uint32_t dr, uint32_t cy) {
 
 void IOCALL FDC::SeekEvent(uint32_t dr) {
   Log("\tSeek (%d) ", dr);
-  CriticalSection::Lock lock(diskmgr->GetCS());
+  std::lock_guard<std::mutex> lock(diskmgr->GetMutex());
 
   if (seektime > 1000) {
     fdstat &= ~0x10;
@@ -751,7 +750,7 @@ void FDC::CmdSenceDeviceStatus() {
 }
 
 uint32_t FDC::GetDeviceStatus(uint32_t dr) {
-  CriticalSection::Lock lock(diskmgr->GetCS());
+  std::lock_guard<std::mutex> lock(diskmgr->GetMutex());
   hdu = (hdu & ~3) | (dr & 3);
   if (dr < num_drives)
     return diskmgr->GetFDU(dr)->SenceDeviceStatus() | dr;
@@ -777,7 +776,7 @@ void FDC::CmdWriteData() {
     case executephase:
       // FindID
       {
-        CriticalSection::Lock lock(diskmgr->GetCS());
+        std::lock_guard<std::mutex> lock(diskmgr->GetMutex());
         result = CheckCondition(true);
         if (result & ST1_MA) {
           Log("Disk not mounted: Retry\n");
@@ -845,7 +844,7 @@ void FDC::WriteData(bool deleted) {
     g_status_display->Show(85, 0, "Write (%d) %.2x %.2x %.2x %.2x", hdu & 3, idr.c, idr.h, idr.r,
                            idr.n);
 
-  CriticalSection::Lock lock(diskmgr->GetCS());
+  std::lock_guard<std::mutex> lock(diskmgr->GetMutex());
   if (result = CheckCondition(true)) {
     ShiftToResultPhase7();
     return;
@@ -890,7 +889,7 @@ void FDC::CmdReadID() {
 //  ReadID Execution
 //
 void FDC::ReadID() {
-  CriticalSection::Lock lock(diskmgr->GetCS());
+  std::lock_guard<std::mutex> lock(diskmgr->GetMutex());
   result = CheckCondition(false);
   if (!result) {
     uint32_t dr = hdu & 3;
@@ -958,7 +957,7 @@ void FDC::WriteID() {
   }
 #endif
 
-  CriticalSection::Lock lock(diskmgr->GetCS());
+  std::lock_guard<std::mutex> lock(diskmgr->GetMutex());
 
   if (result = CheckCondition(true)) {
     ShiftToResultPhase7();
@@ -1042,7 +1041,7 @@ void FDC::CmdReadDiagnostic() {
 void FDC::ReadDiagnostic() {
   Log("\tReadDiag ");
   if (!readdiagptr) {
-    CriticalSection::Lock lock(diskmgr->GetCS());
+    std::lock_guard<std::mutex> lock(diskmgr->GetMutex());
     result = CheckCondition(false);
     if (result) {
       ShiftToResultPhase7();

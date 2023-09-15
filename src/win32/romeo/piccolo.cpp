@@ -103,7 +103,7 @@ uint32_t Piccolo::ThreadMain() {
     const int waitdefault = 1;
     int wait = waitdefault;
     {
-      CriticalSection::Lock lock(cs);
+      std::lock_guard<std::mutex> lock(mtx_);
       uint32_t time = GetCurrentTime();
       while ((ev = Top()) && !shouldterminate) {
         int32_t d = ev->at - time;
@@ -161,7 +161,7 @@ uint32_t CALLBACK Piccolo::ThreadEntry(void* arg) {
 //
 //
 bool Piccolo::SetLatencyBufferSize(uint32_t entries) {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
   Event* ne = new Event[entries];
   if (!ne)
     return false;
@@ -186,7 +186,7 @@ uint32_t Piccolo::GetCurrentTime() {
 // ---------------------------------------------------------------------------
 
 void Piccolo::DrvReset() {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   // 本当は該当するエントリだけ削除すべきだが…
   evread = 0;
