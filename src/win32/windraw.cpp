@@ -145,7 +145,7 @@ void WinDraw::SetPriorityLow(bool low) {
 //  パレット反映
 //
 void WinDraw::QueryNewPalette(bool /*bkgnd*/) {
-  CriticalSection::Lock lock(csdraw);
+  std::lock_guard<std::mutex> lock(mtx_);
   if (drawsub_)
     drawsub_->QueryNewPalette();
 }
@@ -155,7 +155,7 @@ void WinDraw::QueryNewPalette(bool /*bkgnd*/) {
 //
 void WinDraw::RequestPaint() {
 #ifdef DRAW_THREAD
-  CriticalSection::Lock lock(csdraw);
+  std::lock_guard<std::mutex> lock(mtx_);
   drawall = true;
   drawing = true;
   SetEvent(hevredraw);
@@ -191,7 +191,7 @@ void WinDraw::DrawScreen(const Region& region) {
 //
 void WinDraw::PaintWindow() {
   LOADBEGIN("WinDraw");
-  CriticalSection::Lock lock(csdraw);
+  std::lock_guard<std::mutex> lock(mtx_);
   if (drawing && drawsub_ && active) {
     RECT rect = drawarea;
     if (palcngbegin <= palcngend) {
@@ -235,13 +235,13 @@ bool WinDraw::Lock(uint8_t** pimage, int* pbpl) {
 
   if (!locked_) {
     locked_ = true;
-    csdraw.lock();
+    mtx_.lock();
     if (drawsub_ && drawsub_->Lock(pimage, pbpl)) {
       // Lock に失敗することがある？
       assert(**pimage >= 0);
       return true;
     }
-    csdraw.unlock();
+    mtx_.unlock();
     locked_ = false;
   }
   return false;
@@ -255,7 +255,7 @@ bool WinDraw::Unlock() {
   if (locked_) {
     if (drawsub_)
       result = drawsub_->Unlock();
-    csdraw.unlock();
+    mtx_.unlock();
     locked_ = false;
     if (refresh == 1)
       refresh = 0;
@@ -271,9 +271,8 @@ void WinDraw::Resize(uint32_t w, uint32_t h) {
   width = w;
   height = h;
   if (drawsub_) {
-    csdraw.lock();
+    std::lock_guard<std::mutex> lock(mtx_);
     drawsub_->Resize(width, height);
-    csdraw.unlock();
   }
 }
 
@@ -302,7 +301,7 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
     if (drawsub_)
       drawsub_->SetGUIMode(true);
     {
-      CriticalSection::Lock lock(csdraw);
+      std::lock_guard<std::mutex> lock(mtx_);
       delete drawsub_;
       drawsub_ = 0;
     }
@@ -347,7 +346,7 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
 
     // 新しいドライバを使用可能にする
     {
-      CriticalSection::Lock lock(csdraw);
+      std::lock_guard<std::mutex> lock(mtx_);
       guicount = 0;
       drawsub_ = newdraw;
     }
@@ -407,7 +406,7 @@ void WinDraw::Flip() {
 //  GUI 使用フラグ設定
 //
 void WinDraw::SetGUIFlag(bool usegui) {
-  CriticalSection::Lock lock(csdraw);
+  std::lock_guard<std::mutex> lock(mtx_);
   if (usegui) {
     if (!guicount++ && drawsub_) {
       drawsub_->SetGUIMode(true);

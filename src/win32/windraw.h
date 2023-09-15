@@ -8,10 +8,13 @@
 
 #pragma once
 
+#include <windows.h>
+
 #include <stdint.h>
 
-#include "common/critsect.h"
 #include "common/draw.h"
+
+#include <mutex>
 
 // ---------------------------------------------------------------------------
 
@@ -118,7 +121,7 @@ class WinDraw : public Draw {
   HANDLE hevredraw = 0;
   WinDrawSub* drawsub_ = nullptr;
 
-  CriticalSection csdraw;
+  std::mutex mtx_;
   bool locked_;
   bool flipmode_;
 

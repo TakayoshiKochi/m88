@@ -111,7 +111,7 @@ int Sound::Get(Sample* dest, int nsamples) {
     // 合成
     {
       memset(mixing_buf_, 0, mixsamples * 2 * sizeof(int32_t));
-      CriticalSection::Lock lock(cs_ss_);
+      std::lock_guard<std::mutex> lock(mtx_);
       for (SSNode* s = sslist_; s; s = s->next)
         s->ss->Mix(mixing_buf_, mixsamples);
     }
@@ -131,7 +131,7 @@ int Sound::Get(Sample* dest, int nsamples) {
 int Sound::Get(SampleL* dest, int nsamples) {
   // 合成
   memset(dest, 0, nsamples * 2 * sizeof(int32_t));
-  CriticalSection::Lock lock(cs_ss_);
+  std::lock_guard<std::mutex> lock(mtx_);
   for (SSNode* s = sslist_; s; s = s->next)
     s->ss->Mix(dest, nsamples);
   return nsamples;
@@ -153,7 +153,7 @@ void Sound::ApplyConfig(const Config* config) {
 //  ret:    S_OK, E_FAIL, E_OUTOFMEMORY
 //
 bool Sound::Connect(ISoundSource* ss) {
-  CriticalSection::Lock lock(cs_ss_);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   // 音源は既に登録済みか？;
   SSNode** n;
@@ -180,7 +180,7 @@ bool Sound::Connect(ISoundSource* ss) {
 //  ret:    S_OK, E_HANDLE
 //
 bool Sound::Disconnect(ISoundSource* ss) {
-  CriticalSection::Lock lock(cs_ss_);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   for (SSNode** r = &sslist_; *r; r = &((*r)->next)) {
     if ((*r)->ss == ss) {

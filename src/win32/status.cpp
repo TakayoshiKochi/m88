@@ -14,7 +14,7 @@
 // #define LOGNAME "status"
 #include "common/diag.h"
 
-StatusDisplayImpl statusdisplay = StatusDisplayImpl();
+StatusDisplayImpl statusdisplay;
 StatusDisplay* g_status_display = new StatusDisplay(&statusdisplay);
 
 // ---------------------------------------------------------------------------
@@ -140,7 +140,7 @@ void StatusDisplayImpl::DrawItem(DRAWITEMSTRUCT* dis) {
 //  メッセージ追加
 //
 bool StatusDisplayImpl::Show(int priority, int duration, const char* msg, ...) {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
 
   if (currentpriority < priority)
     if (!duration || (GetTickCount() + duration - currentduration) < 0)
@@ -174,7 +174,7 @@ bool StatusDisplayImpl::Show(int priority, int duration, const char* msg, ...) {
 void StatusDisplayImpl::Update() {
   updatemessage = false;
   if (hwnd) {
-    CriticalSection::Lock lock(cs);
+    std::lock_guard<std::mutex> lock(mtx_);
     // find highest priority (0 == highest)
     int pc = 10000;
     List* entry = 0;

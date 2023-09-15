@@ -443,9 +443,6 @@
     <ClInclude Include="src\win32\cfgpage.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\critsect.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\dderr.h">
       <Filter>Win32</Filter>
     </ClInclude>

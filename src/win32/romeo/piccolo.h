@@ -3,10 +3,12 @@
 #ifndef incl_romeo_piccolo_h
 #define incl_romeo_piccolo_h
 
-#include <stdint.h>
+#include <windows.h>
 
-#include "common/critsect.h"
 #include "win32/timekeep.h"
+
+#include <stdint.h>
+#include <mutex>
 
 //  遅延送信対応 ROMEO ドライバ
 //
@@ -78,7 +80,7 @@ class Piccolo {
   uint32_t ThreadMain();
 
   TimeKeeper timekeeper;
-  CriticalSection cs;
+  std::mutex mtx_;
 
   bool Push(Event&);
   Event* Top();

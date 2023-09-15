@@ -6,10 +6,13 @@
 
 #pragma once
 
-#include "common/critsect.h"
+#include <windows.h>
+
 #include "common/file.h"
 #include "pc88/fdu.h"
 #include "pc88/floppy.h"
+
+#include <mutex>
 
 namespace D88 {
 struct ImageHeader {
@@ -99,7 +102,7 @@ class DiskManager {
   void Update();
 
   void Modified(int drive = -1, int track = -1);
-  CriticalSection& GetCS() { return cs_; }
+  std::mutex& GetMutex() { return mtx_; }
 
   PC8801::FDU* GetFDU(int dr) { return dr < kMaxDrives ? &drive_[dr].fdu : 0; }
 
@@ -126,5 +129,5 @@ class DiskManager {
   DiskImageHolder holder_[kMaxDrives];
   Drive drive_[kMaxDrives];
 
-  CriticalSection cs_;
+  std::mutex mtx_;
 };

@@ -234,7 +234,7 @@ bool SoundDumpPipe::DumpStart(char* filename) {
 bool SoundDumpPipe::DumpStop() {
   if (dumpstate_ != IDLE) {
     dumpstate_ = IDLE;
-    CriticalSection::Lock lock(cs_);
+    std::lock_guard<std::mutex> lock(mtx_);
 
     if (ckdata_.dwFlags & MMIO_DIRTY)
       mmioAscend(hmmio_, &ckdata_, 0);
@@ -264,7 +264,7 @@ int SoundDumpPipe::Get(Sample* dest, int samples) {
   int nch = GetChannels();
   std::fill(dest + actual_samples * nch, dest + samples * nch, 0);
 
-  CriticalSection::Lock lock(cs_);
+  std::lock_guard<std::mutex> lock(mtx_);
   if (dumpstate_ != IDLE) {
     Dump(dest, actual_samples);
   }

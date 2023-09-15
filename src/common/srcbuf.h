@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include "common/critsect.h"
 #include "common/soundsrc.h"
+
+#include <mutex>
 
 // ---------------------------------------------------------------------------
 //  SamplingRateConverter
@@ -54,7 +55,7 @@ class SamplingRateConverter : public SoundSource {
 
   int outputrate;
 
-  CriticalSection cs;
+  std::mutex mtx_;
 };
 
 // ---------------------------------------------------------------------------
@@ -82,7 +83,7 @@ inline int SamplingRateConverter::Avail() {
 }
 
 inline int SamplingRateConverter::GetAvail() {
-  CriticalSection::Lock lock(cs);
+  std::lock_guard<std::mutex> lock(mtx_);
   return Avail();
 }
 

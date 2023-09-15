@@ -10,8 +10,9 @@
 
 #include <stdint.h>
 
-#include "common/critsect.h"
 #include "win32/timekeep.h"
+
+#include <mutex>
 
 class PC88;
 
@@ -32,8 +33,8 @@ class Sequencer {
   int32_t GetExecCount();
   void Activate(bool active);
 
-  void Lock() { cs.lock(); }
-  void Unlock() { cs.unlock(); }
+  void Lock() { mtx_.lock(); }
+  void Unlock() { mtx_.unlock(); }
 
   void SetClock(int clk);
   void SetSpeed(int spd);
@@ -50,7 +51,7 @@ class Sequencer {
 
   TimeKeeper keeper;
 
-  CriticalSection cs;
+  std::mutex mtx_;
   HANDLE hthread;
   uint32_t idthread;
 

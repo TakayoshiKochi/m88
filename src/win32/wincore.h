@@ -12,7 +12,6 @@
 
 #include <stdint.h>
 
-#include "common/critsect.h"
 #include "pc88/config.h"
 #include "pc88/pc88.h"
 #include "win32/sequence.h"

@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "common/critsect.h"
 #include "common/device.h"
 #include "pc88/config.h"
 
