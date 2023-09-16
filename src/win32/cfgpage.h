@@ -15,7 +15,7 @@ class ConfigPage : public IConfigPropSheet {
  public:
   ConfigPage(Config& c, Config& oc);
   bool Init(HINSTANCE _hinst);
-  bool IFCALL Setup(IConfigPropBase*, PROPSHEETPAGE* psp);
+  bool IFCALL Setup(IConfigPropBase*, PROPSHEETPAGE* psp) override;
 
  private:
   virtual LPCSTR GetTemplate() = 0;
@@ -30,12 +30,12 @@ class ConfigPage : public IConfigPropSheet {
   BOOL PageProc(HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK PageGate(HWND, UINT, WPARAM, LPARAM);
 
-  HINSTANCE hinst;
+  HINSTANCE hinst_ = nullptr;
 
  protected:
-  IConfigPropBase* base;
-  Config& config;
-  Config& orgconfig;
+  IConfigPropBase* base_ = nullptr;
+  Config& config_;
+  Config& org_config_;
 };
 
 class ConfigCPU : public ConfigPage {
@@ -43,98 +43,98 @@ class ConfigCPU : public ConfigPage {
   ConfigCPU(Config& c, Config& oc) : ConfigPage(c, oc) {}
 
  private:
-  LPCSTR GetTemplate();
-  void InitDialog(HWND hdlg);
-  void SetActive(HWND hdlg);
-  bool Clicked(HWND hdlg, HWND hwctl, UINT id);
-  void Update(HWND hdlg);
-  void UpdateSlider(HWND hdlg);
-  BOOL Command(HWND hdlg, HWND hwctl, UINT nc, UINT id);
+  LPCSTR GetTemplate() final;
+  void InitDialog(HWND hdlg) final;
+  void SetActive(HWND hdlg) final;
+  bool Clicked(HWND hdlg, HWND hwctl, UINT id) final;
+  void Update(HWND hdlg) final;
+  void UpdateSlider(HWND hdlg) final;
+  BOOL Command(HWND hdlg, HWND hwctl, UINT nc, UINT id) final;
 };
 
-class ConfigScreen : public ConfigPage {
+class ConfigScreen final : public ConfigPage {
  public:
   ConfigScreen(Config& c, Config& oc) : ConfigPage(c, oc) {}
 
  private:
-  LPCSTR GetTemplate();
-  bool Clicked(HWND hdlg, HWND hwctl, UINT id);
-  void Update(HWND hdlg);
+  LPCSTR GetTemplate() final;
+  bool Clicked(HWND hdlg, HWND hwctl, UINT id) final;
+  void Update(HWND hdlg) final;
 };
 
-class ConfigSound : public ConfigPage {
+class ConfigSound final : public ConfigPage {
  public:
   ConfigSound(Config& c, Config& oc) : ConfigPage(c, oc) {}
 
  private:
-  LPCSTR GetTemplate();
-  void InitDialog(HWND hdlg);
-  void SetActive(HWND hdlg);
-  bool Clicked(HWND hdlg, HWND hwctl, UINT id);
-  void Update(HWND hdlg);
-  BOOL Command(HWND hdlg, HWND hwctl, UINT nc, UINT id);
+  LPCSTR GetTemplate() final;
+  void InitDialog(HWND hdlg) final;
+  void SetActive(HWND hdlg) final;
+  bool Clicked(HWND hdlg, HWND hwctl, UINT id) final;
+  void Update(HWND hdlg) final;
+  BOOL Command(HWND hdlg, HWND hwctl, UINT nc, UINT id) final;
 };
 
-class ConfigVolume : public ConfigPage {
+class ConfigVolume final : public ConfigPage {
  public:
   ConfigVolume(Config& c, Config& oc) : ConfigPage(c, oc) {}
 
  private:
-  LPCSTR GetTemplate();
-  void InitDialog(HWND hdlg);
-  void SetActive(HWND hdlg);
-  bool Clicked(HWND hdlg, HWND hwctl, UINT id);
-  void UpdateSlider(HWND hdlg);
-  void Apply(HWND hdlg);
+  LPCSTR GetTemplate() final;
+  void InitDialog(HWND hdlg) final;
+  void SetActive(HWND hdlg) final;
+  bool Clicked(HWND hdlg, HWND hwctl, UINT id) final;
+  void UpdateSlider(HWND hdlg) final;
+  void Apply(HWND hdlg) final;
 
   static void InitVolumeSlider(HWND hdlg, UINT id, int val);
   static void SetVolumeText(HWND hdlg, int id, int val);
 };
 
-class ConfigFunction : public ConfigPage {
+class ConfigFunction final : public ConfigPage {
  public:
   ConfigFunction(Config& c, Config& oc) : ConfigPage(c, oc) {}
 
  private:
-  LPCSTR GetTemplate();
-  void InitDialog(HWND hdlg);
-  void SetActive(HWND hdlg);
-  bool Clicked(HWND hdlg, HWND hwctl, UINT id);
-  void Update(HWND hdlg);
-  void UpdateSlider(HWND hdlg);
+  LPCSTR GetTemplate() final;
+  void InitDialog(HWND hdlg) final;
+  void SetActive(HWND hdlg) final;
+  bool Clicked(HWND hdlg, HWND hwctl, UINT id) final;
+  void Update(HWND hdlg) final;
+  void UpdateSlider(HWND hdlg) final;
 };
 
-class ConfigSwitch : public ConfigPage {
+class ConfigSwitch final : public ConfigPage {
  public:
   ConfigSwitch(Config& c, Config& oc) : ConfigPage(c, oc) {}
 
  private:
-  LPCSTR GetTemplate();
-  bool Clicked(HWND hdlg, HWND hwctl, UINT id);
-  void Update(HWND hdlg);
+  LPCSTR GetTemplate() final;
+  bool Clicked(HWND hdlg, HWND hwctl, UINT id) final;
+  void Update(HWND hdlg) final;
 };
 
-class ConfigEnv : public ConfigPage {
+class ConfigEnv final : public ConfigPage {
  public:
   ConfigEnv(Config& c, Config& oc) : ConfigPage(c, oc) {}
 
  private:
-  LPCSTR GetTemplate();
-  bool Clicked(HWND hdlg, HWND hwctl, UINT id);
-  void Update(HWND hdlg);
+  LPCSTR GetTemplate() final;
+  bool Clicked(HWND hdlg, HWND hwctl, UINT id) final;
+  void Update(HWND hdlg) final;
 };
 
-class ConfigROMEO : public ConfigPage {
+class ConfigROMEO final : public ConfigPage {
  public:
   ConfigROMEO(Config& c, Config& oc) : ConfigPage(c, oc) {}
 
  private:
-  LPCSTR GetTemplate();
-  void InitDialog(HWND hdlg);
-  void SetActive(HWND hdlg);
-  bool Clicked(HWND hdlg, HWND hwctl, UINT id);
-  void UpdateSlider(HWND hdlg);
-  void Apply(HWND hdlg);
+  LPCSTR GetTemplate() final;
+  void InitDialog(HWND hdlg) final;
+  void SetActive(HWND hdlg) final;
+  bool Clicked(HWND hdlg, HWND hwctl, UINT id) final;
+  void UpdateSlider(HWND hdlg) final;
+  void Apply(HWND hdlg) final;
 
   static void InitSlider(HWND hdlg, UINT id, int val);
   static void SetText(HWND hdlg, int id, int val);
