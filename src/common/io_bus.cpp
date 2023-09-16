@@ -3,63 +3,31 @@
 // ---------------------------------------------------------------------------
 //  IO Bus
 //
+// static
 IOBus::DummyIO IOBus::dummyio;
-
-IOBus::IOBus() : ins(0), outs(0), flags(0), banksize(0) {}
-
-IOBus::~IOBus() {
-  for (uint32_t i = 0; i < banksize; i++) {
-    for (InBank* ib = ins[i].next; ib;) {
-      InBank* nxt = ib->next;
-      delete ib;
-      ib = nxt;
-    }
-    for (OutBank* ob = outs[i].next; ob;) {
-      OutBank* nxt = ob->next;
-      delete ob;
-      ob = nxt;
-    }
-  }
-
-  delete[] ins;
-  delete[] outs;
-  delete[] flags;
-}
 
 //  初期化
 bool IOBus::Init(uint32_t nbanks, DeviceList* dl) {
-  devlist = dl;
+  devlist_ = dl;
 
-  delete[] ins;
-  delete[] outs;
-  delete[] flags;
-
-  banksize = 0;
-  ins = new InBank[nbanks];
-  outs = new OutBank[nbanks];
-  flags = new uint8_t[nbanks];
-  if (!ins || !outs || !flags)
-    return false;
-  banksize = nbanks;
-
-  memset(flags, 0, nbanks);
+  bank_size_ = nbanks;
+  ins_.resize(nbanks);
+  outs_.resize(nbanks);
+  flags_.resize(nbanks);
 
   for (uint32_t i = 0; i < nbanks; i++) {
-    ins[i].device = &dummyio;
-    ins[i].func = static_cast<InFuncPtr>(&DummyIO::dummyin);
-    ins[i].next = 0;
-    outs[i].device = &dummyio;
-    outs[i].func = static_cast<OutFuncPtr>(&DummyIO::dummyout);
-    outs[i].next = 0;
+    ins_[i].clear();
+    ins_[i].emplace_back(&dummyio, static_cast<InFuncPtr>(&DummyIO::dummyin));
+    outs_[i].clear();
+    outs_[i].emplace_back(&dummyio, static_cast<OutFuncPtr>(&DummyIO::dummyout));
   }
-
   return true;
 }
 
 //  デバイス接続
 bool IOBus::Connect(IDevice* device, const Connector* connector) {
-  if (devlist)
-    devlist->Add(device);
+  if (devlist_)
+    devlist_->Add(device);
 
   const IDevice::Descriptor* desc = device->GetDesc();
 
@@ -76,133 +44,93 @@ bool IOBus::Connect(IDevice* device, const Connector* connector) {
         break;
     }
     if (connector->rule & sync)
-      flags[connector->bank] = 1;
+      flags_[connector->bank] = 1;
   }
   return true;
 }
 
 bool IOBus::ConnectIn(uint32_t bank, IDevice* device, InFuncPtr func) {
-  InBank* i = &ins[bank];
-  if (i->func == &DummyIO::dummyin) {
+  InBank& v = ins_[bank];
+  if (v[0].func == &DummyIO::dummyin) {
     // 最初の接続
-    i->device = device;
-    i->func = func;
+    v[0].device = device;
+    v[0].func = func;
   } else {
     // 2回目以降の接続
-    InBank* j = new InBank;
-    if (!j)
-      return false;
-    j->device = device;
-    j->func = func;
-    j->next = i->next;
-    i->next = j;
+    v.emplace_back(device, func);
   }
   return true;
 }
 
 bool IOBus::ConnectOut(uint32_t bank, IDevice* device, OutFuncPtr func) {
-  OutBank* i = &outs[bank];
-  if (i->func == &DummyIO::dummyout) {
+  OutBank& v = outs_[bank];
+  if (v[0].func == &DummyIO::dummyout) {
     // 最初の接続
-    i->device = device;
-    i->func = func;
+    v[0].device = device;
+    v[0].func = func;
   } else {
     // 2回目以降の接続
-    OutBank* j = new OutBank;
-    if (!j)
-      return false;
-    j->device = device;
-    j->func = func;
-    j->next = i->next;
-    i->next = j;
+    v.emplace_back(device, func);
   }
   return true;
 }
 
 bool IOBus::Disconnect(IDevice* device) {
-  if (devlist)
-    devlist->Del(device);
+  if (devlist_)
+    devlist_->Del(device);
 
-  uint32_t i;
-  for (i = 0; i < banksize; i++) {
-    InBank* current = &ins[i];
-    InBank* referer = 0;
-    while (current) {
-      InBank* next = current->next;
-      if (current->device == device) {
-        if (referer) {
-          referer->next = next;
-          delete current;
-        } else {
-          // 削除するべきアイテムが最初にあった場合
-          if (next) {
-            // 次のアイテムの内容を複写して削除
-            *current = *next;
-            referer = 0;
-            delete next;
-            continue;
-          } else {
-            // このアイテムが唯一のアイテムだった場合
-            current->func = static_cast<InFuncPtr>(&DummyIO::dummyin);
-          }
-        }
+  for (int i = 0; i < bank_size_; i++) {
+    InBank& v = ins_[i];
+    for (auto in : v) {
+      auto it = find_if(v.begin(), v.end(),
+                        [device](const InBankEntry& ib) { return ib.device == device; });
+      if (it != v.end()) {
+        v.erase(it);
       }
-      current = next;
+    }
+    if (v.empty()) {
+      // このアイテムが唯一のアイテムだった場合
+      v.emplace_back(&dummyio, static_cast<InFuncPtr>(&DummyIO::dummyin));
     }
   }
 
-  for (i = 0; i < banksize; i++) {
-    OutBank* current = &outs[i];
-    OutBank* referer = 0;
-    while (current) {
-      OutBank* next = current->next;
-      if (current->device == device) {
-        if (referer) {
-          referer->next = next;
-          delete current;
-        } else {
-          // 削除するべきアイテムが最初にあった場合
-          if (next) {
-            // 次のアイテムの内容を複写して削除
-            *current = *next;
-            referer = 0;
-            delete next;
-            continue;
-          } else {
-            // このアイテムが唯一のアイテムだった場合
-            current->func = static_cast<OutFuncPtr>(&DummyIO::dummyout);
-          }
-        }
+  for (int i = 0; i < bank_size_; i++) {
+    OutBank& v = outs_[i];
+    for (auto in : v) {
+      auto it = find_if(v.begin(), v.end(),
+                        [device](const OutBankEntry& ib) { return ib.device == device; });
+      if (it != v.end()) {
+        v.erase(it);
       }
-      current = next;
+    }
+    if (v.empty()) {
+      // このアイテムが唯一のアイテムだった場合
+      v.emplace_back(&dummyio, static_cast<OutFuncPtr>(&DummyIO::dummyout));
     }
   }
   return true;
 }
 
 uint32_t IOBus::In(uint32_t port) {
-  InBank* list = &ins[port];
+  InBank& v = ins_[port];
 
   uint32_t data = 0xff;
-  do {
-    data &= (list->device->*list->func)(port);
-    list = list->next;
-  } while (list);
+  for (auto dev : v) {
+    data &= (dev.device->*dev.func)(port);
+  }
   return data;
 }
 
 void IOBus::Out(uint32_t port, uint32_t data) {
-  OutBank* list = &outs[port];
-  do {
-    (list->device->*list->func)(port, data);
-    list = list->next;
-  } while (list);
+  OutBank& v = outs_[port];
+
+  for (auto dev : v) {
+    (dev.device->*dev.func)(port, data);
+  }
 }
 
 uint32_t IOCALL IOBus::DummyIO::dummyin(uint32_t) {
   return IOBus::Active(0xff, 0xff);
 }
 
-void IOCALL IOBus::DummyIO::dummyout(uint32_t, uint32_t) {
-  return;
-}
+void IOCALL IOBus::DummyIO::dummyout(uint32_t, uint32_t) {}

@@ -222,7 +222,7 @@ void Z80C::Wait(bool wait) {
 //  CPU 初期化
 //
 bool Z80C::Init(MemoryManager* mem, IOBus* _bus, int iack) {
-  bus = _bus, intack = iack;
+  bus_ = _bus, intack = iack;
 
   index_mode = USEHL;
   clockcount = 0;
@@ -482,11 +482,11 @@ inline void Z80C::Write16(uint32_t addr, uint32_t data) {
 }
 
 inline uint32_t Z80C::Inp(uint32_t port) {
-  return bus->In(port & 0xff);
+  return bus_->In(port & 0xff);
 }
 
 inline void Z80C::Outp(uint32_t port, uint32_t data) {
-  bus->Out(port & 0xff, data);
+  bus_->Out(port & 0xff, data);
   SetPC(GetPC());
   DEBUGCOUNT(11);
 }
@@ -585,7 +585,7 @@ void Z80C::TestIntr() {
       waitstate = 0;
       PCInc(1);
     }
-    int intno = bus->In(intack);
+    int intno = bus_->In(intack);
 
     switch (reg.intmode) {
       case 0:
@@ -994,7 +994,7 @@ void Z80C::SingleStep(uint32_t m) {
 
     case 0xdb:  // IN A,(n)
       w = /*(uint32_t(RegA) << 8) +*/ Fetch8();
-      if (bus->IsSyncPort(w) && !Sync()) {
+      if (bus_->IsSyncPort(w) && !Sync()) {
         PCDec(2);
         break;
       }
@@ -1004,7 +1004,7 @@ void Z80C::SingleStep(uint32_t m) {
 
     case 0xd3:  // OUT (n),A
       w = /*(uint32_t(RegA) << 8) + */ Fetch8();
-      if (bus->IsSyncPort(w) && !Sync()) {
+      if (bus_->IsSyncPort(w) && !Sync()) {
         PCDec(2);
         break;
       }
@@ -2236,7 +2236,7 @@ void Z80C::SingleStep(uint32_t m) {
 
         // IN r,(c)
         case 0x40:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2246,7 +2246,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x48:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2256,7 +2256,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x50:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2266,7 +2266,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x58:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2276,7 +2276,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x60:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2286,7 +2286,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x68:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2296,7 +2296,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x70:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2306,7 +2306,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x78:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2317,7 +2317,7 @@ void Z80C::SingleStep(uint32_t m) {
 
         // OUT (C),r
         case 0x41:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2327,7 +2327,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x49:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2337,7 +2337,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x51:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2347,7 +2347,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x59:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2357,7 +2357,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x61:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2367,7 +2367,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x69:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2377,7 +2377,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x71:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2387,7 +2387,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x79:
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2397,7 +2397,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0xa2:  // INI
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2407,7 +2407,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0xaa:  // IND
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2417,7 +2417,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0xa3:  // OUTI
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2428,7 +2428,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0xab:  // OUTD
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2439,7 +2439,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0xb2:  // INIR
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2451,7 +2451,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0xba:  // INDR
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2463,7 +2463,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0xb3:  // OTIR
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
@@ -2476,7 +2476,7 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0xbb:  // OTDR
-          if (bus->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
