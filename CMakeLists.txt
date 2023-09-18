@@ -185,6 +185,8 @@ add_library(win32 ${LIB_TYPE}
         src/win32/dderr.cpp
         src/win32/drawd2d.h
         src/win32/drawd2d.cpp
+        src/win32/drawd3d.h
+        src/win32/drawd3d.cpp
         src/win32/drawdds.h
         src/win32/drawdds.cpp
         src/win32/drawgdi.h
