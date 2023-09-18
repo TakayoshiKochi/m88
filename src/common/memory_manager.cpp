@@ -11,19 +11,19 @@
 // ---------------------------------------------------------------------------
 //  構築・破棄
 //
-MemoryManagerBase::MemoryManagerBase() : ownpages(false), pages(0), npages(0), priority(0) {
-  lsp[0].pages = 0;
+MemoryManagerBase::MemoryManagerBase() {
+  lsp[0].pages = nullptr;
 }
 
 MemoryManagerBase::~MemoryManagerBase() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
 //  下準備
 //
 bool MemoryManagerBase::Init(uint32_t sas, Page* expages) {
-  Cleanup();
+  CleanUp();
 
   // pages
   npages = (sas + pagemask) >> pagebits;
@@ -45,7 +45,7 @@ bool MemoryManagerBase::Init(uint32_t sas, Page* expages) {
 
   lsp[0].pages = new DPage[npages * ndevices];
   for (int i = 0; i < ndevices; i++) {
-    lsp[i].inst = 0;
+    lsp[i].inst = nullptr;
     lsp[i].pages = lsp[0].pages + (i * npages);
   }
 
@@ -61,13 +61,13 @@ bool MemoryManagerBase::Init(uint32_t sas, Page* expages) {
 // ---------------------------------------------------------------------------
 //  後始末
 //
-void MemoryManagerBase::Cleanup() {
+void MemoryManagerBase::CleanUp() {
   if (ownpages) {
     delete[] pages;
-    pages = 0;
+    pages = nullptr;
   }
   delete[] priority;
-  priority = 0;
+  priority = nullptr;
   //  if (lsp)
   {
     delete[] lsp[0].pages;
