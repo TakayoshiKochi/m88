@@ -32,7 +32,7 @@ DriverDS::DriverDS() {
 }
 
 DriverDS::~DriverDS() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -118,7 +118,7 @@ bool DriverDS::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint3
 // ---------------------------------------------------------------------------
 //  後片付け -----------------------------------------------------------------
 
-bool DriverDS::Cleanup() {
+bool DriverDS::CleanUp() {
   playing = false;
   if (timerid) {
     timeKillEvent(timerid);

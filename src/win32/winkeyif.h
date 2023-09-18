@@ -19,27 +19,28 @@ class Config;
 class WinKeyIF : public Device {
  public:
   enum {
+    in = 0,
     reset = 0,
     vsync,
-    in = 0,
   };
 
  public:
   WinKeyIF();
-  ~WinKeyIF();
+  ~WinKeyIF() override;
+
   bool Init(HWND);
   void ApplyConfig(const Config* config);
 
   uint32_t IOCALL In(uint32_t port);
+  void IOCALL Reset(uint32_t, uint32_t);
   void IOCALL VSync(uint32_t, uint32_t data);
-  void IOCALL Reset(uint32_t = 0, uint32_t = 0);
 
   void Activate(bool);
   void Disable(bool);
   void KeyDown(uint32_t, uint32_t);
   void KeyUp(uint32_t, uint32_t);
 
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
   enum KeyState {
@@ -69,20 +70,22 @@ class WinKeyIF : public Device {
   static const Key KeyTable106[16 * 8][8];
   static const Key KeyTable101[16 * 8][8];
 
-  const Key* keytable;
-  int keyboardtype;
-  bool active;
-  bool disable;
+  const Key* keytable = nullptr;
+  // int keyboardtype;
+
+  bool active_;
+  bool disabled_;
   bool usearrow;
   bool pc80mode;
+
   HWND hwnd;
   HANDLE hevent;
   BasicMode basicmode;
-  int keyport[16];
+
+  int keyport_[16];
   uint8_t keyboard[256];
   uint8_t keystate[512];
 
- private:
   static const Descriptor descriptor;
   static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];

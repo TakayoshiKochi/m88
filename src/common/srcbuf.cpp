@@ -50,7 +50,7 @@ SamplingRateConverter::SamplingRateConverter()
 }
 
 SamplingRateConverter::~SamplingRateConverter() {
-  Cleanup();
+  CleanUp();
 }
 
 bool SamplingRateConverter::Init(SoundSourceL* _source, int _buffersize, uint32_t outrate) {
@@ -87,7 +87,7 @@ bool SamplingRateConverter::Init(SoundSourceL* _source, int _buffersize, uint32_
   return true;
 }
 
-void SamplingRateConverter::Cleanup() {
+void SamplingRateConverter::CleanUp() {
   std::lock_guard<std::mutex> lock(mtx_);
 
   delete[] buffer;

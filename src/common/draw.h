@@ -51,7 +51,7 @@ class Draw {
   virtual ~Draw() = default;
 
   virtual bool Init(uint32_t width, uint32_t height, uint32_t bpp) = 0;
-  virtual bool Cleanup() = 0;
+  virtual bool CleanUp() = 0;
 
   virtual bool Lock(uint8_t** pimage, int* pbpl) = 0;
   virtual bool Unlock() = 0;

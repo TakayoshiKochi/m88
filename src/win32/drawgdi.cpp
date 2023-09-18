@@ -16,7 +16,7 @@
 WinDrawGDI::WinDrawGDI() : hwnd(0), hbitmap(0), updatepal(false), bitmapimage(0), image(0) {}
 
 WinDrawGDI::~WinDrawGDI() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -48,7 +48,7 @@ bool WinDrawGDI::Resize(uint32_t w, uint32_t h) {
 // ---------------------------------------------------------------------------
 //  後片付け
 //
-bool WinDrawGDI::Cleanup() {
+bool WinDrawGDI::CleanUp() {
   if (hbitmap) {
     DeleteObject(hbitmap), hbitmap = 0;
   }

@@ -76,10 +76,10 @@ class Z80C : public Device {
   };
 
  public:
-  Z80C(const ID& id);
-  ~Z80C();
+  explicit Z80C(const ID& id);
+  ~Z80C() override;
 
-  const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   bool Init(MemoryManager* mem, IOBus* bus, int iack);
 
@@ -109,7 +109,7 @@ class Z80C : public Device {
   bool IFCALL SaveStatus(uint8_t* status) override;
   bool IFCALL LoadStatus(const uint8_t* status) override;
 
-  uint32_t GetPC() const { return static_cast<uint32_t>(inst - instbase); }
+  [[nodiscard]] uint32_t GetPC() const { return static_cast<uint32_t>(inst - instbase); }
 
   void SetPC(uint32_t newpc);
   const Z80Reg& GetReg() { return reg; }
@@ -118,7 +118,7 @@ class Z80C : public Device {
     *rd = rdpages, *wr = wrpages;
     return true;
   }
-  int* GetWaits() { return 0; }
+  int* GetWaits() { return nullptr; }
 
   void TestIntr();
   bool IsIntr() { return !!intr; }
@@ -144,15 +144,17 @@ class Z80C : public Device {
 
   void DumpLog();
 
-  uint8_t* inst;      // PC の指すメモリのポインタ，または PC そのもの
-  uint8_t* instlim;   // inst の有効上限
-  uint8_t* instbase;  // inst - PC        (PC = inst - instbase)
-  uint8_t* instpage;
+  uint8_t* inst = nullptr;      // PC の指すメモリのポインタ，または PC そのもの
+  uint8_t* instlim = nullptr;   // inst の有効上限
+  uint8_t* instbase = nullptr;  // inst - PC        (PC = inst - instbase)
+  uint8_t* instpage = nullptr;
 
   Z80Reg reg;
-  IOBus* bus;
+  IOBus* bus_ = nullptr;
+
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];
+
   static Z80C* currentcpu;
   static int cbase;
 
@@ -203,13 +205,13 @@ class Z80C : public Device {
 
   void SingleStep(uint32_t inst);
   void SingleStep();
-  void Init();
+  // void Init();
   int Exec0(int stop, int d);
   int Exec1(int stop, int d);
   bool Sync();
   void OutTestIntr();
 
-  void SetPCi(uint32_t newpc);
+  // void SetPCi(uint32_t newpc);
   void PCInc(uint32_t inc);
   void PCDec(uint32_t dec);
 

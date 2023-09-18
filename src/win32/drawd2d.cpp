@@ -22,7 +22,7 @@ void SafeRelease(T** ppT) {
 //  構築/消滅
 //
 WinDrawD2D::~WinDrawD2D() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ void WinDrawD2D::SetGUIMode(bool _mode) {
 }
 
 bool WinDrawD2D::CreateD2D() {
-  Cleanup();
+  CleanUp();
 
   if (m_hCWnd == nullptr) {
     // Base windowを生成
@@ -110,7 +110,7 @@ bool WinDrawD2D::Resize(uint32_t _width, uint32_t _height) {
 
 //! 後片付け
 //
-bool WinDrawD2D::Cleanup() {
+bool WinDrawD2D::CleanUp() {
   SafeRelease(&m_GDIRT);
   SafeRelease(&m_RenderTarget);
   SafeRelease(&m_D2DFact);

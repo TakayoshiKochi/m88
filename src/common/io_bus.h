@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <vector>
 
 #include "common/device.h"
 #include "if/ifcommon.h"
@@ -15,29 +16,15 @@ class IOBus : public IIOAccess, public IIOBus {
   using InFuncPtr = Device::InFuncPtr;
   using OutFuncPtr = Device::OutFuncPtr;
 
-  struct InBank {
-    IDevice* device;
-    InFuncPtr func;
-    InBank* next;
-  };
-  struct OutBank {
-    IDevice* device;
-    OutFuncPtr func;
-    OutBank* next;
-  };
+  IOBus() = default;
+  ~IOBus() = default;
 
- public:
-  IOBus();
-  ~IOBus();
-
-  bool Init(uint32_t nports, DeviceList* devlist = 0);
+  bool Init(uint32_t nports, DeviceList* devlist = nullptr);
 
   bool ConnectIn(uint32_t bank, IDevice* device, InFuncPtr func);
   bool ConnectOut(uint32_t bank, IDevice* device, OutFuncPtr func);
 
-  uint8_t* GetFlags() { return flags; }
-
-  bool IsSyncPort(uint32_t port);
+  [[nodiscard]] bool IsSyncPort(uint32_t port) const;
 
   // Overrides IIOBus
   bool IFCALL Connect(IDevice* device, const Connector* connector) override;
@@ -51,50 +38,44 @@ class IOBus : public IIOAccess, public IIOBus {
   static uint32_t Active(uint32_t data, uint32_t bits) { return data | ~bits; }
 
  private:
-  class DummyIO : public Device {
+  class DummyIO final : public Device {
    public:
     DummyIO() : Device(0) {}
-    ~DummyIO() {}
+    ~DummyIO() override = default;
 
     uint32_t IOCALL dummyin(uint32_t);
     void IOCALL dummyout(uint32_t, uint32_t);
   };
-  struct StatusTag {
-    Device::ID id;
-    uint32_t size;
+
+  template <class T>
+  struct Entry {
+    Entry() = delete;
+    Entry(IDevice* d, T f) : device(d), func(f) {}
+    ~Entry() = default;
+
+    IDevice* device;
+    T func;
   };
 
- private:
-  InBank* ins;
-  OutBank* outs;
-  uint8_t* flags;
-  DeviceList* devlist;
+  using InBankEntry = Entry<InFuncPtr>;
+  using OutBankEntry = Entry<OutFuncPtr>;
+  using InBank = std::vector<InBankEntry>;
+  using OutBank = std::vector<OutBankEntry>;
 
-  uint32_t banksize;
+  std::vector<InBank> ins_;
+  std::vector<OutBank> outs_;
+  std::vector<uint8_t> flags_;
+  DeviceList* devlist_ = nullptr;
+
+  uint32_t bank_size_ = 0;
   static DummyIO dummyio;
 };
 
-// ---------------------------------------------------------------------------
-//  Bus
-//
-/*
-class Bus : public MemoryBus, public IOBus
-{
-public:
-    Bus() {}
-    ~Bus() {}
-
-    bool Init(uint32_t nports, uint32_t npages, Page* pages = 0);
-};
-*/
-// ---------------------------------------------------------------------------
-
 // Assumes little endian
-#define DEV_ID(a, b, c, d) \
-  (Device::ID(a + (uint32_t(b) << 8) + (uint32_t(c) << 16) + (uint32_t(d) << 24)))
+constexpr Device::ID DEV_ID(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
+  return Device::ID(a + (uint32_t(b) << 8) + (uint32_t(c) << 16) + (uint32_t(d) << 24));
+}
 
-// ---------------------------------------------------------------------------
-
-inline bool IOBus::IsSyncPort(uint32_t port) {
-  return (flags[port] & 1) != 0;
+inline bool IOBus::IsSyncPort(uint32_t port) const {
+  return (flags_[port] & 1) != 0;
 }

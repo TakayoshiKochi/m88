@@ -30,7 +30,7 @@ class DriverDS2 : public Driver {
   ~DriverDS2();
 
   bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen);
-  bool Cleanup();
+  bool CleanUp();
 
  private:
   static uint32_t WINAPI ThreadEntry(LPVOID arg);

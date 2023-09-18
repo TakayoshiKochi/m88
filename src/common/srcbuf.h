@@ -15,7 +15,7 @@ class SamplingRateConverter : public SoundSource {
   ~SamplingRateConverter();
 
   bool Init(SoundSourceL* source, int bufsize, uint32_t outrate);  // bufsize はサンプル単位
-  void Cleanup();
+  void CleanUp();
 
   int Get(Sample* dest, int size);
   uint32_t GetRate();

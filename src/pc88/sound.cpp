@@ -25,7 +25,7 @@ using namespace PC8801;
 Sound::Sound() : Device(0) {}
 
 Sound::~Sound() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -60,7 +60,7 @@ bool Sound::SetRate(uint32_t rate, int bufsize) {
   enabled_ = false;
 
   // 古いバッファを削除
-  soundbuf_.Cleanup();
+  soundbuf_.CleanUp();
   delete[] mixing_buf_;
   mixing_buf_ = 0;
 
@@ -87,7 +87,7 @@ bool Sound::SetRate(uint32_t rate, int bufsize) {
 // ---------------------------------------------------------------------------
 //  後片付け
 //
-void Sound::Cleanup() {
+void Sound::CleanUp() {
   // 各音源を切り離す。(音源自体の削除は行わない)
   for (SSNode* n = sslist_; n;) {
     SSNode* next = n->next;
@@ -97,7 +97,7 @@ void Sound::Cleanup() {
   sslist_ = nullptr;
 
   // バッファを開放
-  soundbuf_.Cleanup();
+  soundbuf_.CleanUp();
   delete[] mixing_buf_;
   mixing_buf_ = nullptr;
 }

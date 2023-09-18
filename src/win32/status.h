@@ -20,7 +20,7 @@ class StatusDisplayImpl : public StatusDisplayInterface {
   ~StatusDisplayImpl();
 
   bool Init(HWND hwndparent);
-  void Cleanup();
+  void CleanUp();
 
   bool Enable(bool sfs = false);
   bool Disable();

@@ -21,7 +21,7 @@ public:
 	~GVRAMReverse();
 
 	bool Init(IMemoryManager* mm);
-	void Cleanup();
+	void CleanUp();
 
 	// IDevice Method
 	const Descriptor* IFCALL GetDesc() const { return &descriptor; }

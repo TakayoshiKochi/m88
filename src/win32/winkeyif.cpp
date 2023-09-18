@@ -25,13 +25,13 @@ WinKeyIF::WinKeyIF() : Device(0) {
   hwnd = 0;
   hevent = 0;
   for (int i = 0; i < 16; i++) {
-    keyport[i] = -1;
+    keyport_[i] = -1;
   }
   memset(keyboard, 0, 256);
   memset(keystate, 0, 512);
   usearrow = false;
 
-  disable = false;
+  disabled_ = false;
 }
 
 WinKeyIF::~WinKeyIF() {
@@ -218,7 +218,7 @@ uint32_t WinKeyIF::GetKey(const Key* key) {
 //  VSync 処理
 //
 void IOCALL WinKeyIF::VSync(uint32_t, uint32_t d) {
-  if (d && active) {
+  if (d && active_) {
     if (hwnd) {
       PostMessage(hwnd, WM_M88_SENDKEYSTATE, reinterpret_cast<DWORD>(keyboard), (DWORD)hevent);
       WaitForSingleObject(hevent, 10);
@@ -228,23 +228,23 @@ void IOCALL WinKeyIF::VSync(uint32_t, uint32_t d) {
       keystate[0xf4] = std::max(keystate[0xf4] - 1, 0);
     }
     for (int i = 0; i < 16; i++) {
-      keyport[i] = -1;
+      keyport_[i] = -1;
     }
   }
 }
 
 void WinKeyIF::Activate(bool yes) {
-  active = yes;
-  if (active) {
+  active_ = yes;
+  if (active_) {
     memset(keystate, 0, 512);
     for (int i = 0; i < 16; i++) {
-      keyport[i] = -1;
+      keyport_[i] = -1;
     }
   }
 }
 
 void WinKeyIF::Disable(bool yes) {
-  disable = yes;
+  disabled_ = yes;
 }
 
 // ---------------------------------------------------------------------------
@@ -253,8 +253,8 @@ void WinKeyIF::Disable(bool yes) {
 uint32_t IOCALL WinKeyIF::In(uint32_t port) {
   port &= 0x0f;
 
-  if (active) {
-    int r = keyport[port];
+  if (active_) {
+    int r = keyport_[port];
     if (r == -1) {
       const Key* key = keytable + port * 64 + 56;
       r = 0;
@@ -262,7 +262,7 @@ uint32_t IOCALL WinKeyIF::In(uint32_t port) {
         r = r * 2 + GetKey(key);
         key -= 8;
       }
-      keyport[port] = r;
+      keyport_[port] = r;
       if (port == 0x0d) {
         Log("In(13)   = %.2x %.2x %.2x\n", r, keystate[0xf4], keystate[0x1f4]);
       }
@@ -1007,11 +1007,11 @@ const WinKeyIF::Key WinKeyIF::KeyTable98[16 * 8][8] = {
 //
 const Device::Descriptor WinKeyIF::descriptor = {indef, outdef};
 
-const Device::OutFuncPtr WinKeyIF::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&Reset),
-    static_cast<Device::OutFuncPtr>(&VSync),
+const Device::InFuncPtr WinKeyIF::indef[] = {
+    static_cast<Device::InFuncPtr>(&WinKeyIF::In),
 };
 
-const Device::InFuncPtr WinKeyIF::indef[] = {
-    static_cast<Device::InFuncPtr>(&In),
+const Device::OutFuncPtr WinKeyIF::outdef[] = {
+    static_cast<Device::OutFuncPtr>(&WinKeyIF::Reset),
+    static_cast<Device::OutFuncPtr>(&WinKeyIF::VSync),
 };

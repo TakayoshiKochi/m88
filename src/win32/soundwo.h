@@ -24,7 +24,7 @@ class DriverWO : public Driver {
   ~DriverWO();
 
   bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen);
-  bool Cleanup();
+  bool CleanUp();
 
  private:
   bool SendBlock(WAVEHDR*);

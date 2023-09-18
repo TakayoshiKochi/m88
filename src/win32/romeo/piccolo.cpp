@@ -82,7 +82,7 @@ int Piccolo::Init() {
 // ---------------------------------------------------------------------------
 //  後始末
 //
-void Piccolo::Cleanup() {
+void Piccolo::CleanUp() {
   if (hthread) {
     shouldterminate = true;
     if (WAIT_TIMEOUT == WaitForSingleObject(hthread, 3000)) {

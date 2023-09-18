@@ -29,7 +29,7 @@ DriverWO::DriverWO() {
 }
 
 DriverWO::~DriverWO() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -109,7 +109,7 @@ bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t b
 // ---------------------------------------------------------------------------
 //  後片付け
 //
-bool DriverWO::Cleanup() {
+bool DriverWO::CleanUp() {
   if (hthread) {
     PostThreadMessage(idthread, WM_QUIT, 0, 0);
     if (WAIT_TIMEOUT == WaitForSingleObject(hthread, 3000))

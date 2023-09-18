@@ -7,7 +7,7 @@
 #pragma once
 
 #include <assert.h>
-#include <windows.h>
+#include <stdint.h>
 
 #include "if/ifcommon.h"
 
@@ -26,12 +26,11 @@ class MemoryManagerBase {
   using Page = MemoryPage;
   enum { ndevices = 8, pagebits = 10, pagemask = (1 << pagebits) - 1 };
 
- public:
   MemoryManagerBase();
   ~MemoryManagerBase();
 
-  bool Init(uint32_t sas, Page* pages = 0);
-  void Cleanup();
+  bool Init(uint32_t sas, Page* pages = nullptr);
+  void CleanUp();
   int Connect(void* inst, bool high = false);
   bool Disconnect(uint32_t pid);
   bool Disconnect(void* inst);
@@ -52,8 +51,8 @@ class MemoryManagerBase {
   };
 
   Page* pages = nullptr;
-  uint32_t npages;
-  bool ownpages;
+  uint32_t npages = 0;
+  bool ownpages = false;
 
   uint8_t* priority = nullptr;
   LocalSpace lsp[ndevices];
@@ -65,7 +64,9 @@ class ReadMemManager : public MemoryManagerBase {
  public:
   using RdFunc = uint32_t (*)(void* inst, uint32_t addr);
 
-  bool Init(uint32_t sas, Page* pages = 0);
+  // Intentionally not overriding MemoryManagerBase::Init
+  bool Init(uint32_t sas, Page* pages);
+
   bool AllocR(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr);
   bool AllocR(uint32_t pid, uint32_t addr, uint32_t length, RdFunc ptr);
   bool ReleaseR(uint32_t pid, uint32_t addr, uint32_t length);
@@ -82,8 +83,9 @@ class WriteMemManager : public MemoryManagerBase {
  public:
   using WrFunc = void (*)(void* inst, uint32_t addr, uint32_t data);
 
- public:
-  bool Init(uint32_t sas, Page* pages = 0);
+  // Intentionally not overriding MemoryManagerBase::Init
+  bool Init(uint32_t sas, Page* pages);
+
   bool AllocW(uint32_t pid, uint32_t addr, uint32_t length, uint8_t* ptr);
   bool AllocW(uint32_t pid, uint32_t addr, uint32_t length, WrFunc ptr);
   bool ReleaseW(uint32_t pid, uint32_t addr, uint32_t length);
@@ -110,7 +112,7 @@ class MemoryManager : public IMemoryManager,
   // Overrides IMemoryManager
   int IFCALL Connect(void* inst, bool highpriority = false) override;
   bool IFCALL Disconnect(uint32_t pid) override;
-  // ??
+  // Overrides MemoryManagerBase (via Read/WriteMemManager)
   bool Disconnect(void* inst);
 
   // Overrides IMemoryManager
@@ -147,7 +149,8 @@ class MemoryManager : public IMemoryManager,
 // ---------------------------------------------------------------------------
 
 inline bool MemoryManager::Init(uint32_t sas, Page* read, Page* write) {
-  if (!read ^ !write)
+  // Note: original code : (!read ^ !write)
+  if ((read == nullptr && write != nullptr) || (read != nullptr && write == nullptr))
     return false;
   return ReadMemManager::Init(sas, read) && WriteMemManager::Init(sas, write);
 }
@@ -184,7 +187,7 @@ inline bool MemoryManagerBase::Alloc(uint32_t pid,
   for (; page < top; page++, pri += ndevices) {
     // 現在のページの owner が自分よりも低い優先度を持つ場合
     // priority の書き換えを行う
-    for (int i = pid; pri[i] > pid && i >= 0; i--) {
+    for (int i = pid; pri[i] > pid && i >= 0; --i) {
       pri[i] = pid;
     }
     if (pri[0] == pid) {

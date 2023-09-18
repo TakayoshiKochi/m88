@@ -17,7 +17,7 @@ class Sine : public Device, public ISoundSource {
   ~Sine();
 
   bool Init();
-  void Cleanup();
+  void CleanUp();
 
   // ISoundSource method
   bool IFCALL Connect(ISoundControl* sc);

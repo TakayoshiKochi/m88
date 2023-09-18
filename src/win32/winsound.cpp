@@ -31,7 +31,7 @@ WinSound::WinSound() : driver(0) {
 
 WinSound::~WinSound() {
   DumpEnd();
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -52,13 +52,13 @@ bool WinSound::Init(PC88* pc, HWND hwindow, uint32_t rate, uint32_t buflen) {
 // ---------------------------------------------------------------------------
 //  後処理
 //
-void WinSound::Cleanup() {
+void WinSound::CleanUp() {
   if (driver) {
-    driver->Cleanup();
+    driver->CleanUp();
     delete driver;
     driver = 0;
   }
-  Sound::Cleanup();
+  Sound::CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
       bufsize = (samprate * buflen / 1000 / 2) & ~15;
 
     if (driver) {
-      driver->Cleanup();
+      driver->CleanUp();
       delete driver;
       driver = 0;
     }

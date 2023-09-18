@@ -25,7 +25,7 @@ CDControl::CDControl() {
 }
 
 CDControl::~CDControl() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ bool CDControl::Init(CDROM* cd, Device* dev, DONEFUNC func) {
 // ---------------------------------------------------------------------------
 //  後片づけ
 //
-void CDControl::Cleanup() {
+void CDControl::CleanUp() {
   if (hthread) {
     int i = 100;
     shouldterminate = true;

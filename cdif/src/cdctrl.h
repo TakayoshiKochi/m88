@@ -48,7 +48,7 @@ class CDControl {
 
  private:
   void ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2);
-  void Cleanup();
+  void CleanUp();
   uint32_t ThreadMain();
   static uint32_t __stdcall ThreadEntry(LPVOID arg);
 

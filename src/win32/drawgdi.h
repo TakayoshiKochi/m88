@@ -20,7 +20,7 @@ class WinDrawGDI : public WinDrawSub {
 
   bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID*);
   bool Resize(uint32_t width, uint32_t height);
-  bool Cleanup();
+  bool CleanUp();
   void SetPalette(PALETTEENTRY* pal, int index, int nentries);
   void DrawScreen(const RECT& rect, bool refresh);
   bool Lock(uint8_t** pimage, int* pbpl);

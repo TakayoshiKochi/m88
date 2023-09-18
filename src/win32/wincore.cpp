@@ -37,7 +37,7 @@ using namespace PC8801;
 //
 WinCore::~WinCore() {
   PC88::DeInit();
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -79,8 +79,8 @@ bool WinCore::Init(WinUI* _ui,
 // ---------------------------------------------------------------------------
 //  後始末
 //
-bool WinCore::Cleanup() {
-  seq.Cleanup();
+bool WinCore::CleanUp() {
+  seq.CleanUp();
 
   for (ExtendModules::iterator i = extmodules.begin(); i != extmodules.end(); ++i)
     delete *i;

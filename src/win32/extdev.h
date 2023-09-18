@@ -31,7 +31,7 @@ class ExternalDevice : public Device, public ISoundSource {
             PD8257* dmac,
             ISoundControl* sound,
             IMemoryManager* mm);
-  bool Cleanup();
+  bool CleanUp();
 
   uint32_t IFCALL GetStatusSize();
   bool IFCALL SaveStatus(uint8_t* status);

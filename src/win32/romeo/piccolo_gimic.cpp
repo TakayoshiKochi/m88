@@ -110,7 +110,7 @@ static void FreeDLL() {
 Piccolo_Gimic::Piccolo_Gimic() : Piccolo() {}
 
 Piccolo_Gimic::~Piccolo_Gimic() {
-  Cleanup();
+  CleanUp();
   FreeDLL();
 }
 

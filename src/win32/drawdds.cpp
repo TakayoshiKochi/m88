@@ -44,7 +44,7 @@ WinDrawDDS::WinDrawDDS(bool force480) {
 //  破棄
 //
 WinDrawDDS::~WinDrawDDS() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -82,9 +82,9 @@ bool WinDrawDDS::Init(HWND hwindow, uint32_t w, uint32_t h, GUID* drv) {
 }
 
 // ---------------------------------------------------------------------------
-//  Cleanup
+//  CleanUp
 //
-bool WinDrawDDS::Cleanup() {
+bool WinDrawDDS::CleanUp() {
   if (ddraw) {
     ddraw->SetCooperativeLevel(hwnd, DDSCL_NORMAL);
   }

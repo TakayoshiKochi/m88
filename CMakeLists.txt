@@ -58,6 +58,7 @@ target_include_directories(common
 
 add_executable(common_unittests
         src/common/device_test.cc
+        src/common/io_bus_test.cc
         src/common/scheduler_test.cc)
 
 target_link_libraries(common_unittests
