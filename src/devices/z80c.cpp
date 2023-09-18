@@ -268,6 +268,7 @@ int Z80C::Exec(int clocks) {
 // ---------------------------------------------------------------------------
 //  命令遂行
 //
+// static
 int Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
   int c = first->GetCount();
 
@@ -289,6 +290,7 @@ int Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
 // ---------------------------------------------------------------------------
 //  2CPU 実行
 //
+// static
 int Z80C::ExecDual(Z80C* first, Z80C* second, int count) {
   currentcpu = second;
   second->startcount = second->delaycount = first->GetCount();
@@ -314,6 +316,7 @@ int Z80C::ExecDual(Z80C* first, Z80C* second, int count) {
 // ---------------------------------------------------------------------------
 //  2CPU 実行
 //
+// static
 int Z80C::ExecDual2(Z80C* first, Z80C* second, int count) {
   currentcpu = second;
   second->startcount = second->delaycount = first->GetCount();

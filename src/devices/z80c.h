@@ -205,13 +205,13 @@ class Z80C : public Device {
 
   void SingleStep(uint32_t inst);
   void SingleStep();
-  void Init();
+  // void Init();
   int Exec0(int stop, int d);
   int Exec1(int stop, int d);
   bool Sync();
   void OutTestIntr();
 
-  void SetPCi(uint32_t newpc);
+  // void SetPCi(uint32_t newpc);
   void PCInc(uint32_t inc);
   void PCDec(uint32_t dec);
 
