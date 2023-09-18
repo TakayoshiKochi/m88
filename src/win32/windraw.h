@@ -85,7 +85,7 @@ class WinDraw : public Draw {
   int CaptureScreen(uint8_t* dest);
 
  private:
-  enum DisplayType { None, GDI, DDFull, D2D };
+  enum DisplayType { None, GDI, DDFull, D2D, D3D };
   void PaintWindow();
 
   static BOOL WINAPI
