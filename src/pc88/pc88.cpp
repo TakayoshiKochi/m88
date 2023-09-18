@@ -109,9 +109,12 @@ bool PC88::Init(Draw* draw, DiskManager* disk, TapeManager* tape) {
 }
 
 void PC88::DeInit() {
-  opn1_->CleanUp();
-  opn2_->CleanUp();
-  beep_->CleanUp();
+  if (opn1_)
+    opn1_->CleanUp();
+  if (opn2_)
+    opn2_->CleanUp();
+  if (beep_)
+    beep_->CleanUp();
 }
 
 // ---------------------------------------------------------------------------
