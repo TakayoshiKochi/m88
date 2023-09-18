@@ -13,12 +13,10 @@
 
 #include <algorithm>
 
-#include "common/error.h"
 #include "win32/drawd2d.h"
 #include "win32/drawgdi.h"
 #include "win32/drawdds.h"
 #include "win32/loadmon.h"
-#include "win32/messages.h"
 #include "win32/status.h"
 #include "win32/winexapi.h"
 
