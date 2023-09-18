@@ -19,7 +19,7 @@ class WinDrawD2D : public WinDrawSub {
 
   bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID*) override;
   bool Resize(uint32_t width, uint32_t height) override;
-  bool Cleanup() override;
+  bool CleanUp() override;
   void SetPalette(PALETTEENTRY* pal, int index, int nentries) override;
   void SetGUIMode(bool guimode) override;
   void DrawScreen(const RECT& rect, bool refresh) override;

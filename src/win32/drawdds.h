@@ -19,7 +19,7 @@ class WinDrawDDS : public WinDrawSub {
 
   bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID* drv);
   bool Resize(uint32_t w, uint32_t h);
-  bool Cleanup();
+  bool CleanUp();
 
   void SetPalette(PALETTEENTRY* pal, int index, int nentries);
   void QueryNewPalette();

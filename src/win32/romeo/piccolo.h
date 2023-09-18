@@ -75,7 +75,7 @@ class Piccolo {
 
   Piccolo();
   virtual int Init();
-  void Cleanup();
+  void CleanUp();
   static uint32_t CALLBACK ThreadEntry(void* arg);
   uint32_t ThreadMain();
 

@@ -20,7 +20,7 @@
 Sequencer::Sequencer() : hthread(0), execcount(0), vm(0) {}
 
 Sequencer::~Sequencer() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -50,7 +50,7 @@ bool Sequencer::Init(PC88* _vm) {
 // ---------------------------------------------------------------------------
 //  後始末
 //
-bool Sequencer::Cleanup() {
+bool Sequencer::CleanUp() {
   if (hthread) {
     shouldterminate = true;
     if (WAIT_TIMEOUT == WaitForSingleObject(hthread, 3000)) {

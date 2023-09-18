@@ -39,7 +39,7 @@ class WinCore : public PC88, public ISystem, public ILockCore {
             PC8801::WinKeyIF* keyb,
             IConfigPropBase* cpb,
             TapeManager* tapemgr);
-  bool Cleanup();
+  bool CleanUp();
 
   void Reset();
   void ApplyConfig(PC8801::Config* config);

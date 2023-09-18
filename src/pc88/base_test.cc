@@ -12,7 +12,7 @@ class DummyDraw : public Draw {
   ~DummyDraw() = default;
 
   bool Init(uint32_t width, uint32_t height, uint32_t bpp) override { return true; };
-  bool Cleanup() override { return true; };
+  bool CleanUp() override { return true; };
 
   bool Lock(uint8_t** pimage, int* pbpl) override { return true; };
   bool Unlock() override { return true; };

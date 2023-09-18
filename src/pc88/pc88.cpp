@@ -59,7 +59,7 @@ PC88::PC88()
 }
 
 PC88::~PC88() {
-  //  devlist.Cleanup();
+  //  devlist.CleanUp();
   delete scrn;
   delete intc;
   delete fdc;

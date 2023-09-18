@@ -28,7 +28,7 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
   ~Sound() override;
 
   bool Init(PC88* pc, uint32_t rate, int bufsize);
-  void Cleanup();
+  void CleanUp();
 
   void ApplyConfig(const Config* config);
   bool SetRate(uint32_t rate, int bufsize);

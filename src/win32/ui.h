@@ -53,7 +53,7 @@ class WinUI {
 
  private:
   bool InitM88(const char* cmdline);
-  void CleanupM88();
+  void CleanUpM88();
   LRESULT WinProc(HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK WinProcGate(HWND, UINT, WPARAM, LPARAM);
   void ReportError();

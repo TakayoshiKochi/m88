@@ -35,7 +35,7 @@ StatusDisplayImpl::StatusDisplayImpl() {
 }
 
 StatusDisplayImpl::~StatusDisplayImpl() {
-  Cleanup();
+  CleanUp();
   while (list) {
     List* next = list->next;
     delete list;
@@ -86,7 +86,7 @@ bool StatusDisplayImpl::Disable() {
   return true;
 }
 
-void StatusDisplayImpl::Cleanup() {
+void StatusDisplayImpl::CleanUp() {
   Disable();
   if (timerid) {
     KillTimer(hwndparent, timerid);

@@ -166,13 +166,13 @@ bool WinUI::InitM88(const char* cmdline) {
 }
 
 // ---------------------------------------------------------------------------
-//  WinUI::CleanupM88
+//  WinUI::CleanUpM88
 //  M88 の後片付け
 //
-void WinUI::CleanupM88() {
+void WinUI::CleanUpM88() {
   PC8801::Config cfg = config;
   PC8801::SaveConfig(&cfg, m88ini, true);
-  core.Cleanup();
+  core.CleanUp();
   delete diskmgr;
   diskmgr = 0;
   delete tapemgr;
@@ -291,8 +291,8 @@ int WinUI::Main(const char* cmdline) {
   OPNIF* opn = core.GetOPN1();
   if (opn)
     opn->Reset();
-  CleanupM88();
-  statusdisplay.Cleanup();
+  CleanUpM88();
+  statusdisplay.CleanUp();
   return (int)msg.wParam;
 }
 

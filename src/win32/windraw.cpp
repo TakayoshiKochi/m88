@@ -45,7 +45,7 @@ WinDraw::WinDraw() {
 }
 
 WinDraw::~WinDraw() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ bool WinDraw::Init(uint32_t w, uint32_t h, uint32_t /*bpp*/) {
 // ---------------------------------------------------------------------------
 //  後片付
 //
-bool WinDraw::Cleanup() {
+bool WinDraw::CleanUp() {
   if (hthread) {
     SetThreadPriority(hthread, THREAD_PRIORITY_NORMAL);
 

@@ -103,7 +103,7 @@ static void FreeDLL() {
 Piccolo_Romeo::Piccolo_Romeo() : Piccolo() {}
 
 Piccolo_Romeo::~Piccolo_Romeo() {
-  Cleanup();
+  CleanUp();
   FreeDLL();
 }
 

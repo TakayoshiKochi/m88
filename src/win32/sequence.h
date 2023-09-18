@@ -28,7 +28,7 @@ class Sequencer {
   ~Sequencer();
 
   bool Init(PC88* vm);
-  bool Cleanup();
+  bool CleanUp();
 
   int32_t GetExecCount();
   void Activate(bool active);

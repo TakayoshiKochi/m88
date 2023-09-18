@@ -25,7 +25,7 @@ class WinDrawSub {
 
   virtual bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID* display) = 0;
   virtual bool Resize(uint32_t width, uint32_t height) { return false; }
-  virtual bool Cleanup() = 0;
+  virtual bool CleanUp() = 0;
   virtual void SetPalette(PALETTEENTRY* pal, int index, int nentries) {}
   virtual void QueryNewPalette() {}
   virtual void DrawScreen(const RECT& rect, bool refresh) = 0;
@@ -53,7 +53,7 @@ class WinDraw : public Draw {
 
   // - Draw Common Interface
   bool Init(uint32_t w, uint32_t h, uint32_t bpp) override;
-  bool Cleanup() override;
+  bool CleanUp() override;
 
   bool Lock(uint8_t** pimage, int* pbpl) override;
   bool Unlock() override;

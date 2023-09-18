@@ -22,7 +22,7 @@ PCInfo ExternalDevice::pcinfo;
 ExternalDevice::ExternalDevice() : Device(0), hdll(0), dev(0), sound(0), mm(0), mid(-1) {}
 
 ExternalDevice::~ExternalDevice() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -71,7 +71,7 @@ bool ExternalDevice::Init(const char* dllname,
 // ---------------------------------------------------------------------------
 //  後片付
 //
-bool ExternalDevice::Cleanup() {
+bool ExternalDevice::CleanUp() {
   if (dev) {
     if (mid >= 0)
       mm->Disconnect(mid);

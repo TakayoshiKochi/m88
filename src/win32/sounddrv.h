@@ -24,7 +24,7 @@ class Driver {
   virtual ~Driver() {}
 
   virtual bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) = 0;
-  virtual bool Cleanup() = 0;
+  virtual bool CleanUp() = 0;
   void MixAlways(bool yes) { mixalways = yes; }
 
  protected:

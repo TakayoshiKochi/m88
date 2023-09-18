@@ -31,7 +31,7 @@ DriverDS2::DriverDS2() {
 }
 
 DriverDS2::~DriverDS2() {
-  Cleanup();
+  CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -144,7 +144,7 @@ bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint
 // ---------------------------------------------------------------------------
 //  後片付け -----------------------------------------------------------------
 
-bool DriverDS2::Cleanup() {
+bool DriverDS2::CleanUp() {
   playing = false;
 
   if (hthread) {

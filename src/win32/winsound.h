@@ -78,7 +78,7 @@ class WinSound : public Sound {
 
  private:
   bool InitSoundBuffer(LPDIRECTSOUND lpds, uint32_t rate);
-  void Cleanup();
+  void CleanUp();
   //  int Get(Sample* dest, int samples);
 
   WinSoundDriver::Driver* driver;
