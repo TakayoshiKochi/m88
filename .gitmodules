@@ -7,3 +7,6 @@
 [submodule "third_party/Zeta"]
 	path = third_party/Zeta
 	url = https://github.com/redcode/Zeta
+[submodule "third_party/benchmark"]
+	path = third_party/benchmark
+	url = https://github.com/google/benchmark.git
