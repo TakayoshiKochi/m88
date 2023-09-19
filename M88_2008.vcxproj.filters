@@ -25,6 +25,12 @@
     <Filter Include="win32\monitor">
       <UniqueIdentifier>{20aa401b-de2a-4cd5-b947-4c1b333fbd72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="win32\screen">
+      <UniqueIdentifier>{3bce4125-a767-4389-b7ab-703f7f1e50cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="win32\sound">
+      <UniqueIdentifier>{bacd1267-b405-4c77-901a-30499cba86e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\device.cpp">
@@ -144,18 +150,6 @@
     <ClCompile Include="src\win32\cfgpage.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\dderr.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\drawd2d.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\drawdds.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\drawgdi.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\extdev.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
@@ -177,19 +171,7 @@
     <ClCompile Include="src\win32\newdisk.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\regmon.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\sequence.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\soundds.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\soundds2.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\soundwo.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\status.cpp">
@@ -207,9 +189,6 @@
     <ClCompile Include="src\win32\wincore.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\windraw.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\winexapi.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
@@ -220,9 +199,6 @@
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\winmouse.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\winsound.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\romeo\piccolo.cpp">
@@ -306,8 +282,38 @@
     <ClCompile Include="src\win32\winmon.cpp">
       <Filter>win32\monitor</Filter>
     </ClCompile>
+    <ClCompile Include="src\win32\dderr.cpp">
+      <Filter>win32\screen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\drawd2d.cpp">
+      <Filter>win32\screen</Filter>
+    </ClCompile>
     <ClCompile Include="src\win32\drawd3d.cpp">
-      <Filter>win32</Filter>
+      <Filter>win32\screen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\drawdds.cpp">
+      <Filter>win32\screen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\drawgdi.cpp">
+      <Filter>win32\screen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\regmon.cpp">
+      <Filter>win32\monitor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\soundds.cpp">
+      <Filter>win32\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\soundds2.cpp">
+      <Filter>win32\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\soundwo.cpp">
+      <Filter>win32\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\winsound.cpp">
+      <Filter>win32\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\windraw.cpp">
+      <Filter>win32\screen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -446,18 +452,6 @@
     <ClInclude Include="src\win32\cfgpage.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\dderr.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\drawd2d.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\drawdds.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\drawgdi.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\extdev.h">
       <Filter>Win32</Filter>
     </ClInclude>
@@ -476,25 +470,10 @@
     <ClInclude Include="src\win32\newdisk.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\regmon.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\resource.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\sequence.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\sounddrv.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\soundds.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\soundds2.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\soundwo.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\status.h">
@@ -515,9 +494,6 @@
     <ClInclude Include="src\win32\wincore.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\windraw.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\winexapi.h">
       <Filter>Win32</Filter>
     </ClInclude>
@@ -528,9 +504,6 @@
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\winmouse.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\winsound.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\romeo\piccolo.h">
@@ -629,8 +602,41 @@
     <ClInclude Include="src\win32\winmon.h">
       <Filter>win32\monitor</Filter>
     </ClInclude>
+    <ClInclude Include="src\win32\dderr.h">
+      <Filter>win32\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\drawd2d.h">
+      <Filter>win32\screen</Filter>
+    </ClInclude>
     <ClInclude Include="src\win32\drawd3d.h">
-      <Filter>win32</Filter>
+      <Filter>win32\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\drawdds.h">
+      <Filter>win32\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\drawgdi.h">
+      <Filter>win32\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\regmon.h">
+      <Filter>win32\monitor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\sounddrv.h">
+      <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\soundds.h">
+      <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\soundds2.h">
+      <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\soundwo.h">
+      <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\winsound.h">
+      <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\windraw.h">
+      <Filter>win32\screen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -644,18 +650,18 @@
   <ItemGroup>
     <None Include="m88dev.html" />
     <None Include="src\win32\BasicShaderHeader.hlsli">
-      <Filter>win32</Filter>
+      <Filter>win32\screen</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="memo.txt" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\win32\BasicVertexShader.hlsl">
-      <Filter>win32</Filter>
-    </FxCompile>
     <FxCompile Include="src\win32\BasicPixelShader.hlsl">
-      <Filter>win32</Filter>
+      <Filter>win32\screen</Filter>
+    </FxCompile>
+    <FxCompile Include="src\win32\BasicVertexShader.hlsl">
+      <Filter>win32\screen</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
