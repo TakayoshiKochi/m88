@@ -13,12 +13,11 @@
 
 #include <algorithm>
 
-#include "common/error.h"
 #include "win32/drawd2d.h"
+#include "win32/drawd3d.h"
 #include "win32/drawgdi.h"
 #include "win32/drawdds.h"
 #include "win32/loadmon.h"
-#include "win32/messages.h"
 #include "win32/status.h"
 #include "win32/winexapi.h"
 
@@ -288,7 +287,7 @@ void WinDraw::WindowMoved(int x, int y) {
 //  画面描画ドライバの変更
 //
 bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
-  DisplayType type = fullscreen ? DDFull : D2D;
+  DisplayType type = fullscreen ? DDFull : D3D;
 
   // 現在窓(M88)が所属するモニタの GUID を取得
   memset(&gmonitor, 0, sizeof(gmonitor));
@@ -318,6 +317,9 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
         break;
       case D2D:
         newdraw = new WinDrawD2D;
+        break;
+      case D3D:
+        newdraw = new WinDrawD3D;
         break;
     }
 

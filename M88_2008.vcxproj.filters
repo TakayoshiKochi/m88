@@ -306,6 +306,9 @@
     <ClCompile Include="src\win32\winmon.cpp">
       <Filter>win32\monitor</Filter>
     </ClCompile>
+    <ClCompile Include="src\win32\drawd3d.cpp">
+      <Filter>win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -626,6 +629,9 @@
     <ClInclude Include="src\win32\winmon.h">
       <Filter>win32\monitor</Filter>
     </ClInclude>
+    <ClInclude Include="src\win32\drawd3d.h">
+      <Filter>win32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\win32\M88.rc">
@@ -637,8 +643,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="m88dev.html" />
+    <None Include="src\win32\BasicShaderHeader.hlsli">
+      <Filter>win32</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="memo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\win32\BasicVertexShader.hlsl">
+      <Filter>win32</Filter>
+    </FxCompile>
+    <FxCompile Include="src\win32\BasicPixelShader.hlsl">
+      <Filter>win32</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
