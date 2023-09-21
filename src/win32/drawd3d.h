@@ -15,6 +15,41 @@
 
 #include "win32/windraw.h"
 
+template <class T>
+class scoped_comptr {
+ public:
+  scoped_comptr() = default;
+  ~scoped_comptr() { reset(); }
+
+  scoped_comptr(const scoped_comptr&) = delete;
+  scoped_comptr& operator=(const scoped_comptr&) = delete;
+
+  scoped_comptr(scoped_comptr&& other) noexcept { *this = std::move(other); }
+  scoped_comptr& operator=(scoped_comptr&& other) noexcept {
+    reset();
+    ptr_ = other.ptr_;
+    other.ptr_ = nullptr;
+    return *this;
+  }
+
+  void reset() {
+    if (ptr_) {
+      ptr_->Release();
+      ptr_ = nullptr;
+    }
+  }
+
+  [[nodiscard]] T* get() const { return ptr_; }
+  T** operator&() { return &ptr_; }
+  T* operator->() const { return ptr_; }
+  T& operator*() const { return *ptr_; }
+  bool operator!() const { return !ptr_; }
+  explicit operator bool() const { return ptr_ != nullptr; }
+
+ private:
+  T* ptr_ = nullptr;
+};
+
 class WinDrawD3D : public WinDrawSub {
  public:
   WinDrawD3D();
@@ -52,25 +87,25 @@ class WinDrawD3D : public WinDrawSub {
   bool ClearScreen();
   bool DrawTexture();
 
-  ID3D12Device* dev_ = nullptr;
-  IDXGIFactory6* dxgi_factory_ = nullptr;
-  IDXGISwapChain4* swap_chain_ = nullptr;
+  scoped_comptr<ID3D12Device> dev_;
+  scoped_comptr<IDXGIFactory6> dxgi_factory_;
+  scoped_comptr<IDXGISwapChain4> swap_chain_;
 
   // DX12 Command
-  ID3D12CommandAllocator* cmd_allocator_ = nullptr;
-  ID3D12GraphicsCommandList* cmd_list_ = nullptr;
-  ID3D12CommandQueue* cmd_queue_ = nullptr;
+  scoped_comptr<ID3D12CommandAllocator> cmd_allocator_;
+  scoped_comptr<ID3D12GraphicsCommandList> cmd_list_;
+  scoped_comptr<ID3D12CommandQueue> cmd_queue_;
 
-  ID3D12DescriptorHeap* rtv_heap_ = nullptr;
+  scoped_comptr<ID3D12DescriptorHeap> rtv_heap_;
   std::vector<ID3D12Resource*> back_buffers_;
 
   // DX12 Pipeline
-  ID3D12PipelineState* pipeline_state_ = nullptr;
-  ID3D12RootSignature* root_signature_ = nullptr;
+  scoped_comptr<ID3D12PipelineState> pipeline_state_;
+  scoped_comptr<ID3D12RootSignature> root_signature_;
 
   // Shaders
-  ID3DBlob* vs_blob_ = nullptr;
-  ID3DBlob* ps_blob_ = nullptr;
+  scoped_comptr<ID3DBlob> vs_blob_;
+  scoped_comptr<ID3DBlob> ps_blob_;
 
   struct TexRGBA {
     uint8_t R, G, B, A;
@@ -78,10 +113,10 @@ class WinDrawD3D : public WinDrawSub {
   struct Palette {
     uint8_t r, g, b, a;
   };
-  ID3D12Resource* texture_ = nullptr;
-  ID3D12Resource* vert_buffer_ = nullptr;
-  ID3D12Resource* index_buffer_ = nullptr;
-  ID3D12DescriptorHeap* tex_desc_heap_ = nullptr;
+  scoped_comptr<ID3D12Resource> texture_;
+  scoped_comptr<ID3D12Resource> vert_buffer_;
+  scoped_comptr<ID3D12Resource> index_buffer_;
+  scoped_comptr<ID3D12DescriptorHeap> tex_desc_heap_;
 
   bool update_palette_ = false;
   // parent

@@ -96,7 +96,7 @@ bool WinDrawD3D::CreateCommandList() {
   if (!SUCCEEDED(hr))
     return false;
 
-  hr = dev_->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_allocator_, nullptr,
+  hr = dev_->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_allocator_.get(), nullptr,
                                IID_PPV_ARGS(&cmd_list_));
   if (!SUCCEEDED(hr))
     return false;
@@ -126,8 +126,9 @@ bool WinDrawD3D::CreateSwapChain() {
   swap_chain_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
   swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-  HRESULT hr = dxgi_factory_->CreateSwapChainForHwnd(cmd_queue_, hcwnd_, &swap_chain_desc, nullptr,
-                                                     nullptr, (IDXGISwapChain1**)&swap_chain_);
+  HRESULT hr =
+      dxgi_factory_->CreateSwapChainForHwnd(cmd_queue_.get(), hcwnd_, &swap_chain_desc, nullptr,
+                                            nullptr, (IDXGISwapChain1**)&swap_chain_);
   return SUCCEEDED(hr);
 }
 
@@ -209,7 +210,7 @@ bool WinDrawD3D::SetUpShaders() {
 // Prerequisite: root_signature_, vs_blob_, ps_blob_
 bool WinDrawD3D::SetUpPipeline(D3D12_INPUT_ELEMENT_DESC* input_layout, int num_elements) {
   D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
-  gpipeline.pRootSignature = root_signature_;
+  gpipeline.pRootSignature = root_signature_.get();
   gpipeline.VS.pShaderBytecode = vs_blob_->GetBufferPointer();
   gpipeline.VS.BytecodeLength = vs_blob_->GetBufferSize();
   gpipeline.PS.pShaderBytecode = ps_blob_->GetBufferPointer();
@@ -339,12 +340,12 @@ D3D12_CPU_DESCRIPTOR_HANDLE WinDrawD3D::PrepareCommandList() {
 void WinDrawD3D::CommitCommandList() {
   cmd_list_->Close();
 
-  ID3D12CommandList* cmd_list[] = {cmd_list_};
+  ID3D12CommandList* cmd_list[] = {cmd_list_.get()};
 
   cmd_queue_->ExecuteCommandLists(1, cmd_list);
 
   cmd_allocator_->Reset();
-  cmd_list_->Reset(cmd_allocator_, nullptr);
+  cmd_list_->Reset(cmd_allocator_.get(), nullptr);
 
   swap_chain_->Present(1, 0);
 }
@@ -393,29 +394,26 @@ bool WinDrawD3D::DrawTexture() {
     resource_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
     resource_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-    ID3D12Resource* vert_buffer = nullptr;
     HRESULT hr = dev_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, &resource_desc,
                                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                               IID_PPV_ARGS(&vert_buffer));
+                                               IID_PPV_ARGS(&vert_buffer_));
     if (!SUCCEEDED(hr))
       return false;
 
     Vertex* vert_map = nullptr;
-    hr = vert_buffer->Map(0, nullptr, (void**)&vert_map);
+    hr = vert_buffer_->Map(0, nullptr, (void**)&vert_map);
     if (!SUCCEEDED(hr))
       return false;
 
     std::copy(std::begin(vertices), std::end(vertices), vert_map);
-    vert_buffer->Unmap(0, nullptr);
+    vert_buffer_->Unmap(0, nullptr);
 
     // rectangle vertex buffer view
     D3D12_VERTEX_BUFFER_VIEW vb_view = {};
-    vb_view.BufferLocation = vert_buffer->GetGPUVirtualAddress();
+    vb_view.BufferLocation = vert_buffer_->GetGPUVirtualAddress();
     vb_view.SizeInBytes = sizeof(vertices);
     vb_view.StrideInBytes = sizeof(Vertex);
     cmd_list_->IASetVertexBuffers(0, 1, &vb_view);
-
-    vert_buffer_ = vert_buffer;
   } else {
     D3D12_VERTEX_BUFFER_VIEW vb_view = {};
     vb_view.BufferLocation = vert_buffer_->GetGPUVirtualAddress();
@@ -432,8 +430,6 @@ bool WinDrawD3D::DrawTexture() {
 
   if (!index_buffer_) {
     // create buffer for rectangle indices
-    ID3D12Resource* idx_buf = nullptr;
-
     D3D12_HEAP_PROPERTIES heap_prop = {};
     heap_prop.Type = D3D12_HEAP_TYPE_UPLOAD;
     heap_prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -452,21 +448,20 @@ bool WinDrawD3D::DrawTexture() {
 
     HRESULT hr = dev_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, &resource_desc,
                                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                               IID_PPV_ARGS(&idx_buf));
+                                               IID_PPV_ARGS(&index_buffer_));
     if (!SUCCEEDED(hr))
       return false;
     uint16_t* mapped_idx = nullptr;
-    idx_buf->Map(0, nullptr, (void**)&mapped_idx);
+    index_buffer_->Map(0, nullptr, (void**)&mapped_idx);
     std::copy(std::begin(indices), std::end(indices), mapped_idx);
-    idx_buf->Unmap(0, nullptr);
+    index_buffer_->Unmap(0, nullptr);
 
     D3D12_INDEX_BUFFER_VIEW ib_view = {};
-    ib_view.BufferLocation = idx_buf->GetGPUVirtualAddress();
+    ib_view.BufferLocation = index_buffer_->GetGPUVirtualAddress();
     ib_view.Format = DXGI_FORMAT_R16_UINT;
     ib_view.SizeInBytes = sizeof(indices);
 
     cmd_list_->IASetIndexBuffer(&ib_view);
-    index_buffer_ = idx_buf;
   } else {
     D3D12_INDEX_BUFFER_VIEW ib_view = {};
     ib_view.BufferLocation = index_buffer_->GetGPUVirtualAddress();
@@ -489,8 +484,8 @@ bool WinDrawD3D::DrawTexture() {
     SetUpRootSignature();
   if (!pipeline_state_)
     SetUpPipeline(input_layout, 2);
-  cmd_list_->SetPipelineState(pipeline_state_);
-  cmd_list_->SetGraphicsRootSignature(root_signature_);
+  cmd_list_->SetPipelineState(pipeline_state_.get());
+  cmd_list_->SetGraphicsRootSignature(root_signature_.get());
 
   if (!SetUpTexture())
     return false;
@@ -554,16 +549,14 @@ bool WinDrawD3D::SetUpTexture() {
     return false;
 
   if (!tex_desc_heap_) {
-    ID3D12DescriptorHeap* tex_desc_heap = nullptr;
     D3D12_DESCRIPTOR_HEAP_DESC tex_desc_heap_desc = {};
     tex_desc_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     tex_desc_heap_desc.NodeMask = 0;
     tex_desc_heap_desc.NumDescriptors = 1;
     tex_desc_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    hr = dev_->CreateDescriptorHeap(&tex_desc_heap_desc, IID_PPV_ARGS(&tex_desc_heap));
+    hr = dev_->CreateDescriptorHeap(&tex_desc_heap_desc, IID_PPV_ARGS(&tex_desc_heap_));
     if (!SUCCEEDED(hr))
       return false;
-    tex_desc_heap_ = tex_desc_heap;
   }
 
   D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
@@ -572,7 +565,7 @@ bool WinDrawD3D::SetUpTexture() {
   srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
   srv_desc.Texture2D.MipLevels = 1;
 
-  dev_->CreateShaderResourceView(texture_, &srv_desc,
+  dev_->CreateShaderResourceView(texture_.get(), &srv_desc,
                                  tex_desc_heap_->GetCPUDescriptorHandleForHeapStart());
 
   cmd_list_->SetDescriptorHeaps(1, &tex_desc_heap_);
