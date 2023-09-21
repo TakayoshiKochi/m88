@@ -66,9 +66,15 @@ void WinDrawD3D::CreateBaseWindow() {
 }
 
 bool WinDrawD3D::CreateD3D12Device() {
-  HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgi_factory_));
-  if (!SUCCEEDED(hr))
-    return false;
+  if (!dxgi_factory_) {
+#if defined(_DEBUG)
+    HRESULT hr = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&dxgi_factory_));
+#else
+    HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgi_factory_));
+#endif
+    if (!SUCCEEDED(hr))
+      return false;
+  }
 
   std::vector<IDXGIAdapter*> adapters;
   IDXGIAdapter* tmp_adapter = nullptr;
@@ -76,7 +82,7 @@ bool WinDrawD3D::CreateD3D12Device() {
     adapters.push_back(tmp_adapter);
   }
 
-  for (auto adapter : adapters) {
+  for (const auto adapter : adapters) {
     DXGI_ADAPTER_DESC desc = {};
     adapter->GetDesc(&desc);
     std::wstring str_desc = desc.Description;
@@ -86,8 +92,15 @@ bool WinDrawD3D::CreateD3D12Device() {
     }
   }
 
-  hr = D3D12CreateDevice(tmp_adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&dev_));
-  return SUCCEEDED(hr);
+  HRESULT hr = D3D12CreateDevice(tmp_adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&dev_));
+  if (!SUCCEEDED(hr))
+    return false;
+
+  if (!fence_) {
+    hr = dev_->CreateFence(fence_val_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
+    return SUCCEEDED(hr);
+  }
+  return true;
 }
 
 bool WinDrawD3D::CreateCommandList() {
@@ -326,9 +339,17 @@ void WinDrawD3D::SetUpViewPort() {
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE WinDrawD3D::PrepareCommandList() {
-  cmd_allocator_->Reset();
-
   auto back_buffer_index = swap_chain_->GetCurrentBackBufferIndex();
+
+  D3D12_RESOURCE_BARRIER barrier_desc = {};
+  barrier_desc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+  barrier_desc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+  barrier_desc.Transition.pResource = back_buffers_[back_buffer_index];
+  barrier_desc.Transition.Subresource = 0;
+  barrier_desc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+  barrier_desc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+  cmd_list_->ResourceBarrier(1, &barrier_desc);
+
   auto rtv_h = rtv_heap_->GetCPUDescriptorHandleForHeapStart();
   rtv_h.ptr +=
       dev_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV) * back_buffer_index;
@@ -338,11 +359,27 @@ D3D12_CPU_DESCRIPTOR_HANDLE WinDrawD3D::PrepareCommandList() {
 }
 
 void WinDrawD3D::CommitCommandList() {
+  D3D12_RESOURCE_BARRIER barrier_desc = {};
+  barrier_desc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+  barrier_desc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+  barrier_desc.Transition.pResource = back_buffers_[swap_chain_->GetCurrentBackBufferIndex()];
+  barrier_desc.Transition.Subresource = 0;
+  barrier_desc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+  barrier_desc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+  cmd_list_->ResourceBarrier(1, &barrier_desc);
   cmd_list_->Close();
 
   ID3D12CommandList* cmd_list[] = {cmd_list_.get()};
 
   cmd_queue_->ExecuteCommandLists(1, cmd_list);
+
+  cmd_queue_->Signal(fence_.get(), ++fence_val_);
+  if (fence_->GetCompletedValue() != fence_val_) {
+    auto event = ::CreateEvent(nullptr, false, false, nullptr);
+    fence_->SetEventOnCompletion(fence_val_, event);
+    WaitForSingleObject(event, INFINITE);
+    CloseHandle(event);
+  }
 
   cmd_allocator_->Reset();
   cmd_list_->Reset(cmd_allocator_.get(), nullptr);
@@ -579,6 +616,15 @@ bool WinDrawD3D::CreateD3D() {
   CreateBaseWindow();
   if (!hcwnd_)
     return false;
+
+#if defined(_DEBUG)
+  {
+    HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debug_));
+    if (SUCCEEDED(hr)) {
+      debug_->EnableDebugLayer();
+    }
+  }
+#endif
 
   if (!CreateD3D12Device())
     return false;
