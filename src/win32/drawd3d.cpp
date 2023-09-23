@@ -171,7 +171,7 @@ bool WinDrawD3D::CreateRenderTargetView() {
 }
 
 bool WinDrawD3D::SetUpShaders() {
-  ID3DBlob* error_blob = nullptr;
+  scoped_comptr<ID3DBlob> error_blob;
 
   if (!vs_blob_) {
     uint32_t flags = 0;
@@ -305,8 +305,8 @@ bool WinDrawD3D::SetUpRootSignature() {
   root_signature_desc.pStaticSamplers = &sampler_desc;
   root_signature_desc.NumStaticSamplers = 1;
 
-  ID3DBlob* root_sig_blob = nullptr;
-  ID3DBlob* error_blob = nullptr;
+  scoped_comptr<ID3DBlob> root_sig_blob;
+  scoped_comptr<ID3DBlob> error_blob;
   HRESULT hr = D3D12SerializeRootSignature(&root_signature_desc, D3D_ROOT_SIGNATURE_VERSION_1_0,
                                            &root_sig_blob, &error_blob);
   if (FAILED(hr)) {
@@ -322,8 +322,6 @@ bool WinDrawD3D::SetUpRootSignature() {
 
   hr = dev_->CreateRootSignature(0, root_sig_blob->GetBufferPointer(),
                                  root_sig_blob->GetBufferSize(), IID_PPV_ARGS(&root_signature_));
-  root_sig_blob->Release();
-
   return SUCCEEDED(hr);
 }
 
