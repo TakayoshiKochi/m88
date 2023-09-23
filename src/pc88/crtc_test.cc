@@ -23,9 +23,7 @@ class CRTCTest : public ::testing::Test {
   CRTCTest() : crtc_(DEV_ID('C', 'R', 'T', 'C')), dmac_(DEV_ID('D', 'M', 'A', 'C')) {}
   ~CRTCTest() override = default;
 
-  void SetUp() override {
-      crtc_.Init(&bus_, &sched_, &dmac_);
-  }
+  void SetUp() override { crtc_.Init(&bus_, &sched_, &dmac_); }
 
  protected:
   CRTC crtc_;
@@ -33,7 +31,6 @@ class CRTCTest : public ::testing::Test {
   MockScheduler sched_;
   PD8257 dmac_;
 };
-
 
 TEST_F(CRTCTest, BasicTest) {
   // TODO: nonsense
@@ -56,6 +53,5 @@ TEST_F(CRTCTest, ChangeAttrTest) {
   auto x = crtc_.ChangeAttr(3, 4);
   EXPECT_EQ(x, 0xe2);
 }
-
 
 }  // namespace PC8801
