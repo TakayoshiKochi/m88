@@ -2,7 +2,7 @@
 
 #include <unknwn.h>
 
-template <class T,  const IID* interface_id = &__uuidof(T)>
+template <class T, const IID* interface_id = &__uuidof(T)>
 class scoped_comptr {
  public:
   scoped_comptr() = default;
@@ -19,9 +19,7 @@ class scoped_comptr {
     return *this;
   }
 
-  static const IID& iid() {
-    return *interface_id;
-  }
+  static const IID& iid() { return *interface_id; }
 
   T* detach() {
     T* p = ptr_;
