@@ -168,7 +168,8 @@ void ConfigCPU::InitDialog(HWND hdlg) {
 }
 
 void ConfigCPU::SetActive(HWND hdlg) {
-  SetFocus(GetDlgItem(hdlg, config_.flags & Config::kFullSpeed ? IDC_CPU_NOSUBCPUCONTROL : IDC_CPU_CLOCK));
+  SetFocus(GetDlgItem(
+      hdlg, config_.flags & Config::kFullSpeed ? IDC_CPU_NOSUBCPUCONTROL : IDC_CPU_CLOCK));
   SendDlgItemMessage(hdlg, IDC_CPU_CLOCK_SPIN, UDM_SETRANGE, 0, MAKELONG(100, 1));
   SendDlgItemMessage(hdlg, IDC_CPU_CLOCK, EM_SETLIMITTEXT, 3, 0);
   SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETRANGE, TRUE, MAKELONG(2, 20));
@@ -680,16 +681,19 @@ void ConfigFunction::SetActive(HWND hdlg) {
 void ConfigFunction::Update(HWND hdlg) {
   CheckDlgButton(hdlg, IDC_FUNCTION_SAVEDIR, BSTATE(config_.flags & Config::kSaveDirectory));
   CheckDlgButton(hdlg, IDC_FUNCTION_SAVEPOS, BSTATE(config_.flag2 & Config::kSavePosition));
-  CheckDlgButton(hdlg, IDC_FUNCTION_ASKBEFORERESET, BSTATE(config_.flags & Config::kAskBeforeReset));
+  CheckDlgButton(hdlg, IDC_FUNCTION_ASKBEFORERESET,
+                 BSTATE(config_.flags & Config::kAskBeforeReset));
   CheckDlgButton(hdlg, IDC_FUNCTION_SUPPRESSMENU, BSTATE(config_.flags & Config::kSuppressMenu));
   CheckDlgButton(hdlg, IDC_FUNCTION_USEARROWFOR10, BSTATE(config_.flags & Config::kUseArrowFor10));
   CheckDlgButton(hdlg, IDC_FUNCTION_ENABLEPAD, BSTATE(config_.flags & Config::kEnablePad) != 0);
   EnableWindow(GetDlgItem(hdlg, IDC_FUNCTION_SWAPPADBUTTONS), (config_.flags & Config::kEnablePad));
-  CheckDlgButton(hdlg, IDC_FUNCTION_SWAPPADBUTTONS, BSTATE(config_.flags & Config::kSwappedButtons));
+  CheckDlgButton(hdlg, IDC_FUNCTION_SWAPPADBUTTONS,
+                 BSTATE(config_.flags & Config::kSwappedButtons));
   CheckDlgButton(hdlg, IDC_FUNCTION_RESETF12, BSTATE(!(config_.flags & Config::kDisableF12Reset)));
   CheckDlgButton(hdlg, IDC_FUNCTION_ENABLEMOUSE, BSTATE(config_.flags & Config::kEnableMouse));
   CheckDlgButton(hdlg, IDC_FUNCTION_MOUSEJOY, BSTATE(config_.flags & Config::kMouseJoyMode));
-  EnableWindow(GetDlgItem(hdlg, IDC_FUNCTION_MOUSEJOY), (config_.flags & Config::kEnableMouse) != 0);
+  EnableWindow(GetDlgItem(hdlg, IDC_FUNCTION_MOUSEJOY),
+               (config_.flags & Config::kEnableMouse) != 0);
   CheckDlgButton(hdlg, IDC_FUNCTION_SCREENSHOT_NAME,
                  BSTATE(config_.flag2 & Config::kGenScrnShotName));
   CheckDlgButton(hdlg, IDC_FUNCTION_COMPSNAP, BSTATE(config_.flag2 & Config::kCompressSnapshot));
