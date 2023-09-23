@@ -11,6 +11,7 @@
 #include <dxgi1_6.h>
 #include <DirectXMath.h>
 
+#include <memory>
 #include <vector>
 
 #include "common/scoped_comptr.h"
@@ -21,14 +22,19 @@ class WinDrawD3D : public WinDrawSub {
   WinDrawD3D();
   ~WinDrawD3D() override;
 
-  bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID*) override;
+  struct Vertex {
+    DirectX::XMFLOAT3 pos;
+    DirectX::XMFLOAT2 uv;
+  };
+
+  bool Init(HWND hwnd, uint32_t width, uint32_t height, GUID*) override;
   bool Resize(uint32_t width, uint32_t height) override;
-  bool CleanUp() override;
+  bool CleanUp() override { return true; }
   void SetPalette(PALETTEENTRY* pe, int index, int nentries) override;
-  void SetGUIMode(bool guimode) override;
+  void SetGUIMode(bool fullscreen) override;
   void DrawScreen(const RECT& rect, bool refresh) override;
 
-  bool Lock(uint8_t** pimage, int* pbpl) override;
+  bool Lock(uint8_t** image, int* bpl) override;
   bool Unlock() override;
 
  private:
@@ -42,16 +48,22 @@ class WinDrawD3D : public WinDrawSub {
 
   bool SetUpShaders();
   bool SetUpRootSignature();
-  bool SetUpPipeline(D3D12_INPUT_ELEMENT_DESC* input_layout, int num_elements);
   void SetUpViewPort();
 
   D3D12_CPU_DESCRIPTOR_HANDLE PrepareCommandList();
   void CommitCommandList();
 
   bool SetUpTexture();
+  bool SetUpVerticesForTexture();
+  void PrepareVerticesForTexture();
+  bool SetUpIndicesForTexture();
+  void PrepareIndicesForTexture();
+  bool SetUpPipelineForTexture(D3D12_INPUT_ELEMENT_DESC* input_layout, int num_elements);
+  bool SetUpTexturePipeline();
 
   bool ClearScreen();
   bool DrawTexture();
+  bool RenderTexture();
 
   scoped_comptr<ID3D12Device> dev_;
   scoped_comptr<IDXGIFactory6> dxgi_factory_;
@@ -83,9 +95,7 @@ class WinDrawD3D : public WinDrawSub {
   struct TexRGBA {
     uint8_t R, G, B, A;
   };
-  struct Palette {
-    uint8_t r, g, b, a;
-  };
+  using Palette = Draw::Palette;
   scoped_comptr<ID3D12Resource> texture_;
   scoped_comptr<ID3D12Resource> vert_buffer_;
   scoped_comptr<ID3D12Resource> index_buffer_;
@@ -101,6 +111,6 @@ class WinDrawD3D : public WinDrawSub {
   uint32_t height_ = 400;
 
   Palette pal_[256]{};
-  uint8_t* image_ = nullptr;
+  std::unique_ptr<uint8_t[]> image_;
   int bpl_ = 0;
 };

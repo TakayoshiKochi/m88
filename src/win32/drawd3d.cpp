@@ -18,12 +18,11 @@
 //  構築/消滅
 //
 WinDrawD3D::WinDrawD3D() {
-  image_ = new uint8_t[width_ * height_];
+  image_ = std::make_unique<uint8_t[]>(width_ * height_);
   bpl_ = width_;
 }
 
 WinDrawD3D::~WinDrawD3D() {
-  delete[] image_;
   if (hcwnd_) {
     ::DestroyWindow(hcwnd_);
     hcwnd_ = nullptr;
@@ -33,24 +32,21 @@ WinDrawD3D::~WinDrawD3D() {
 // ---------------------------------------------------------------------------
 //  初期化処理
 //
-bool WinDrawD3D::Init(HWND _hWnd, uint32_t _width, uint32_t _height, GUID*) {
-  hwnd_ = _hWnd;
-
-  if (!CreateD3D()) {
+bool WinDrawD3D::Init(HWND hwnd, uint32_t width, uint32_t height, GUID*) {
+  hwnd_ = hwnd;
+  if (!CreateD3D())
     return false;
-  }
 
-  // ? !Resize
-  return Resize(_width, _height);
+  Resize(width, height);
+  return true;
 }
 
-void WinDrawD3D::SetGUIMode(bool _mode) {
-  // mode check
-
-  if (_mode == 1) {
-    // Full
+void WinDrawD3D::SetGUIMode(bool fullscreen) {
+  // TODO: full screen support
+  if (fullscreen) {
+    // Fullscreen
   } else {
-    // Normal
+    // Windowed
   }
 }
 
@@ -72,7 +68,7 @@ bool WinDrawD3D::CreateD3D12Device() {
 #else
     HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgi_factory_));
 #endif
-    if (!SUCCEEDED(hr))
+    if (FAILED(hr))
       return false;
   }
 
@@ -82,6 +78,7 @@ bool WinDrawD3D::CreateD3D12Device() {
     adapters.push_back(tmp_adapter);
   }
 
+  // Prefer NVIDIA GPU if present.
   for (const auto adapter : adapters) {
     DXGI_ADAPTER_DESC desc = {};
     adapter->GetDesc(&desc);
@@ -93,7 +90,7 @@ bool WinDrawD3D::CreateD3D12Device() {
   }
 
   HRESULT hr = D3D12CreateDevice(tmp_adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&dev_));
-  if (!SUCCEEDED(hr))
+  if (FAILED(hr))
     return false;
 
   if (!fence_) {
@@ -106,12 +103,12 @@ bool WinDrawD3D::CreateD3D12Device() {
 bool WinDrawD3D::CreateCommandList() {
   HRESULT hr =
       dev_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&cmd_allocator_));
-  if (!SUCCEEDED(hr))
+  if (FAILED(hr))
     return false;
 
   hr = dev_->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_allocator_.get(), nullptr,
                                IID_PPV_ARGS(&cmd_list_));
-  if (!SUCCEEDED(hr))
+  if (FAILED(hr))
     return false;
 
   D3D12_COMMAND_QUEUE_DESC cmd_queue_desc = {};
@@ -153,18 +150,18 @@ bool WinDrawD3D::CreateRenderTargetView() {
   heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
   HRESULT hr = dev_->CreateDescriptorHeap(&heap_desc, IID_PPV_ARGS(&rtv_heap_));
-  if (!SUCCEEDED(hr))
+  if (FAILED(hr))
     return false;
 
   DXGI_SWAP_CHAIN_DESC swc_desc = {};
   hr = swap_chain_->GetDesc(&swc_desc);
-  if (!SUCCEEDED(hr))
+  if (FAILED(hr))
     return false;
 
   back_buffers_.resize(swc_desc.BufferCount);
   for (int i = 0; i < swc_desc.BufferCount; ++i) {
     hr = swap_chain_->GetBuffer(i, IID_PPV_ARGS(&back_buffers_[i]));
-    if (!SUCCEEDED(hr))
+    if (FAILED(hr))
       return false;
     D3D12_CPU_DESCRIPTOR_HANDLE handle = rtv_heap_->GetCPUDescriptorHandleForHeapStart();
     handle.ptr += dev_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV) * i;
@@ -177,10 +174,14 @@ bool WinDrawD3D::SetUpShaders() {
   ID3DBlob* error_blob = nullptr;
 
   if (!vs_blob_) {
-    HRESULT hr = D3DCompileFromFile(
-        L"BasicVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "BasicVS", "vs_5_0",
-        D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &vs_blob_, &error_blob);
-    if (!SUCCEEDED(hr)) {
+    uint32_t flags = 0;
+#if defined(_DEBUG)
+    flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+    HRESULT hr =
+        D3DCompileFromFile(L"BasicVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+                           "BasicVS", "vs_5_0", flags, 0, &vs_blob_, &error_blob);
+    if (FAILED(hr)) {
       if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND)) {
         OutputDebugStringA("The shader file cannot be found.\n");
       } else {
@@ -198,10 +199,14 @@ bool WinDrawD3D::SetUpShaders() {
   }
 
   if (!ps_blob_) {
-    HRESULT hr = D3DCompileFromFile(
-        L"BasicPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "BasicPS", "ps_5_0",
-        D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &ps_blob_, &error_blob);
-    if (!SUCCEEDED(hr)) {
+    uint32_t flags = 0;
+#if defined(_DEBUG)
+    flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+    HRESULT hr =
+        D3DCompileFromFile(L"BasicPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+                           "BasicPS", "ps_5_0", flags, 0, &ps_blob_, &error_blob);
+    if (FAILED(hr)) {
       if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND)) {
         OutputDebugStringA("The shader file cannot be found.\n");
       } else {
@@ -220,8 +225,11 @@ bool WinDrawD3D::SetUpShaders() {
   return true;
 }
 
-// Prerequisite: root_signature_, vs_blob_, ps_blob_
-bool WinDrawD3D::SetUpPipeline(D3D12_INPUT_ELEMENT_DESC* input_layout, int num_elements) {
+bool WinDrawD3D::SetUpPipelineForTexture(D3D12_INPUT_ELEMENT_DESC* input_layout, int num_elements) {
+  assert(root_signature_);
+  assert(vs_blob_);
+  assert(ps_blob_);
+
   D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
   gpipeline.pRootSignature = root_signature_.get();
   gpipeline.VS.pShaderBytecode = vs_blob_->GetBufferPointer();
@@ -301,7 +309,7 @@ bool WinDrawD3D::SetUpRootSignature() {
   ID3DBlob* error_blob = nullptr;
   HRESULT hr = D3D12SerializeRootSignature(&root_signature_desc, D3D_ROOT_SIGNATURE_VERSION_1_0,
                                            &root_sig_blob, &error_blob);
-  if (!SUCCEEDED(hr)) {
+  if (FAILED(hr)) {
     OutputDebugStringA("Failed to get root signature blob.\n");
     std::string errstr;
     errstr.resize(error_blob->GetBufferSize());
@@ -389,169 +397,13 @@ void WinDrawD3D::CommitCommandList() {
 
 bool WinDrawD3D::ClearScreen() {
   auto rtv_h = PrepareCommandList();
-
-  // Clear screen body
-  float clear_color[] = {0.8f, 0.8f, 0.0f, 1.0f};
+  float clear_color[] = {0.0f, 0.0f, 0.0f, 1.0f};
   cmd_list_->ClearRenderTargetView(rtv_h, clear_color, 0, nullptr);
-  // Clear screen body end
-
-  CommitCommandList();
-  return true;
-}
-
-bool WinDrawD3D::DrawTexture() {
-  auto rtv_h = PrepareCommandList();
-
-  struct Vertex {
-    DirectX::XMFLOAT3 pos;
-    DirectX::XMFLOAT2 uv;
-  };
-
-  // clang-format off
-  static constexpr Vertex vertices[] = {{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},  // left bottom
-                                        {{-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f}},  // left top
-                                        {{ 1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},  // right bottom
-                                        {{ 1.0f,  1.0f, 0.0f}, {1.0f, 0.0f}}};  // right top
-  // clang-format on
-
-  if (!vert_buffer_) {
-    D3D12_HEAP_PROPERTIES heap_prop = {};
-    heap_prop.Type = D3D12_HEAP_TYPE_UPLOAD;
-    heap_prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-    heap_prop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-    D3D12_RESOURCE_DESC resource_desc = {};
-    resource_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    resource_desc.Width = sizeof(vertices);
-    resource_desc.Height = 1;
-    resource_desc.DepthOrArraySize = 1;
-    resource_desc.MipLevels = 1;
-    resource_desc.Format = DXGI_FORMAT_UNKNOWN;
-    resource_desc.SampleDesc.Count = 1;
-    resource_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-    resource_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-    HRESULT hr = dev_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, &resource_desc,
-                                               D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                               IID_PPV_ARGS(&vert_buffer_));
-    if (!SUCCEEDED(hr))
-      return false;
-
-    Vertex* vert_map = nullptr;
-    hr = vert_buffer_->Map(0, nullptr, (void**)&vert_map);
-    if (!SUCCEEDED(hr))
-      return false;
-
-    std::copy(std::begin(vertices), std::end(vertices), vert_map);
-    vert_buffer_->Unmap(0, nullptr);
-
-    // rectangle vertex buffer view
-    D3D12_VERTEX_BUFFER_VIEW vb_view = {};
-    vb_view.BufferLocation = vert_buffer_->GetGPUVirtualAddress();
-    vb_view.SizeInBytes = sizeof(vertices);
-    vb_view.StrideInBytes = sizeof(Vertex);
-    cmd_list_->IASetVertexBuffers(0, 1, &vb_view);
-  } else {
-    D3D12_VERTEX_BUFFER_VIEW vb_view = {};
-    vb_view.BufferLocation = vert_buffer_->GetGPUVirtualAddress();
-    vb_view.SizeInBytes = sizeof(vertices);
-    vb_view.StrideInBytes = sizeof(Vertex);
-    cmd_list_->IASetVertexBuffers(0, 1, &vb_view);
-  }
-
-  // clang-format off
-  static constexpr uint16_t indices[] = {
-      0, 1, 2, 3
-  };
-  // clang-format on
-
-  if (!index_buffer_) {
-    // create buffer for rectangle indices
-    D3D12_HEAP_PROPERTIES heap_prop = {};
-    heap_prop.Type = D3D12_HEAP_TYPE_UPLOAD;
-    heap_prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-    heap_prop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-    D3D12_RESOURCE_DESC resource_desc = {};
-    resource_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    resource_desc.Width = sizeof(indices);
-    resource_desc.Height = 1;
-    resource_desc.DepthOrArraySize = 1;
-    resource_desc.MipLevels = 1;
-    resource_desc.Format = DXGI_FORMAT_UNKNOWN;
-    resource_desc.SampleDesc.Count = 1;
-    resource_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-    resource_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-    HRESULT hr = dev_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, &resource_desc,
-                                               D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                               IID_PPV_ARGS(&index_buffer_));
-    if (!SUCCEEDED(hr))
-      return false;
-    uint16_t* mapped_idx = nullptr;
-    index_buffer_->Map(0, nullptr, (void**)&mapped_idx);
-    std::copy(std::begin(indices), std::end(indices), mapped_idx);
-    index_buffer_->Unmap(0, nullptr);
-
-    D3D12_INDEX_BUFFER_VIEW ib_view = {};
-    ib_view.BufferLocation = index_buffer_->GetGPUVirtualAddress();
-    ib_view.Format = DXGI_FORMAT_R16_UINT;
-    ib_view.SizeInBytes = sizeof(indices);
-
-    cmd_list_->IASetIndexBuffer(&ib_view);
-  } else {
-    D3D12_INDEX_BUFFER_VIEW ib_view = {};
-    ib_view.BufferLocation = index_buffer_->GetGPUVirtualAddress();
-    ib_view.Format = DXGI_FORMAT_R16_UINT;
-    ib_view.SizeInBytes = sizeof(indices);
-
-    cmd_list_->IASetIndexBuffer(&ib_view);
-  }
-
-  SetUpShaders();
-
-  static D3D12_INPUT_ELEMENT_DESC input_layout[] = {
-      {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT,
-       D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-      {// uv
-       "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT,
-       D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
-
-  if (!root_signature_)
-    SetUpRootSignature();
-  if (!pipeline_state_)
-    SetUpPipeline(input_layout, 2);
-  cmd_list_->SetPipelineState(pipeline_state_.get());
-  cmd_list_->SetGraphicsRootSignature(root_signature_.get());
-
-  if (!SetUpTexture())
-    return false;
-
-  SetUpViewPort();
-
-  // Using index
-  cmd_list_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-  cmd_list_->DrawInstanced(4, 1, 0, 0);
-
   CommitCommandList();
   return true;
 }
 
 bool WinDrawD3D::SetUpTexture() {
-  std::vector<TexRGBA> texturedata(width_ * height_);
-
-  for (int y = 0; y < height_; ++y) {
-    for (int x = 0; x < width_; ++x) {
-      auto& rgba = texturedata[y * width_ + x];
-      uint8_t col = image_[y * bpl_ + x];
-      Palette pal = pal_[col];
-      rgba.R = pal.r;
-      rgba.G = pal.g;
-      rgba.B = pal.b;
-      rgba.A = 255;
-    }
-  }
-
   if (!texture_) {
     D3D12_HEAP_PROPERTIES heap_prop_tex = {};
     heap_prop_tex.Type = D3D12_HEAP_TYPE_CUSTOM;
@@ -575,15 +427,9 @@ bool WinDrawD3D::SetUpTexture() {
     HRESULT hr = dev_->CreateCommittedResource(
         &heap_prop_tex, D3D12_HEAP_FLAG_NONE, &resource_desc_tex,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, nullptr, IID_PPV_ARGS(&texture_));
-    if (!SUCCEEDED(hr))
+    if (FAILED(hr))
       return false;
   }
-
-  HRESULT hr =
-      texture_->WriteToSubresource(0, nullptr, texturedata.data(), width_ * sizeof(TexRGBA),
-                                   texturedata.size() * sizeof(TexRGBA));
-  if (!SUCCEEDED(hr))
-    return false;
 
   if (!tex_desc_heap_) {
     D3D12_DESCRIPTOR_HEAP_DESC tex_desc_heap_desc = {};
@@ -591,9 +437,151 @@ bool WinDrawD3D::SetUpTexture() {
     tex_desc_heap_desc.NodeMask = 0;
     tex_desc_heap_desc.NumDescriptors = 1;
     tex_desc_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    hr = dev_->CreateDescriptorHeap(&tex_desc_heap_desc, IID_PPV_ARGS(&tex_desc_heap_));
-    if (!SUCCEEDED(hr))
+    HRESULT hr = dev_->CreateDescriptorHeap(&tex_desc_heap_desc, IID_PPV_ARGS(&tex_desc_heap_));
+    if (FAILED(hr))
       return false;
+  }
+
+  return true;
+}
+
+namespace {
+// clang-format off
+constexpr WinDrawD3D::Vertex vertices[] = {
+  {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},  // left bottom
+  {{-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f}},  // left top
+  {{ 1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},  // right bottom
+  {{ 1.0f,  1.0f, 0.0f}, {1.0f, 0.0f}}   // right top
+};
+
+constexpr uint16_t indices[] = {
+  0, 1, 2, 3
+};
+// clang-format on
+}  // namespace
+
+bool WinDrawD3D::SetUpVerticesForTexture() {
+  if (vert_buffer_)
+    return true;
+
+  D3D12_HEAP_PROPERTIES heap_prop = {};
+  heap_prop.Type = D3D12_HEAP_TYPE_UPLOAD;
+  heap_prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+  heap_prop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+  D3D12_RESOURCE_DESC resource_desc = {};
+  resource_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+  resource_desc.Width = sizeof(vertices);
+  resource_desc.Height = 1;
+  resource_desc.DepthOrArraySize = 1;
+  resource_desc.MipLevels = 1;
+  resource_desc.Format = DXGI_FORMAT_UNKNOWN;
+  resource_desc.SampleDesc.Count = 1;
+  resource_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+  resource_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+  HRESULT hr = dev_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, &resource_desc,
+                                             D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                             IID_PPV_ARGS(&vert_buffer_));
+  if (FAILED(hr))
+    return false;
+
+  Vertex* vert_map = nullptr;
+  hr = vert_buffer_->Map(0, nullptr, (void**)&vert_map);
+  if (FAILED(hr))
+    return false;
+
+  std::copy(std::begin(vertices), std::end(vertices), vert_map);
+  vert_buffer_->Unmap(0, nullptr);
+
+  return true;
+}
+
+void WinDrawD3D::PrepareVerticesForTexture() {
+  // rectangle vertex buffer view
+  D3D12_VERTEX_BUFFER_VIEW vb_view = {};
+  vb_view.BufferLocation = vert_buffer_->GetGPUVirtualAddress();
+  vb_view.SizeInBytes = sizeof(vertices);
+  vb_view.StrideInBytes = sizeof(Vertex);
+  cmd_list_->IASetVertexBuffers(0, 1, &vb_view);
+}
+
+bool WinDrawD3D::SetUpIndicesForTexture() {
+  if (index_buffer_)
+    return true;
+
+  // create buffer for rectangle indices
+  D3D12_HEAP_PROPERTIES heap_prop = {};
+  heap_prop.Type = D3D12_HEAP_TYPE_UPLOAD;
+  heap_prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+  heap_prop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+  D3D12_RESOURCE_DESC resource_desc = {};
+  resource_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+  resource_desc.Width = sizeof(indices);
+  resource_desc.Height = 1;
+  resource_desc.DepthOrArraySize = 1;
+  resource_desc.MipLevels = 1;
+  resource_desc.Format = DXGI_FORMAT_UNKNOWN;
+  resource_desc.SampleDesc.Count = 1;
+  resource_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+  resource_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+  HRESULT hr = dev_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, &resource_desc,
+                                             D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                             IID_PPV_ARGS(&index_buffer_));
+  if (FAILED(hr))
+    return false;
+
+  uint16_t* mapped_idx = nullptr;
+  index_buffer_->Map(0, nullptr, (void**)&mapped_idx);
+  std::copy(std::begin(indices), std::end(indices), mapped_idx);
+  index_buffer_->Unmap(0, nullptr);
+
+  return true;
+}
+
+void WinDrawD3D::PrepareIndicesForTexture() {
+  D3D12_INDEX_BUFFER_VIEW ib_view = {};
+  ib_view.BufferLocation = index_buffer_->GetGPUVirtualAddress();
+  ib_view.Format = DXGI_FORMAT_R16_UINT;
+  ib_view.SizeInBytes = sizeof(indices);
+  cmd_list_->IASetIndexBuffer(&ib_view);
+}
+
+bool WinDrawD3D::SetUpTexturePipeline() {
+  if (!SetUpVerticesForTexture() || !SetUpIndicesForTexture())
+    return false;
+
+  if (!SetUpShaders())
+    return false;
+
+  static D3D12_INPUT_ELEMENT_DESC input_layout[] = {
+      {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT,
+       D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+      {// uv
+       "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT,
+       D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
+
+  if (!pipeline_state_)
+    SetUpPipelineForTexture(input_layout, 2);
+
+  return SetUpTexture();
+}
+
+bool WinDrawD3D::RenderTexture() {
+  std::vector<TexRGBA> texturedata(width_ * height_);
+
+  for (int y = 0; y < height_; ++y) {
+    for (int x = 0; x < width_; ++x) {
+      auto& rgba = texturedata[y * width_ + x];
+      uint8_t col = image_[y * bpl_ + x];
+      Palette pal = pal_[col];
+      rgba.R = pal.red;
+      rgba.G = pal.green;
+      rgba.B = pal.blue;
+      rgba.A = 255;
+    }
   }
 
   D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
@@ -609,6 +597,31 @@ bool WinDrawD3D::SetUpTexture() {
   cmd_list_->SetGraphicsRootDescriptorTable(0,
                                             tex_desc_heap_->GetGPUDescriptorHandleForHeapStart());
 
+  HRESULT hr =
+      texture_->WriteToSubresource(0, nullptr, texturedata.data(), width_ * sizeof(TexRGBA),
+                                   texturedata.size() * sizeof(TexRGBA));
+  return SUCCEEDED(hr);
+}
+
+bool WinDrawD3D::DrawTexture() {
+  auto rtv_h = PrepareCommandList();
+
+  PrepareVerticesForTexture();
+  PrepareIndicesForTexture();
+
+  cmd_list_->SetPipelineState(pipeline_state_.get());
+  cmd_list_->SetGraphicsRootSignature(root_signature_.get());
+
+  if (!RenderTexture())
+    return false;
+
+  SetUpViewPort();
+
+  // Using index
+  cmd_list_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+  cmd_list_->DrawInstanced(4, 1, 0, 0);
+
+  CommitCommandList();
   return true;
 }
 
@@ -626,55 +639,44 @@ bool WinDrawD3D::CreateD3D() {
   }
 #endif
 
-  if (!CreateD3D12Device())
+  if (!CreateD3D12Device() || !CreateCommandList() || !CreateSwapChain() ||
+      !CreateRenderTargetView()) {
     return false;
+  }
 
-  if (!CreateCommandList())
-    return false;
+  if (!root_signature_)
+    SetUpRootSignature();
 
-  if (!CreateSwapChain())
-    return false;
-
-  if (!CreateRenderTargetView())
-    return false;
-
-  DrawTexture();
-  // ClearScreen();
-
+  SetUpTexturePipeline();
+  ClearScreen();
   return true;
 }
 
 bool WinDrawD3D::Resize(uint32_t width, uint32_t height) {
-  // width_ = width;
-  // height_ = height;
+  width_ = width;
+  height_ = height;
 
   status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
   ::SetWindowPos(hcwnd_, HWND_BOTTOM, 0, 0, 640, 400, SWP_SHOWWINDOW);
   return true;
 }
 
-bool WinDrawD3D::CleanUp() {
-  return true;
-}
-
 void WinDrawD3D::SetPalette(PALETTEENTRY* pe, int index, int nentries) {
   for (; nentries > 0; nentries--) {
-    pal_[index].r = pe->peRed;
-    pal_[index].g = pe->peGreen;
-    pal_[index].b = pe->peBlue;
+    pal_[index].red = pe->peRed;
+    pal_[index].green = pe->peGreen;
+    pal_[index].blue = pe->peBlue;
     index++;
     pe++;
   }
   update_palette_ = true;
 }
 
-void WinDrawD3D::DrawScreen(const RECT& _rect, bool refresh) {
-  if (::IsWindow(hwnd_) == FALSE) {
+void WinDrawD3D::DrawScreen(const RECT& rect, bool refresh) {
+  if (::IsWindow(hwnd_) == FALSE)
     return;
-  }
 
-  RECT rc = _rect;
-
+  RECT rc = rect;
   if (refresh || update_palette_) {
     ::SetRect(&rc, 0, 0, width_, height_);
     update_palette_ = false;
@@ -685,9 +687,9 @@ void WinDrawD3D::DrawScreen(const RECT& _rect, bool refresh) {
   DrawTexture();
 }
 
-bool WinDrawD3D::Lock(uint8_t** pimage, int* pbpl) {
-  *pimage = image_;
-  *pbpl = bpl_;
+bool WinDrawD3D::Lock(uint8_t** image, int* bpl) {
+  *image = image_.get();
+  *bpl = bpl_;
   return image_ != nullptr;
 }
 
