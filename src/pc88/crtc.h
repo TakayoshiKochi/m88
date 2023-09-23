@@ -40,7 +40,8 @@ class CRTC : public Device {
 
   void ApplyConfig(const Config* config);
   //  1 フレーム分に相当する時間を求める
-  [[nodiscard]] int GetFramePeriod() const { return line_time_ * (height_ + v_retrace_); }
+  [[nodiscard]] int GetFramePeriod() const { return int(GetFramePeriodNS() / 10000); }
+  [[nodiscard]] int GetFramePeriodNS() const { return line_time_ns_ * (height_ + v_retrace_); }
 
   // rendering
   void UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool refresh);
@@ -204,7 +205,8 @@ class CRTC : public Device {
   uint8_t attr_cursor_ = 0;
   // when blinking, 0 or 1 to control visibility
   uint8_t attr_blink_ = 0;
-  int line_time_ = 0;
+  // Time for displaying one text line in nanoseconds
+  uint64_t line_time_ns_ = 0;
   uint32_t frame_time_ = 0;
   uint32_t pcg_adr_ = 0;
   uint32_t pcg_dat_ = 0;
@@ -255,7 +257,12 @@ class CRTC : public Device {
   uint32_t height_ = 25;
   // ブリンクの速度
   uint32_t blink_rate_ = 1;
+
+  // Vertical Retrace (in lines)
   uint32_t v_retrace_ = 0;
+  // Horizontal Retrace (in columns)
+  uint32_t h_retrace_ = 0;
+
   bool widefont_ = false;
   bool pcg_enable_ = false;
   // ひらカナ選択有効

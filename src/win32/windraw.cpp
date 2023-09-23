@@ -96,7 +96,7 @@ bool WinDraw::CleanUp() {
     int i = 300;
     do {
       shouldterminate = true;
-      SetEvent(hevredraw);
+      ::SetEvent(hevredraw);
     } while (--i > 0 && WAIT_TIMEOUT == WaitForSingleObject(hthread, 10));
 
     if (!i)
@@ -157,7 +157,7 @@ void WinDraw::RequestPaint() {
   std::lock_guard<std::mutex> lock(mtx_);
   drawall = true;
   drawing = true;
-  SetEvent(hevredraw);
+  ::SetEvent(hevredraw);
 #else
   drawall = true;
   drawing = true;
@@ -178,7 +178,7 @@ void WinDraw::DrawScreen(const Region& region) {
     drawarea.right = std::min(width, region.right);
     drawarea.bottom = std::min(height, region.bottom + 1);
 #ifdef DRAW_THREAD
-    SetEvent(hevredraw);
+    ::SetEvent(hevredraw);
 #else
     PaintWindow();
 #endif

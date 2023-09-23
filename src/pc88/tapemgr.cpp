@@ -131,8 +131,8 @@ bool TapeManager::Motor(bool s) {
     g_status_display->Show(10, 2000, "Motor on: %d %d", timer_remain_, timer_count_);
     time_ = scheduler_->GetTime();
     if (timer_remain_)
-      event_ = scheduler_->AddEvent(timer_count_ * 125 / 6, this,
-                                    static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
+      event_ = scheduler_->AddEventNS((timer_count_ * 125 / 6) * 10000ULL, this,
+                                      static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
     motor_ = true;
   } else {
     if (timer_count_) {
@@ -256,8 +256,8 @@ void TapeManager::SetTimer(int count) {
   if (motor_) {
     time_ = scheduler_->GetTime();
     if (count)  // 100000/4800
-      event_ = scheduler_->AddEvent(count * 125 / 6, this,
-                                    static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
+      event_ = scheduler_->AddEventNS((count * 125 / 6) * 10000ULL, this,
+                                      static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
   } else
     timer_remain_ = count;
 }
@@ -275,7 +275,8 @@ inline void TapeManager::Send(uint32_t byte) {
 //
 void TapeManager::RequestData(uint32_t, uint32_t) {
   if (mode_ == T_DATA) {
-    scheduler_->SetEvent(event_, 1, this, static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
+    scheduler_->SetEventNS(event_, 10000ULL, this, static_cast<TimeFunc>(&TapeManager::Timer), 0,
+                           false);
   }
 }
 

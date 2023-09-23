@@ -13,7 +13,6 @@
 #include "pc88/pc88.h"
 
 #define LOGNAME "sequence"
-#include "common/diag.h"
 
 Sequencer::Sequencer() = default;
 
@@ -27,17 +26,17 @@ bool Sequencer::Init(PC88* vm) {
   active_ = false;
   should_terminate_ = false;
   exec_count_ = 0;
-  clock = 1;
+  clocks_per_tick_ = 1;
   speed_ = 100;
 
   draw_next_frame_ = false;
-  skipped_frame_ = 0;
+  skipped_frames_ = 0;
   refresh_timing_ = 1;
   refresh_count_ = 0;
 
   if (!hthread_) {
-    hthread_ =
-        (HANDLE)_beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &idthread_);
+    hthread_ = (HANDLE)_beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0,
+                                      &idthread_);
   }
   return hthread_ != nullptr;
 }
@@ -62,6 +61,7 @@ bool Sequencer::CleanUp() {
 //
 uint32_t Sequencer::ThreadMain() {
   time_ = keeper_.GetTime();
+  time_ns_ = keeper_.GetTimeNS();
   eff_clock_ = 100;
 
   while (!should_terminate_) {
@@ -88,23 +88,30 @@ uint32_t CALLBACK Sequencer::ThreadEntry(void* arg) {
 //  length  実行する時間 (0.01ms)
 //  eff     実効クロック
 //
-inline void Sequencer::Execute(int32_t clk, int32_t length, int32_t eff) {
+inline void Sequencer::Execute(int32_t clock, int32_t length, int32_t eff) {
   std::lock_guard<std::mutex> lock(mtx_);
-  exec_count_ += clk * vm_->Proceed(length, clk, eff);
+  exec_count_ += clock * vm_->Proceed(length, clock, eff);
+}
+
+inline void Sequencer::ExecuteNS(int32_t clock, int64_t length_ns, int32_t ec) {
+  // Execute(clock, int32_t(length_ns / 10000), eff);
+  std::lock_guard<std::mutex> lock(mtx_);
+  exec_count_ += clock * (vm_->ProceedNS(length_ns, clock, ec) / 10000);
 }
 
 // ---------------------------------------------------------------------------
 //  VSYNC 非同期
 //
 void Sequencer::ExecuteAsynchronus() {
-  if (clock <= 0) {
+  if (clocks_per_tick_ <= 0) {
     time_ = keeper_.GetTime();
+    time_ns_ = keeper_.GetTimeNS();
     vm_->TimeSync();
     DWORD ms = 0;
     int eclk = 0;
     do {
-      if (clock)
-        Execute(-clock, 500, eff_clock_);
+      if (clocks_per_tick_)
+        Execute(-clocks_per_tick_, 500, eff_clock_);
       else
         Execute(eff_clock_, 500 * speed_ / 100, eff_clock_);
       eclk += 5;
@@ -114,36 +121,48 @@ void Sequencer::ExecuteAsynchronus() {
 
     eff_clock_ = std::min((std::min(1000, eclk) * eff_clock_ * 100 / ms) + 1, 10000UL);
   } else {
-    int texec = vm_->GetFramePeriod();
+    // time to execute in ticks
+    // int texec = vm_->GetFramePeriod();
+    int texec = int(vm_->GetFramePeriodNS() / 10000);
+    int64_t texec_ns = vm_->GetFramePeriodNS();
+    // actual work to do??
     int twork = texec * 100 / speed_;
+    int64_t twork_ns = texec_ns * 100 / speed_;
     vm_->TimeSync();
-    Execute(clock, texec, clock * speed_ / 100);
+    // Execute(clock_, texec, clock_ * speed_ / 100);
+    ExecuteNS(clocks_per_tick_, texec_ns, clocks_per_tick_ * speed_ / 100);
 
     int32_t tcpu = keeper_.GetTime() - time_;
-    if (tcpu < twork) {
+    int64_t tcpu_ns = keeper_.GetTimeNS() - time_ns_;
+    if (tcpu_ns < twork_ns) {
       if (draw_next_frame_ && ++refresh_count_ >= refresh_timing_) {
         vm_->UpdateScreen();
-        skipped_frame_ = 0;
+        skipped_frames_ = 0;
         refresh_count_ = 0;
       }
 
       int32_t tdraw = keeper_.GetTime() - time_;
+      int64_t tdraw_ns = keeper_.GetTimeNS() - time_ns_;
 
-      if (tdraw > twork) {
+      if (tdraw_ns > twork_ns) {
         draw_next_frame_ = false;
       } else {
-        int it = (twork - tdraw) / 100;
-        if (it > 0)
-          Sleep(it);
+        // TODO: sleep for nanoseconds-resolution?
+        int64_t it_ns = twork_ns - tdraw_ns;
+        if (it_ns > 1000000)
+          Sleep(it_ns / 1000000);
         draw_next_frame_ = true;
       }
       time_ += twork;
+      time_ns_ += twork_ns;
     } else {
       time_ += twork;
-      if (++skipped_frame_ >= 20) {
+      time_ns_ += twork_ns;
+      if (++skipped_frames_ >= 20) {
         vm_->UpdateScreen();
-        skipped_frame_ = 0;
+        skipped_frames_ = 0;
         time_ = keeper_.GetTime();
+        time_ns_ = keeper_.GetTimeNS();
       }
     }
   }

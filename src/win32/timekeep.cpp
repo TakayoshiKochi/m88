@@ -18,37 +18,37 @@ TimeKeeper::TimeKeeper() {
   assert(unit > 0);
 
   LARGE_INTEGER li;
-  if (QueryPerformanceFrequency(&li)) {
-    freq = (li.LowPart + unit * 500) / (unit * 1000);
-    QueryPerformanceCounter(&li);
-    base = li.LowPart;
-  } else {
-    freq = 0;
-    timeBeginPeriod(1);  // 精度を上げるためのおまじない…らしい
-    base = timeGetTime();
+  if (!QueryPerformanceFrequency(&li)) {
+    // abort
   }
-  time = 0;
+  freq_ns_ = li.QuadPart;
+  // TODO: support 1GHz+ frequency
+  ns_per_freq_ = 1000000000ULL / freq_ns_;
+  freq_ = (li.LowPart + unit * 500) / (unit * 1000);
+  QueryPerformanceCounter(&li);
+  base_ = li.LowPart;
+  base_ns_ = li.QuadPart;
+
+  time_ = 0;
+  time_ns_ = 0;
 }
 
-TimeKeeper::~TimeKeeper() {
-  if (!freq) {
-    timeEndPeriod(1);
-  }
-}
+TimeKeeper::~TimeKeeper() = default;
 
-// ---------------------------------------------------------------------------
-//  時間を取得
-//
 uint32_t TimeKeeper::GetTime() {
-  if (freq) {
-    LARGE_INTEGER li;
-    QueryPerformanceCounter(&li);
-    uint32_t dc = li.LowPart - base;
-    time += dc / freq;
-    base = li.LowPart - dc % freq;
-    return time;
-  } else {
-    time = timeGetTime();
-    return time * unit;
-  }
+  LARGE_INTEGER li;
+  QueryPerformanceCounter(&li);
+  uint32_t dc = li.LowPart - base_;
+  time_ += dc / freq_;
+  base_ = li.LowPart - dc % freq_;
+  return time_;
+}
+
+uint64_t TimeKeeper::GetTimeNS() {
+  LARGE_INTEGER li;
+  QueryPerformanceCounter(&li);
+  uint64_t dc = li.QuadPart - base_ns_;
+  base_ns_ = li.QuadPart;
+  time_ns_ += dc * ns_per_freq_;
+  return time_ns_;
 }

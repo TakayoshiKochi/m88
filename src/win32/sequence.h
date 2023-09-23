@@ -39,12 +39,13 @@ class Sequencer {
   void Lock() { mtx_.lock(); }
   void Unlock() { mtx_.unlock(); }
 
-  void SetClock(int clk);
-  void SetSpeed(int spd);
-  void SetRefreshTiming(uint32_t rti);
+  void SetClock(int clock) { clocks_per_tick_ = clock; }
+  void SetSpeed(int speed) { speed_ = speed; }
+  void SetRefreshTiming(uint32_t refresh_timing) { refresh_timing_ = refresh_timing; }
 
  private:
   void Execute(int32_t clock, int32_t length, int32_t ec);
+  void ExecuteNS(int32_t clock, int64_t length_ns, int32_t ec);
   void ExecuteAsynchronus();
 
   uint32_t ThreadMain();
@@ -58,13 +59,15 @@ class Sequencer {
   HANDLE hthread_ = nullptr;
   uint32_t idthread_ = 0;
 
-  int clock = 1;  // 1秒は何tick?
+  // 1Tick (=10us) あたりのクロック数 (e.g. 4MHz のとき 40)
+  int clocks_per_tick_ = 1;
   int speed_ = 100;  //
   int exec_count_ = 0;
   int eff_clock_ = 100;
   int time_ = 0;
+  int64_t time_ns_ = 0;
 
-  uint32_t skipped_frame_ = 0;
+  uint32_t skipped_frames_ = 0;
   uint32_t refresh_count_ = 0;
   uint32_t refresh_timing_ = 1;
   bool draw_next_frame_ = false;
@@ -72,15 +75,3 @@ class Sequencer {
   volatile bool should_terminate_ = false;
   volatile bool active_ = false;
 };
-
-inline void Sequencer::SetClock(int clk) {
-  clock = clk;
-}
-
-inline void Sequencer::SetSpeed(int spd) {
-  speed_ = spd;
-}
-
-inline void Sequencer::SetRefreshTiming(uint32_t rti) {
-  refresh_timing_ = rti;
-}

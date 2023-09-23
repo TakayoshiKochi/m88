@@ -11,9 +11,9 @@ class MockScheduler : public Scheduler {
   ~MockScheduler() override = default;
 
  private:
-  int Execute(int ticks) override { return ticks; };
-  void Shorten(int ticks) override{};
-  int GetTicks() override { return 0; }
+  int64_t ExecuteNS(int64_t ns) override { return ns; };
+  void ShortenNS(int64_t ns) override{};
+  int64_t GetNS() override { return 0; }
 };
 
 namespace PC8801 {
