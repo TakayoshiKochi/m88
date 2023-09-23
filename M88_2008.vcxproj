@@ -1308,6 +1308,7 @@
     <ClInclude Include="src\common\memory_bus.h" />
     <ClInclude Include="src\common\misc.h" />
     <ClInclude Include="src\common\scheduler.h" />
+    <ClInclude Include="src\common\scoped_comptr.h" />
     <ClInclude Include="src\common\soundsrc.h" />
     <ClInclude Include="src\common\srcbuf.h" />
     <ClInclude Include="src\common\status.h" />

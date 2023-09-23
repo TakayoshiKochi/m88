@@ -47,6 +47,7 @@ add_library(common ${LIB_TYPE}
         src/common/misc.h
         src/common/scheduler.h
         src/common/scheduler.cpp
+        src/common/scoped_comptr.h
         src/common/soundsrc.h
         src/common/srcbuf.h
         src/common/srcbuf.cpp

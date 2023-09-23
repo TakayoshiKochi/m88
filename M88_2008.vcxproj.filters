@@ -638,6 +638,9 @@
     <ClInclude Include="src\win32\windraw.h">
       <Filter>win32\screen</Filter>
     </ClInclude>
+    <ClInclude Include="src\common\scoped_comptr.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\win32\M88.rc">
