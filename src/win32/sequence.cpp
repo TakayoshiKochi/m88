@@ -4,60 +4,55 @@
 // ---------------------------------------------------------------------------
 //  $Id: sequence.cpp,v 1.3 2003/05/12 22:26:35 cisc Exp $
 
+#include "win32/sequence.h"
+
 #include <process.h>
 
 #include <algorithm>
 
 #include "pc88/pc88.h"
-#include "win32/sequence.h"
 
 #define LOGNAME "sequence"
 #include "common/diag.h"
 
-// ---------------------------------------------------------------------------
-//  構築/消滅
-//
-Sequencer::Sequencer() : hthread(0), execcount(0), vm(0) {}
+Sequencer::Sequencer() = default;
 
 Sequencer::~Sequencer() {
   CleanUp();
 }
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
-bool Sequencer::Init(PC88* _vm) {
-  vm = _vm;
+bool Sequencer::Init(PC88* vm) {
+  vm_ = vm;
 
-  active = false;
-  shouldterminate = false;
-  execcount = 0;
+  active_ = false;
+  should_terminate_ = false;
+  exec_count_ = 0;
   clock = 1;
-  speed = 100;
+  speed_ = 100;
 
-  drawnextframe = false;
-  skippedframe = 0;
-  refreshtiming = 1;
-  refreshcount = 0;
+  draw_next_frame_ = false;
+  skipped_frame_ = 0;
+  refresh_timing_ = 1;
+  refresh_count_ = 0;
 
-  if (!hthread) {
-    hthread =
-        (HANDLE)_beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &idthread);
+  if (!hthread_) {
+    hthread_ =
+        (HANDLE)_beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &idthread_);
   }
-  return !!hthread;
+  return hthread_ != nullptr;
 }
 
 // ---------------------------------------------------------------------------
 //  後始末
 //
 bool Sequencer::CleanUp() {
-  if (hthread) {
-    shouldterminate = true;
-    if (WAIT_TIMEOUT == WaitForSingleObject(hthread, 3000)) {
-      TerminateThread(hthread, 0);
+  if (hthread_) {
+    should_terminate_ = true;
+    if (WAIT_TIMEOUT == WaitForSingleObject(hthread_, 3000)) {
+      TerminateThread(hthread_, 0);
     }
-    CloseHandle(hthread);
-    hthread = 0;
+    CloseHandle(hthread_);
+    hthread_ = nullptr;
   }
   return true;
 }
@@ -66,15 +61,15 @@ bool Sequencer::CleanUp() {
 //  Core Thread
 //
 uint32_t Sequencer::ThreadMain() {
-  time = keeper.GetTime();
-  effclock = 100;
+  time_ = keeper_.GetTime();
+  eff_clock_ = 100;
 
-  while (!shouldterminate) {
-    if (active) {
+  while (!should_terminate_) {
+    if (active_) {
       ExecuteAsynchronus();
     } else {
       Sleep(20);
-      time = keeper.GetTime();
+      time_ = keeper_.GetTime();
     }
   }
   return 0;
@@ -95,7 +90,7 @@ uint32_t CALLBACK Sequencer::ThreadEntry(void* arg) {
 //
 inline void Sequencer::Execute(int32_t clk, int32_t length, int32_t eff) {
   std::lock_guard<std::mutex> lock(mtx_);
-  execcount += clk * vm->Proceed(length, clk, eff);
+  exec_count_ += clk * vm_->Proceed(length, clk, eff);
 }
 
 // ---------------------------------------------------------------------------
@@ -103,52 +98,52 @@ inline void Sequencer::Execute(int32_t clk, int32_t length, int32_t eff) {
 //
 void Sequencer::ExecuteAsynchronus() {
   if (clock <= 0) {
-    time = keeper.GetTime();
-    vm->TimeSync();
-    DWORD ms;
+    time_ = keeper_.GetTime();
+    vm_->TimeSync();
+    DWORD ms = 0;
     int eclk = 0;
     do {
       if (clock)
-        Execute(-clock, 500, effclock);
+        Execute(-clock, 500, eff_clock_);
       else
-        Execute(effclock, 500 * speed / 100, effclock);
+        Execute(eff_clock_, 500 * speed_ / 100, eff_clock_);
       eclk += 5;
-      ms = keeper.GetTime() - time;
+      ms = keeper_.GetTime() - time_;
     } while (ms < 1000);
-    vm->UpdateScreen();
+    vm_->UpdateScreen();
 
-    effclock = std::min((std::min(1000, eclk) * effclock * 100 / ms) + 1, 10000UL);
+    eff_clock_ = std::min((std::min(1000, eclk) * eff_clock_ * 100 / ms) + 1, 10000UL);
   } else {
-    int texec = vm->GetFramePeriod();
-    int twork = texec * 100 / speed;
-    vm->TimeSync();
-    Execute(clock, texec, clock * speed / 100);
+    int texec = vm_->GetFramePeriod();
+    int twork = texec * 100 / speed_;
+    vm_->TimeSync();
+    Execute(clock, texec, clock * speed_ / 100);
 
-    int32_t tcpu = keeper.GetTime() - time;
+    int32_t tcpu = keeper_.GetTime() - time_;
     if (tcpu < twork) {
-      if (drawnextframe && ++refreshcount >= refreshtiming) {
-        vm->UpdateScreen();
-        skippedframe = 0;
-        refreshcount = 0;
+      if (draw_next_frame_ && ++refresh_count_ >= refresh_timing_) {
+        vm_->UpdateScreen();
+        skipped_frame_ = 0;
+        refresh_count_ = 0;
       }
 
-      int32_t tdraw = keeper.GetTime() - time;
+      int32_t tdraw = keeper_.GetTime() - time_;
 
       if (tdraw > twork) {
-        drawnextframe = false;
+        draw_next_frame_ = false;
       } else {
         int it = (twork - tdraw) / 100;
         if (it > 0)
           Sleep(it);
-        drawnextframe = true;
+        draw_next_frame_ = true;
       }
-      time += twork;
+      time_ += twork;
     } else {
-      time += twork;
-      if (++skippedframe >= 20) {
-        vm->UpdateScreen();
-        skippedframe = 0;
-        time = keeper.GetTime();
+      time_ += twork;
+      if (++skipped_frame_ >= 20) {
+        vm_->UpdateScreen();
+        skipped_frame_ = 0;
+        time_ = keeper_.GetTime();
       }
     }
   }
@@ -160,15 +155,20 @@ void Sequencer::ExecuteAsynchronus() {
 int32_t Sequencer::GetExecCount() {
   // std::lock_guard<std::mutex> lock(mtx_); // 正確な値が必要なときは有効にする
 
-  int i = execcount;
-  execcount = 0;
+  int i = exec_count_;
+  exec_count_ = 0;
   return i;
 }
 
 // ---------------------------------------------------------------------------
 //  実行する
 //
-void Sequencer::Activate(bool a) {
+void Sequencer::Activate() {
   std::lock_guard<std::mutex> lock(mtx_);
-  active = a;
+  active_ = true;
+}
+
+void Sequencer::Deactivate() {
+  std::lock_guard<std::mutex> lock(mtx_);
+  active_ = false;
 }

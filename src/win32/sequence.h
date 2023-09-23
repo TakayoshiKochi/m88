@@ -8,11 +8,13 @@
 
 // ---------------------------------------------------------------------------
 
+#include <windows.h>
+
 #include <stdint.h>
 
-#include "win32/timekeep.h"
-
 #include <mutex>
+
+#include "win32/timekeep.h"
 
 class PC88;
 
@@ -31,7 +33,8 @@ class Sequencer {
   bool CleanUp();
 
   int32_t GetExecCount();
-  void Activate(bool active);
+  void Activate();
+  void Deactivate();
 
   void Lock() { mtx_.lock(); }
   void Unlock() { mtx_.unlock(); }
@@ -47,27 +50,27 @@ class Sequencer {
   uint32_t ThreadMain();
   static uint32_t CALLBACK ThreadEntry(LPVOID arg);
 
-  PC88* vm;
+  PC88* vm_ = nullptr;
 
-  TimeKeeper keeper;
+  TimeKeeper keeper_;
 
   std::mutex mtx_;
-  HANDLE hthread;
-  uint32_t idthread;
+  HANDLE hthread_ = nullptr;
+  uint32_t idthread_ = 0;
 
-  int clock;  // 1秒は何tick?
-  int speed;  //
-  int execcount;
-  int effclock;
-  int time;
+  int clock = 1;  // 1秒は何tick?
+  int speed_ = 100;  //
+  int exec_count_ = 0;
+  int eff_clock_ = 100;
+  int time_ = 0;
 
-  uint32_t skippedframe;
-  uint32_t refreshcount;
-  uint32_t refreshtiming;
-  bool drawnextframe;
+  uint32_t skipped_frame_ = 0;
+  uint32_t refresh_count_ = 0;
+  uint32_t refresh_timing_ = 1;
+  bool draw_next_frame_ = false;
 
-  volatile bool shouldterminate;
-  volatile bool active;
+  volatile bool should_terminate_ = false;
+  volatile bool active_ = false;
 };
 
 inline void Sequencer::SetClock(int clk) {
@@ -75,9 +78,9 @@ inline void Sequencer::SetClock(int clk) {
 }
 
 inline void Sequencer::SetSpeed(int spd) {
-  speed = spd;
+  speed_ = spd;
 }
 
 inline void Sequencer::SetRefreshTiming(uint32_t rti) {
-  refreshtiming = rti;
+  refresh_timing_ = rti;
 }
