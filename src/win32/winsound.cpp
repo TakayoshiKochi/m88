@@ -9,11 +9,11 @@
 #include <algorithm>
 
 #include "pc88/config.h"
+#include "win32/monitor/soundmon.h"
 #include "win32/status.h"
 #include "win32/soundds.h"
 #include "win32/soundds2.h"
 #include "win32/soundwo.h"
-#include "win32/soundmon.h"
 
 // #define LOGNAME "winsound"
 #include "common/diag.h"

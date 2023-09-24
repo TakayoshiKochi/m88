@@ -11,7 +11,7 @@
 #include "common/device.h"
 #include "devices/z80diag.h"
 #include "pc88/memview.h"
-#include "win32/mvmon.h"
+#include "win32/monitor/mvmon.h"
 
 // ---------------------------------------------------------------------------
 

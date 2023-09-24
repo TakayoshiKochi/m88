@@ -247,24 +247,24 @@ target_link_libraries(win32_unittests
         common devices fmgen pc88core pc88shell win32)
 
 add_library(win32mon ${LIB_TYPE}
-        src/win32/basmon.h
-        src/win32/basmon.cpp
-        src/win32/codemon.h
-        src/win32/codemon.cpp
-        src/win32/iomon.h
-        src/win32/iomon.cpp
-        src/win32/loadmon.h
-        src/win32/loadmon.cpp
-        src/win32/memmon.h
-        src/win32/memmon.cpp
-        src/win32/mvmon.h
-        src/win32/mvmon.cpp
-        src/win32/regmon.h
-        src/win32/regmon.cpp
-        src/win32/soundmon.h
-        src/win32/soundmon.cpp
-        src/win32/winmon.h
-        src/win32/winmon.cpp)
+        src/win32/monitor/basmon.h
+        src/win32/monitor/basmon.cpp
+        src/win32/monitor/codemon.h
+        src/win32/monitor/codemon.cpp
+        src/win32/monitor/iomon.h
+        src/win32/monitor/iomon.cpp
+        src/win32/monitor/loadmon.h
+        src/win32/monitor/loadmon.cpp
+        src/win32/monitor/memmon.h
+        src/win32/monitor/memmon.cpp
+        src/win32/monitor/mvmon.h
+        src/win32/monitor/mvmon.cpp
+        src/win32/monitor/regmon.h
+        src/win32/monitor/regmon.cpp
+        src/win32/monitor/soundmon.h
+        src/win32/monitor/soundmon.cpp
+        src/win32/monitor/winmon.h
+        src/win32/monitor/winmon.cpp)
 
 target_include_directories(win32mon
         PUBLIC ${CMAKE_SOURCE_DIR}/src

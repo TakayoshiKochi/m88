@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: codemon.cpp,v 1.8 2001/02/21 11:58:53 cisc Exp $
 
-#include "win32/codemon.h"
+#include "win32/monitor/codemon.h"
 
 #include "common/memory_bus.h"
 #include "common/misc.h"

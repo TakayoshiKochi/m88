@@ -7,7 +7,7 @@
 #pragma once
 
 #include "common/device.h"
-#include "win32/winmon.h"
+#include "win32/monitor/winmon.h"
 
 // #define ENABLE_LOADMONITOR
 

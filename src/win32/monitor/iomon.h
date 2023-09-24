@@ -8,7 +8,7 @@
 
 #include "common/device.h"
 #include "pc88/ioview.h"
-#include "win32/mvmon.h"
+#include "win32/monitor/mvmon.h"
 #include "win32/wincore.h"
 
 // ---------------------------------------------------------------------------

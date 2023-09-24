@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: memmon.cpp,v 1.15 2003/05/19 02:33:56 cisc Exp $
 
-#include "win32/memmon.h"
+#include "win32/monitor/memmon.h"
 
 #include <algorithm>
 

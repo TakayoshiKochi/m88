@@ -17,7 +17,7 @@
 #include "win32/drawd3d.h"
 #include "win32/drawgdi.h"
 #include "win32/drawdds.h"
-#include "win32/loadmon.h"
+#include "win32/monitor/loadmon.h"
 #include "win32/status.h"
 #include "win32/winexapi.h"
 

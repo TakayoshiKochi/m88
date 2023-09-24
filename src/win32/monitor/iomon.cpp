@@ -4,13 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: iomon.cpp,v 1.1 2001/02/21 11:58:54 cisc Exp $
 
-#include "win32/iomon.h"
+#include "win32/monitor/iomon.h"
 
 #include <algorithm>
 
 #include "if/ifguid.h"
 #include "pc88/pc88.h"
-#include "pc88/ioview.h"
 #include "win32/file.h"
 #include "win32/resource.h"
 

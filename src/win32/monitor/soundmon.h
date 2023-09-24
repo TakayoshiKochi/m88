@@ -8,7 +8,7 @@
 
 #include "common/device.h"
 #include "common/soundsrc.h"
-#include "win32/winmon.h"
+#include "win32/monitor/winmon.h"
 
 // ---------------------------------------------------------------------------
 

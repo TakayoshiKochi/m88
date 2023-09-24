@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: winmon.cpp,v 1.4 2002/04/07 05:40:11 cisc Exp $
 
-#include "win32/winmon.h"
+#include "win32/monitor/winmon.h"
 
 #include <assert.h>
 #include <commctrl.h>

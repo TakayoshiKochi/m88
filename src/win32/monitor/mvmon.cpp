@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: mvmon.cpp,v 1.3 2001/02/21 11:58:55 cisc Exp $
 
-#include "win32/mvmon.h"
+#include "win32/monitor/mvmon.h"
 
 #include <algorithm>
 

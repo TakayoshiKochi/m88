@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: soundmon.cpp,v 1.15 2003/06/12 14:03:44 cisc Exp $
 
-#include "win32/soundmon.h"
+#include "win32/monitor/soundmon.h"
 
 #include <algorithm>
 
