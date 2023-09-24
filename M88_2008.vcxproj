@@ -484,6 +484,7 @@
     </ClCompile>
     <ClCompile Include="src\common\memory_bus.cpp" />
     <ClCompile Include="src\common\scheduler.cpp" />
+    <ClCompile Include="src\common\sequencer.cpp" />
     <ClCompile Include="src\common\srcbuf.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -492,6 +493,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
+    <ClCompile Include="src\common\time_keeper.cpp" />
     <ClCompile Include="src\devices\fmgen.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -958,14 +960,6 @@
     </ClCompile>
     <ClCompile Include="src\win32\romeo\piccolo_gimic.cpp" />
     <ClCompile Include="src\win32\romeo\piccolo_romeo.cpp" />
-    <ClCompile Include="src\win32\sequence.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
-    </ClCompile>
     <ClCompile Include="src\win32\soundds.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -999,14 +993,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="src\win32\status.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="src\win32\timekeep.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1309,9 +1295,11 @@
     <ClInclude Include="src\common\misc.h" />
     <ClInclude Include="src\common\scheduler.h" />
     <ClInclude Include="src\common\scoped_comptr.h" />
+    <ClInclude Include="src\common\sequencer.h" />
     <ClInclude Include="src\common\soundsrc.h" />
     <ClInclude Include="src\common\srcbuf.h" />
     <ClInclude Include="src\common\status.h" />
+    <ClInclude Include="src\common\time_keeper.h" />
     <ClInclude Include="src\devices\fmgen.h" />
     <ClInclude Include="src\devices\fmtimer.h" />
     <ClInclude Include="src\devices\opm.h" />
@@ -1378,14 +1366,12 @@
     <ClInclude Include="src\win32\romeo\piccolo_gimic.h" />
     <ClInclude Include="src\win32\romeo\piccolo_romeo.h" />
     <ClInclude Include="src\win32\romeo\romeo.h" />
-    <ClInclude Include="src\win32\sequence.h" />
     <ClInclude Include="src\win32\sounddrv.h" />
     <ClInclude Include="src\win32\soundds.h" />
     <ClInclude Include="src\win32\soundds2.h" />
     <ClInclude Include="src\win32\soundmon.h" />
     <ClInclude Include="src\win32\soundwo.h" />
     <ClInclude Include="src\win32\status.h" />
-    <ClInclude Include="src\win32\timekeep.h" />
     <ClInclude Include="src\win32\ui.h" />
     <ClInclude Include="src\win32\version.h" />
     <ClInclude Include="src\win32\wincfg.h" />

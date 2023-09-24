@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: sequence.cpp,v 1.3 2003/05/12 22:26:35 cisc Exp $
 
-#include "win32/sequence.h"
+#include "common/sequencer.h"
 
 #include <process.h>
 
@@ -12,7 +12,7 @@
 
 #include "pc88/pc88.h"
 
-#define LOGNAME "sequence"
+#define LOGNAME "sequencer"
 
 Sequencer::Sequencer() = default;
 

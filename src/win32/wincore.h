@@ -14,7 +14,7 @@
 
 #include "pc88/config.h"
 #include "pc88/pc88.h"
-#include "win32/sequence.h"
+#include "common/sequencer.h"
 #include "win32/winjoy.h"
 #include "win32/winsound.h"
 
