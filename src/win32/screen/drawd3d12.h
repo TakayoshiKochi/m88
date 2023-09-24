@@ -17,10 +17,10 @@
 #include "common/scoped_comptr.h"
 #include "win32/screen/windraw.h"
 
-class WinDrawD3D : public WinDrawSub {
+class WinDrawD3D12 : public WinDrawSub {
  public:
-  WinDrawD3D();
-  ~WinDrawD3D() override;
+  WinDrawD3D12();
+  ~WinDrawD3D12() override;
 
   struct Vertex {
     DirectX::XMFLOAT3 pos;

@@ -16,7 +16,7 @@
 #include "common/error.h"
 #include "win32/monitor/loadmon.h"
 #include "win32/screen/drawd2d.h"
-#include "win32/screen/drawd3d.h"
+#include "win32/screen/drawd3d12.h"
 #include "win32/screen/drawgdi.h"
 #include "win32/screen/drawdds.h"
 #include "win32/status.h"
@@ -312,7 +312,7 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
         drawsub_ = std::make_unique<WinDrawD2D>();
         break;
       case D3D:
-        drawsub_ = std::make_unique<WinDrawD3D>();
+        drawsub_ = std::make_unique<WinDrawD3D12>();
         break;
     }
 
