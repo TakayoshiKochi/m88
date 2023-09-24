@@ -29,18 +29,8 @@
 // 構築/消滅
 //
 WinDraw::WinDraw() {
-  drawsub_ = 0;
-  idthread = 0;
-  hthread = 0;
-  hevredraw = 0;
-  drawcount = 0;
-  guicount = 0;
-  shouldterminate = false;
-  drawall = false;
-  drawing = false;
-  refresh = false;
-  locked_ = false;
-  active = false;
+  should_terminate_ = false;
+  drawing_ = false;
 }
 
 WinDraw::~WinDraw() {
@@ -51,38 +41,38 @@ WinDraw::~WinDraw() {
 //  初期化
 //
 bool WinDraw::Init0(HWND hwindow) {
-  hwnd = hwindow;
-  drawsub_ = 0;
-  drawtype = None;
+  hwnd_ = hwindow;
+  drawsub_ = nullptr;
+  display_type_ = None;
 
-  hthread = 0;
-  hevredraw = CreateEvent(NULL, FALSE, FALSE, NULL);
+  hthread_ = nullptr;
+  hevredraw_ = CreateEvent(NULL, FALSE, FALSE, NULL);
 
-  HDC hdc = GetDC(hwnd);
-  haspalette = !!(GetDeviceCaps(hdc, RASTERCAPS) & RC_PALETTE);
-  ReleaseDC(hwnd, hdc);
+  HDC hdc = GetDC(hwnd_);
+  has_palette_ = !!(GetDeviceCaps(hdc, RASTERCAPS) & RC_PALETTE);
+  ReleaseDC(hwnd_, hdc);
 
 #ifdef DRAW_THREAD
-  if (!hthread)
-    hthread =
-        HANDLE(_beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &idthread));
-  if (!hthread) {
+  if (!hthread_)
+    hthread_ = HANDLE(
+        _beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &draw_thread_id));
+  if (!hthread_) {
     Error::SetError(Error::ThreadInitFailed);
     return false;
   }
 #endif
 
-  palcngbegin = palrgnbegin = 0x100;
-  palcngend = palrgnend = -1;
+  pal_change_begin_ = pal_region_begin_ = 0x100;
+  pal_change_end_ = pal_region_end_ = -1;
 
   return true;
 }
 
-bool WinDraw::Init(uint32_t w, uint32_t h, uint32_t /*bpp*/) {
-  width = w;
-  height = h;
-  shouldterminate = false;
-  active = true;
+bool WinDraw::Init(uint32_t width, uint32_t height, uint32_t /*bpp*/) {
+  width_ = width;
+  height_ = height;
+  should_terminate_ = false;
+  active_ = true;
   return true;
 }
 
@@ -90,22 +80,22 @@ bool WinDraw::Init(uint32_t w, uint32_t h, uint32_t /*bpp*/) {
 //  後片付
 //
 bool WinDraw::CleanUp() {
-  if (hthread) {
-    SetThreadPriority(hthread, THREAD_PRIORITY_NORMAL);
+  if (hthread_) {
+    SetThreadPriority(hthread_, THREAD_PRIORITY_NORMAL);
 
     int i = 300;
     do {
-      shouldterminate = true;
-      ::SetEvent(hevredraw);
-    } while (--i > 0 && WAIT_TIMEOUT == WaitForSingleObject(hthread, 10));
+      should_terminate_ = true;
+      ::SetEvent(hevredraw_);
+    } while (--i > 0 && WAIT_TIMEOUT == WaitForSingleObject(hthread_, 10));
 
     if (!i)
-      TerminateThread(hthread, 0);
+      TerminateThread(hthread_, 0);
 
-    CloseHandle(hthread), hthread = 0;
+    CloseHandle(hthread_), hthread_ = 0;
   }
-  if (hevredraw)
-    CloseHandle(hevredraw), hevredraw = 0;
+  if (hevredraw_)
+    CloseHandle(hevredraw_), hevredraw_ = 0;
 
   delete drawsub_;
   drawsub_ = 0;
@@ -116,10 +106,10 @@ bool WinDraw::CleanUp() {
 //  画面描画用スレッド
 //
 uint32_t WinDraw::ThreadMain() {
-  drawing = false;
-  while (!shouldterminate) {
+  drawing_ = false;
+  while (!should_terminate_) {
     PaintWindow();
-    WaitForSingleObject(hevredraw, 1000);
+    WaitForSingleObject(hevredraw_, 1000);
   }
   return 0;
 }
@@ -135,8 +125,8 @@ uint32_t __stdcall WinDraw::ThreadEntry(LPVOID arg) {
 //  スレッドの優先順位を下げる
 //
 void WinDraw::SetPriorityLow(bool low) {
-  if (hthread) {
-    SetThreadPriority(hthread, low ? THREAD_PRIORITY_BELOW_NORMAL : THREAD_PRIORITY_NORMAL);
+  if (hthread_) {
+    SetThreadPriority(hthread_, low ? THREAD_PRIORITY_BELOW_NORMAL : THREAD_PRIORITY_NORMAL);
   }
 }
 
@@ -159,8 +149,8 @@ void WinDraw::RequestPaint() {
   drawing = true;
   ::SetEvent(hevredraw);
 #else
-  drawall = true;
-  drawing = true;
+  draw_all_ = true;
+  drawing_ = true;
   PaintWindow();
 #endif
   //  Log("Request at %d\n", GetTickCount());
@@ -170,13 +160,13 @@ void WinDraw::RequestPaint() {
 //  更新
 //
 void WinDraw::DrawScreen(const Region& region) {
-  if (!drawing) {
+  if (!drawing_) {
     Log("Draw %d to %d\n", region.top, region.bottom);
-    drawing = true;
-    drawarea.left = std::max(0, region.left);
-    drawarea.top = std::max(0, region.top);
-    drawarea.right = std::min(width, region.right);
-    drawarea.bottom = std::min(height, region.bottom + 1);
+    drawing_ = true;
+    draw_area_.left = std::max(0, region.left);
+    draw_area_.top = std::max(0, region.top);
+    draw_area_.right = std::min(width_, region.right);
+    draw_area_.bottom = std::min(height_, region.bottom + 1);
 #ifdef DRAW_THREAD
     ::SetEvent(hevredraw);
 #else
@@ -191,24 +181,25 @@ void WinDraw::DrawScreen(const Region& region) {
 void WinDraw::PaintWindow() {
   LOADBEGIN("WinDraw");
   std::lock_guard<std::mutex> lock(mtx_);
-  if (drawing && drawsub_ && active) {
-    RECT rect = drawarea;
-    if (palcngbegin <= palcngend) {
-      palrgnbegin = std::min(palcngbegin, palrgnbegin);
-      palrgnend = std::max(palcngend, palrgnend);
-      drawsub_->SetPalette(palette + palcngbegin, palcngbegin, palcngend - palcngbegin + 1);
-      palcngbegin = 0x100;
-      palcngend = -1;
+  if (drawing_ && drawsub_ && active_) {
+    RECT rect = draw_area_;
+    if (pal_change_begin_ <= pal_change_end_) {
+      pal_region_begin_ = std::min(pal_change_begin_, pal_region_begin_);
+      pal_region_end_ = std::max(pal_change_end_, pal_region_end_);
+      drawsub_->SetPalette(palette_ + pal_change_begin_, pal_change_begin_,
+                           pal_change_end_ - pal_change_begin_ + 1);
+      pal_change_begin_ = 0x100;
+      pal_change_end_ = -1;
     }
-    drawsub_->DrawScreen(rect, drawall);
-    drawall = false;
+    drawsub_->DrawScreen(rect, draw_all_);
+    draw_all_ = false;
     if (rect.left < rect.right && rect.top < rect.bottom) {
-      drawcount++;
+      draw_count_++;
       Log("\t\t\t(%3d,%3d)-(%3d,%3d)\n", rect.left, rect.top, rect.right - 1, rect.bottom - 1);
       //          statusdisplay.Show(100, 0, "(%.3d, %.3d)-(%.3d, %.3d)", rect.left, rect.top,
       //          rect.right-1, rect.bottom-1);
     }
-    drawing = false;
+    drawing_ = false;
   }
   LOADEND("WinDraw");
 }
@@ -221,9 +212,9 @@ void WinDraw::SetPalette(uint32_t index, uint32_t nents, const Palette* pal) {
   assert(index + nents <= 0x100);
   assert(pal);
 
-  memcpy(palette + index, pal, nents * sizeof(Palette));
-  palcngbegin = std::min(palcngbegin, (int)index);
-  palcngend = std::max(palcngend, (int)index + (int)nents - 1);
+  memcpy(palette_ + index, pal, nents * sizeof(Palette));
+  pal_change_begin_ = std::min(pal_change_begin_, (int)index);
+  pal_change_end_ = std::max(pal_change_end_, (int)index + (int)nents - 1);
 }
 
 // ---------------------------------------------------------------------------
@@ -256,8 +247,8 @@ bool WinDraw::Unlock() {
       result = drawsub_->Unlock();
     mtx_.unlock();
     locked_ = false;
-    if (refresh == 1)
-      refresh = 0;
+    if (refresh_ == 1)
+      refresh_ = 0;
   }
   return result;
 }
@@ -267,11 +258,11 @@ bool WinDraw::Unlock() {
 //
 void WinDraw::Resize(uint32_t w, uint32_t h) {
   //  statusdisplay.Show(50, 2500, "Resize (%d, %d)", width, height);
-  width = w;
-  height = h;
+  width_ = w;
+  height_ = h;
   if (drawsub_) {
     std::lock_guard<std::mutex> lock(mtx_);
-    drawsub_->Resize(width, height);
+    drawsub_->Resize(width_, height_);
   }
 }
 
@@ -290,12 +281,12 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
   DisplayType type = fullscreen ? DDFull : D3D;
 
   // 現在窓(M88)が所属するモニタの GUID を取得
-  memset(&gmonitor, 0, sizeof(gmonitor));
+  memset(&gmonitor_, 0, sizeof(gmonitor_));
 
-  hmonitor = (*MonitorFromWin)(hwnd, MONITOR_DEFAULTTOPRIMARY);
+  hmonitor_ = (*MonitorFromWin)(hwnd_, MONITOR_DEFAULTTOPRIMARY);
   (*DDEnumerateEx)(DDEnumCallback, reinterpret_cast<LPVOID>(this), DDENUM_ATTACHEDSECONDARYDEVICES);
 
-  if (type != drawtype) {
+  if (type != display_type_) {
     // 今までのドライバを廃棄
     if (drawsub_)
       drawsub_->SetGUIMode(true);
@@ -325,7 +316,7 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
 
     bool result = true;
 
-    if (!newdraw || !newdraw->Init(hwnd, width, height, &gmonitor)) {
+    if (!newdraw || !newdraw->Init(hwnd_, width_, height_, &gmonitor_)) {
       // 初期化に失敗した場合 GDI ドライバで再挑戦
       delete newdraw;
 
@@ -337,8 +328,8 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
       newdraw = new WinDrawGDI, type = GDI;
       result = false;
 
-      if (!newdraw || !newdraw->Init(hwnd, width, height, 0))
-        newdraw = 0, drawtype = None;
+      if (!newdraw || !newdraw->Init(hwnd_, width_, height_, 0))
+        newdraw = 0, display_type_ = None;
     }
 
     if (newdraw) {
@@ -349,23 +340,24 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
     // 新しいドライバを使用可能にする
     {
       std::lock_guard<std::mutex> lock(mtx_);
-      guicount = 0;
+      gui_count_ = 0;
       drawsub_ = newdraw;
     }
 
-    drawall = true, refresh = true;
-    palrgnbegin = std::min(palcngbegin, palrgnbegin);
-    palrgnend = std::max(palcngend, palrgnend);
+    draw_all_ = true;
+    refresh_ = true;
+    pal_region_begin_ = std::min(pal_change_begin_, pal_region_begin_);
+    pal_region_end_ = std::max(pal_change_end_, pal_region_end_);
     //      if (draw)
     //          draw->Resize(width, height);
 
     if (type == DDFull)
       ShowCursor(false);
-    if (drawtype == DDFull)
+    if (display_type_ == DDFull)
       ShowCursor(true);
-    drawtype = type;
+    display_type_ = type;
 
-    refresh = 2;
+    refresh_ = 2;
 
     return result;
   }
@@ -377,10 +369,10 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
 //
 uint32_t WinDraw::GetStatus() {
   if (drawsub_) {
-    if (refresh)
-      refresh = 1;
-    return (!drawing && active ? static_cast<uint32_t>(Draw::Status::kReadyToDraw) : 0) |
-           (refresh ? static_cast<uint32_t>(Draw::Status::kShouldRefresh) : 0) |
+    if (refresh_)
+      refresh_ = 1;
+    return (!drawing_ && active_ ? static_cast<uint32_t>(Draw::Status::kReadyToDraw) : 0) |
+           (refresh_ ? static_cast<uint32_t>(Draw::Status::kShouldRefresh) : 0) |
            drawsub_->GetStatus();
   }
   return 0;
@@ -410,12 +402,12 @@ void WinDraw::Flip() {
 void WinDraw::SetGUIFlag(bool usegui) {
   std::lock_guard<std::mutex> lock(mtx_);
   if (usegui) {
-    if (!guicount++ && drawsub_) {
+    if (!gui_count_++ && drawsub_) {
       drawsub_->SetGUIMode(true);
       ShowCursor(true);
     }
   } else {
-    if (!--guicount && drawsub_) {
+    if (!--gui_count_ && drawsub_) {
       drawsub_->SetGUIMode(false);
       ShowCursor(false);
     }
@@ -477,9 +469,9 @@ int WinDraw::CaptureScreen(uint8_t* dest) {
   int colors = 0;
   for (int index = 0; index < 144; index++) {
     RGBQUAD rgb;
-    rgb.rgbBlue = palette[0x40 + index].peBlue;
-    rgb.rgbRed = palette[0x40 + index].peRed;
-    rgb.rgbGreen = palette[0x40 + index].peGreen;
+    rgb.rgbBlue = palette_[0x40 + index].peBlue;
+    rgb.rgbRed = palette_[0x40 + index].peRed;
+    rgb.rgbGreen = palette_[0x40 + index].peGreen;
     //      Log("c[%.2x] = G:%.2x R:%.2x B:%.2x\n", index, rgb.rgbGreen, rgb.rgbRed, rgb.rgbBlue);
     uint32_t entry = *((uint32_t*)&rgb);
 
@@ -522,8 +514,8 @@ int WinDraw::CaptureScreen(uint8_t* dest) {
 BOOL WINAPI
 WinDraw::DDEnumCallback(GUID FAR* guid, LPSTR desc, LPSTR name, LPVOID context, HMONITOR hm) {
   WinDraw* draw = reinterpret_cast<WinDraw*>(context);
-  if (hm == draw->hmonitor) {
-    draw->gmonitor = *guid;
+  if (hm == draw->hmonitor_) {
+    draw->gmonitor_ = *guid;
     return 0;
   }
   return 1;

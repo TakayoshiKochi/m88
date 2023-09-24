@@ -14,6 +14,7 @@
 
 #include "common/draw.h"
 
+#include <atomic>
 #include <mutex>
 
 // ---------------------------------------------------------------------------
@@ -52,7 +53,7 @@ class WinDraw : public Draw {
   bool Init0(HWND hwindow);
 
   // - Draw Common Interface
-  bool Init(uint32_t w, uint32_t h, uint32_t bpp) override;
+  bool Init(uint32_t width, uint32_t height, uint32_t bpp) override;
   bool CleanUp() override;
 
   bool Lock(uint8_t** pimage, int* pbpl) override;
@@ -68,18 +69,18 @@ class WinDraw : public Draw {
 
   // - Unique Interface
   int GetDrawCount() {
-    int ret = drawcount;
-    drawcount = 0;
+    int ret = draw_count_;
+    draw_count_ = 0;
     return ret;
   }
   void RequestPaint();
   void QueryNewPalette(bool background);
-  void Activate(bool f) { active = f; }
+  void Activate(bool f) { active_ = f; }
 
   void SetPriorityLow(bool low);
   void SetGUIFlag(bool flag);
   bool ChangeDisplayMode(bool fullscreen, bool force480 = true);
-  void Refresh() { refresh = 1; }
+  void Refresh() { refresh_ = 1; }
   void WindowMoved(int cx, int cy);
 
   int CaptureScreen(uint8_t* dest);
@@ -94,39 +95,40 @@ class WinDraw : public Draw {
   uint32_t ThreadMain();
   static uint32_t __stdcall ThreadEntry(LPVOID arg);
 
-  uint32_t idthread;
-  HANDLE hthread;
-  volatile bool shouldterminate;  // スレッド終了要求
+  uint32_t draw_thread_id_ = 0;
+  HANDLE hthread_ = nullptr;
+  std::atomic<bool> should_terminate_;  // スレッド終了要求
 
-  DisplayType drawtype;
+  DisplayType display_type_ = None;
 
-  int palcngbegin;        // パレット変更エントリの最初
-  int palcngend;          // パレット変更エントリの最後
-  int palrgnbegin;        // 使用中パレットの最初
-  int palrgnend;          // 使用中パレットの最後
-  volatile bool drawing;  // 画面を書き換え中
-  bool drawall;           // 画面全体を書き換える
-  bool active;
-  bool haspalette;  // パレットを持っている
+  int pal_change_begin_ = 0x100;  // パレット変更エントリの最初
+  int pal_change_end_ = -1;       // パレット変更エントリの最後
+  int pal_region_begin_ = 0x100;  // 使用中パレットの最初
+  int pal_region_end_ = -1;       // 使用中パレットの最後
+  std::atomic<bool> drawing_;     // 画面を書き換え中
+  bool draw_all_ = false;         // 画面全体を書き換える
+  bool active_ = false;
+  bool has_palette_ = false;  // パレットを持っている
 
-  int refresh;
-  RECT drawarea;  // 書き換える領域
-  int drawcount;
-  int guicount;
+  // TODO: use bool
+  int refresh_ = 0;
+  RECT draw_area_;  // 書き換える領域
+  int draw_count_ = 0;
+  int gui_count_ = 0;
 
-  int width;
-  int height;
+  int width_ = 640;
+  int height_ = 400;
 
-  HWND hwnd = 0;
-  HANDLE hevredraw = 0;
+  HWND hwnd_ = nullptr;
+  HANDLE hevredraw_ = nullptr;
   WinDrawSub* drawsub_ = nullptr;
 
   std::mutex mtx_;
-  bool locked_;
-  bool flipmode_;
+  bool locked_ = false;
+  bool flipmode_ = false;
 
-  HMONITOR hmonitor = 0;  // 探索中の hmonitor
-  GUID gmonitor;          // hmonitor に対応する GUID
+  HMONITOR hmonitor_ = nullptr;  // 探索中の hmonitor
+  GUID gmonitor_;                // hmonitor に対応する GUID
 
-  PALETTEENTRY palette[0x100];
+  PALETTEENTRY palette_[0x100]{};
 };

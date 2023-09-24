@@ -96,8 +96,8 @@ class Piccolo {
   uint32_t addr;
   uint32_t irq;
 
-  volatile bool shouldterminate;
-  volatile bool active;
+  std::atomic<bool> shouldterminate;
+  std::atomic<bool> active;
   HANDLE hthread;
   uint32_t idthread;
 

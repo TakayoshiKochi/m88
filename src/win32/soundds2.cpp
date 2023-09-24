@@ -19,7 +19,7 @@ using namespace WinSoundDriver;
 //  構築・破棄 ---------------------------------------------------------------
 
 DriverDS2::DriverDS2() {
-  playing = false;
+  playing_ = false;
   mixalways = false;
   lpds = 0;
   lpdsb = 0;
@@ -41,7 +41,7 @@ bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint
   int i;
   HRESULT hr;
 
-  if (playing)
+  if (playing_)
     return false;
 
   src = s;
@@ -123,7 +123,7 @@ bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint
   if (hr != DS_OK)
     return false;
 
-  playing = true;
+  playing_ = true;
   nextwrite = 1 << sampleshift;
 
   // スレッド起動
@@ -145,7 +145,7 @@ bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint
 //  後片付け -----------------------------------------------------------------
 
 bool DriverDS2::CleanUp() {
-  playing = false;
+  playing_ = false;
 
   if (hthread) {
     ::SetEvent(hevent);
@@ -177,7 +177,7 @@ bool DriverDS2::CleanUp() {
 uint32_t __stdcall DriverDS2::ThreadEntry(LPVOID arg) {
   DriverDS2* dd = reinterpret_cast<DriverDS2*>(arg);
 
-  while (dd->playing) {
+  while (dd->playing_) {
     static int p;
     int t = GetTickCount();
     Log("%d ", t - p);
@@ -194,7 +194,7 @@ uint32_t __stdcall DriverDS2::ThreadEntry(LPVOID arg) {
 
 void DriverDS2::Send() {
   bool restored = false;
-  if (!playing)
+  if (!playing_)
     return;
 
   // Buffer Lost ?

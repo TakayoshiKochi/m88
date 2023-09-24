@@ -22,7 +22,7 @@ const uint32_t DriverDS::timer_resolution = 20;
 //  構築・破棄 ---------------------------------------------------------------
 
 DriverDS::DriverDS() {
-  playing = false;
+  playing_ = false;
   mixalways = false;
   lpds = 0;
   lpdsb = 0;
@@ -39,7 +39,7 @@ DriverDS::~DriverDS() {
 //  初期化 -------------------------------------------------------------------
 
 bool DriverDS::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) {
-  if (playing)
+  if (playing_)
     return false;
 
   src = s;
@@ -111,7 +111,7 @@ bool DriverDS::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint3
     return false;
   }
 
-  playing = true;
+  playing_ = true;
   return true;
 }
 
@@ -119,7 +119,7 @@ bool DriverDS::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint3
 //  後片付け -----------------------------------------------------------------
 
 bool DriverDS::CleanUp() {
-  playing = false;
+  playing_ = false;
   if (timerid) {
     timeKillEvent(timerid);
     timeEndPeriod(buffer_length / num_blocks);
@@ -151,7 +151,7 @@ void CALLBACK DriverDS::TimeProc(UINT, UINT, DWORD_PTR user, DWORD_PTR, DWORD_PT
 //  ブロック送る -------------------------------------------------------------
 
 void DriverDS::Send() {
-  if (playing && !InterlockedExchange(&sending, true)) {
+  if (playing_ && !InterlockedExchange(&sending, true)) {
     bool restored = false;
 
     // Buffer Lost ?

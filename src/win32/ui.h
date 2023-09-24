@@ -100,7 +100,7 @@ class WinUI {
   // 状態表示用
   UINT_PTR timerid;
   bool report;
-  volatile bool active;
+  std::atomic<bool> active_;
 
   // ウインドウの状態
   bool background;

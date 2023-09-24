@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <atomic>
 
 #include "common/soundsrc.h"
 
@@ -31,7 +32,7 @@ class Driver {
   SoundSource* src;
   uint32_t buffersize;
   uint32_t sampleshift;
-  volatile bool playing;
+  std::atomic<bool> playing_;
   bool mixalways;
 };
 
