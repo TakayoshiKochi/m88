@@ -4,16 +4,16 @@
 // ---------------------------------------------------------------------------
 //  $Id: winsound.cpp,v 1.27 2003/05/12 22:26:36 cisc Exp $
 
-#include "win32/winsound.h"
+#include "win32/sound/winsound.h"
 
 #include <algorithm>
 
 #include "pc88/config.h"
 #include "win32/monitor/soundmon.h"
+#include "win32/sound/soundds.h"
+#include "win32/sound/soundds2.h"
+#include "win32/sound/soundwo.h"
 #include "win32/status.h"
-#include "win32/soundds.h"
-#include "win32/soundds2.h"
-#include "win32/soundwo.h"
 
 // #define LOGNAME "winsound"
 #include "common/diag.h"

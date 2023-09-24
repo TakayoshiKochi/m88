@@ -893,30 +893,10 @@
     <ClCompile Include="src\win32\screen\drawdds.cpp" />
     <ClCompile Include="src\win32\screen\drawgdi.cpp" />
     <ClCompile Include="src\win32\screen\windraw.cpp" />
-    <ClCompile Include="src\win32\soundds.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="src\win32\soundds2.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="src\win32\soundwo.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
-    </ClCompile>
+    <ClCompile Include="src\win32\sound\soundds.cpp" />
+    <ClCompile Include="src\win32\sound\soundds2.cpp" />
+    <ClCompile Include="src\win32\sound\soundwo.cpp" />
+    <ClCompile Include="src\win32\sound\winsound.cpp" />
     <ClCompile Include="src\win32\status.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -976,14 +956,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="src\win32\winmouse.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="src\win32\winsound.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
@@ -1278,10 +1250,11 @@
     <ClInclude Include="src\win32\screen\drawdds.h" />
     <ClInclude Include="src\win32\screen\drawgdi.h" />
     <ClInclude Include="src\win32\screen\windraw.h" />
-    <ClInclude Include="src\win32\sounddrv.h" />
-    <ClInclude Include="src\win32\soundds.h" />
-    <ClInclude Include="src\win32\soundds2.h" />
-    <ClInclude Include="src\win32\soundwo.h" />
+    <ClInclude Include="src\win32\sound\sounddrv.h" />
+    <ClInclude Include="src\win32\sound\soundds.h" />
+    <ClInclude Include="src\win32\sound\soundds2.h" />
+    <ClInclude Include="src\win32\sound\soundwo.h" />
+    <ClInclude Include="src\win32\sound\winsound.h" />
     <ClInclude Include="src\win32\status.h" />
     <ClInclude Include="src\win32\ui.h" />
     <ClInclude Include="src\win32\version.h" />
@@ -1291,7 +1264,6 @@
     <ClInclude Include="src\win32\winjoy.h" />
     <ClInclude Include="src\win32\winkeyif.h" />
     <ClInclude Include="src\win32\winmouse.h" />
-    <ClInclude Include="src\win32\winsound.h" />
     <ClInclude Include="src\zlib\deflate.h" />
     <ClInclude Include="src\zlib\inffast.h" />
     <ClInclude Include="src\zlib\inffixed.h" />

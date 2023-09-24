@@ -16,7 +16,7 @@
 #include "pc88/pc88.h"
 #include "common/sequencer.h"
 #include "win32/winjoy.h"
-#include "win32/winsound.h"
+#include "win32/sound/winsound.h"
 
 namespace PC8801 {
 class WinKeyIF;

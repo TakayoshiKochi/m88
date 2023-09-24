@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: soundds.cpp,v 1.10 2002/05/31 09:45:21 cisc Exp $
 
-#include "win32/soundds.h"
+#include "win32/sound/soundds.h"
 
 // #define LOGNAME "soundds"
 #include "common/diag.h"

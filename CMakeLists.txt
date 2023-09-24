@@ -207,13 +207,13 @@ add_library(win32 ${LIB_TYPE}
         src/win32/module.cpp
         src/win32/newdisk.h
         src/win32/newdisk.cpp
-        src/win32/sounddrv.h
-        src/win32/soundds.h
-        src/win32/soundds.cpp
-        src/win32/soundds2.h
-        src/win32/soundds2.cpp
-        src/win32/soundwo.h
-        src/win32/soundwo.cpp
+        src/win32/sound/sounddrv.h
+        src/win32/sound/soundds.h
+        src/win32/sound/soundds.cpp
+        src/win32/sound/soundds2.h
+        src/win32/sound/soundds2.cpp
+        src/win32/sound/soundwo.h
+        src/win32/sound/soundwo.cpp
         src/win32/status.h
         src/win32/status.cpp
         src/win32/ui.h
@@ -232,8 +232,8 @@ add_library(win32 ${LIB_TYPE}
         src/win32/winkeyif.cpp
         src/win32/winmouse.h
         src/win32/winmouse.cpp
-        src/win32/winsound.h
-        src/win32/winsound.cpp)
+        src/win32/sound/winsound.h
+        src/win32/sound/winsound.cpp)
 
 target_include_directories(win32
         PUBLIC ${CMAKE_SOURCE_DIR}/src

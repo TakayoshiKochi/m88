@@ -12,7 +12,7 @@
 
 #include <mmeapi.h>
 
-#include "win32/sounddrv.h"
+#include "win32/sound/sounddrv.h"
 
 // ---------------------------------------------------------------------------
 

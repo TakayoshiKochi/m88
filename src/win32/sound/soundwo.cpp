@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: soundwo.cpp,v 1.7 2002/05/31 09:45:21 cisc Exp $
 
-#include "win32/soundwo.h"
+#include "win32/sound/soundwo.h"
 
 #include <mmsystem.h>
 #include <process.h>

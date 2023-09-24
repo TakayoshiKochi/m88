@@ -252,18 +252,6 @@
     <ClCompile Include="src\common\file_.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\soundds.cpp">
-      <Filter>win32\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\soundds2.cpp">
-      <Filter>win32\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\soundwo.cpp">
-      <Filter>win32\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\winsound.cpp">
-      <Filter>win32\sound</Filter>
-    </ClCompile>
     <ClCompile Include="src\common\sequencer.cpp">
       <Filter>common</Filter>
     </ClCompile>
@@ -314,6 +302,18 @@
     </ClCompile>
     <ClCompile Include="src\win32\screen\windraw.cpp">
       <Filter>win32\screen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\sound\soundds.cpp">
+      <Filter>win32\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\sound\soundds2.cpp">
+      <Filter>win32\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\sound\soundwo.cpp">
+      <Filter>win32\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\sound\winsound.cpp">
+      <Filter>win32\sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -572,21 +572,6 @@
     <ClInclude Include="src\common\status.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\sounddrv.h">
-      <Filter>win32\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\soundds.h">
-      <Filter>win32\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\soundds2.h">
-      <Filter>win32\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\soundwo.h">
-      <Filter>win32\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\winsound.h">
-      <Filter>win32\sound</Filter>
-    </ClInclude>
     <ClInclude Include="src\common\scoped_comptr.h">
       <Filter>common</Filter>
     </ClInclude>
@@ -640,6 +625,21 @@
     </ClInclude>
     <ClInclude Include="src\win32\screen\windraw.h">
       <Filter>win32\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\sound\sounddrv.h">
+      <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\sound\soundds.h">
+      <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\sound\soundds2.h">
+      <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\sound\soundwo.h">
+      <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\sound\winsound.h">
+      <Filter>win32\sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
