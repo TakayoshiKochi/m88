@@ -10,7 +10,7 @@
 #include <d2d1.h>
 #include <d2d1helper.h>
 
-#include "win32/windraw.h"
+#include "win32/screen/windraw.h"
 
 class WinDrawD2D : public WinDrawSub {
  public:

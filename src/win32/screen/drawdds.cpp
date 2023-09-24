@@ -6,9 +6,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: DrawDDS.cpp,v 1.16 2003/11/04 13:14:21 cisc Exp $
 
-#include <ddraw.h>
-
-#include "win32/drawdds.h"
+#include "win32/screen/drawdds.h"
 
 #include <algorithm>
 
@@ -16,7 +14,7 @@
 
 #define LOGNAME "drawdds"
 #include "common/diag.h"
-#include "win32/dderr.h"
+#include "win32/screen/dderr.h"
 
 #define RELCOM(x)        \
   if (x)                 \

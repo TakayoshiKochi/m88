@@ -5,7 +5,7 @@
 //  Direct3D による画面描画
 // ---------------------------------------------------------------------------
 
-#include "win32/drawd3d.h"
+#include "win32/screen/drawd3d.h"
 
 #include <d3dcompiler.h>
 #include <vector>

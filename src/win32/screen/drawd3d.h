@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "common/scoped_comptr.h"
-#include "win32/windraw.h"
+#include "win32/screen/windraw.h"
 
 class WinDrawD3D : public WinDrawSub {
  public:

@@ -5,7 +5,7 @@
 //  Direct2D+GDI による画面描画 (HiColor 以上)
 // ---------------------------------------------------------------------------
 
-#include "win32/drawd2d.h"
+#include "win32/screen/drawd2d.h"
 
 #pragma comment(lib, "delayimp.lib")
 #pragma comment(lib, "d2d1.lib")

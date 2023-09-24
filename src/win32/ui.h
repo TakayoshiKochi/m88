@@ -23,7 +23,7 @@
 #include "win32/newdisk.h"
 #include "win32/wincfg.h"
 #include "win32/wincore.h"
-#include "win32/windraw.h"
+#include "win32/screen/windraw.h"
 #include "win32/winkeyif.h"
 
 // ---------------------------------------------------------------------------

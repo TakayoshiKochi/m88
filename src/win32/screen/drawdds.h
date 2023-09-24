@@ -8,7 +8,9 @@
 
 #pragma once
 
-#include "win32/windraw.h"
+#include <ddraw.h>
+
+#include "win32/screen/windraw.h"
 
 // ---------------------------------------------------------------------------
 

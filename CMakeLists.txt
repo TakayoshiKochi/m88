@@ -186,16 +186,16 @@ add_library(win32 ${LIB_TYPE}
         src/win32/about.cpp
         src/win32/cfgpage.h
         src/win32/cfgpage.cpp
-        src/win32/dderr.h
-        src/win32/dderr.cpp
-        src/win32/drawd2d.h
-        src/win32/drawd2d.cpp
-        src/win32/drawd3d.h
-        src/win32/drawd3d.cpp
-        src/win32/drawdds.h
-        src/win32/drawdds.cpp
-        src/win32/drawgdi.h
-        src/win32/drawgdi.cpp
+        src/win32/screen/dderr.h
+        src/win32/screen/dderr.cpp
+        src/win32/screen/drawd2d.h
+        src/win32/screen/drawd2d.cpp
+        src/win32/screen/drawd3d.h
+        src/win32/screen/drawd3d.cpp
+        src/win32/screen/drawdds.h
+        src/win32/screen/drawdds.cpp
+        src/win32/screen/drawgdi.h
+        src/win32/screen/drawgdi.cpp
         src/win32/extdev.h
         src/win32/extdev.cpp
         src/win32/file.h
@@ -222,8 +222,8 @@ add_library(win32 ${LIB_TYPE}
         src/win32/wincfg.cpp
         src/win32/wincore.h
         src/win32/wincore.cpp
-        src/win32/windraw.h
-        src/win32/windraw.cpp
+        src/win32/screen/windraw.h
+        src/win32/screen/windraw.cpp
         src/win32/winexapi.h
         src/win32/winexapi.cpp
         src/win32/winjoy.h

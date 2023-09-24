@@ -5,7 +5,7 @@
 #include <ddraw.h>
 #include <stdint.h>
 
-#include "win32/dderr.h"
+#include "win32/screen/dderr.h"
 
 #ifdef _DEBUG
 
