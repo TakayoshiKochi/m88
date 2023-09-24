@@ -136,7 +136,11 @@ int64_t PC88::ProceedNS(uint64_t ns, uint32_t clock, uint32_t ecl) {
 //
 int64_t SchedulerImpl::ExecuteNS(int64_t ns) {
   int64_t ns_per_clock = 10000LL / clocks_per_tick_;
-  return ex_->Execute(int(ns / ns_per_clock)) * ns_per_clock;
+  int clocks = int(ns / ns_per_clock);
+  // TODO: fix this logic.
+  if (clocks == 0)
+    clocks = 1;
+  return ex_->Execute(clocks) * ns_per_clock;
 }
 
 int PC88::Execute(int clocks) {
