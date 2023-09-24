@@ -13,6 +13,7 @@
 
 #include <algorithm>
 
+#include "common/error.h"
 #include "win32/monitor/loadmon.h"
 #include "win32/screen/drawd2d.h"
 #include "win32/screen/drawd3d.h"
@@ -23,7 +24,8 @@
 
 #define LOGNAME "windraw"
 #include "common/diag.h"
-// #define DRAW_THREAD
+
+#define DRAW_THREAD
 
 // ---------------------------------------------------------------------------
 // 構築/消滅
@@ -55,7 +57,7 @@ bool WinDraw::Init0(HWND hwindow) {
 #ifdef DRAW_THREAD
   if (!hthread_)
     hthread_ = HANDLE(
-        _beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &draw_thread_id));
+        _beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &draw_thread_id_));
   if (!hthread_) {
     Error::SetError(Error::ThreadInitFailed);
     return false;
@@ -145,9 +147,9 @@ void WinDraw::QueryNewPalette(bool /*bkgnd*/) {
 void WinDraw::RequestPaint() {
 #ifdef DRAW_THREAD
   std::lock_guard<std::mutex> lock(mtx_);
-  drawall = true;
-  drawing = true;
-  ::SetEvent(hevredraw);
+  draw_all_ = true;
+  drawing_ = true;
+  ::SetEvent(hevredraw_);
 #else
   draw_all_ = true;
   drawing_ = true;
@@ -168,7 +170,7 @@ void WinDraw::DrawScreen(const Region& region) {
     draw_area_.right = std::min(width_, region.right);
     draw_area_.bottom = std::min(height_, region.bottom + 1);
 #ifdef DRAW_THREAD
-    ::SetEvent(hevredraw);
+    ::SetEvent(hevredraw_);
 #else
     PaintWindow();
 #endif
