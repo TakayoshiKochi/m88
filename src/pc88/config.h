@@ -27,6 +27,7 @@ enum class BasicMode : uint32_t {
   kN88V2CD = 0x71,
 };
 
+// Note: kPC98 is not supported anymore.
 enum class KeyboardType : uint32_t { kAT106 = 0, kPC98 = 1, kAT101 = 2 };
 
 class Config {
