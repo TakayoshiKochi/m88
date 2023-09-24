@@ -20,7 +20,7 @@ using namespace WinSoundDriver;
 //
 DriverWO::DriverWO() {
   src = 0;
-  playing = false;
+  playing_ = false;
   hthread = 0;
   hwo = 0;
   mixalways = false;
@@ -42,7 +42,7 @@ DriverWO::~DriverWO() {
 bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t buflen) {
   int i;
 
-  if (playing)
+  if (playing_)
     return false;
 
   src = s;
@@ -95,7 +95,7 @@ bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t b
     return false;
   }
 
-  playing = true;
+  playing_ = true;
   dontmix = true;
 
   // wavehdr の準備
@@ -117,8 +117,8 @@ bool DriverWO::CleanUp() {
     CloseHandle(hthread);
     hthread = 0;
   }
-  if (playing) {
-    playing = false;
+  if (playing_) {
+    playing_ = false;
     if (hwo) {
       while (waveOutReset(hwo) == MMSYSERR_HANDLEBUSY)
         Sleep(10);
@@ -154,7 +154,7 @@ void DriverWO::DeleteBuffers() {
 //  dontmix == true なら無音データを送る
 //
 bool DriverWO::SendBlock(WAVEHDR* whdr) {
-  if (playing) {
+  if (playing_) {
     whdr->dwUser = 0;
     whdr->dwFlags = 0;
     whdr->dwLoops = 0;

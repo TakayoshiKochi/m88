@@ -72,6 +72,6 @@ class Sequencer {
   uint32_t refresh_timing_ = 1;
   bool draw_next_frame_ = false;
 
-  volatile bool should_terminate_ = false;
-  volatile bool active_ = false;
+  std::atomic<bool> should_terminate_ = false;
+  std::atomic<bool> active_ = false;
 };

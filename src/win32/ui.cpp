@@ -76,7 +76,7 @@ WinUI::~WinUI() {
 //  M88 の初期化
 //
 bool WinUI::InitM88(const char* cmdline) {
-  active = false;
+  active_ = false;
   tapetitle[0] = 0;
 
   //  設定読み込み
@@ -142,7 +142,7 @@ bool WinUI::InitM88(const char* cmdline) {
   //  エミュレーション開始
   Log("%d\temulation begin\n", timeGetTime());
   core.Wait(false);
-  active = true;
+  active_ = true;
   fullscreen = false;
 
   //  設定反映
@@ -773,7 +773,7 @@ LRESULT WinUI::WmClose(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 
   // 窓を閉じる
   DestroyWindow(hwnd);
-  active = false;
+  active_ = false;
 
   return 0;
 }
@@ -791,7 +791,7 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 
     // レポートする場合はタイトルバーを更新
     if (report) {
-      if (active) {
+      if (active_) {
         char buf[64];
         uint32_t freq = icount / 10000;
         wsprintf(buf, "M88 - %d fps.  %d.%.2d MHz", fcount, freq / 100, freq % 100);
@@ -897,8 +897,8 @@ LRESULT WinUI::WmSize(HWND hwnd, WPARAM wp, LPARAM lp) {
   HWND hwndstatus = statusdisplay.GetHWnd();
   if (hwndstatus)
     PostMessage(hwndstatus, WM_SIZE, wp, lp);
-  active = wp != SIZE_MINIMIZED;
-  draw.Activate(active);
+  active_ = wp != SIZE_MINIMIZED;
+  draw.Activate(active_);
   return DefWindowProc(hwnd, WM_SIZE, wp, lp);
 }
 
