@@ -33,7 +33,8 @@ bool Base::Init(PC88* pc88) {
   sw30_ = 0xcb;
   sw31_ = 0x79;
   sw6e_ = 0xff;
-  pc_->GetScheduler()->AddEvent(167, this, static_cast<TimeFunc>(&Base::RTC), 0, true);
+  pc_->GetScheduler()->AddEventNS(static_cast<int64_t>(1e9 / 600), this,
+                                  static_cast<TimeFunc>(&Base::RTC), 0, true);
   return true;
 }
 

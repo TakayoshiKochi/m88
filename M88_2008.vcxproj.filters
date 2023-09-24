@@ -171,13 +171,7 @@
     <ClCompile Include="src\win32\newdisk.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\sequence.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\status.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\timekeep.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\Ui.cpp">
@@ -314,6 +308,12 @@
     </ClCompile>
     <ClCompile Include="src\win32\windraw.cpp">
       <Filter>win32\screen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\sequencer.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\time_keeper.cpp">
+      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -473,13 +473,7 @@
     <ClInclude Include="src\win32\resource.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\sequence.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\status.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\timekeep.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\Win32\ui.h">
@@ -639,6 +633,12 @@
       <Filter>win32\screen</Filter>
     </ClInclude>
     <ClInclude Include="src\common\scoped_comptr.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\sequencer.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\time_keeper.h">
       <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>

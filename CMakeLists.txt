@@ -47,11 +47,15 @@ add_library(common ${LIB_TYPE}
         src/common/misc.h
         src/common/scheduler.h
         src/common/scheduler.cpp
+        src/common/sequencer.h
+        src/common/sequencer.cpp
         src/common/scoped_comptr.h
         src/common/soundsrc.h
         src/common/srcbuf.h
         src/common/srcbuf.cpp
-        src/common/status.h)
+        src/common/status.h
+        src/common/time_keeper.h
+        src/common/time_keeper.cpp)
 
 target_include_directories(common
         PUBLIC ${CMAKE_SOURCE_DIR}/src
@@ -203,8 +207,6 @@ add_library(win32 ${LIB_TYPE}
         src/win32/module.cpp
         src/win32/newdisk.h
         src/win32/newdisk.cpp
-        src/win32/sequence.h
-        src/win32/sequence.cpp
         src/win32/sounddrv.h
         src/win32/soundds.h
         src/win32/soundds.cpp
@@ -214,8 +216,6 @@ add_library(win32 ${LIB_TYPE}
         src/win32/soundwo.cpp
         src/win32/status.h
         src/win32/status.cpp
-        src/win32/timekeep.h
-        src/win32/timekeep.cpp
         src/win32/ui.h
         src/win32/ui.cpp
         src/win32/wincfg.h

@@ -104,7 +104,7 @@ bool PC88::Init(Draw* draw, DiskManager* disk, TapeManager* tape) {
 
   Reset();
   region.Reset();
-  scheduler_.set_clock(1);
+  scheduler_.set_clocks_per_tick(1);
   return true;
 }
 
@@ -121,21 +121,22 @@ void PC88::DeInit() {
 //  執行
 //  1 tick = 10μs
 //
-int PC88::Proceed(uint32_t ticks, uint32_t clk, uint32_t ecl) {
-  scheduler_.set_clock(std::max(1U, clk));
-  eclock_ = std::max(1U, ecl);
-  return scheduler_.Proceed(ticks);
+int PC88::Proceed(uint32_t ticks, uint32_t clock, uint32_t ecl) {
+  return int(ProceedNS(ticks * 10000ULL, clock, ecl) / 10000);
+}
+
+int64_t PC88::ProceedNS(uint64_t ns, uint32_t clock, uint32_t ecl) {
+  scheduler_.set_clocks_per_tick(std::max(1U, clock));
+  effective_clocks_per_tick_ = std::max(1U, ecl);
+  return scheduler_.ProceedNS(ns);
 }
 
 // ---------------------------------------------------------------------------
 //  実行
 //
-int SchedulerImpl::Execute(int ticks) {
-  int exc = ticks * clock_;
-  int ex = ex_->Execute(exc);
-  ex += dexc_;
-  dexc_ = ex % clock_;
-  return ex / clock_;
+int64_t SchedulerImpl::ExecuteNS(int64_t ns) {
+  int64_t ns_per_clock = 10000LL / clocks_per_tick_;
+  return ex_->Execute(int(ns / ns_per_clock)) * ns_per_clock;
 }
 
 int PC88::Execute(int clocks) {
@@ -156,12 +157,13 @@ int PC88::Execute(int clocks) {
 // ---------------------------------------------------------------------------
 //  実行クロック数変更
 //
-void SchedulerImpl::Shorten(int ticks) {
-  Z80::StopDual(ticks * clock_);
+void SchedulerImpl::ShortenNS(int64_t ns) {
+  // int64 nanos_per_clock = 10000LL / clocks_per_tick_;
+  Z80::StopDual(ns / (10000LL / clocks_per_tick_));
 }
 
-int SchedulerImpl::GetTicks() {
-  return (Z80::GetCCount() + dexc_) / clock_;
+int64_t SchedulerImpl::GetNS() {
+  return Z80::GetCCount() * (10000LL / clocks_per_tick_);
 }
 
 // ---------------------------------------------------------------------------
@@ -615,7 +617,11 @@ void PC88::SetVolume(PC8801::Config* cfg) {
 //  1 フレーム分の時間を求める．
 //
 int PC88::GetFramePeriod() {
-  return crtc_ ? crtc_->GetFramePeriod() : 100000 / 60;
+  return int(GetFramePeriodNS() / 10000);
+}
+
+uint64_t PC88::GetFramePeriodNS() {
+  return crtc_ ? crtc_->GetFramePeriodNS() : 1000000000ULL / 60;
 }
 
 // ---------------------------------------------------------------------------

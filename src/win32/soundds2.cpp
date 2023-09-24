@@ -148,7 +148,7 @@ bool DriverDS2::CleanUp() {
   playing = false;
 
   if (hthread) {
-    SetEvent(hevent);
+    ::SetEvent(hevent);
     if (WAIT_TIMEOUT == WaitForSingleObject(hthread, 3000))
       TerminateThread(hthread, 0);
     CloseHandle(hthread);

@@ -142,7 +142,9 @@ void CRTC::HotReset() {
   screen_height_ = 400;
   height_ = 25;
 
-  line_time_ = line200_ ? int(6.258 * 8) : int(4.028 * 16);
+  // line_time_ = line200_ ? int(6.258 * 8) : int(4.028 * 16);
+  line_time_ns_ = line200_ ? uint64_t(1.0e9 / 15980) * 8 : uint64_t(1.0e9 / 24830) * 16;
+  // TODO: when in 20 line mode, 7 : 3 should be 6 : 2
   v_retrace_ = line200_ ? 7 : 3;
 
   flags_ = kClear | kResize;
@@ -234,7 +236,10 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
           cursor_mode_ = (data >> 5) & 3;
           lines_per_char_ = (data & 0x1f) + 1;
 
-          line_time_ = (line200_ ? int(6.258 * 1024) : int(4.028 * 1024)) * lines_per_char_ / 1024;
+          // line_time_ = (line200_ ? int(6.258 * 1024) : int(4.028 * 1024)) * lines_per_char_ /
+          // 1024;
+          line_time_ns_ =
+              (line200_ ? uint64_t(1.0e9 / 15980) : uint64_t(1.0e9 / 24830)) * lines_per_char_;
           if (data & 0x80)
             SetFlag(kSkipline);
           if (line200_)
@@ -246,8 +251,8 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
         //  b0-b4   Horizontal Retrace-2 (char)
         //  b5-b7   Vertical Retrace-1 (char)
         case 4:
-          //          hretrace = (data & 0x1f) + 2;
-          v_retrace_ = ((data >> 5) & 7) + 1;
+          v_retrace_ = ((data >> 5) & 0x00000111) + 1;
+          h_retrace_ = (data & 0b00011111) + 2;
           //          linetime = 1667 / (height+vretrace-1);
           break;
 
@@ -262,8 +267,8 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
 
           //          screenwidth = 640;
           screen_height_ = std::min(400U, lines_per_char_ * height_);
-          Log("\nscrn=(640, %d), vrtc = %d, linetime = %d0 us, frametime0 = %d us\n",
-              screen_height_, v_retrace_, line_time_, line_time_ * (height_ + v_retrace_));
+          Log("\nscrn=(640, %d), vrtc = %d, linetime = %llu ns, frametime0 = %llu ns\n",
+              screen_height_, v_retrace_, line_time_ns_, line_time_ns_ * (height_ + v_retrace_));
           SetFlag(kResize);
           break;
       }
@@ -286,8 +291,8 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
             status_ |= 0x10;
             scheduler_->DelEvent(sev_);
             event_ = -1;
-            sev_ = scheduler_->AddEvent(line_time_ * v_retrace_, this,
-                                        static_cast<TimeFunc>(&CRTC::StartDisplay), 0, false);
+            sev_ = scheduler_->AddEventNS(line_time_ns_ * v_retrace_, this,
+                                          static_cast<TimeFunc>(&CRTC::StartDisplay), 0, false);
           }
         } else
           status_ &= ~0x10;
@@ -456,13 +461,13 @@ void IOCALL CRTC::ExpandLine(uint32_t) {
   int e = ExpandLineSub();
   if (e) {
     event_ = e + 1;
-    sev_ = scheduler_->AddEvent(line_time_ * e, this, static_cast<TimeFunc>(&CRTC::ExpandLineEnd),
-                                0, false);
+    sev_ = scheduler_->AddEventNS(line_time_ns_ * e, this,
+                                  static_cast<TimeFunc>(&CRTC::ExpandLineEnd), 0, false);
   } else {
     if (++column_ < height_) {
       event_ = 1;
-      sev_ = scheduler_->AddEvent(line_time_, this, static_cast<TimeFunc>(&CRTC::ExpandLine), 0,
-                                  false);
+      sev_ = scheduler_->AddEventNS(line_time_ns_, this, static_cast<TimeFunc>(&CRTC::ExpandLine),
+                                    0, false);
     } else
       ExpandLineEnd();
   }
@@ -522,8 +527,8 @@ inline void IOCALL CRTC::ExpandLineEnd(uint32_t) {
   //  Log("Vertical Retrace\n");
   bus_->Out(PC88::kVrtc, 1);
   event_ = -1;
-  sev_ = scheduler_->AddEvent(line_time_ * v_retrace_, this,
-                              static_cast<TimeFunc>(&CRTC::StartDisplay), 0, false);
+  sev_ = scheduler_->AddEventNS(line_time_ns_ * v_retrace_, this,
+                                static_cast<TimeFunc>(&CRTC::StartDisplay), 0, false);
 }
 
 // ---------------------------------------------------------------------------
@@ -1086,14 +1091,14 @@ bool IFCALL CRTC::LoadStatus(const uint8_t* s) {
 
   scheduler_->DelEvent(sev_);
   if (event_ == 1)
-    sev_ =
-        scheduler_->AddEvent(line_time_, this, static_cast<TimeFunc>(&CRTC::ExpandLine), 0, false);
+    sev_ = scheduler_->AddEventNS(line_time_ns_, this, static_cast<TimeFunc>(&CRTC::ExpandLine), 0,
+                                  false);
   else if (event_ > 1)
-    sev_ = scheduler_->AddEvent(line_time_ * (event_ - 1), this,
-                                static_cast<TimeFunc>(&CRTC::ExpandLineEnd), 0, false);
+    sev_ = scheduler_->AddEventNS(line_time_ns_ * (event_ - 1), this,
+                                  static_cast<TimeFunc>(&CRTC::ExpandLineEnd), 0, false);
   else if (event_ == -1 || st->rev == 1)
-    sev_ = scheduler_->AddEvent(line_time_ * v_retrace_, this,
-                                static_cast<TimeFunc>(&CRTC::StartDisplay), 0, false);
+    sev_ = scheduler_->AddEventNS(line_time_ns_ * v_retrace_, this,
+                                  static_cast<TimeFunc>(&CRTC::StartDisplay), 0, false);
 
   return true;
 }

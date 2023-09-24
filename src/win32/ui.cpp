@@ -377,7 +377,7 @@ LRESULT CALLBACK WinUI::WinProcGate(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM 
 inline LRESULT WinUI::M88SendKeyState(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   uint8_t* dest = reinterpret_cast<uint8_t*>(wparam);
   GetKeyboardState(dest);
-  SetEvent((HANDLE)lparam);
+  ::SetEvent((HANDLE)lparam);
   return 0;
 }
 

@@ -66,19 +66,18 @@ class SchedulerImpl : public Scheduler {
   ~SchedulerImpl() override = default;
 
   // Overrides Scheduler
-  int Execute(int ticks) override;
-  void Shorten(int ticks) override;
-  int GetTicks() override;
+  int64_t ExecuteNS(int64_t ns) override;
+  void ShortenNS(int64_t ns) override;
+  int64_t GetNS() override;
 
-  void set_clock(int clock) { clock_ = clock; }
-  [[nodiscard]] int clock() const { return clock_; }
+ public:
+  void set_clocks_per_tick(int clock) { clocks_per_tick_ = clock; }
+  [[nodiscard]] int clocks_per_tick() const { return clocks_per_tick_; }
 
  private:
   SchedulerExecutable* ex_;
-  // 1Tickあたりのクロック数 (e.g. 4MHz のとき 40)
-  int clock_ = 100;
-  // Tick単位で実行した時のクロックの剰余、次回分に加算して誤差を防止する
-  int dexc_ = 0;
+  // 1Tick (=10us) あたりのクロック数 (e.g. 4MHz のとき 40)
+  int clocks_per_tick_ = 100;
 };
 
 // ---------------------------------------------------------------------------
@@ -96,6 +95,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
   void Reset();
   int Proceed(uint32_t us, uint32_t clock, uint32_t eff);
+  int64_t ProceedNS(uint64_t ns, uint32_t clock, uint32_t eff);
   void ApplyConfig(PC8801::Config*);
   void SetVolume(PC8801::Config*);
 
@@ -104,9 +104,11 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
   // Overrides ICPUTime
   [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1.GetCount(); }
-  [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override { return scheduler_.clock(); }
+  [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override {
+    return scheduler_.clocks_per_tick();
+  }
 
-  [[nodiscard]] uint32_t GetEffectiveSpeed() const { return eclock_; }
+  [[nodiscard]] uint32_t GetEffectiveSpeed() const { return effective_clocks_per_tick_; }
   void TimeSync();
 
   void UpdateScreen(bool refresh = false);
@@ -132,6 +134,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   // bool LoadShapshot(const char* filename);
 
   int GetFramePeriod();
+  uint64_t GetFramePeriodNS();
 
  public:
   enum SpecialPort {
@@ -181,7 +184,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
   int cpumode;
   // 実効速度 (単位はTick)
-  int eclock_;
+  int effective_clocks_per_tick_ = 1;
 
   uint32_t cfgflags;
   uint32_t cfgflag2;

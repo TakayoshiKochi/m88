@@ -14,7 +14,7 @@
 
 #include "pc88/config.h"
 #include "pc88/pc88.h"
-#include "win32/sequence.h"
+#include "common/sequencer.h"
 #include "win32/winjoy.h"
 #include "win32/winsound.h"
 
@@ -50,7 +50,7 @@ class WinCore : public PC88, public ISystem, public ILockCore {
   PC8801::WinSound* GetSound() { return &sound; }
 
   long GetExecCount() { return seq.GetExecCount(); }
-  void Wait(bool dowait) { seq.Activate(!dowait); }
+  void Wait(bool dowait) { dowait ? seq.Deactivate() : seq.Activate(); }
   void* IFCALL QueryIF(REFIID iid);
   void IFCALL Lock() { seq.Lock(); }
   void IFCALL Unlock() { seq.Unlock(); }

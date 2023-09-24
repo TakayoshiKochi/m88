@@ -28,9 +28,15 @@ class TimeKeeper {
   ~TimeKeeper();
 
   uint32_t GetTime();
+  uint64_t GetTimeNS();
 
  private:
-  uint32_t freq;  // ソースクロックの周期
-  uint32_t base;  // 最後の呼び出しの際の元クロックの値
-  uint32_t time;  // 最後の呼び出しに返した値
+  uint32_t freq_ = 0;  // ソースクロックの周期
+  uint32_t base_ = 0;  // 最後の呼び出しの際の元クロックの値
+  uint32_t time_ = 0;  // 最後の呼び出しに返した値
+
+  uint64_t freq_ns_ = 0;  // QPC freq
+  uint64_t ns_per_freq_ = 0;
+  uint64_t base_ns_ = 0;  // QPC base
+  uint64_t time_ns_ = 0;  // last nanosec time
 };

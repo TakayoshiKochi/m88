@@ -410,7 +410,8 @@ void FDC::SetTimer(Phase p, int ticks) {
   t_phase = p;
   if (!diskwait)
     ticks = (ticks + 127) / 128;
-  timerhandle = scheduler->AddEvent(ticks, this, static_cast<TimeFunc>(&FDC::PhaseTimer), p, false);
+  timerhandle = scheduler->AddEventNS(ticks * 10000ULL, this,
+                                      static_cast<TimeFunc>(&FDC::PhaseTimer), p, false);
 }
 
 void FDC::DelTimer() {
@@ -640,7 +641,8 @@ void FDC::Seek(uint32_t dr, uint32_t cy) {
     Log("Seek: %d -> %d (%d)\n", drive[dr].cyrinder, cy, seekcount);
     drive[dr].cyrinder = cy;
     seektime = seekcount && diskwait ? (400 * abs(seekcount) + 500) : 10;
-    scheduler->AddEvent(seektime, this, static_cast<TimeFunc>(&FDC::SeekEvent), dr, false);
+    scheduler->AddEventNS(seektime * 10000ULL, this, static_cast<TimeFunc>(&FDC::SeekEvent), dr,
+                          false);
     seekstate |= 1 << dr;
 
     if (seektime > 10) {
@@ -1181,16 +1183,17 @@ bool IFCALL FDC::LoadStatus(const uint8_t* s) {
 
   scheduler->DelEvent(this);
   if (st->t_phase != idlephase)
-    timerhandle = scheduler->AddEvent(diskwait ? 100 : 10, this,
-                                      static_cast<TimeFunc>(&FDC::PhaseTimer), st->t_phase, false);
+    timerhandle =
+        scheduler->AddEventNS((diskwait ? 100 : 10) * 10000ULL, this,
+                              static_cast<TimeFunc>(&FDC::PhaseTimer), st->t_phase, false);
 
   fdstat = 0;
   for (int d = 0; d < num_drives; d++) {
     drive[d] = st->dr[d];
     diskmgr->GetFDU(d)->Seek(drive[d].cyrinder);
     if (seekstate & (1 << d)) {
-      scheduler->AddEvent(diskwait ? 100 : 10, this, static_cast<TimeFunc>(&FDC::SeekEvent), d,
-                          false);
+      scheduler->AddEventNS((diskwait ? 100 : 10) * 10000ULL, this,
+                            static_cast<TimeFunc>(&FDC::SeekEvent), d, false);
       fdstat |= 0x10;
     }
     g_status_display->FDAccess(d, drive[d].hd != 0, false);
