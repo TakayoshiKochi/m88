@@ -16,7 +16,7 @@
 #include "common/error.h"
 #include "win32/monitor/loadmon.h"
 #include "win32/screen/drawd2d.h"
-#include "win32/screen/drawd3d.h"
+#include "win32/screen/drawd3d12.h"
 #include "win32/screen/drawgdi.h"
 #include "win32/screen/drawdds.h"
 #include "win32/status.h"
@@ -48,7 +48,7 @@ bool WinDraw::Init0(HWND hwindow) {
   display_type_ = None;
 
   hthread_ = nullptr;
-  hevredraw_ = CreateEvent(NULL, FALSE, FALSE, NULL);
+  hevredraw_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
   HDC hdc = GetDC(hwnd_);
   has_palette_ = !!(GetDeviceCaps(hdc, RASTERCAPS) & RC_PALETTE);
@@ -57,7 +57,7 @@ bool WinDraw::Init0(HWND hwindow) {
 #ifdef DRAW_THREAD
   if (!hthread_)
     hthread_ = HANDLE(
-        _beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &draw_thread_id_));
+        _beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &draw_thread_id_));
   if (!hthread_) {
     Error::SetError(Error::ThreadInitFailed);
     return false;
@@ -297,45 +297,44 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
 
   {
     std::lock_guard<std::mutex> lock(mtx_);
-    drawsub_.reset();
+    WinDrawSub* newdraw = nullptr;
 
     // 新しいドライバの用意
     switch (type) {
       case GDI:
       default:
-        drawsub_ = std::make_unique<WinDrawGDI>();
+        newdraw = new WinDrawGDI();
         break;
       case DDFull:
-        drawsub_ = std::make_unique<WinDrawDDS>(force480);
+        newdraw = new WinDrawDDS(force480);
         break;
       case D2D:
-        drawsub_ = std::make_unique<WinDrawD2D>();
+        newdraw = new WinDrawD2D();
         break;
       case D3D:
-        drawsub_ = std::make_unique<WinDrawD3D>();
+        newdraw = new WinDrawD3D12();
         break;
     }
 
-    if (!drawsub_ || !drawsub_->Init(hwnd_, width_, height_, &gmonitor_)) {
+    if (!newdraw || !newdraw->Init(hwnd_, width_, height_, &gmonitor_)) {
       // 初期化に失敗した場合 GDI ドライバで再挑戦
-      drawsub_.reset();
-
       if (type == DDFull)
         statusdisplay.Show(50, 2500, "画面切り替えに失敗しました");
       else
         statusdisplay.Show(120, 3000, "GDI ドライバを使用します");
 
-      drawsub_ = std::make_unique<WinDrawGDI>();
+      newdraw = new WinDrawGDI();
       type = GDI;
       result = false;
 
-      if (!drawsub_ || !drawsub_->Init(hwnd_, width_, height_, 0)) {
+      if (!newdraw || !newdraw->Init(hwnd_, width_, height_, nullptr)) {
         drawsub_.reset();
         display_type_ = None;
       }
     }
 
-    if (drawsub_) {
+    if (newdraw) {
+      drawsub_.reset(newdraw);
       drawsub_->SetFlipMode(flipmode_);
       drawsub_->SetGUIMode(false);
     }

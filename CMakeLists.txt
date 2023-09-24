@@ -201,8 +201,8 @@ add_library(win32 ${LIB_TYPE}
         src/win32/screen/dderr.cpp
         src/win32/screen/drawd2d.h
         src/win32/screen/drawd2d.cpp
-        src/win32/screen/drawd3d.h
-        src/win32/screen/drawd3d.cpp
+        src/win32/screen/drawd3d12.h
+        src/win32/screen/drawd3d12.cpp
         src/win32/screen/drawdds.h
         src/win32/screen/drawdds.cpp
         src/win32/screen/drawgdi.h

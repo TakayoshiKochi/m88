@@ -889,7 +889,7 @@
     <ClCompile Include="src\win32\romeo\piccolo_romeo.cpp" />
     <ClCompile Include="src\win32\screen\dderr.cpp" />
     <ClCompile Include="src\win32\screen\drawd2d.cpp" />
-    <ClCompile Include="src\win32\screen\drawd3d.cpp" />
+    <ClCompile Include="src\win32\screen\drawd3d12.cpp" />
     <ClCompile Include="src\win32\screen\drawdds.cpp" />
     <ClCompile Include="src\win32\screen\drawgdi.cpp" />
     <ClCompile Include="src\win32\screen\windraw.cpp" />
@@ -1246,7 +1246,7 @@
     <ClInclude Include="src\win32\romeo\romeo.h" />
     <ClInclude Include="src\win32\screen\dderr.h" />
     <ClInclude Include="src\win32\screen\drawd2d.h" />
-    <ClInclude Include="src\win32\screen\drawd3d.h" />
+    <ClInclude Include="src\win32\screen\drawd3d12.h" />
     <ClInclude Include="src\win32\screen\drawdds.h" />
     <ClInclude Include="src\win32\screen\drawgdi.h" />
     <ClInclude Include="src\win32\screen\windraw.h" />

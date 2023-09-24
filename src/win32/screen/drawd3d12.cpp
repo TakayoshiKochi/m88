@@ -5,7 +5,7 @@
 //  Direct3D による画面描画
 // ---------------------------------------------------------------------------
 
-#include "win32/screen/drawd3d.h"
+#include "win32/screen/drawd3d12.h"
 
 #include <d3dcompiler.h>
 #include <vector>
@@ -17,12 +17,12 @@
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-WinDrawD3D::WinDrawD3D() {
+WinDrawD3D12::WinDrawD3D12() {
   image_ = std::make_unique<uint8_t[]>(width_ * height_);
   bpl_ = width_;
 }
 
-WinDrawD3D::~WinDrawD3D() {
+WinDrawD3D12::~WinDrawD3D12() {
   if (hcwnd_) {
     ::DestroyWindow(hcwnd_);
     hcwnd_ = nullptr;
@@ -32,7 +32,7 @@ WinDrawD3D::~WinDrawD3D() {
 // ---------------------------------------------------------------------------
 //  初期化処理
 //
-bool WinDrawD3D::Init(HWND hwnd, uint32_t width, uint32_t height, GUID*) {
+bool WinDrawD3D12::Init(HWND hwnd, uint32_t width, uint32_t height, GUID*) {
   hwnd_ = hwnd;
   if (!CreateD3D())
     return false;
@@ -41,7 +41,7 @@ bool WinDrawD3D::Init(HWND hwnd, uint32_t width, uint32_t height, GUID*) {
   return true;
 }
 
-void WinDrawD3D::SetGUIMode(bool fullscreen) {
+void WinDrawD3D12::SetGUIMode(bool fullscreen) {
   // TODO: full screen support
   if (fullscreen) {
     // Fullscreen
@@ -50,7 +50,7 @@ void WinDrawD3D::SetGUIMode(bool fullscreen) {
   }
 }
 
-void WinDrawD3D::CreateBaseWindow() {
+void WinDrawD3D12::CreateBaseWindow() {
   if (!hcwnd_) {
     // Base windowを生成
     hcwnd_ = ::CreateWindowEx(WS_EX_TRANSPARENT, "M88p2 WinUI", "", WS_CHILD, 0, 0, 640, 480, hwnd_,
@@ -61,7 +61,7 @@ void WinDrawD3D::CreateBaseWindow() {
   ::ShowWindow(hcwnd_, SW_SHOW);
 }
 
-bool WinDrawD3D::CreateD3D12Device() {
+bool WinDrawD3D12::CreateD3D12Device() {
   if (!dxgi_factory_) {
 #if defined(_DEBUG)
     HRESULT hr = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&dxgi_factory_));
@@ -100,7 +100,7 @@ bool WinDrawD3D::CreateD3D12Device() {
   return true;
 }
 
-bool WinDrawD3D::CreateCommandList() {
+bool WinDrawD3D12::CreateCommandList() {
   HRESULT hr =
       dev_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&cmd_allocator_));
   if (FAILED(hr))
@@ -121,7 +121,7 @@ bool WinDrawD3D::CreateCommandList() {
   return SUCCEEDED(hr);
 }
 
-bool WinDrawD3D::CreateSwapChain() {
+bool WinDrawD3D12::CreateSwapChain() {
   DXGI_SWAP_CHAIN_DESC1 swap_chain_desc = {};
   swap_chain_desc.Width = width_;
   swap_chain_desc.Height = height_;
@@ -142,7 +142,7 @@ bool WinDrawD3D::CreateSwapChain() {
   return SUCCEEDED(hr);
 }
 
-bool WinDrawD3D::CreateRenderTargetView() {
+bool WinDrawD3D12::CreateRenderTargetView() {
   D3D12_DESCRIPTOR_HEAP_DESC heap_desc = {};
   heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
   heap_desc.NodeMask = 0;
@@ -170,7 +170,7 @@ bool WinDrawD3D::CreateRenderTargetView() {
   return true;
 }
 
-bool WinDrawD3D::SetUpShaders() {
+bool WinDrawD3D12::SetUpShaders() {
   scoped_comptr<ID3DBlob> error_blob;
 
   if (!vs_blob_) {
@@ -225,7 +225,7 @@ bool WinDrawD3D::SetUpShaders() {
   return true;
 }
 
-bool WinDrawD3D::SetUpPipelineForTexture(D3D12_INPUT_ELEMENT_DESC* input_layout, int num_elements) {
+bool WinDrawD3D12::SetUpPipelineForTexture(D3D12_INPUT_ELEMENT_DESC* input_layout, int num_elements) {
   assert(root_signature_);
   assert(vs_blob_);
   assert(ps_blob_);
@@ -270,7 +270,7 @@ bool WinDrawD3D::SetUpPipelineForTexture(D3D12_INPUT_ELEMENT_DESC* input_layout,
   return SUCCEEDED(hr);
 }
 
-bool WinDrawD3D::SetUpRootSignature() {
+bool WinDrawD3D12::SetUpRootSignature() {
   D3D12_ROOT_SIGNATURE_DESC root_signature_desc = {};
   root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
@@ -325,7 +325,7 @@ bool WinDrawD3D::SetUpRootSignature() {
   return SUCCEEDED(hr);
 }
 
-void WinDrawD3D::SetUpViewPort() {
+void WinDrawD3D12::SetUpViewPort() {
   D3D12_VIEWPORT viewport = {};
   viewport.Width = width_;
   viewport.Height = height_;
@@ -344,7 +344,7 @@ void WinDrawD3D::SetUpViewPort() {
   cmd_list_->RSSetScissorRects(1, &scissor_rect);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE WinDrawD3D::PrepareCommandList() {
+D3D12_CPU_DESCRIPTOR_HANDLE WinDrawD3D12::PrepareCommandList() {
   auto back_buffer_index = swap_chain_->GetCurrentBackBufferIndex();
 
   D3D12_RESOURCE_BARRIER barrier_desc = {};
@@ -364,7 +364,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE WinDrawD3D::PrepareCommandList() {
   return rtv_h;
 }
 
-void WinDrawD3D::CommitCommandList() {
+void WinDrawD3D12::CommitCommandList() {
   D3D12_RESOURCE_BARRIER barrier_desc = {};
   barrier_desc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
   barrier_desc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -393,7 +393,7 @@ void WinDrawD3D::CommitCommandList() {
   swap_chain_->Present(1, 0);
 }
 
-bool WinDrawD3D::ClearScreen() {
+bool WinDrawD3D12::ClearScreen() {
   auto rtv_h = PrepareCommandList();
   float clear_color[] = {0.0f, 0.0f, 0.0f, 1.0f};
   cmd_list_->ClearRenderTargetView(rtv_h, clear_color, 0, nullptr);
@@ -401,7 +401,7 @@ bool WinDrawD3D::ClearScreen() {
   return true;
 }
 
-bool WinDrawD3D::SetUpTexture() {
+bool WinDrawD3D12::SetUpTexture() {
   if (!texture_) {
     D3D12_HEAP_PROPERTIES heap_prop_tex = {};
     heap_prop_tex.Type = D3D12_HEAP_TYPE_CUSTOM;
@@ -445,7 +445,7 @@ bool WinDrawD3D::SetUpTexture() {
 
 namespace {
 // clang-format off
-constexpr WinDrawD3D::Vertex vertices[] = {
+constexpr WinDrawD3D12::Vertex vertices[] = {
   {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},  // left bottom
   {{-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f}},  // left top
   {{ 1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},  // right bottom
@@ -458,7 +458,7 @@ constexpr uint16_t indices[] = {
 // clang-format on
 }  // namespace
 
-bool WinDrawD3D::SetUpVerticesForTexture() {
+bool WinDrawD3D12::SetUpVerticesForTexture() {
   if (vert_buffer_)
     return true;
 
@@ -495,7 +495,7 @@ bool WinDrawD3D::SetUpVerticesForTexture() {
   return true;
 }
 
-void WinDrawD3D::PrepareVerticesForTexture() {
+void WinDrawD3D12::PrepareVerticesForTexture() {
   // rectangle vertex buffer view
   D3D12_VERTEX_BUFFER_VIEW vb_view = {};
   vb_view.BufferLocation = vert_buffer_->GetGPUVirtualAddress();
@@ -504,7 +504,7 @@ void WinDrawD3D::PrepareVerticesForTexture() {
   cmd_list_->IASetVertexBuffers(0, 1, &vb_view);
 }
 
-bool WinDrawD3D::SetUpIndicesForTexture() {
+bool WinDrawD3D12::SetUpIndicesForTexture() {
   if (index_buffer_)
     return true;
 
@@ -539,7 +539,7 @@ bool WinDrawD3D::SetUpIndicesForTexture() {
   return true;
 }
 
-void WinDrawD3D::PrepareIndicesForTexture() {
+void WinDrawD3D12::PrepareIndicesForTexture() {
   D3D12_INDEX_BUFFER_VIEW ib_view = {};
   ib_view.BufferLocation = index_buffer_->GetGPUVirtualAddress();
   ib_view.Format = DXGI_FORMAT_R16_UINT;
@@ -547,7 +547,7 @@ void WinDrawD3D::PrepareIndicesForTexture() {
   cmd_list_->IASetIndexBuffer(&ib_view);
 }
 
-bool WinDrawD3D::SetUpTexturePipeline() {
+bool WinDrawD3D12::SetUpTexturePipeline() {
   if (!SetUpVerticesForTexture() || !SetUpIndicesForTexture())
     return false;
 
@@ -567,7 +567,7 @@ bool WinDrawD3D::SetUpTexturePipeline() {
   return SetUpTexture();
 }
 
-bool WinDrawD3D::RenderTexture() {
+bool WinDrawD3D12::RenderTexture() {
   std::vector<TexRGBA> texturedata(width_ * height_);
 
   for (int y = 0; y < height_; ++y) {
@@ -601,7 +601,7 @@ bool WinDrawD3D::RenderTexture() {
   return SUCCEEDED(hr);
 }
 
-bool WinDrawD3D::DrawTexture() {
+bool WinDrawD3D12::DrawTexture() {
   auto rtv_h = PrepareCommandList();
 
   PrepareVerticesForTexture();
@@ -623,7 +623,7 @@ bool WinDrawD3D::DrawTexture() {
   return true;
 }
 
-bool WinDrawD3D::CreateD3D() {
+bool WinDrawD3D12::CreateD3D() {
   CreateBaseWindow();
   if (!hcwnd_)
     return false;
@@ -650,7 +650,7 @@ bool WinDrawD3D::CreateD3D() {
   return true;
 }
 
-bool WinDrawD3D::Resize(uint32_t width, uint32_t height) {
+bool WinDrawD3D12::Resize(uint32_t width, uint32_t height) {
   width_ = width;
   height_ = height;
 
@@ -659,7 +659,7 @@ bool WinDrawD3D::Resize(uint32_t width, uint32_t height) {
   return true;
 }
 
-void WinDrawD3D::SetPalette(PALETTEENTRY* pe, int index, int nentries) {
+void WinDrawD3D12::SetPalette(PALETTEENTRY* pe, int index, int nentries) {
   for (; nentries > 0; nentries--) {
     pal_[index].red = pe->peRed;
     pal_[index].green = pe->peGreen;
@@ -670,7 +670,7 @@ void WinDrawD3D::SetPalette(PALETTEENTRY* pe, int index, int nentries) {
   update_palette_ = true;
 }
 
-void WinDrawD3D::DrawScreen(const RECT& rect, bool refresh) {
+void WinDrawD3D12::DrawScreen(const RECT& rect, bool refresh) {
   if (::IsWindow(hwnd_) == FALSE)
     return;
 
@@ -685,13 +685,13 @@ void WinDrawD3D::DrawScreen(const RECT& rect, bool refresh) {
   DrawTexture();
 }
 
-bool WinDrawD3D::Lock(uint8_t** image, int* bpl) {
+bool WinDrawD3D12::Lock(uint8_t** image, int* bpl) {
   *image = image_.get();
   *bpl = bpl_;
   return image_ != nullptr;
 }
 
-bool WinDrawD3D::Unlock() {
+bool WinDrawD3D12::Unlock() {
   status &= ~static_cast<uint32_t>(Draw::Status::kShouldRefresh);
   return true;
 }

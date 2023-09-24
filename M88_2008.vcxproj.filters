@@ -291,9 +291,6 @@
     <ClCompile Include="src\win32\screen\drawd2d.cpp">
       <Filter>win32\screen</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\screen\drawd3d.cpp">
-      <Filter>win32\screen</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\screen\drawdds.cpp">
       <Filter>win32\screen</Filter>
     </ClCompile>
@@ -314,6 +311,9 @@
     </ClCompile>
     <ClCompile Include="src\win32\sound\winsound.cpp">
       <Filter>win32\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\screen\drawd3d12.cpp">
+      <Filter>win32\screen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -614,9 +614,6 @@
     <ClInclude Include="src\win32\screen\drawd2d.h">
       <Filter>win32\screen</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\screen\drawd3d.h">
-      <Filter>win32\screen</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\screen\drawdds.h">
       <Filter>win32\screen</Filter>
     </ClInclude>
@@ -640,6 +637,9 @@
     </ClInclude>
     <ClInclude Include="src\win32\sound\winsound.h">
       <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\screen\drawd3d12.h">
+      <Filter>win32\screen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
