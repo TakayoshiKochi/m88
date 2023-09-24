@@ -186,16 +186,6 @@ add_library(win32 ${LIB_TYPE}
         src/win32/about.cpp
         src/win32/cfgpage.h
         src/win32/cfgpage.cpp
-        src/win32/dderr.h
-        src/win32/dderr.cpp
-        src/win32/drawd2d.h
-        src/win32/drawd2d.cpp
-        src/win32/drawd3d.h
-        src/win32/drawd3d.cpp
-        src/win32/drawdds.h
-        src/win32/drawdds.cpp
-        src/win32/drawgdi.h
-        src/win32/drawgdi.cpp
         src/win32/extdev.h
         src/win32/extdev.cpp
         src/win32/file.h
@@ -207,13 +197,27 @@ add_library(win32 ${LIB_TYPE}
         src/win32/module.cpp
         src/win32/newdisk.h
         src/win32/newdisk.cpp
-        src/win32/sounddrv.h
-        src/win32/soundds.h
-        src/win32/soundds.cpp
-        src/win32/soundds2.h
-        src/win32/soundds2.cpp
-        src/win32/soundwo.h
-        src/win32/soundwo.cpp
+        src/win32/screen/dderr.h
+        src/win32/screen/dderr.cpp
+        src/win32/screen/drawd2d.h
+        src/win32/screen/drawd2d.cpp
+        src/win32/screen/drawd3d.h
+        src/win32/screen/drawd3d.cpp
+        src/win32/screen/drawdds.h
+        src/win32/screen/drawdds.cpp
+        src/win32/screen/drawgdi.h
+        src/win32/screen/drawgdi.cpp
+        src/win32/screen/windraw.h
+        src/win32/screen/windraw.cpp
+        src/win32/sound/sounddrv.h
+        src/win32/sound/soundds.h
+        src/win32/sound/soundds.cpp
+        src/win32/sound/soundds2.h
+        src/win32/sound/soundds2.cpp
+        src/win32/sound/soundwo.h
+        src/win32/sound/soundwo.cpp
+        src/win32/sound/winsound.h
+        src/win32/sound/winsound.cpp
         src/win32/status.h
         src/win32/status.cpp
         src/win32/ui.h
@@ -222,8 +226,6 @@ add_library(win32 ${LIB_TYPE}
         src/win32/wincfg.cpp
         src/win32/wincore.h
         src/win32/wincore.cpp
-        src/win32/windraw.h
-        src/win32/windraw.cpp
         src/win32/winexapi.h
         src/win32/winexapi.cpp
         src/win32/winjoy.h
@@ -231,9 +233,7 @@ add_library(win32 ${LIB_TYPE}
         src/win32/winkeyif.h
         src/win32/winkeyif.cpp
         src/win32/winmouse.h
-        src/win32/winmouse.cpp
-        src/win32/winsound.h
-        src/win32/winsound.cpp)
+        src/win32/winmouse.cpp)
 
 target_include_directories(win32
         PUBLIC ${CMAKE_SOURCE_DIR}/src
@@ -247,24 +247,24 @@ target_link_libraries(win32_unittests
         common devices fmgen pc88core pc88shell win32)
 
 add_library(win32mon ${LIB_TYPE}
-        src/win32/basmon.h
-        src/win32/basmon.cpp
-        src/win32/codemon.h
-        src/win32/codemon.cpp
-        src/win32/iomon.h
-        src/win32/iomon.cpp
-        src/win32/loadmon.h
-        src/win32/loadmon.cpp
-        src/win32/memmon.h
-        src/win32/memmon.cpp
-        src/win32/mvmon.h
-        src/win32/mvmon.cpp
-        src/win32/regmon.h
-        src/win32/regmon.cpp
-        src/win32/soundmon.h
-        src/win32/soundmon.cpp
-        src/win32/winmon.h
-        src/win32/winmon.cpp)
+        src/win32/monitor/basmon.h
+        src/win32/monitor/basmon.cpp
+        src/win32/monitor/codemon.h
+        src/win32/monitor/codemon.cpp
+        src/win32/monitor/iomon.h
+        src/win32/monitor/iomon.cpp
+        src/win32/monitor/loadmon.h
+        src/win32/monitor/loadmon.cpp
+        src/win32/monitor/memmon.h
+        src/win32/monitor/memmon.cpp
+        src/win32/monitor/mvmon.h
+        src/win32/monitor/mvmon.cpp
+        src/win32/monitor/regmon.h
+        src/win32/monitor/regmon.cpp
+        src/win32/monitor/soundmon.h
+        src/win32/monitor/soundmon.cpp
+        src/win32/monitor/winmon.h
+        src/win32/monitor/winmon.cpp)
 
 target_include_directories(win32mon
         PUBLIC ${CMAKE_SOURCE_DIR}/src

@@ -13,17 +13,17 @@
 #include <stdint.h>
 
 #include "win32/88config.h"
-#include "win32/basmon.h"
-#include "win32/codemon.h"
-#include "win32/iomon.h"
-#include "win32/loadmon.h"
-#include "win32/memmon.h"
+#include "win32/monitor/basmon.h"
+#include "win32/monitor/codemon.h"
+#include "win32/monitor/iomon.h"
+#include "win32/monitor/loadmon.h"
+#include "win32/monitor/memmon.h"
+#include "win32/monitor/regmon.h"
+#include "win32/monitor/soundmon.h"
 #include "win32/newdisk.h"
-#include "win32/regmon.h"
-#include "win32/soundmon.h"
 #include "win32/wincfg.h"
 #include "win32/wincore.h"
-#include "win32/windraw.h"
+#include "win32/screen/windraw.h"
 #include "win32/winkeyif.h"
 
 // ---------------------------------------------------------------------------

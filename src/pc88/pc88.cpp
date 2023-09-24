@@ -32,7 +32,7 @@
 #include "pc88/sio.h"
 #include "pc88/subsys.h"
 #include "pc88/tapemgr.h"
-#include "win32/loadmon.h"
+#include "win32/monitor/loadmon.h"
 
 // #define LOGNAME "pc88"
 #include "common/diag.h"
