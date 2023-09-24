@@ -15,6 +15,7 @@
 #include "common/draw.h"
 
 #include <atomic>
+#include <memory>
 #include <mutex>
 
 // ---------------------------------------------------------------------------
@@ -121,7 +122,7 @@ class WinDraw : public Draw {
 
   HWND hwnd_ = nullptr;
   HANDLE hevredraw_ = nullptr;
-  WinDrawSub* drawsub_ = nullptr;
+  std::unique_ptr<WinDrawSub> drawsub_;
 
   std::mutex mtx_;
   bool locked_ = false;
