@@ -44,7 +44,7 @@ WinDraw::~WinDraw() {
 //
 bool WinDraw::Init0(HWND hwindow) {
   hwnd_ = hwindow;
-  drawsub_ = nullptr;
+  drawsub_.reset();
   display_type_ = None;
 
   hthread_ = nullptr;
@@ -99,8 +99,7 @@ bool WinDraw::CleanUp() {
   if (hevredraw_)
     CloseHandle(hevredraw_), hevredraw_ = 0;
 
-  delete drawsub_;
-  drawsub_ = 0;
+  drawsub_.reset();
   return true;
 }
 
@@ -288,82 +287,77 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
   hmonitor_ = (*MonitorFromWin)(hwnd_, MONITOR_DEFAULTTOPRIMARY);
   (*DDEnumerateEx)(DDEnumCallback, reinterpret_cast<LPVOID>(this), DDENUM_ATTACHEDSECONDARYDEVICES);
 
-  if (type != display_type_) {
-    // 今までのドライバを廃棄
-    if (drawsub_)
-      drawsub_->SetGUIMode(true);
-    {
-      std::lock_guard<std::mutex> lock(mtx_);
-      delete drawsub_;
-      drawsub_ = 0;
-    }
+  if (type == display_type_)
+    return false;
+
+  bool result = true;
+  // 今までのドライバを廃棄
+  if (drawsub_)
+    drawsub_->SetGUIMode(true);
+
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+    drawsub_.reset();
 
     // 新しいドライバの用意
-    WinDrawSub* newdraw = nullptr;
     switch (type) {
       case GDI:
       default:
-        newdraw = new WinDrawGDI;
+        drawsub_ = std::make_unique<WinDrawGDI>();
         break;
       case DDFull:
-        newdraw = new WinDrawDDS(force480);
+        drawsub_ = std::make_unique<WinDrawDDS>(force480);
         break;
       case D2D:
-        newdraw = new WinDrawD2D;
+        drawsub_ = std::make_unique<WinDrawD2D>();
         break;
       case D3D:
-        newdraw = new WinDrawD3D;
+        drawsub_ = std::make_unique<WinDrawD3D>();
         break;
     }
 
-    bool result = true;
-
-    if (!newdraw || !newdraw->Init(hwnd_, width_, height_, &gmonitor_)) {
+    if (!drawsub_ || !drawsub_->Init(hwnd_, width_, height_, &gmonitor_)) {
       // 初期化に失敗した場合 GDI ドライバで再挑戦
-      delete newdraw;
+      drawsub_.reset();
 
       if (type == DDFull)
         statusdisplay.Show(50, 2500, "画面切り替えに失敗しました");
       else
         statusdisplay.Show(120, 3000, "GDI ドライバを使用します");
 
-      newdraw = new WinDrawGDI, type = GDI;
+      drawsub_ = std::make_unique<WinDrawGDI>();
+      type = GDI;
       result = false;
 
-      if (!newdraw || !newdraw->Init(hwnd_, width_, height_, 0))
-        newdraw = 0, display_type_ = None;
+      if (!drawsub_ || !drawsub_->Init(hwnd_, width_, height_, 0)) {
+        drawsub_.reset();
+        display_type_ = None;
+      }
     }
 
-    if (newdraw) {
-      newdraw->SetFlipMode(flipmode_);
-      newdraw->SetGUIMode(false);
+    if (drawsub_) {
+      drawsub_->SetFlipMode(flipmode_);
+      drawsub_->SetGUIMode(false);
     }
 
-    // 新しいドライバを使用可能にする
-    {
-      std::lock_guard<std::mutex> lock(mtx_);
-      gui_count_ = 0;
-      drawsub_ = newdraw;
-    }
-
-    draw_all_ = true;
-    refresh_ = true;
-    pal_region_begin_ = std::min(pal_change_begin_, pal_region_begin_);
-    pal_region_end_ = std::max(pal_change_end_, pal_region_end_);
-    //      if (draw)
-    //          draw->Resize(width, height);
-
-    if (type == DDFull)
-      ShowCursor(false);
-    if (display_type_ == DDFull)
-      ShowCursor(true);
-    display_type_ = type;
-
-    refresh_ = 2;
-
-    return result;
+    gui_count_ = 0;
   }
-  return false;
+
+  draw_all_ = true;
+  refresh_ = true;
+  pal_region_begin_ = std::min(pal_change_begin_, pal_region_begin_);
+  pal_region_end_ = std::max(pal_change_end_, pal_region_end_);
+  //      if (draw)
+  //          draw->Resize(width, height);
+
+  if (type == DDFull)
+    ShowCursor(false);
+  if (display_type_ == DDFull)
+    ShowCursor(true);
+  display_type_ = type;
+  refresh_ = 2;
+
+  return result;
 }
 
 // ---------------------------------------------------------------------------
