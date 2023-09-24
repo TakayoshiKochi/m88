@@ -104,11 +104,12 @@ class WinUI {
 
   // ウインドウの状態
   bool background;
-  bool fullscreen;
+  bool fullscreen_ = false;
   uint32_t displaychangedtime;
   uint32_t resetwindowsize;
   DWORD wstyle;
-  POINT point;
+  // fullscreen 時にウィンドウ位置が保存される
+  POINT point_;
   int clipmode;
   bool guimodebymouse;
 

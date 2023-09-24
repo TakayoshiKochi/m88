@@ -41,9 +41,9 @@ using namespace PC8801;
 //  生成・破棄
 //
 WinUI::WinUI(HINSTANCE hinstance)
-    : hinst(hinstance), hwnd(0), diskmgr(0), tapemgr(0), fullscreen(false) {
+    : hinst(hinstance), hwnd(0), diskmgr(0), tapemgr(0), fullscreen_(false) {
   timerid = 0;
-  point.x = point.y = 0;
+  point_.x = point_.y = 0;
   //  resizewindow = 0;
   displaychangedtime = GetTickCount();
   report = true;
@@ -92,8 +92,8 @@ bool WinUI::InitM88(const char* cmdline) {
   {
     RECT rect;
     GetWindowRect(hwnd, &rect);
-    point.x = rect.left;
-    point.y = rect.top;
+    point_.x = rect.left;
+    point_.y = rect.top;
   }
 
   // 画面初期化
@@ -143,7 +143,7 @@ bool WinUI::InitM88(const char* cmdline) {
   Log("%d\temulation begin\n", timeGetTime());
   core.Wait(false);
   active_ = true;
-  fullscreen = false;
+  fullscreen_ = false;
 
   //  設定反映
   Log("%d\tapply cmdline\n", timeGetTime());
@@ -713,8 +713,8 @@ LRESULT WinUI::WmCreate(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   //  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
 
   GetWindowRect(hwnd, &rect);
-  point.x = rect.left;
-  point.y = rect.top;
+  point_.x = rect.left;
+  point_.y = rect.top;
 
   Log("WmCreate\n");
   return 0;
@@ -856,7 +856,7 @@ LRESULT WinUI::WmInitMenu(HWND hwnd, WPARAM wp, LPARAM lp) {
                 (config.dipsw != 1 && regmon.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu, IDM_STATUSBAR,
                 (config.flags & Config::kShowStatusBar) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu, IDM_STATUSBAR, fullscreen ? MF_GRAYED : MF_ENABLED);
+  EnableMenuItem(hmenu, IDM_STATUSBAR, fullscreen_ ? MF_GRAYED : MF_ENABLED);
   CheckMenuItem(hmenu, IDM_FDC_STATUS,
                 (config.flags & Config::kShowFDCStatus) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu, IDM_SOUNDMON, opnmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
@@ -1282,7 +1282,7 @@ void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
 //  ステータスバー表示切り替え
 //
 void WinUI::ShowStatusWindow() {
-  if (!fullscreen) {
+  if (!fullscreen_) {
     if (config.flags & PC8801::Config::kShowStatusBar)
       statusdisplay.Enable((config.flags & PC8801::Config::kShowFDCStatus) != 0);
     else
@@ -1311,11 +1311,11 @@ void WinUI::ToggleDisplayMode() {
     return;
 
   displaychangedtime = GetTickCount();
-  fullscreen = !fullscreen;
+  fullscreen_ = !fullscreen_;
 
-  if (fullscreen)
+  if (fullscreen_)
     statusdisplay.Disable();
-  ChangeDisplayType(fullscreen);
+  ChangeDisplayType(fullscreen_);
 }
 
 // ---------------------------------------------------------------------------
@@ -1330,8 +1330,8 @@ void WinUI::ChangeDisplayType(bool savepos) {
   if (savepos) {
     RECT rect;
     GetWindowRect(hwnd, &rect);
-    point.x = rect.left;
-    point.y = rect.top;
+    point_.x = rect.left;
+    point_.y = rect.top;
   }
   PostMessage(hwnd, WM_M88_CHANGEDISPLAY, 0, 0);
 }
@@ -1343,14 +1343,14 @@ void WinUI::ChangeDisplayType(bool savepos) {
 LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
   // 画面ドライバの切替え
   // ドライバが false を返した場合 GDI ドライバが使用されることになる
-  if (!draw.ChangeDisplayMode(fullscreen, (config.flags & PC8801::Config::kForce480) != 0))
-    fullscreen = false;
+  if (!draw.ChangeDisplayMode(fullscreen_, (config.flags & PC8801::Config::kForce480) != 0))
+    fullscreen_ = false;
 
   // ウィンドウスタイル関係の変更
   wstyle = (DWORD)GetWindowLongPtr(hwnd, GWL_STYLE);
   LONG_PTR exstyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
 
-  if (!fullscreen) {
+  if (!fullscreen_) {
     wstyle = (wstyle & ~WS_POPUP) | (WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU);
     exstyle &= ~WS_EX_TOPMOST;
 
@@ -1358,7 +1358,7 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
     SetWindowLongPtr(hwnd, GWL_STYLE, wstyle);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle);
     ResizeWindow(640, 400);
-    SetWindowPos(hwnd, HWND_NOTOPMOST, point.x, point.y, 0, 0, SWP_NOSIZE);
+    SetWindowPos(hwnd, HWND_NOTOPMOST, point_.x, point_.y, 0, 0, SWP_NOSIZE);
     ShowStatusWindow();
     report = true;
     guimodebymouse = false;
@@ -1422,7 +1422,7 @@ LRESULT WinUI::M88ChangeVolume(HWND, WPARAM c, LPARAM) {
 //  WM_DISPLAYCHANGE ハンドラ
 //
 LRESULT WinUI::WmDisplayChange(HWND hwnd, WPARAM wp, LPARAM lp) {
-  resetwindowsize = fullscreen ? 0 : 5;
+  resetwindowsize = fullscreen_ ? 0 : 5;
   return 0;
 }
 
@@ -1639,7 +1639,7 @@ LRESULT WinUI::WmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp) {
 }
 
 LRESULT WinUI::WmSetCursor(HWND hwnd, WPARAM wp, LPARAM lp) {
-  if (fullscreen) {
+  if (fullscreen_) {
     uint32_t menu = LOWORD(lp) == HTMENU;
     if (!guimodebymouse) {
       if (menu) {
@@ -1847,7 +1847,7 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
 
         // フルスクリーン起動
         case 'F':
-          fullscreen = true;
+          fullscreen_ = true;
           break;
 
         // flags の値を設定  -g値,有効ビット
