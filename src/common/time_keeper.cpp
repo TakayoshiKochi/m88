@@ -4,16 +4,12 @@
 // ---------------------------------------------------------------------------
 //  $Id: timekeep.cpp,v 1.1 2002/04/07 05:40:11 cisc Exp $
 
-#include "win32/timekeep.h"
+#include "common/time_keeper.h"
 
 #include <windows.h>
 
 #include <assert.h>
-#include <mmsystem.h>
 
-// ---------------------------------------------------------------------------
-//  構築/消滅
-//
 TimeKeeper::TimeKeeper() {
   assert(unit > 0);
 

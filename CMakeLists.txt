@@ -214,8 +214,8 @@ add_library(win32 ${LIB_TYPE}
         src/win32/soundwo.cpp
         src/win32/status.h
         src/win32/status.cpp
-        src/win32/timekeep.h
-        src/win32/timekeep.cpp
+        src/common/time_keeper.h
+        src/common/time_keeper.cpp
         src/win32/ui.h
         src/win32/ui.cpp
         src/win32/wincfg.h
