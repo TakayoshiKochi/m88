@@ -45,36 +45,29 @@ constexpr int kPC88ScreenHeight = 400;
 //  WinUI
 //  生成・破棄
 //
-WinUI::WinUI(HINSTANCE hinstance)
-    : hinst(hinstance), hwnd_(0), diskmgr(0), tapemgr(0), fullscreen_(false) {
-  timerid = 0;
-  point_.x = point_.y = 0;
+WinUI::WinUI(HINSTANCE hinstance) : hinst_(hinstance) {
+  point_.x = 0;
+  point_.y = 0;
   //  resizewindow = 0;
-  displaychangedtime = GetTickCount();
-  report_ = true;
+  displaychanged_time_ = GetTickCount();
 
-  diskinfo[0].hmenu = 0;
+  diskinfo[0].hmenu = nullptr;
   diskinfo[0].filename[0] = 0;
   diskinfo[0].idchgdisk = IDM_CHANGEDISK_1;
-  diskinfo[1].hmenu = 0;
+  diskinfo[1].hmenu = nullptr;
   diskinfo[1].filename[0] = 0;
   diskinfo[1].idchgdisk = IDM_CHANGEDISK_2;
   capturemouse = true;
   resetwindowsize = 0;
-  hmenuss[0] = 0;
-  hmenuss[1] = 0;
+  hmenuss[0] = nullptr;
+  hmenuss[1] = nullptr;
   currentsnapshot = 0;
   snapshotchanged = true;
 
-  clipmode = 0;
-  background = false;
   mousebutton = 0;
 }
 
-WinUI::~WinUI() {
-  delete diskmgr;
-  delete tapemgr;
-}
+WinUI::~WinUI() = default;
 
 // ---------------------------------------------------------------------------
 //  WinUI::InitM88
@@ -112,20 +105,20 @@ bool WinUI::InitM88(const char* cmdline) {
   PC8801::LoadConfigDirectory(&config, m88ini, "BIOSPath", true);
 
   Log("%d\tdiskmanager\n", timeGetTime());
-  if (!diskmgr)
-    diskmgr = new DiskManager;
-  if (!diskmgr || !diskmgr->Init())
+  if (!diskmgr_)
+    diskmgr_ = std::make_unique<DiskManager>();
+  if (!diskmgr_ || !diskmgr_->Init())
     return false;
-  if (!tapemgr)
-    tapemgr = new TapeManager;
-  if (!tapemgr)
+  if (!tapemgr_)
+    tapemgr_ = std::make_unique<TapeManager>();
+  if (!tapemgr_)
     return false;
 
   Log("%d\tkeyboard if\n", timeGetTime());
   if (!keyif.Init(hwnd_))
     return false;
   Log("%d\tcore\n", timeGetTime());
-  if (!core.Init(this, hwnd_, &draw, diskmgr, &keyif, &winconfig, tapemgr))
+  if (!core.Init(this, hwnd_, &draw, diskmgr_.get(), &keyif, &winconfig, tapemgr_.get()))
     return false;
 
   //  debug 用クラス初期化
@@ -178,33 +171,31 @@ void WinUI::CleanUpM88() {
   PC8801::Config cfg = config;
   PC8801::SaveConfig(&cfg, m88ini, true);
   core.CleanUp();
-  delete diskmgr;
-  diskmgr = 0;
-  delete tapemgr;
-  tapemgr = 0;
+  diskmgr_.reset();
+  tapemgr_.reset();
 }
 
 // ---------------------------------------------------------------------------
 //  WinUI::InitWindow
 //  M88 の窓作成
 //
-bool WinUI::InitWindow(int nwinmode) {
+bool WinUI::InitWindow(int) {
   WNDCLASS wcl;
   static const char* szwinname = "M88p2 WinUI";
 
-  wcl.hInstance = hinst;
+  wcl.hInstance = hinst_;
   wcl.lpszClassName = szwinname;
   wcl.lpfnWndProc = WNDPROC((void*)(WinProcGate));
   wcl.style = 0;
-  wcl.hIcon = LoadIcon(hinst, MAKEINTRESOURCE(IDI_ICON_M88));
-  wcl.hCursor = LoadCursor(NULL, IDC_ARROW);
+  wcl.hIcon = LoadIcon(hinst_, MAKEINTRESOURCE(IDI_ICON_M88));
+  wcl.hCursor = LoadCursor(nullptr, IDC_ARROW);
   wcl.cbClsExtra = 0;
   wcl.cbWndExtra = 0;
   //  wcl.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
   wcl.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
   wcl.lpszMenuName = MAKEINTRESOURCE(IDR_MENU_M88);
 
-  accel = LoadAccelerators(hinst, MAKEINTRESOURCE(IDR_ACC_M88UI));
+  haccel_ = LoadAccelerators(hinst_, MAKEINTRESOURCE(IDR_ACC_M88UI));
 
   if (!RegisterClass(&wcl))
     return false;
@@ -212,19 +203,19 @@ bool WinUI::InitWindow(int nwinmode) {
   wstyle_ = WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX;
 
   hwnd_ = CreateWindowEx(WS_EX_ACCEPTFILES,  // | WS_EX_LAYERED,
-                        szwinname, "M88", wstyle_,
-                        CW_USEDEFAULT,  // x
-                        CW_USEDEFAULT,  // y
-                        kPC88ScreenWidth,            // w
-                        kPC88ScreenHeight,            // h
-                        NULL, NULL, hinst, (LPVOID)this);
+                         szwinname, "M88", wstyle_,
+                         CW_USEDEFAULT,      // x
+                         CW_USEDEFAULT,      // y
+                         kPC88ScreenWidth,   // w
+                         kPC88ScreenHeight,  // h
+                         nullptr, nullptr, hinst_, (LPVOID)this);
 
   //  SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0xc0, LWA_ALPHA);
 
   if (!draw.Init0(hwnd_))
     return false;
 
-  clipmode = 0;
+  clipmode_ = 0;
   gui_mode_by_mouse_ = false;
 
   return true;
@@ -247,15 +238,14 @@ void WinUI::LoadWindowPosition() {
     wp.length = sizeof(WINDOWPLACEMENT);
     ::GetWindowPlacement(hwnd_, &wp);
 
-    LONG winw, winh;
-    winw = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
-    winh = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
+    LONG winw = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
+    LONG winh = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
 
     wp.rcNormalPosition.top = config.winposy;
     wp.rcNormalPosition.bottom = config.winposy + winh;
     wp.rcNormalPosition.left = config.winposx;
     wp.rcNormalPosition.right = config.winposx + winw;
-    SetWindowPlacement(hwnd_, &wp);
+    ::SetWindowPlacement(hwnd_, &wp);
   }
 }
 
@@ -264,10 +254,10 @@ void WinUI::LoadWindowPosition() {
 //  メッセージループ
 //
 int WinUI::Main(const char* cmdline) {
-  hmenudbg = 0;
+  hmenudbg_ = nullptr;
   if (InitM88(cmdline)) {
-    timerid = ::SetTimer(hwnd_, 1, 1000, 0);
-    ::SetTimer(hwnd_, 2, 100, 0);
+    timerid_ = ::SetTimer(hwnd_, 1, 1000, nullptr);
+    ::SetTimer(hwnd_, 2, 100, nullptr);
 
     ShowWindow(hwnd_, SW_SHOWDEFAULT);
     UpdateWindow(hwnd_);
@@ -278,14 +268,14 @@ int WinUI::Main(const char* cmdline) {
   }
 
   MSG msg;
-  while (GetMessage(&msg, NULL, 0, 0)) {
+  while (GetMessage(&msg, nullptr, 0, 0)) {
     if (winconfig.ProcMsg(msg)) {
       if (!winconfig.IsOpen())
         SetGUIFlag(false);
       continue;
     }
 
-    if (!TranslateAccelerator(msg.hwnd, accel, &msg)) {
+    if (!TranslateAccelerator(msg.hwnd, haccel_, &msg)) {
       if ((msg.message == WM_SYSKEYDOWN || msg.message == WM_SYSKEYUP) &&
           !(config.flags & Config::kSuppressMenu))
         TranslateMessage(&msg);
@@ -379,14 +369,14 @@ LRESULT CALLBACK WinUI::WinProcGate(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM 
 // ---------------------------------------------------------------------------
 //  WinUI::M88SendKeyState
 //
-inline LRESULT WinUI::M88SendKeyState(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  uint8_t* dest = reinterpret_cast<uint8_t*>(wparam);
+inline LRESULT WinUI::M88SendKeyState(HWND, WPARAM wparam, LPARAM lparam) {
+  auto* dest = reinterpret_cast<uint8_t*>(wparam);
   GetKeyboardState(dest);
   ::SetEvent((HANDLE)lparam);
   return 0;
 }
 
-inline LRESULT WinUI::WmKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
+inline LRESULT WinUI::WmKeyDown(HWND, WPARAM wparam, LPARAM lparam) {
   if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::kDisableF12Reset))
     ;
   else
@@ -395,7 +385,7 @@ inline LRESULT WinUI::WmKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   return 0;
 }
 
-inline LRESULT WinUI::WmKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
+inline LRESULT WinUI::WmKeyUp(HWND, WPARAM wparam, LPARAM lparam) {
   if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::kDisableF12Reset))
     Reset();
   else
@@ -424,20 +414,20 @@ inline LRESULT WinUI::WmSysKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WinUI::WmActivate
 //  WM_ACTIVATE ハンドラ
 //
-LRESULT WinUI::WmActivate(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  bool prevbg = background;
-  background = LOWORD(wparam) == WA_INACTIVE;
+LRESULT WinUI::WmActivate(HWND hwnd, WPARAM wparam, LPARAM) {
+  bool prevbg = background_;
+  background_ = LOWORD(wparam) == WA_INACTIVE;
 
   if (!HIWORD(wparam)) {
     draw.RequestPaint();
   }
 
-  keyif.Activate(!background);
-  draw.QueryNewPalette(background);
-  if (prevbg != background) {
+  keyif.Activate(!background_);
+  draw.QueryNewPalette(background_);
+  if (prevbg != background_) {
     //      core.ActivateMouse(!background);
-    M88ClipCursor(hwnd, background ? CLIPCURSOR_RELEASE : -CLIPCURSOR_RELEASE, 0);
-    draw.SetGUIFlag(background);
+    M88ClipCursor(hwnd, background_ ? CLIPCURSOR_RELEASE : -CLIPCURSOR_RELEASE, 0);
+    draw.SetGUIFlag(background_);
   }
   snapshotchanged = true;
   return 0;
@@ -447,8 +437,8 @@ LRESULT WinUI::WmActivate(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WinUI::WmQueryNewPalette
 //  WM_QUERYNEWPALETTE ハンドラ
 //
-LRESULT WinUI::WmQueryNewPalette(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  draw.QueryNewPalette(background);
+LRESULT WinUI::WmQueryNewPalette(HWND, WPARAM, LPARAM) {
+  draw.QueryNewPalette(background_);
   return 1;
 }
 
@@ -456,9 +446,9 @@ LRESULT WinUI::WmQueryNewPalette(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WinUI::WmPaletteChanged
 //  WM_PALETTECHANGED ハンドラ
 //
-LRESULT WinUI::WmPaletteChanged(HWND hwnd, WPARAM wparam, LPARAM lparam) {
+LRESULT WinUI::WmPaletteChanged(HWND hwnd, WPARAM wparam, LPARAM) {
   if ((HWND)wparam != hwnd) {
-    draw.QueryNewPalette(background);
+    draw.QueryNewPalette(background_);
     return 1;
   }
   return 0;
@@ -468,7 +458,7 @@ LRESULT WinUI::WmPaletteChanged(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WinUI::WmCommand
 //  WM_COMMAND ハンドラ
 //
-LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM lparam) {
+LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
   uint32_t wid = LOWORD(wparam);
   switch (wid) {
     case IDM_EXIT:
@@ -542,20 +532,20 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM lparam) {
       break;
 
     case IDM_BOTHDRIVE:
-      diskmgr->Unmount(1);
-      OpenDiskImage(1, 0, 0, 0, false);
+      diskmgr_->Unmount(1);
+      OpenDiskImage(1, nullptr, false, 0, false);
       ChangeDiskImage(hwnd, 0);
       break;
 
     case IDM_ABOUTM88:
       SetGUIFlag(true);
-      M88About().Show(hinst, hwnd);
+      M88About().Show(hinst_, hwnd);
       SetGUIFlag(false);
       break;
 
     case IDM_CONFIG:
       SetGUIFlag(true);
-      winconfig.Show(hinst, hwnd, &config);
+      winconfig.Show(hinst_, hwnd, &config);
       break;
 
     case IDM_TOGGLEDISPLAY:
@@ -597,32 +587,32 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM lparam) {
       break;
 
     case IDM_SOUNDMON:
-      opnmon.Show(hinst, hwnd, !opnmon.IsOpen());
+      opnmon.Show(hinst_, hwnd, !opnmon.IsOpen());
       break;
 
     case IDM_MEMMON:
-      memmon.Show(hinst, hwnd, !memmon.IsOpen());
+      memmon.Show(hinst_, hwnd, !memmon.IsOpen());
       break;
 
     case IDM_CODEMON:
-      codemon.Show(hinst, hwnd, !codemon.IsOpen());
+      codemon.Show(hinst_, hwnd, !codemon.IsOpen());
       break;
 
     case IDM_BASMON:
-      basmon.Show(hinst, hwnd, !basmon.IsOpen());
+      basmon.Show(hinst_, hwnd, !basmon.IsOpen());
       break;
 
     case IDM_LOADMON:
-      loadmon.Show(hinst, hwnd, !loadmon.IsOpen());
+      loadmon.Show(hinst_, hwnd, !loadmon.IsOpen());
       break;
 
     case IDM_IOMON:
-      iomon.Show(hinst, hwnd, !iomon.IsOpen());
+      iomon.Show(hinst_, hwnd, !iomon.IsOpen());
       break;
 
     case IDM_WATCHREGISTER:
       config.flags &= ~PC8801::Config::kWatchRegister;
-      regmon.Show(hinst, hwnd, !regmon.IsOpen());
+      regmon.Show(hinst_, hwnd, !regmon.IsOpen());
       break;
 
     case IDM_TAPE:
@@ -701,17 +691,16 @@ LRESULT WinUI::WmPaint(HWND hwnd, WPARAM wp, LPARAM lp) {
 //  WinUI::WmCreate
 //  WM_CREATE ハンドラ
 //
-LRESULT WinUI::WmCreate(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  CREATESTRUCT* cs = (CREATESTRUCT*)wparam;
-
+LRESULT WinUI::WmCreate(HWND hwnd, WPARAM, LPARAM) {
+  // CREATESTRUCT* cs = (CREATESTRUCT*)wparam;
   RECT rect;
   rect.left = 0;
-  rect.right = kPC88ScreenWidth;
   rect.top = 0;
+  rect.right = kPC88ScreenWidth;
   rect.bottom = kPC88ScreenHeight;
 
   AdjustWindowRectEx(&rect, wstyle_, TRUE, 0);
-  SetWindowPos(hwnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
+  SetWindowPos(hwnd, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
                SWP_NOMOVE | SWP_NOZORDER);
 
   (*EnableIME)(hwnd, false);
@@ -729,7 +718,7 @@ LRESULT WinUI::WmCreate(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WinUI::WmDestroy
 //  WM_DESTROY ハンドラ
 //
-LRESULT WinUI::WmDestroy(HWND hwnd, WPARAM wparam, LPARAM lparam) {
+LRESULT WinUI::WmDestroy(HWND, WPARAM, LPARAM) {
   SaveWindowPosition();
   PostQuitMessage(0);
   return 0;
@@ -739,7 +728,7 @@ LRESULT WinUI::WmDestroy(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WinUI::WmClose
 //  WM_CLOSE ハンドラ
 //
-LRESULT WinUI::WmClose(HWND hwnd, WPARAM wparam, LPARAM lparam) {
+LRESULT WinUI::WmClose(HWND hwnd, WPARAM, LPARAM) {
   // 確認
   if (config.flags & Config::kAskBeforeReset) {
     SetGUIFlag(true);
@@ -751,15 +740,15 @@ LRESULT WinUI::WmClose(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   }
 
   // タイマー破棄
-  KillTimer(hwnd, timerid);
-  timerid = 0;
+  KillTimer(hwnd, timerid_);
+  timerid_ = 0;
 
   // 拡張メニューを破壊する
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(mii));
   mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_SUBMENU;
-  mii.hSubMenu = 0;
+  mii.hSubMenu = nullptr;
 
   SetMenuItemInfo(GetMenu(hwnd), IDM_DRIVE_1, false, &mii);
   SetMenuItemInfo(GetMenu(hwnd), IDM_DRIVE_2, false, &mii);
@@ -769,11 +758,11 @@ LRESULT WinUI::WmClose(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   int i;
   for (i = 0; i < 2; i++) {
     if (IsMenu(diskinfo[i].hmenu))
-      DestroyMenu(diskinfo[i].hmenu), diskinfo[i].hmenu = 0;
+      DestroyMenu(diskinfo[i].hmenu), diskinfo[i].hmenu = nullptr;
   }
   for (i = 0; i < 2; i++) {
     if (IsMenu(hmenuss[i]))
-      DestroyMenu(hmenuss[i]), hmenuss[i] = 0;
+      DestroyMenu(hmenuss[i]), hmenuss[i] = nullptr;
   }
 
   // 窓を閉じる
@@ -787,9 +776,9 @@ LRESULT WinUI::WmClose(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WinUI::WmTimer
 //  WM_TIMER ハンドラ
 //
-LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  Log("WmTimer:%d(%d)\n", wparam, timerid);
-  if (wparam == timerid) {
+LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM) {
+  Log("WmTimer:%d(%d)\n", wparam, timerid_);
+  if (wparam == timerid_) {
     // 実効周波数,表示フレーム数を取得
     int fcount = draw.GetDrawCount();
     int icount = core.GetExecCount();
@@ -813,7 +802,7 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   }
   if (wparam == 2) {
     KillTimer(hwnd, 2);
-    InvalidateRect(hwnd, 0, false);
+    InvalidateRect(hwnd, nullptr, false);
     return 0;
   }
   if (wparam == statusdisplay.GetTimerID()) {
@@ -827,7 +816,7 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WinUI::WmInitMenu
 //  WM_INITMENU ハンドラ
 //
-LRESULT WinUI::WmInitMenu(HWND hwnd, WPARAM wp, LPARAM lp) {
+LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   hmenu_ = (HMENU)wp;
 #ifndef DEBUG_MONITOR
   EnableMenuItem(hmenu_, IDM_LOGSTART, MF_GRAYED);
@@ -881,13 +870,13 @@ LRESULT WinUI::WmInitMenu(HWND hwnd, WPARAM wp, LPARAM lp) {
   CheckMenuItem(hmenu_, IDM_DUMPCPU2,
                 core.GetCPU2()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
 
-  if (hmenudbg) {
-    CheckMenuItem(hmenudbg, IDM_DEBUG_TEXT,
+  if (hmenudbg_) {
+    CheckMenuItem(hmenudbg_, IDM_DEBUG_TEXT,
                   (config.flags & Config::kSpecialPalette) ? MF_CHECKED : MF_UNCHECKED);
     int mask = (config.flag2 / Config::kMask0) & 7;
-    CheckMenuItem(hmenudbg, IDM_DEBUG_GVRAM0, (mask & 1) ? MF_CHECKED : MF_UNCHECKED);
-    CheckMenuItem(hmenudbg, IDM_DEBUG_GVRAM1, (mask & 2) ? MF_CHECKED : MF_UNCHECKED);
-    CheckMenuItem(hmenudbg, IDM_DEBUG_GVRAM2, (mask & 4) ? MF_CHECKED : MF_UNCHECKED);
+    CheckMenuItem(hmenudbg_, IDM_DEBUG_GVRAM0, (mask & 1) ? MF_CHECKED : MF_UNCHECKED);
+    CheckMenuItem(hmenudbg_, IDM_DEBUG_GVRAM1, (mask & 2) ? MF_CHECKED : MF_UNCHECKED);
+    CheckMenuItem(hmenudbg_, IDM_DEBUG_GVRAM2, (mask & 4) ? MF_CHECKED : MF_UNCHECKED);
   }
 
   MakeSnapshotMenu();
@@ -924,7 +913,7 @@ void WinUI::ReportError() {
 LRESULT WinUI::M88ApplyConfig(HWND, WPARAM newconfig, LPARAM) {
   if (newconfig) {
     // 乱暴ですな。
-    if (memcmp(&config, (PC8801::Config*)newconfig, sizeof(PC8801::Config))) {
+    if (memcmp(&config, (PC8801::Config*)newconfig, sizeof(PC8801::Config)) != 0) {
       config = *((PC8801::Config*)newconfig);
       ApplyConfig();
     }
@@ -956,22 +945,22 @@ void WinUI::ApplyConfig() {
   ShowStatusWindow();
 
   if (config.dipsw == 1) {
-    if (!hmenudbg) {
-      hmenudbg = LoadMenu(hinst, MAKEINTRESOURCE(IDR_MENU_DEBUG));
+    if (!hmenudbg_) {
+      hmenudbg_ = LoadMenu(hinst_, MAKEINTRESOURCE(IDR_MENU_DEBUG));
 
       mii.fMask = MIIM_TYPE | MIIM_SUBMENU;
       mii.fType = MFT_STRING;
       mii.dwTypeData = "Control &Plane";
-      mii.hSubMenu = hmenudbg;
+      mii.hSubMenu = hmenudbg_;
       SetMenuItemInfo(GetMenu(hwnd_), IDM_WATCHREGISTER, false, &mii);
     }
   } else {
     mii.fMask = MIIM_TYPE | MIIM_SUBMENU;
     mii.fType = MFT_STRING;
     mii.dwTypeData = "Show &Register";
-    mii.hSubMenu = 0;
+    mii.hSubMenu = nullptr;
     SetMenuItemInfo(GetMenu(hwnd_), IDM_WATCHREGISTER, false, &mii);
-    hmenudbg = 0;
+    hmenudbg_ = nullptr;
   }
 }
 
@@ -1003,7 +992,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
 
   SetGUIFlag(true);
 
-  if (!diskmgr->Unmount(drive)) {
+  if (!diskmgr_->Unmount(drive)) {
     MessageBox(hwnd, "DiskManger::Unmount failed\nディスクの取り外しに失敗しました.", "M88",
                MB_ICONERROR | MB_OK);
   }
@@ -1033,13 +1022,13 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
   if (isopen) {
     // 指定されたファイルは存在するか？
     bool createnew = false;
-    if (!diskmgr->IsImageOpen(filename)) {
+    if (!diskmgr_->IsImageOpen(filename)) {
       FileIOWin file;
       if (!file.Open(filename, FileIO::readonly)) {
         if (file.GetError() == FileIO::file_not_found) {
           // ファイルが存在しない
           createnew = true;
-          if (!newdisk.Show(hinst, hwnd))
+          if (!newdisk.Show(hinst_, hwnd))
             return;
         } else {
           // 何らかの理由でアクセスできない
@@ -1050,17 +1039,17 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
 
     OpenDiskImage(drive, filename, ofn.Flags & OFN_READONLY, 0, createnew);
 
-    if (createnew && diskmgr->GetNumDisks(drive) == 0) {
-      diskmgr->AddDisk(drive, newdisk.GetTitle(), newdisk.GetType());
-      OpenDiskImage(drive, filename, 0, 0, false);
+    if (createnew && diskmgr_->GetNumDisks(drive) == 0) {
+      diskmgr_->AddDisk(drive, newdisk.GetTitle(), newdisk.GetType());
+      OpenDiskImage(drive, filename, false, 0, false);
       if (newdisk.DoFormat())
-        diskmgr->FormatDisk(drive);
+        diskmgr_->FormatDisk(drive);
     }
-    if (drive == 0 && !diskinfo[1].filename[0] && diskmgr->GetNumDisks(0) > 1) {
+    if (drive == 0 && !diskinfo[1].filename[0] && diskmgr_->GetNumDisks(0) > 1) {
       OpenDiskImage(1, filename, ofn.Flags & OFN_READONLY, 1, false);
     }
   } else
-    OpenDiskImage(drive, 0, 0, 0, false);
+    OpenDiskImage(drive, nullptr, false, 0, false);
 
   SetGUIFlag(false);
   SetThreadPriority(hthread, prev);
@@ -1072,12 +1061,12 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
 //
 void WinUI::OpenDiskImage(const char* path) {
   // ディスクイメージをマウントする
-  OpenDiskImage(0, path, 0, 0, false);
-  if (diskmgr->GetNumDisks(0) > 1) {
-    OpenDiskImage(1, path, 0, 1, false);
+  OpenDiskImage(0, path, false, 0, false);
+  if (diskmgr_->GetNumDisks(0) > 1) {
+    OpenDiskImage(1, path, false, 1, false);
   } else {
-    diskmgr->Unmount(1);
-    OpenDiskImage(1, 0, 0, 0, false);
+    diskmgr_->Unmount(1);
+    OpenDiskImage(1, nullptr, false, 0, false);
   }
 }
 
@@ -1105,9 +1094,9 @@ bool WinUI::OpenDiskImage(int drive, const char* name, bool readonly, int id, bo
   bool result = false;
   if (name) {
     strncpy_s(dinfo.filename, sizeof(dinfo.filename), name, _TRUNCATE);
-    result = diskmgr->Mount(drive, dinfo.filename, readonly, id, create);
+    result = diskmgr_->Mount(drive, dinfo.filename, readonly, id, create);
     dinfo.readonly = readonly;
-    dinfo.currentdisk = diskmgr->GetCurrentDisk(0);
+    dinfo.currentdisk = diskmgr_->GetCurrentDisk(0);
   }
   if (!result)
     dinfo.filename[0] = 0;
@@ -1130,9 +1119,9 @@ bool WinUI::SelectDisk(uint32_t drive, int id, bool menuonly) {
 
   bool result = true;
   if (!menuonly)
-    result = diskmgr->Mount(drive, dinfo.filename, dinfo.readonly, id, false);
+    result = diskmgr_->Mount(drive, dinfo.filename, dinfo.readonly, id, false);
 
-  int current = result ? diskmgr->GetCurrentDisk(drive) : -1;
+  int current = result ? diskmgr_->GetCurrentDisk(drive) : -1;
 
   CheckMenuItem(dinfo.hmenu, dinfo.idchgdisk + (current < 0 ? 63 : current),
                 MF_BYCOMMAND | MF_CHECKED);
@@ -1151,7 +1140,7 @@ bool WinUI::CreateDiskMenu(uint32_t drive) {
   HMENU hmenuprev = dinfo.hmenu;
   dinfo.currentdisk = -1;
 
-  int ndisks = std::min(diskmgr->GetNumDisks(drive), 60U);
+  int ndisks = std::min(diskmgr_->GetNumDisks(drive), 60U);
   if (ndisks) {
     // メニュー作成
     dinfo.hmenu = CreatePopupMenu();
@@ -1159,7 +1148,7 @@ bool WinUI::CreateDiskMenu(uint32_t drive) {
       return false;
 
     for (int i = 0; i < ndisks; i++) {
-      const char* title = diskmgr->GetImageTitle(drive, i);
+      const char* title = diskmgr_->GetImageTitle(drive, i);
 
       if (!title)
         break;
@@ -1171,7 +1160,7 @@ bool WinUI::CreateDiskMenu(uint32_t drive) {
                  dinfo.idchgdisk + i, buf);
     }
 
-    AppendMenu(dinfo.hmenu, MF_SEPARATOR, 0, 0);
+    AppendMenu(dinfo.hmenu, MF_SEPARATOR, 0, nullptr);
     AppendMenu(dinfo.hmenu, MF_STRING, dinfo.idchgdisk + 63, "&N No disk");
     AppendMenu(dinfo.hmenu, MF_STRING, dinfo.idchgdisk + 64, "&0 Change disk");
     SetMenuDefaultItem(dinfo.hmenu, dinfo.idchgdisk + 64, FALSE);
@@ -1186,7 +1175,7 @@ bool WinUI::CreateDiskMenu(uint32_t drive) {
 
   if (!ndisks) {
     wsprintf(buf, "Drive &%d...", drive + 1);
-    mii.hSubMenu = 0;
+    mii.hSubMenu = nullptr;
   } else {
     char title[MAX_PATH] = "";
     GetFileNameTitle(title, sizeof(title), diskinfo[drive].filename);
@@ -1215,7 +1204,7 @@ void WinUI::ChangeTapeImage() {
 
   SetGUIFlag(true);
 
-  tapemgr->Close();
+  tapemgr_->Close();
 
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
@@ -1255,7 +1244,7 @@ void WinUI::OpenTapeImage(const char* filename) {
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
 
-  if (tapemgr->Open(filename)) {
+  if (tapemgr_->Open(filename)) {
     GetFileNameTitle(tapetitle, sizeof(tapetitle), filename);
     wsprintf(buf, "&Open - %s...", tapetitle);
     mii.dwTypeData = buf;
@@ -1277,7 +1266,7 @@ void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
   rect.bottom = height + statusdisplay.GetHeight();
 
   AdjustWindowRectEx(&rect, wstyle_, TRUE, 0);
-  SetWindowPos(hwnd_, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
+  SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
                SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
   PostMessage(hwnd_, WM_SIZE, SIZE_RESTORED, MAKELONG(width, height));
   draw.Resize(width, height);
@@ -1287,20 +1276,20 @@ void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
 //  ステータスバー表示切り替え
 //
 void WinUI::ShowStatusWindow() {
-  if (!fullscreen_) {
-    if (config.flags & PC8801::Config::kShowStatusBar)
-      statusdisplay.Enable((config.flags & PC8801::Config::kShowFDCStatus) != 0);
-    else
-      statusdisplay.Disable();
-    ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
-  }
+  if (fullscreen_)
+    return;
+  if (config.flags & PC8801::Config::kShowStatusBar)
+    statusdisplay.Enable((config.flags & PC8801::Config::kShowFDCStatus) != 0);
+  else
+    statusdisplay.Disable();
+  ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
 }
 
 // ---------------------------------------------------------------------------
 //  WinUI::WmDrawItem
 //  WM_DRAWITEM ハンドラ
 //
-LRESULT WinUI::WmDrawItem(HWND hwnd, WPARAM wparam, LPARAM lparam) {
+LRESULT WinUI::WmDrawItem(HWND, WPARAM wparam, LPARAM lparam) {
   if ((UINT)wparam == 1)
     statusdisplay.DrawItem((DRAWITEMSTRUCT*)lparam);
   return TRUE;
@@ -1312,10 +1301,10 @@ LRESULT WinUI::WmDrawItem(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //
 void WinUI::ToggleDisplayMode() {
   uint32_t tick = GetTickCount();
-  if ((tick - displaychangedtime) < 1000)
+  if ((tick - displaychanged_time_) < 1000)
     return;
 
-  displaychangedtime = GetTickCount();
+  displaychanged_time_ = GetTickCount();
   fullscreen_ = !fullscreen_;
 
   if (fullscreen_)
@@ -1438,7 +1427,7 @@ LRESULT WinUI::M88ChangeVolume(HWND, WPARAM c, LPARAM) {
 //  WinUI::WmDisplayChange
 //  WM_DISPLAYCHANGE ハンドラ
 //
-LRESULT WinUI::WmDisplayChange(HWND hwnd, WPARAM wp, LPARAM lp) {
+LRESULT WinUI::WmDisplayChange(HWND, WPARAM, LPARAM) {
   resetwindowsize = fullscreen_ ? 0 : 5;
   return 0;
 }
@@ -1448,11 +1437,11 @@ LRESULT WinUI::WmDisplayChange(HWND hwnd, WPARAM wp, LPARAM lp) {
 //  WM_DROPFILES ハンドラ
 //  午後Ｔ氏の実装をもとに作成しました．
 //
-LRESULT WinUI::WmDropFiles(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  HDROP hdrop = (HDROP)wparam;
+LRESULT WinUI::WmDropFiles(HWND, WPARAM wparam, LPARAM) {
+  auto hdrop = (HDROP)wparam;
 
   // 受け取ったファイルの数を確認
-  int nfiles = DragQueryFile(hdrop, ~0, 0, 0);
+  int nfiles = DragQueryFile(hdrop, ~0, nullptr, 0);
   if (nfiles != 1) {
     statusdisplay.Show(50, 3000, "ドロップできるのはファイル１つだけです.");
     DragFinish(hdrop);
@@ -1492,11 +1481,9 @@ LRESULT WinUI::WmDropFiles(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //
 void WinUI::CaptureScreen() {
   int bmpsize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFO) + 15 * sizeof(RGBQUAD) + 320 * 400;
-  uint8_t* bmp = new uint8_t[bmpsize];
-  if (!bmp)
-    return;
+  std::unique_ptr<uint8_t[]> bmp = std::make_unique<uint8_t[]>(bmpsize);
 
-  bmpsize = draw.CaptureScreen(bmp);
+  bmpsize = draw.CaptureScreen(bmp.get());
   if (bmpsize) {
     bool save;
     char filename[MAX_PATH];
@@ -1532,10 +1519,9 @@ void WinUI::CaptureScreen() {
     if (save) {
       FileIOWin file;
       if (file.Open(filename, FileIO::create))
-        file.Write(bmp, bmpsize);
+        file.Write(bmp.get(), bmpsize);
     }
   }
-  delete[] bmp;
 }
 
 // ---------------------------------------------------------------------------
@@ -1576,12 +1562,12 @@ LRESULT WinUI::WmRButtonUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 // ---------------------------------------------------------------------------
 //  ウィンドウ移動モードに入る・出る
 //
-LRESULT WinUI::WmEnterSizeMove(HWND hwnd, WPARAM, LPARAM) {
+LRESULT WinUI::WmEnterSizeMove(HWND, WPARAM, LPARAM) {
   //  core.ActivateMouse(false);
   return 0;
 }
 
-LRESULT WinUI::WmExitSizeMove(HWND hwnd, WPARAM, LPARAM) {
+LRESULT WinUI::WmExitSizeMove(HWND, WPARAM, LPARAM) {
   //  core.ActivateMouse(true);
   return 0;
 }
@@ -1603,16 +1589,16 @@ LRESULT WinUI::WmMove(HWND hwnd, WPARAM, LPARAM) {
 //
 LRESULT WinUI::M88ClipCursor(HWND hwnd, WPARAM op, LPARAM) {
   if (int(op) > 0)
-    clipmode |= op;
+    clipmode_ |= op;
   else
-    clipmode &= ~(-(int)op);
+    clipmode_ &= ~(-(int)op);
 
-  if (clipmode && !(clipmode & CLIPCURSOR_RELEASE)) {
+  if (clipmode_ && !(clipmode_ & CLIPCURSOR_RELEASE)) {
     RECT rect;
     POINT center;
     GetWindowRect(hwnd, &rect);
 
-    if (clipmode & CLIPCURSOR_MOUSE) {
+    if (clipmode_ & CLIPCURSOR_MOUSE) {
       center.x = (rect.left + rect.right) / 2;
       center.y = (rect.top + rect.bottom) / 2;
       rect.left = center.x - 180;
@@ -1623,7 +1609,7 @@ LRESULT WinUI::M88ClipCursor(HWND hwnd, WPARAM op, LPARAM) {
     Log("rect: %d %d %d %d\n", rect.left, rect.top, rect.right, rect.bottom);
     ClipCursor(&rect);
   } else {
-    ClipCursor(0);
+    ClipCursor(nullptr);
   }
   return 1;
 }
@@ -1678,8 +1664,8 @@ LRESULT WinUI::WmSetCursor(HWND hwnd, WPARAM wp, LPARAM lp) {
 //  GUI 操作モードに入る
 //
 void WinUI::SetGUIFlag(bool gui) {
-  if (gui && !background) {
-    if (!background)
+  if (gui && !background_) {
+    if (!background_)
       ::DrawMenuBar(hwnd_);
   }
   //  core.SetGUIFlag(gui);
@@ -1693,10 +1679,10 @@ void WinUI::GetSnapshotName(char* name, int n) {
   char buf[MAX_PATH];
   char* title;
 
-  if (diskmgr->GetNumDisks(0)) {
+  if (diskmgr_->GetNumDisks(0)) {
     GetFileNameTitle(buf, sizeof(buf), diskinfo[0].filename);
     title = buf;
-  } else if (tapemgr->IsOpen()) {
+  } else if (tapemgr_->IsOpen()) {
     title = tapetitle;
   } else {
     title = "snapshot";
@@ -1729,11 +1715,11 @@ void WinUI::LoadSnapshot(int n) {
   char name[MAX_PATH];
   GetSnapshotName(name, n);
   bool r;
-  if (diskinfo[0].filename && diskmgr->GetNumDisks(0) >= 2) {
+  if (diskinfo[0].filename && diskmgr_->GetNumDisks(0) >= 2) {
     OpenDiskImage(1, diskinfo[0].filename, diskinfo[0].readonly, 1, false);
     r = core.LoadShapshot(name, diskinfo[0].filename);
   } else {
-    r = core.LoadShapshot(name, 0);
+    r = core.LoadShapshot(name, nullptr);
   }
 
   if (r)
@@ -1759,7 +1745,7 @@ bool WinUI::MakeSnapshotMenu() {
     memset(&mii, 0, sizeof(mii));
     mii.cbSize = sizeof(MENUITEMINFO);
     mii.fMask = MIIM_SUBMENU;
-    mii.hSubMenu = 0;
+    mii.hSubMenu = nullptr;
     SetMenuItemInfo(GetMenu(hwnd_), IDM_SNAPSHOT_LOAD, false, &mii);
     SetMenuItemInfo(GetMenu(hwnd_), IDM_SNAPSHOT_SAVE, false, &mii);
 
@@ -1837,29 +1823,27 @@ bool WinUI::MakeSnapshotMenu() {
 //  他のパラメータも変更できるようにしたい場合も，一言頂ければ対応します．
 //
 void WinUI::ApplyCommandLine(const char* cmdline) {
-  bool change = false;
   while (*cmdline) {
     while (*cmdline == ' ')
-      cmdline++;
+      ++cmdline;
 
     if (*cmdline == '-') {
       cmdline += 2;
-      switch (cmdline[-1]) {
-        char* endptr;
-        int32_t newflags, activate;
+      char* endptr = nullptr;
+      int32_t newflags = 0;
+      int32_t activate = 0;
 
+      switch (cmdline[-1]) {
         // BASIC モードを設定  -bモード番号
         case 'b':
           config.basicmode = BasicMode(strtoul(cmdline, &endptr, 16));
           cmdline = endptr;
-          change = true;
           break;
 
         // clock を設定  -cクロック
         case 'c':
           config.clock = Limit(strtoul(cmdline, &endptr, 10), 100, 1) * 10;
           cmdline = endptr;
-          change = true;
           break;
 
         // フルスクリーン起動
@@ -1876,7 +1860,6 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
           }
           cmdline = endptr;
           config.flags = (config.flags & ~activate) | (newflags & activate);
-          change = true;
           break;
 
         // flag2 の値を設定  -g値,有効ビット
@@ -1888,12 +1871,11 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
           }
           cmdline = endptr;
           config.flag2 = (config.flag2 & ~activate) | (newflags & activate);
-          change = true;
           break;
       }
 
       while (*cmdline && *cmdline != ' ')
-        cmdline++;
+        ++cmdline;
       continue;
     }
 

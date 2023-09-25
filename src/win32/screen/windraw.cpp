@@ -257,10 +257,10 @@ bool WinDraw::Unlock() {
 // ---------------------------------------------------------------------------
 //  画面サイズを変える
 //
-void WinDraw::Resize(uint32_t w, uint32_t h) {
+void WinDraw::Resize(uint32_t width, uint32_t height) {
   //  statusdisplay.Show(50, 2500, "Resize (%d, %d)", width, height);
-  width_ = w;
-  height_ = h;
+  width_ = width;
+  height_ = height;
   if (drawsub_) {
     std::lock_guard<std::mutex> lock(mtx_);
     drawsub_->Resize(width_, height_);

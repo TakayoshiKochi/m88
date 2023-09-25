@@ -11,6 +11,7 @@
 #include <windows.h>
 
 #include <stdint.h>
+#include <memory>
 
 #include "win32/88config.h"
 #include "win32/monitor/basmon.h"
@@ -88,31 +89,31 @@ class WinUI {
   void SaveWindowPosition();
   void LoadWindowPosition();
 
-  int AllocControlID();
-  void FreeControlID(int);
+  // int AllocControlID();
+  // void FreeControlID(int);
 
   // ウインドウ関係
-  HWND hwnd_;
-  HINSTANCE hinst;
-  HACCEL accel;
+  HWND hwnd_ = nullptr;
+  HINSTANCE hinst_ = nullptr;
+  HACCEL haccel_ = nullptr;
   HMENU hmenu_;
-  HMENU hmenudbg;
+  HMENU hmenudbg_ = nullptr;
 
   // 状態表示用
-  UINT_PTR timerid;
-  bool report_;
+  UINT_PTR timerid_ = 0;
+  bool report_ = true;
   std::atomic<bool> active_;
 
   // ウインドウの状態
-  bool background;
+  bool background_ = false;
   bool fullscreen_ = false;
-  uint32_t displaychangedtime;
-  uint32_t resetwindowsize;
-  DWORD wstyle_;
+  uint32_t displaychanged_time_ = 0;
+  uint32_t resetwindowsize = 0;
+  DWORD wstyle_ = 0;
   // fullscreen 時にウィンドウ位置が保存される
-  POINT point_;
-  int clipmode;
-  bool gui_mode_by_mouse_;
+  POINT point_{};
+  int clipmode_ = 0;
+  bool gui_mode_by_mouse_ = false;
 
   // disk
   DiskInfo diskinfo[2];
@@ -140,8 +141,8 @@ class WinUI {
   PC8801::IOMonitor iomon;
   Z80RegMonitor regmon;
   LoadMonitor loadmon;
-  DiskManager* diskmgr;
-  TapeManager* tapemgr;
+  std::unique_ptr<DiskManager> diskmgr_;
+  std::unique_ptr<TapeManager> tapemgr_;
 
  private:
   // メッセージ関数
