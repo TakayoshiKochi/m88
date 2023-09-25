@@ -28,7 +28,7 @@
 #include "win32/resource.h"
 #include "win32/winexapi.h"
 
-#define LOGNAME "ui"
+// #define LOGNAME "ui"
 #include "common/diag.h"
 
 extern char m88dir[MAX_PATH];
