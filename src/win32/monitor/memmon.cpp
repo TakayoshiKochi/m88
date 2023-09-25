@@ -13,7 +13,7 @@
 #include "win32/file.h"
 #include "win32/resource.h"
 
-#define LOGNAME "memmon"
+// #define LOGNAME "memmon"
 #include "common/diag.h"
 
 using namespace PC8801;

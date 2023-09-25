@@ -14,7 +14,7 @@
 #include "pc88/crtc.h"
 #include "pc88/memory.h"
 
-#define LOGNAME "screen"
+// #define LOGNAME "screen"
 #include "common/diag.h"
 
 using namespace PC8801;

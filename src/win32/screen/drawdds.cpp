@@ -12,7 +12,7 @@
 
 #include "win32/messages.h"
 
-#define LOGNAME "drawdds"
+// #define LOGNAME "drawdds"
 #include "common/diag.h"
 #include "win32/screen/dderr.h"
 

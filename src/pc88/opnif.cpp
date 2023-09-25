@@ -14,7 +14,7 @@
 
 // #include "romeo/juliet.h"
 
-#define LOGNAME "opnif"
+// #define LOGNAME "opnif"
 #include "common/diag.h"
 
 using namespace PC8801;

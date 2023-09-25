@@ -17,7 +17,7 @@
 #include "pc88/config.h"
 #include "pc88/diskmgr.h"
 
-#define LOGNAME "fdc"
+// #define LOGNAME "fdc"
 #include "common/diag.h"
 
 using namespace PC8801;

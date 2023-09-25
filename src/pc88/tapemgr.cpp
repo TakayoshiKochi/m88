@@ -13,7 +13,7 @@
 #include "common/file.h"
 #include "common/status.h"
 
-#define LOGNAME "tape"
+// #define LOGNAME "tape"
 #include "common/diag.h"
 
 #define T88ID "PC-8801 Tape Image(T88)"

@@ -24,7 +24,7 @@
 #include "win32/winkeyif.h"
 #include "zlib/zlib.h"
 
-#define LOGNAME "wincore"
+// #define LOGNAME "wincore"
 #include "common/diag.h"
 
 using namespace PC8801;
