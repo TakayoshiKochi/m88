@@ -12,7 +12,7 @@
 #include "cdrom.h"
 #include "cdromdef.h"
 
-#define LOGNAME "cdctrl"
+// #define LOGNAME "cdctrl"
 #include "common/diag.h"
 
 #define UM_CDCONTROL (WM_USER + 0x500)

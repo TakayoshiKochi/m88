@@ -10,7 +10,7 @@
 
 #include <process.h>
 
-#define LOGNAME "soundds2"
+// #define LOGNAME "soundds2"
 #include "common/diag.h"
 
 using namespace WinSoundDriver;

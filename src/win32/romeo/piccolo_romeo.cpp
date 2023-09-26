@@ -5,7 +5,7 @@
 #include "win32/romeo/romeo.h"
 #include "win32/status.h"
 
-#define LOGNAME "piccolo"
+// #define LOGNAME "piccolo"
 #include "common/diag.h"
 
 struct PCIDRV {

@@ -12,8 +12,6 @@
 
 #include "pc88/pc88.h"
 
-#define LOGNAME "sequencer"
-
 Sequencer::Sequencer() = default;
 
 Sequencer::~Sequencer() {

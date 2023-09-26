@@ -14,7 +14,7 @@
 #include "pc88/config.h"
 #include "pc88/tapemgr.h"
 
-#define LOGNAME "base"
+// #define LOGNAME "base"
 // #include "common/diag.h"
 
 using namespace PC8801;

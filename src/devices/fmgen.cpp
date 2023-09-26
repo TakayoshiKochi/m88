@@ -28,8 +28,6 @@
 
 #include <algorithm>
 
-#define LOGNAME "fmgen"
-
 // ---------------------------------------------------------------------------
 
 #define FM_EG_BOTTOM 955

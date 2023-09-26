@@ -12,7 +12,7 @@
 #include "win32/status.h"
 #include "../../piccolo/piioctl.h"
 
-#define LOGNAME "piccolo"
+// #define LOGNAME "piccolo"
 #include "common/diag.h"
 
 Piccolo* Piccolo::instance = NULL;

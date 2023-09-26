@@ -50,7 +50,7 @@ bool StatusDisplayImpl::Init(HWND hwndp) {
 
 bool StatusDisplayImpl::Enable(bool showfd) {
   if (!hwnd) {
-    hwnd = CreateStatusWindow(WS_CHILD | WS_VISIBLE, 0, hwndparent, 1);
+    hwnd = CreateStatusWindow(WS_CHILD | WS_VISIBLE, nullptr, hwndparent, 1);
 
     if (!hwnd)
       return false;
@@ -67,7 +67,7 @@ bool StatusDisplayImpl::Enable(bool showfd) {
         (rect.right - rect.left - border.vertical) - 1 * ((showfd ? 80 : 64) + border.split);
     widths[1] = -1;
     SendMessage(hwnd, SB_SETPARTS, 2, (LPARAM)widths);
-    InvalidateRect(hwndparent, 0, false);
+    InvalidateRect(hwndparent, nullptr, false);
 
     GetWindowRect(hwnd, &rect);
     height = rect.bottom - rect.top;
@@ -80,7 +80,7 @@ bool StatusDisplayImpl::Enable(bool showfd) {
 bool StatusDisplayImpl::Disable() {
   if (hwnd) {
     DestroyWindow(hwnd);
-    hwnd = 0;
+    hwnd = nullptr;
     height = 0;
   }
   return true;

@@ -9,7 +9,7 @@
 #include "win32/romeo/c86ctl.h"
 #include "win32/status.h"
 
-#define LOGNAME "piccolo"
+// #define LOGNAME "piccolo"
 #include "common/diag.h"
 
 HMODULE g_mod = 0;

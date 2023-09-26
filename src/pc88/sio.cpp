@@ -11,7 +11,7 @@
 #include "common/io_bus.h"
 #include "common/scheduler.h"
 
-#define LOGNAME "sio"
+// #define LOGNAME "sio"
 #include "common/diag.h"
 
 using namespace PC8801;

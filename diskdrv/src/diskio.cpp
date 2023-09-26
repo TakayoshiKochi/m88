@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-#define LOGNAME "DiskIO"
+// #define LOGNAME "DiskIO"
 #include "common/diag.h"
 
 using namespace PC8801;

@@ -6,6 +6,7 @@
 
 #include <windows.h>
 #include <commctrl.h>
+#include <memory>
 
 #include "win32/ui.h"
 #include "win32/file.h"
@@ -37,7 +38,7 @@ static void InitPathInfo() {
 int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR cmdline, int nwinmode) {
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-  if (FAILED(CoInitialize(NULL)))
+  if (FAILED(CoInitialize(nullptr)))
     return -1;
 
   InitPathInfo();
@@ -45,11 +46,10 @@ int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR cmdline, int nwinmode) {
 
   int r = -1;
 
-  WinUI* ui = new WinUI(hinst);
+  std::unique_ptr<WinUI> ui = std::make_unique<WinUI>(hinst);
   if (ui && ui->InitWindow(nwinmode)) {
     r = ui->Main(cmdline);
   }
-  delete ui;
 
   CoUninitialize();
   return r;

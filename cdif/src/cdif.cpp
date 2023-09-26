@@ -10,7 +10,7 @@
 
 #include <algorithm>
 
-#define LOGNAME "cdif"
+// #define LOGNAME "cdif"
 #include "common/diag.h"
 
 using namespace PC8801;
