@@ -33,6 +33,7 @@ class WinDrawD3D12 : public WinDrawSub {
   void SetPalette(PALETTEENTRY* pe, int index, int nentries) override;
   void SetGUIMode(bool fullscreen) override;
   void DrawScreen(const RECT& rect, bool refresh) override;
+  RECT GetFullScreenRect() override;
 
   bool Lock(uint8_t** image, int* bpl) override;
   bool Unlock() override;

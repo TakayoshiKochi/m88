@@ -14,12 +14,17 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
+namespace {
+constexpr int kTextureWidth = 640;
+constexpr int kTextureHeight = 400;
+}  // namespace
+
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
 WinDrawD3D12::WinDrawD3D12() {
-  image_ = std::make_unique<uint8_t[]>(width_ * height_);
-  bpl_ = width_;
+  image_ = std::make_unique<uint8_t[]>(kTextureWidth * kTextureHeight);
+  bpl_ = kTextureWidth;
 }
 
 WinDrawD3D12::~WinDrawD3D12() {
@@ -327,8 +332,8 @@ bool WinDrawD3D12::SetUpRootSignature() {
 
 void WinDrawD3D12::SetUpViewPort() {
   D3D12_VIEWPORT viewport = {};
-  viewport.Width = width_;
-  viewport.Height = height_;
+  viewport.Width = kTextureWidth;
+  viewport.Height = kTextureHeight;
   viewport.TopLeftX = 0.0f;
   viewport.TopLeftY = 0.0f;
   viewport.MaxDepth = 1.0f;
@@ -337,8 +342,8 @@ void WinDrawD3D12::SetUpViewPort() {
   D3D12_RECT scissor_rect = {};
   scissor_rect.top = 0;
   scissor_rect.left = 0;
-  scissor_rect.right = width_;
-  scissor_rect.bottom = height_;
+  scissor_rect.right = kTextureWidth;
+  scissor_rect.bottom = kTextureHeight;
 
   cmd_list_->RSSetViewports(1, &viewport);
   cmd_list_->RSSetScissorRects(1, &scissor_rect);
@@ -412,8 +417,8 @@ bool WinDrawD3D12::SetUpTexture() {
 
     D3D12_RESOURCE_DESC resource_desc_tex = {};
     resource_desc_tex.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    resource_desc_tex.Width = width_;
-    resource_desc_tex.Height = height_;
+    resource_desc_tex.Width = kTextureWidth;  // fixed
+    resource_desc_tex.Height = kTextureHeight;  // fixed
     resource_desc_tex.DepthOrArraySize = 1;
     resource_desc_tex.SampleDesc.Count = 1;
     resource_desc_tex.SampleDesc.Quality = 0;
@@ -568,11 +573,11 @@ bool WinDrawD3D12::SetUpTexturePipeline() {
 }
 
 bool WinDrawD3D12::RenderTexture() {
-  std::vector<TexRGBA> texturedata(width_ * height_);
+  std::vector<TexRGBA> texturedata(kTextureWidth * kTextureHeight);
 
-  for (int y = 0; y < height_; ++y) {
-    for (int x = 0; x < width_; ++x) {
-      auto& rgba = texturedata[y * width_ + x];
+  for (int y = 0; y < kTextureHeight; ++y) {
+    for (int x = 0; x < kTextureWidth; ++x) {
+      auto& rgba = texturedata[y * kTextureWidth + x];
       uint8_t col = image_[y * bpl_ + x];
       Palette pal = pal_[col];
       rgba.R = pal.red;
@@ -596,7 +601,7 @@ bool WinDrawD3D12::RenderTexture() {
                                             tex_desc_heap_->GetGPUDescriptorHandleForHeapStart());
 
   HRESULT hr =
-      texture_->WriteToSubresource(0, nullptr, texturedata.data(), width_ * sizeof(TexRGBA),
+      texture_->WriteToSubresource(0, nullptr, texturedata.data(), kTextureWidth * sizeof(TexRGBA),
                                    texturedata.size() * sizeof(TexRGBA));
   return SUCCEEDED(hr);
 }
@@ -655,7 +660,7 @@ bool WinDrawD3D12::Resize(uint32_t width, uint32_t height) {
   height_ = height;
 
   status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
-  ::SetWindowPos(hcwnd_, HWND_BOTTOM, 0, 0, 640, 400, SWP_SHOWWINDOW);
+  ::SetWindowPos(hcwnd_, nullptr, 0, 0, width, height, SWP_SHOWWINDOW);
   return true;
 }
 
@@ -685,6 +690,13 @@ void WinDrawD3D12::DrawScreen(const RECT& rect, bool refresh) {
   DrawTexture();
 }
 
+RECT WinDrawD3D12::GetFullScreenRect() {
+  scoped_comptr<IDXGIOutput> output;
+  swap_chain_->GetContainingOutput(&output);
+  DXGI_OUTPUT_DESC desc;
+  output->GetDesc(&desc);
+  return desc.DesktopCoordinates;
+}
 bool WinDrawD3D12::Lock(uint8_t** image, int* bpl) {
   *image = image_.get();
   *bpl = bpl_;
