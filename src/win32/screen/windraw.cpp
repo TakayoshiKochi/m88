@@ -285,8 +285,10 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool) {
   if (display_type_ == None && !drawsub_) {
     DisplayType type = D3D;
     drawsub_ = std::make_unique<WinDrawD3D12>();
-    if (!drawsub_->Init(hwnd_, width_, height_, &gmonitor_))
+    if (!drawsub_->Init(hwnd_, width_, height_, &gmonitor_)) {
+      drawsub_.reset();
       return false;
+    }
     display_type_ = type;
   }
 
