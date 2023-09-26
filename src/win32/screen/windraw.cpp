@@ -281,6 +281,8 @@ void WinDraw::WindowMoved(int x, int y) {
 bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
   DisplayType type = fullscreen ? DDFull : D3D;
 
+  type = D3D;
+
   // 現在窓(M88)が所属するモニタの GUID を取得
   memset(&gmonitor_, 0, sizeof(gmonitor_));
 

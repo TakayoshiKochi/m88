@@ -30,13 +30,13 @@
 
 class WinUI {
  public:
-  WinUI(HINSTANCE hinst);
+  explicit WinUI(HINSTANCE hinst);
   ~WinUI();
 
   bool InitWindow(int nwinmode);
   int Main(const char* cmdline);
   uint32_t GetMouseButton() { return mousebutton; }
-  HWND GetHWnd() { return hwnd; }
+  HWND GetHWnd() { return hwnd_; }
 
  private:
   struct DiskInfo {
@@ -92,14 +92,15 @@ class WinUI {
   void FreeControlID(int);
 
   // ウインドウ関係
-  HWND hwnd;
+  HWND hwnd_;
   HINSTANCE hinst;
   HACCEL accel;
+  HMENU hmenu_;
   HMENU hmenudbg;
 
   // 状態表示用
   UINT_PTR timerid;
-  bool report;
+  bool report_;
   std::atomic<bool> active_;
 
   // ウインドウの状態
@@ -107,11 +108,11 @@ class WinUI {
   bool fullscreen_ = false;
   uint32_t displaychangedtime;
   uint32_t resetwindowsize;
-  DWORD wstyle;
+  DWORD wstyle_;
   // fullscreen 時にウィンドウ位置が保存される
   POINT point_;
   int clipmode;
-  bool guimodebymouse;
+  bool gui_mode_by_mouse_;
 
   // disk
   DiskInfo diskinfo[2];

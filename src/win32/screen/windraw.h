@@ -31,6 +31,7 @@ class WinDrawSub {
   virtual void SetPalette(PALETTEENTRY* pal, int index, int nentries) {}
   virtual void QueryNewPalette() {}
   virtual void DrawScreen(const RECT& rect, bool refresh) = 0;
+  virtual RECT GetFullScreenRect() { return RECT(); }
 
   virtual bool Lock(uint8_t** pimage, int* pbpl) { return false; }
   virtual bool Unlock() { return true; }
@@ -63,6 +64,7 @@ class WinDraw : public Draw {
   void Resize(uint32_t width, uint32_t height) override;
   void SetPalette(uint32_t index, uint32_t nents, const Palette* pal) override;
   void DrawScreen(const Region& region) override;
+  RECT GetFullScreenRect() { return drawsub_->GetFullScreenRect(); }
 
   uint32_t GetStatus() override;
   void Flip() override;

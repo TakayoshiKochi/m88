@@ -36,17 +36,22 @@ extern char m88ini[MAX_PATH];
 
 using namespace PC8801;
 
+namespace {
+constexpr int kPC88ScreenWidth = 640;
+constexpr int kPC88ScreenHeight = 400;
+}  // namespace
+
 // ---------------------------------------------------------------------------
 //  WinUI
 //  生成・破棄
 //
 WinUI::WinUI(HINSTANCE hinstance)
-    : hinst(hinstance), hwnd(0), diskmgr(0), tapemgr(0), fullscreen_(false) {
+    : hinst(hinstance), hwnd_(0), diskmgr(0), tapemgr(0), fullscreen_(false) {
   timerid = 0;
   point_.x = point_.y = 0;
   //  resizewindow = 0;
   displaychangedtime = GetTickCount();
-  report = true;
+  report_ = true;
 
   diskinfo[0].hmenu = 0;
   diskinfo[0].filename[0] = 0;
@@ -84,20 +89,20 @@ bool WinUI::InitM88(const char* cmdline) {
   PC8801::LoadConfig(&config, m88ini, true);
 
   // ステータスバー初期化
-  statusdisplay.Init(hwnd);
+  statusdisplay.Init(hwnd_);
 
   // Window位置復元
-  ResizeWindow(640, 400);
+  ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
   LoadWindowPosition();
   {
     RECT rect;
-    GetWindowRect(hwnd, &rect);
+    GetWindowRect(hwnd_, &rect);
     point_.x = rect.left;
     point_.y = rect.top;
   }
 
   // 画面初期化
-  M88ChangeDisplay(hwnd, 0, 0);
+  M88ChangeDisplay(hwnd_, 0, 0);
 
   //  現在の path 保存
   char path[MAX_PATH];
@@ -117,10 +122,10 @@ bool WinUI::InitM88(const char* cmdline) {
     return false;
 
   Log("%d\tkeyboard if\n", timeGetTime());
-  if (!keyif.Init(hwnd))
+  if (!keyif.Init(hwnd_))
     return false;
   Log("%d\tcore\n", timeGetTime());
-  if (!core.Init(this, hwnd, &draw, diskmgr, &keyif, &winconfig, tapemgr))
+  if (!core.Init(this, hwnd_, &draw, diskmgr, &keyif, &winconfig, tapemgr))
     return false;
 
   //  debug 用クラス初期化
@@ -204,23 +209,23 @@ bool WinUI::InitWindow(int nwinmode) {
   if (!RegisterClass(&wcl))
     return false;
 
-  wstyle = WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX;
+  wstyle_ = WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX;
 
-  hwnd = CreateWindowEx(WS_EX_ACCEPTFILES,  // | WS_EX_LAYERED,
-                        szwinname, "M88", wstyle,
+  hwnd_ = CreateWindowEx(WS_EX_ACCEPTFILES,  // | WS_EX_LAYERED,
+                        szwinname, "M88", wstyle_,
                         CW_USEDEFAULT,  // x
                         CW_USEDEFAULT,  // y
-                        640,            // w
-                        400,            // h
+                        kPC88ScreenWidth,            // w
+                        kPC88ScreenHeight,            // h
                         NULL, NULL, hinst, (LPVOID)this);
 
   //  SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0xc0, LWA_ALPHA);
 
-  if (!draw.Init0(hwnd))
+  if (!draw.Init0(hwnd_))
     return false;
 
   clipmode = 0;
-  guimodebymouse = false;
+  gui_mode_by_mouse_ = false;
 
   return true;
 }
@@ -231,7 +236,7 @@ bool WinUI::InitWindow(int nwinmode) {
 void WinUI::SaveWindowPosition() {
   WINDOWPLACEMENT wp;
   wp.length = sizeof(WINDOWPLACEMENT);
-  ::GetWindowPlacement(hwnd, &wp);
+  ::GetWindowPlacement(hwnd_, &wp);
   config.winposx = wp.rcNormalPosition.left;
   config.winposy = wp.rcNormalPosition.top;
 }
@@ -240,7 +245,7 @@ void WinUI::LoadWindowPosition() {
   if (config.flag2 & Config::kSavePosition) {
     WINDOWPLACEMENT wp;
     wp.length = sizeof(WINDOWPLACEMENT);
-    ::GetWindowPlacement(hwnd, &wp);
+    ::GetWindowPlacement(hwnd_, &wp);
 
     LONG winw, winh;
     winw = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
@@ -250,7 +255,7 @@ void WinUI::LoadWindowPosition() {
     wp.rcNormalPosition.bottom = config.winposy + winh;
     wp.rcNormalPosition.left = config.winposx;
     wp.rcNormalPosition.right = config.winposx + winw;
-    SetWindowPlacement(hwnd, &wp);
+    SetWindowPlacement(hwnd_, &wp);
   }
 }
 
@@ -261,11 +266,11 @@ void WinUI::LoadWindowPosition() {
 int WinUI::Main(const char* cmdline) {
   hmenudbg = 0;
   if (InitM88(cmdline)) {
-    timerid = ::SetTimer(hwnd, 1, 1000, 0);
-    ::SetTimer(hwnd, 2, 100, 0);
+    timerid = ::SetTimer(hwnd_, 1, 1000, 0);
+    ::SetTimer(hwnd_, 2, 100, 0);
 
-    ShowWindow(hwnd, SW_SHOWDEFAULT);
-    UpdateWindow(hwnd);
+    ShowWindow(hwnd_, SW_SHOWDEFAULT);
+    UpdateWindow(hwnd_);
     //      core.ActivateMouse(true);
   } else {
     ReportError();
@@ -701,11 +706,11 @@ LRESULT WinUI::WmCreate(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 
   RECT rect;
   rect.left = 0;
-  rect.right = 640;
+  rect.right = kPC88ScreenWidth;
   rect.top = 0;
-  rect.bottom = 400;
+  rect.bottom = kPC88ScreenHeight;
 
-  AdjustWindowRectEx(&rect, wstyle, TRUE, 0);
+  AdjustWindowRectEx(&rect, wstyle_, TRUE, 0);
   SetWindowPos(hwnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
                SWP_NOMOVE | SWP_NOZORDER);
 
@@ -790,7 +795,7 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM lparam) {
     int icount = core.GetExecCount();
 
     // レポートする場合はタイトルバーを更新
-    if (report) {
+    if (report_) {
       if (active_) {
         char buf[64];
         uint32_t freq = icount / 10000;
@@ -802,7 +807,7 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 
     if (resetwindowsize > 0) {
       resetwindowsize--;
-      ResizeWindow(640, 400);
+      ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
     }
     return 0;
   }
@@ -823,57 +828,57 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 //  WM_INITMENU ハンドラ
 //
 LRESULT WinUI::WmInitMenu(HWND hwnd, WPARAM wp, LPARAM lp) {
-  HMENU hmenu = (HMENU)wp;
+  hmenu_ = (HMENU)wp;
 #ifndef DEBUG_MONITOR
-  EnableMenuItem(hmenu, IDM_LOGSTART, MF_GRAYED);
-  EnableMenuItem(hmenu, IDM_LOGEND, MF_GRAYED);
+  EnableMenuItem(hmenu_, IDM_LOGSTART, MF_GRAYED);
+  EnableMenuItem(hmenu_, IDM_LOGEND, MF_GRAYED);
 #endif
-  CheckMenuItem(hmenu, IDM_4MHZ, (config.clock == 40) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_8MHZ, (config.clock == 80) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_N88V1,
+  CheckMenuItem(hmenu_, IDM_4MHZ, (config.clock == 40) ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_8MHZ, (config.clock == 80) ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_N88V1,
                 (config.basicmode == BasicMode::kN88V1) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_N88V1H,
+  CheckMenuItem(hmenu_, IDM_N88V1H,
                 (config.basicmode == BasicMode::kN88V1H) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_N88V2,
+  CheckMenuItem(hmenu_, IDM_N88V2,
                 (config.basicmode == BasicMode::kN88V2) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_NMODE,
+  CheckMenuItem(hmenu_, IDM_NMODE,
                 (config.basicmode == BasicMode::kN80) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_N80MODE,
+  CheckMenuItem(hmenu_, IDM_N80MODE,
                 (config.basicmode == BasicMode::kN802) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu, IDM_N80MODE, core.IsN80Supported() ? MF_ENABLED : MF_GRAYED);
-  CheckMenuItem(hmenu, IDM_N80V2MODE,
+  EnableMenuItem(hmenu_, IDM_N80MODE, core.IsN80Supported() ? MF_ENABLED : MF_GRAYED);
+  CheckMenuItem(hmenu_, IDM_N80V2MODE,
                 (config.basicmode == BasicMode::kN80V2) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu, IDM_N80V2MODE, core.IsN80V2Supported() ? MF_ENABLED : MF_GRAYED);
+  EnableMenuItem(hmenu_, IDM_N80V2MODE, core.IsN80V2Supported() ? MF_ENABLED : MF_GRAYED);
 
-  CheckMenuItem(hmenu, IDM_N88V2CD,
+  CheckMenuItem(hmenu_, IDM_N88V2CD,
                 (config.basicmode == BasicMode::kN88V2CD) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu, IDM_N88V2CD, core.IsCDSupported() ? MF_ENABLED : MF_GRAYED);
+  EnableMenuItem(hmenu_, IDM_N88V2CD, core.IsCDSupported() ? MF_ENABLED : MF_GRAYED);
 
-  CheckMenuItem(hmenu, IDM_CPU_BURST,
+  CheckMenuItem(hmenu_, IDM_CPU_BURST,
                 (config.flags & Config::kCPUBurst) ? MF_CHECKED : MF_UNCHECKED);
 
-  CheckMenuItem(hmenu, IDM_WATCHREGISTER,
+  CheckMenuItem(hmenu_, IDM_WATCHREGISTER,
                 (config.dipsw != 1 && regmon.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_STATUSBAR,
+  CheckMenuItem(hmenu_, IDM_STATUSBAR,
                 (config.flags & Config::kShowStatusBar) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu, IDM_STATUSBAR, fullscreen_ ? MF_GRAYED : MF_ENABLED);
-  CheckMenuItem(hmenu, IDM_FDC_STATUS,
+  EnableMenuItem(hmenu_, IDM_STATUSBAR, fullscreen_ ? MF_GRAYED : MF_ENABLED);
+  CheckMenuItem(hmenu_, IDM_FDC_STATUS,
                 (config.flags & Config::kShowFDCStatus) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_SOUNDMON, opnmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_MEMMON, memmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_CODEMON, codemon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_BASMON, basmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_LOADMON, loadmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_IOMON, iomon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu, IDM_RECORDPCM, core.GetSound()->IsDumping() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_SOUNDMON, opnmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_MEMMON, memmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_CODEMON, codemon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_BASMON, basmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_LOADMON, loadmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_IOMON, iomon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_RECORDPCM, core.GetSound()->IsDumping() ? MF_CHECKED : MF_UNCHECKED);
 
-  EnableMenuItem(hmenu, IDM_DUMPCPU1,
+  EnableMenuItem(hmenu_, IDM_DUMPCPU1,
                  core.GetCPU1()->GetDumpState() == -1 ? MF_GRAYED : MF_ENABLED);
-  CheckMenuItem(hmenu, IDM_DUMPCPU1,
+  CheckMenuItem(hmenu_, IDM_DUMPCPU1,
                 core.GetCPU1()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu, IDM_DUMPCPU2,
+  EnableMenuItem(hmenu_, IDM_DUMPCPU2,
                  core.GetCPU2()->GetDumpState() == -1 ? MF_GRAYED : MF_ENABLED);
-  CheckMenuItem(hmenu, IDM_DUMPCPU2,
+  CheckMenuItem(hmenu_, IDM_DUMPCPU2,
                 core.GetCPU2()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
 
   if (hmenudbg) {
@@ -909,7 +914,7 @@ LRESULT WinUI::WmSize(HWND hwnd, WPARAM wp, LPARAM lp) {
 void WinUI::ReportError() {
   const char* errtext = Error::GetErrorText();
   if (errtext) {
-    ::MessageBox(hwnd, errtext, "M88", MB_ICONERROR | MB_OK);
+    ::MessageBox(hwnd_, errtext, "M88", MB_ICONERROR | MB_OK);
   }
 }
 
@@ -947,7 +952,7 @@ void WinUI::ApplyConfig() {
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
   mii.dwTypeData = (config.flags & Config::kDisableF12Reset) ? "&Reset" : "&Reset\tF12";
-  SetMenuItemInfo(GetMenu(hwnd), IDM_RESET, false, &mii);
+  SetMenuItemInfo(GetMenu(hwnd_), IDM_RESET, false, &mii);
   ShowStatusWindow();
 
   if (config.dipsw == 1) {
@@ -958,14 +963,14 @@ void WinUI::ApplyConfig() {
       mii.fType = MFT_STRING;
       mii.dwTypeData = "Control &Plane";
       mii.hSubMenu = hmenudbg;
-      SetMenuItemInfo(GetMenu(hwnd), IDM_WATCHREGISTER, false, &mii);
+      SetMenuItemInfo(GetMenu(hwnd_), IDM_WATCHREGISTER, false, &mii);
     }
   } else {
     mii.fMask = MIIM_TYPE | MIIM_SUBMENU;
     mii.fType = MFT_STRING;
     mii.dwTypeData = "Show &Register";
     mii.hSubMenu = 0;
-    SetMenuItemInfo(GetMenu(hwnd), IDM_WATCHREGISTER, false, &mii);
+    SetMenuItemInfo(GetMenu(hwnd_), IDM_WATCHREGISTER, false, &mii);
     hmenudbg = 0;
   }
 }
@@ -976,7 +981,7 @@ void WinUI::ApplyConfig() {
 void WinUI::Reset() {
   if (config.flags & Config::kAskBeforeReset) {
     SetGUIFlag(true);
-    int res = MessageBox(hwnd, "リセットしますか？", "M88",
+    int res = MessageBox(hwnd_, "リセットしますか？", "M88",
                          MB_ICONQUESTION | MB_OKCANCEL | MB_DEFBUTTON2);
     SetGUIFlag(false);
     if (res != IDOK)
@@ -1189,7 +1194,7 @@ bool WinUI::CreateDiskMenu(uint32_t drive) {
     wsprintf(buf, "Drive &%d - %s", drive + 1, title);
     mii.hSubMenu = dinfo.hmenu;
   }
-  SetMenuItemInfo(GetMenu(hwnd), drive ? IDM_DRIVE_2 : IDM_DRIVE_1, false, &mii);
+  SetMenuItemInfo(GetMenu(hwnd_), drive ? IDM_DRIVE_2 : IDM_DRIVE_1, false, &mii);
   if (hmenuprev)
     DestroyMenu(hmenuprev);
 
@@ -1220,7 +1225,7 @@ void WinUI::ChangeTapeImage() {
   char filename[MAX_PATH];
   filename[0] = 0;
 
-  ofn.hwndOwner = hwnd;
+  ofn.hwndOwner = hwnd_;
   ofn.lpstrFilter =
       "T88 tape image (*.t88)\0*.t88\0"
       "All Files (*.*)\0*.*\0";
@@ -1230,9 +1235,9 @@ void WinUI::ChangeTapeImage() {
   ofn.lpstrDefExt = "t88";
   ofn.lpstrTitle = "Open tape image";
 
-  (*EnableIME)(hwnd, true);
+  (*EnableIME)(hwnd_, true);
   bool isopen = !!GetOpenFileName(&ofn);
-  (*EnableIME)(hwnd, false);
+  (*EnableIME)(hwnd_, false);
 
   if (isopen)
     OpenTapeImage(filename);
@@ -1257,7 +1262,7 @@ void WinUI::OpenTapeImage(const char* filename) {
   } else {
     mii.dwTypeData = "&Open...";
   }
-  SetMenuItemInfo(GetMenu(hwnd), IDM_TAPE, false, &mii);
+  SetMenuItemInfo(GetMenu(hwnd_), IDM_TAPE, false, &mii);
 }
 
 // ---------------------------------------------------------------------------
@@ -1271,10 +1276,10 @@ void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
   rect.top = 0;
   rect.bottom = height + statusdisplay.GetHeight();
 
-  AdjustWindowRectEx(&rect, wstyle, TRUE, 0);
-  SetWindowPos(hwnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
+  AdjustWindowRectEx(&rect, wstyle_, TRUE, 0);
+  SetWindowPos(hwnd_, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
                SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
-  PostMessage(hwnd, WM_SIZE, SIZE_RESTORED, MAKELONG(width, height));
+  PostMessage(hwnd_, WM_SIZE, SIZE_RESTORED, MAKELONG(width, height));
   draw.Resize(width, height);
 }
 
@@ -1287,7 +1292,7 @@ void WinUI::ShowStatusWindow() {
       statusdisplay.Enable((config.flags & PC8801::Config::kShowFDCStatus) != 0);
     else
       statusdisplay.Disable();
-    ResizeWindow(640, 400);
+    ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
   }
 }
 
@@ -1329,11 +1334,11 @@ void WinUI::ChangeDisplayType(bool savepos) {
   }
   if (savepos) {
     RECT rect;
-    GetWindowRect(hwnd, &rect);
+    GetWindowRect(hwnd_, &rect);
     point_.x = rect.left;
     point_.y = rect.top;
   }
-  PostMessage(hwnd, WM_M88_CHANGEDISPLAY, 0, 0);
+  PostMessage(hwnd_, WM_M88_CHANGEDISPLAY, 0, 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -1343,44 +1348,56 @@ void WinUI::ChangeDisplayType(bool savepos) {
 LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
   // 画面ドライバの切替え
   // ドライバが false を返した場合 GDI ドライバが使用されることになる
-  if (!draw.ChangeDisplayMode(fullscreen_, (config.flags & PC8801::Config::kForce480) != 0))
-    fullscreen_ = false;
+  if (!draw.ChangeDisplayMode(fullscreen_, (config.flags & PC8801::Config::kForce480) != 0)) {
+    // fullscreen_ = false;
+  }
 
   // ウィンドウスタイル関係の変更
-  wstyle = (DWORD)GetWindowLongPtr(hwnd, GWL_STYLE);
+  wstyle_ = (DWORD)GetWindowLongPtr(hwnd, GWL_STYLE);
   LONG_PTR exstyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
 
   if (!fullscreen_) {
-    wstyle = (wstyle & ~WS_POPUP) | (WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU);
+    wstyle_ = (wstyle_ & ~WS_POPUP) | (WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX);
     exstyle &= ~WS_EX_TOPMOST;
 
     //      SetCapture(hwnd);
-    SetWindowLongPtr(hwnd, GWL_STYLE, wstyle);
+    if (hmenu_)
+      SetMenu(hwnd, hmenu_);
+    SetWindowLongPtr(hwnd, GWL_STYLE, wstyle_);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle);
-    ResizeWindow(640, 400);
+    ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
     SetWindowPos(hwnd, HWND_NOTOPMOST, point_.x, point_.y, 0, 0, SWP_NOSIZE);
     ShowStatusWindow();
-    report = true;
-    guimodebymouse = false;
+    report_ = true;
+    gui_mode_by_mouse_ = false;
   } else {
-    if (guimodebymouse)
+    if (gui_mode_by_mouse_)
       SetGUIFlag(false);
 
-    //  ReleaseCapture();
-    wstyle = (wstyle & ~(WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU)) | WS_POPUP;
+    wstyle_ = (wstyle_ & ~(WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX)) | WS_POPUP;
     exstyle |= WS_EX_TOPMOST;
-    SetWindowLongPtr(hwnd, GWL_STYLE, wstyle);
+
+    //  ReleaseCapture();
+    SetWindowLongPtr(hwnd, GWL_STYLE, wstyle_);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle);
     SetWindowText(hwnd, "M88");
 
-    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    RECT rect = draw.GetFullScreenRect();
+    int width = rect.right - rect.left;
+    int height = rect.bottom - rect.top;
+    SetWindowPos(hwnd, HWND_TOPMOST, rect.left, rect.top, rect.right, rect.bottom,
+                 SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE);
+    hmenu_ = GetMenu(hwnd);
+    SetMenu(hwnd, nullptr);
+    draw.Resize(width, height);
 
-    report = false;
+    report_ = false;
   }
   SetGUIFlag(true);
   SetGUIFlag(false);
   SetGUIFlag(true);
   SetGUIFlag(false);
+
   return 0;
 }
 
@@ -1497,7 +1514,7 @@ void WinUI::CaptureScreen() {
       OPENFILENAME ofn;
       memset(&ofn, 0, sizeof(ofn));
       ofn.lStructSize = sizeof(OPENFILENAME);
-      ofn.hwndOwner = hwnd;
+      ofn.hwndOwner = hwnd_;
       ofn.lpstrFilter = "bitmap image [4bpp] (*.bmp)\0*.bmp\0";
       ofn.lpstrFile = filename;
       ofn.nMaxFile = MAX_PATH;
@@ -1507,9 +1524,9 @@ void WinUI::CaptureScreen() {
       ofn.FlagsEx = config.flag2 & Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
 
       SetGUIFlag(true);
-      (*EnableIME)(hwnd, true);
+      (*EnableIME)(hwnd_, true);
       save = !!GetSaveFileName(&ofn);
-      (*EnableIME)(hwnd, false);
+      (*EnableIME)(hwnd_, false);
       SetGUIFlag(false);
     }
     if (save) {
@@ -1641,14 +1658,14 @@ LRESULT WinUI::WmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp) {
 LRESULT WinUI::WmSetCursor(HWND hwnd, WPARAM wp, LPARAM lp) {
   if (fullscreen_) {
     uint32_t menu = LOWORD(lp) == HTMENU;
-    if (!guimodebymouse) {
+    if (!gui_mode_by_mouse_) {
       if (menu) {
-        guimodebymouse = true;
+        gui_mode_by_mouse_ = true;
         SetGUIFlag(true);
       }
     } else {
       if (!menu) {
-        guimodebymouse = false;
+        gui_mode_by_mouse_ = false;
         SetGUIFlag(false);
       }
     }
@@ -1663,7 +1680,7 @@ LRESULT WinUI::WmSetCursor(HWND hwnd, WPARAM wp, LPARAM lp) {
 void WinUI::SetGUIFlag(bool gui) {
   if (gui && !background) {
     if (!background)
-      ::DrawMenuBar(hwnd);
+      ::DrawMenuBar(hwnd_);
   }
   //  core.SetGUIFlag(gui);
   draw.SetGUIFlag(gui);
@@ -1743,8 +1760,8 @@ bool WinUI::MakeSnapshotMenu() {
     mii.cbSize = sizeof(MENUITEMINFO);
     mii.fMask = MIIM_SUBMENU;
     mii.hSubMenu = 0;
-    SetMenuItemInfo(GetMenu(hwnd), IDM_SNAPSHOT_LOAD, false, &mii);
-    SetMenuItemInfo(GetMenu(hwnd), IDM_SNAPSHOT_SAVE, false, &mii);
+    SetMenuItemInfo(GetMenu(hwnd_), IDM_SNAPSHOT_LOAD, false, &mii);
+    SetMenuItemInfo(GetMenu(hwnd_), IDM_SNAPSHOT_SAVE, false, &mii);
 
     // メニュー作成
     for (i = 0; i < 2; i++) {
@@ -1784,10 +1801,10 @@ bool WinUI::MakeSnapshotMenu() {
     SetMenuDefaultItem(hmenuss[0], IDM_SNAPSHOT_SAVE_0 + currentsnapshot, FALSE);
 
     mii.hSubMenu = hmenuss[0];
-    SetMenuItemInfo(GetMenu(hwnd), IDM_SNAPSHOT_SAVE, false, &mii);
+    SetMenuItemInfo(GetMenu(hwnd_), IDM_SNAPSHOT_SAVE, false, &mii);
     if (entries) {
       mii.hSubMenu = hmenuss[1];
-      SetMenuItemInfo(GetMenu(hwnd), IDM_SNAPSHOT_LOAD, false, &mii);
+      SetMenuItemInfo(GetMenu(hwnd_), IDM_SNAPSHOT_LOAD, false, &mii);
     }
   }
   return true;
