@@ -36,8 +36,8 @@ class WinUI {
 
   bool InitWindow(int nwinmode);
   int Main(const char* cmdline);
-  uint32_t GetMouseButton() { return mousebutton; }
-  HWND GetHWnd() { return hwnd_; }
+  uint32_t GetMouseButton() const { return mouse_button_; }
+  HWND GetHWnd() const { return hwnd_; }
 
  private:
   struct DiskInfo {
@@ -96,7 +96,7 @@ class WinUI {
   HWND hwnd_ = nullptr;
   HINSTANCE hinst_ = nullptr;
   HACCEL haccel_ = nullptr;
-  HMENU hmenu_;
+  HMENU hmenu_ = nullptr;
   HMENU hmenudbg_ = nullptr;
 
   // 状態表示用
@@ -108,7 +108,9 @@ class WinUI {
   bool background_ = false;
   bool fullscreen_ = false;
   uint32_t displaychanged_time_ = 0;
-  uint32_t resetwindowsize = 0;
+  // When WM_DISPLAYCHANGE is received, the window size is reset.
+  // This is a counter.
+  uint32_t reset_window_size_ = 0;
   DWORD wstyle_ = 0;
   // fullscreen 時にウィンドウ位置が保存される
   POINT point_{};
@@ -125,8 +127,8 @@ class WinUI {
   bool snapshotchanged;
 
   // PC88
-  bool capturemouse;
-  uint32_t mousebutton;
+  bool capture_mouse_ = true;
+  uint32_t mouse_button_ = 0;
 
   WinCore core;
   WinDraw draw;
@@ -151,26 +153,12 @@ class WinUI {
   LRESULT M88ApplyConfig(HWND, WPARAM, LPARAM);
   LRESULT M88SendKeyState(HWND, WPARAM, LPARAM);
   LRESULT M88ClipCursor(HWND, WPARAM, LPARAM);
-  LRESULT WmDropFiles(HWND, WPARAM, LPARAM);
-  LRESULT WmDisplayChange(HWND, WPARAM, LPARAM);
-  LRESULT WmKeyDown(HWND, WPARAM, LPARAM);
-  LRESULT WmKeyUp(HWND, WPARAM, LPARAM);
-  LRESULT WmSysKeyDown(HWND, WPARAM, LPARAM);
-  LRESULT WmSysKeyUp(HWND, WPARAM, LPARAM);
-  LRESULT WmInitMenu(HWND, WPARAM, LPARAM);
-  LRESULT WmQueryNewPalette(HWND, WPARAM, LPARAM);
-  LRESULT WmPaletteChanged(HWND, WPARAM, LPARAM);
-  LRESULT WmActivate(HWND, WPARAM, LPARAM);
-  LRESULT WmTimer(HWND, WPARAM, LPARAM);
-  LRESULT WmClose(HWND, WPARAM, LPARAM);
-  LRESULT WmCreate(HWND, WPARAM, LPARAM);
-  LRESULT WmDestroy(HWND, WPARAM, LPARAM);
-  LRESULT WmPaint(HWND, WPARAM, LPARAM);
+
   LRESULT WmCommand(HWND, WPARAM, LPARAM);
-  LRESULT WmSize(HWND, WPARAM, LPARAM);
-  LRESULT WmDrawItem(HWND, WPARAM, LPARAM);
   LRESULT WmEnterMenuLoop(HWND, WPARAM, LPARAM);
   LRESULT WmExitMenuLoop(HWND, WPARAM, LPARAM);
+  LRESULT WmDisplayChange(HWND, WPARAM, LPARAM);
+  LRESULT WmDropFiles(HWND, WPARAM, LPARAM);
   LRESULT WmLButtonDown(HWND, WPARAM, LPARAM);
   LRESULT WmLButtonUp(HWND, WPARAM, LPARAM);
   LRESULT WmRButtonDown(HWND, WPARAM, LPARAM);
@@ -180,4 +168,19 @@ class WinUI {
   LRESULT WmMove(HWND, WPARAM, LPARAM);
   LRESULT WmMouseMove(HWND, WPARAM, LPARAM);
   LRESULT WmSetCursor(HWND, WPARAM, LPARAM);
+  LRESULT WmKeyDown(HWND, WPARAM, LPARAM);
+  LRESULT WmKeyUp(HWND, WPARAM, LPARAM);
+  LRESULT WmSysKeyDown(HWND, WPARAM, LPARAM);
+  LRESULT WmSysKeyUp(HWND, WPARAM, LPARAM);
+  LRESULT WmInitMenu(HWND, WPARAM, LPARAM);
+  LRESULT WmQueryNewPalette(HWND, WPARAM, LPARAM);
+  LRESULT WmPaletteChanged(HWND, WPARAM, LPARAM);
+  LRESULT WmActivate(HWND, WPARAM, LPARAM);
+  LRESULT WmPaint(HWND, WPARAM, LPARAM);
+  LRESULT WmCreate(HWND, WPARAM, LPARAM);
+  LRESULT WmDestroy(HWND, WPARAM, LPARAM);
+  LRESULT WmClose(HWND, WPARAM, LPARAM);
+  LRESULT WmTimer(HWND, WPARAM, LPARAM);
+  LRESULT WmSize(HWND, WPARAM, LPARAM);
+  LRESULT WmDrawItem(HWND, WPARAM, LPARAM);
 };

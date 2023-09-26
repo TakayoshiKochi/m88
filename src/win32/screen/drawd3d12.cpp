@@ -19,9 +19,6 @@ constexpr int kTextureWidth = 640;
 constexpr int kTextureHeight = 400;
 }  // namespace
 
-// ---------------------------------------------------------------------------
-//  構築/消滅
-//
 WinDrawD3D12::WinDrawD3D12() {
   image_ = std::make_unique<uint8_t[]>(kTextureWidth * kTextureHeight);
   bpl_ = kTextureWidth;
@@ -34,9 +31,6 @@ WinDrawD3D12::~WinDrawD3D12() {
   }
 }
 
-// ---------------------------------------------------------------------------
-//  初期化処理
-//
 bool WinDrawD3D12::Init(HWND hwnd, uint32_t width, uint32_t height, GUID*) {
   hwnd_ = hwnd;
   if (!CreateD3D())
@@ -46,6 +40,26 @@ bool WinDrawD3D12::Init(HWND hwnd, uint32_t width, uint32_t height, GUID*) {
   return true;
 }
 
+bool WinDrawD3D12::Resize(uint32_t width, uint32_t height) {
+  width_ = width;
+  height_ = height;
+
+  status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
+  ::SetWindowPos(hcwnd_, nullptr, 0, 0, width, height, SWP_SHOWWINDOW);
+  return true;
+}
+
+void WinDrawD3D12::SetPalette(PALETTEENTRY* pe, int index, int nentries) {
+  for (; nentries > 0; nentries--) {
+    pal_[index].red = pe->peRed;
+    pal_[index].green = pe->peGreen;
+    pal_[index].blue = pe->peBlue;
+    index++;
+    pe++;
+  }
+  update_palette_ = true;
+}
+
 void WinDrawD3D12::SetGUIMode(bool fullscreen) {
   // TODO: full screen support
   if (fullscreen) {
@@ -53,6 +67,67 @@ void WinDrawD3D12::SetGUIMode(bool fullscreen) {
   } else {
     // Windowed
   }
+}
+
+void WinDrawD3D12::DrawScreen(const RECT& rect, bool refresh) {
+  if (::IsWindow(hwnd_) == FALSE)
+    return;
+
+  RECT rc = rect;
+  if (refresh || update_palette_) {
+    ::SetRect(&rc, 0, 0, width_, height_);
+    update_palette_ = false;
+  } else {
+    if (::IsRectEmpty(&rc))
+      return;
+  }
+  DrawTexture();
+}
+
+RECT WinDrawD3D12::GetFullScreenRect() {
+  scoped_comptr<IDXGIOutput> output;
+  swap_chain_->GetContainingOutput(&output);
+  DXGI_OUTPUT_DESC desc;
+  output->GetDesc(&desc);
+  return desc.DesktopCoordinates;
+}
+
+bool WinDrawD3D12::Lock(uint8_t** image, int* bpl) {
+  *image = image_.get();
+  *bpl = bpl_;
+  return image_ != nullptr;
+}
+
+bool WinDrawD3D12::Unlock() {
+  status &= ~static_cast<uint32_t>(Draw::Status::kShouldRefresh);
+  return true;
+}
+
+bool WinDrawD3D12::CreateD3D() {
+  CreateBaseWindow();
+  if (!hcwnd_)
+    return false;
+
+#if defined(_DEBUG)
+  {
+    HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debug_));
+    if (SUCCEEDED(hr)) {
+      debug_->EnableDebugLayer();
+    }
+  }
+#endif
+
+  if (!CreateD3D12Device() || !CreateCommandList() || !CreateSwapChain() ||
+      !CreateRenderTargetView()) {
+    return false;
+  }
+
+  if (!root_signature_)
+    SetUpRootSignature();
+
+  SetUpTexturePipeline();
+  ClearScreen();
+  return true;
 }
 
 void WinDrawD3D12::CreateBaseWindow() {
@@ -230,51 +305,6 @@ bool WinDrawD3D12::SetUpShaders() {
   return true;
 }
 
-bool WinDrawD3D12::SetUpPipelineForTexture(D3D12_INPUT_ELEMENT_DESC* input_layout, int num_elements) {
-  assert(root_signature_);
-  assert(vs_blob_);
-  assert(ps_blob_);
-
-  D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
-  gpipeline.pRootSignature = root_signature_.get();
-  gpipeline.VS.pShaderBytecode = vs_blob_->GetBufferPointer();
-  gpipeline.VS.BytecodeLength = vs_blob_->GetBufferSize();
-  gpipeline.PS.pShaderBytecode = ps_blob_->GetBufferPointer();
-  gpipeline.PS.BytecodeLength = ps_blob_->GetBufferSize();
-
-  gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-  gpipeline.RasterizerState.MultisampleEnable = false;
-  gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-  gpipeline.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-  gpipeline.RasterizerState.DepthClipEnable = true;
-
-  gpipeline.BlendState.AlphaToCoverageEnable = false;
-  gpipeline.BlendState.IndependentBlendEnable = false;
-
-  D3D12_RENDER_TARGET_BLEND_DESC rendar_target_blend_desc = {};
-  rendar_target_blend_desc.BlendEnable = false;
-  rendar_target_blend_desc.LogicOpEnable = false;
-  rendar_target_blend_desc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-  gpipeline.BlendState.RenderTarget[0] = rendar_target_blend_desc;
-
-  gpipeline.InputLayout.pInputElementDescs = input_layout;
-  gpipeline.InputLayout.NumElements = num_elements;
-
-  gpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
-
-  gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-  gpipeline.NumRenderTargets = 1;
-  gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-  gpipeline.SampleDesc.Count = 1;
-  gpipeline.SampleDesc.Quality = 0;
-
-  HRESULT hr = dev_->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipeline_state_));
-  return SUCCEEDED(hr);
-}
-
 bool WinDrawD3D12::SetUpRootSignature() {
   D3D12_ROOT_SIGNATURE_DESC root_signature_desc = {};
   root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
@@ -396,14 +426,6 @@ void WinDrawD3D12::CommitCommandList() {
   cmd_list_->Reset(cmd_allocator_.get(), nullptr);
 
   swap_chain_->Present(1, 0);
-}
-
-bool WinDrawD3D12::ClearScreen() {
-  auto rtv_h = PrepareCommandList();
-  float clear_color[] = {0.0f, 0.0f, 0.0f, 1.0f};
-  cmd_list_->ClearRenderTargetView(rtv_h, clear_color, 0, nullptr);
-  CommitCommandList();
-  return true;
 }
 
 bool WinDrawD3D12::SetUpTexture() {
@@ -552,6 +574,51 @@ void WinDrawD3D12::PrepareIndicesForTexture() {
   cmd_list_->IASetIndexBuffer(&ib_view);
 }
 
+bool WinDrawD3D12::SetUpPipelineForTexture(D3D12_INPUT_ELEMENT_DESC* input_layout, int num_elements) {
+  assert(root_signature_);
+  assert(vs_blob_);
+  assert(ps_blob_);
+
+  D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
+  gpipeline.pRootSignature = root_signature_.get();
+  gpipeline.VS.pShaderBytecode = vs_blob_->GetBufferPointer();
+  gpipeline.VS.BytecodeLength = vs_blob_->GetBufferSize();
+  gpipeline.PS.pShaderBytecode = ps_blob_->GetBufferPointer();
+  gpipeline.PS.BytecodeLength = ps_blob_->GetBufferSize();
+
+  gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+  gpipeline.RasterizerState.MultisampleEnable = false;
+  gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+  gpipeline.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+  gpipeline.RasterizerState.DepthClipEnable = true;
+
+  gpipeline.BlendState.AlphaToCoverageEnable = false;
+  gpipeline.BlendState.IndependentBlendEnable = false;
+
+  D3D12_RENDER_TARGET_BLEND_DESC rendar_target_blend_desc = {};
+  rendar_target_blend_desc.BlendEnable = false;
+  rendar_target_blend_desc.LogicOpEnable = false;
+  rendar_target_blend_desc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+  gpipeline.BlendState.RenderTarget[0] = rendar_target_blend_desc;
+
+  gpipeline.InputLayout.pInputElementDescs = input_layout;
+  gpipeline.InputLayout.NumElements = num_elements;
+
+  gpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+
+  gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+  gpipeline.NumRenderTargets = 1;
+  gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+  gpipeline.SampleDesc.Count = 1;
+  gpipeline.SampleDesc.Quality = 0;
+
+  HRESULT hr = dev_->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipeline_state_));
+  return SUCCEEDED(hr);
+}
+
 bool WinDrawD3D12::SetUpTexturePipeline() {
   if (!SetUpVerticesForTexture() || !SetUpIndicesForTexture())
     return false;
@@ -570,6 +637,36 @@ bool WinDrawD3D12::SetUpTexturePipeline() {
     SetUpPipelineForTexture(input_layout, 2);
 
   return SetUpTexture();
+}
+
+bool WinDrawD3D12::ClearScreen() {
+  auto rtv_h = PrepareCommandList();
+  float clear_color[] = {0.0f, 0.0f, 0.0f, 1.0f};
+  cmd_list_->ClearRenderTargetView(rtv_h, clear_color, 0, nullptr);
+  CommitCommandList();
+  return true;
+}
+
+bool WinDrawD3D12::DrawTexture() {
+  auto rtv_h = PrepareCommandList();
+
+  PrepareVerticesForTexture();
+  PrepareIndicesForTexture();
+
+  cmd_list_->SetPipelineState(pipeline_state_.get());
+  cmd_list_->SetGraphicsRootSignature(root_signature_.get());
+
+  if (!RenderTexture())
+    return false;
+
+  SetUpViewPort();
+
+  // Using index
+  cmd_list_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+  cmd_list_->DrawInstanced(4, 1, 0, 0);
+
+  CommitCommandList();
+  return true;
 }
 
 bool WinDrawD3D12::RenderTexture() {
@@ -604,106 +701,4 @@ bool WinDrawD3D12::RenderTexture() {
       texture_->WriteToSubresource(0, nullptr, texturedata.data(), kTextureWidth * sizeof(TexRGBA),
                                    texturedata.size() * sizeof(TexRGBA));
   return SUCCEEDED(hr);
-}
-
-bool WinDrawD3D12::DrawTexture() {
-  auto rtv_h = PrepareCommandList();
-
-  PrepareVerticesForTexture();
-  PrepareIndicesForTexture();
-
-  cmd_list_->SetPipelineState(pipeline_state_.get());
-  cmd_list_->SetGraphicsRootSignature(root_signature_.get());
-
-  if (!RenderTexture())
-    return false;
-
-  SetUpViewPort();
-
-  // Using index
-  cmd_list_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-  cmd_list_->DrawInstanced(4, 1, 0, 0);
-
-  CommitCommandList();
-  return true;
-}
-
-bool WinDrawD3D12::CreateD3D() {
-  CreateBaseWindow();
-  if (!hcwnd_)
-    return false;
-
-#if defined(_DEBUG)
-  {
-    HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debug_));
-    if (SUCCEEDED(hr)) {
-      debug_->EnableDebugLayer();
-    }
-  }
-#endif
-
-  if (!CreateD3D12Device() || !CreateCommandList() || !CreateSwapChain() ||
-      !CreateRenderTargetView()) {
-    return false;
-  }
-
-  if (!root_signature_)
-    SetUpRootSignature();
-
-  SetUpTexturePipeline();
-  ClearScreen();
-  return true;
-}
-
-bool WinDrawD3D12::Resize(uint32_t width, uint32_t height) {
-  width_ = width;
-  height_ = height;
-
-  status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
-  ::SetWindowPos(hcwnd_, nullptr, 0, 0, width, height, SWP_SHOWWINDOW);
-  return true;
-}
-
-void WinDrawD3D12::SetPalette(PALETTEENTRY* pe, int index, int nentries) {
-  for (; nentries > 0; nentries--) {
-    pal_[index].red = pe->peRed;
-    pal_[index].green = pe->peGreen;
-    pal_[index].blue = pe->peBlue;
-    index++;
-    pe++;
-  }
-  update_palette_ = true;
-}
-
-void WinDrawD3D12::DrawScreen(const RECT& rect, bool refresh) {
-  if (::IsWindow(hwnd_) == FALSE)
-    return;
-
-  RECT rc = rect;
-  if (refresh || update_palette_) {
-    ::SetRect(&rc, 0, 0, width_, height_);
-    update_palette_ = false;
-  } else {
-    if (::IsRectEmpty(&rc))
-      return;
-  }
-  DrawTexture();
-}
-
-RECT WinDrawD3D12::GetFullScreenRect() {
-  scoped_comptr<IDXGIOutput> output;
-  swap_chain_->GetContainingOutput(&output);
-  DXGI_OUTPUT_DESC desc;
-  output->GetDesc(&desc);
-  return desc.DesktopCoordinates;
-}
-bool WinDrawD3D12::Lock(uint8_t** image, int* bpl) {
-  *image = image_.get();
-  *bpl = bpl_;
-  return image_ != nullptr;
-}
-
-bool WinDrawD3D12::Unlock() {
-  status &= ~static_cast<uint32_t>(Draw::Status::kShouldRefresh);
-  return true;
 }
