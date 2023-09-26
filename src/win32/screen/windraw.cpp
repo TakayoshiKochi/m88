@@ -15,10 +15,7 @@
 
 #include "common/error.h"
 #include "win32/monitor/loadmon.h"
-#include "win32/screen/drawd2d.h"
 #include "win32/screen/drawd3d12.h"
-#include "win32/screen/drawgdi.h"
-#include "win32/screen/drawdds.h"
 #include "win32/status.h"
 #include "win32/winexapi.h"
 
@@ -278,87 +275,30 @@ void WinDraw::WindowMoved(int x, int y) {
 // ---------------------------------------------------------------------------
 //  画面描画ドライバの変更
 //
-bool WinDraw::ChangeDisplayMode(bool fullscreen, bool force480) {
-  DisplayType type = fullscreen ? DDFull : D3D;
-
-  type = D3D;
-
+bool WinDraw::ChangeDisplayMode(bool fullscreen, bool) {
   // 現在窓(M88)が所属するモニタの GUID を取得
   memset(&gmonitor_, 0, sizeof(gmonitor_));
 
   hmonitor_ = (*MonitorFromWin)(hwnd_, MONITOR_DEFAULTTOPRIMARY);
   (*DDEnumerateEx)(DDEnumCallback, reinterpret_cast<LPVOID>(this), DDENUM_ATTACHEDSECONDARYDEVICES);
 
-  if (type == display_type_)
-    return false;
-
-  bool result = true;
-  // 今までのドライバを廃棄
-  if (drawsub_)
-    drawsub_->SetGUIMode(true);
-
-  {
-    std::lock_guard<std::mutex> lock(mtx_);
-    WinDrawSub* newdraw = nullptr;
-
-    // 新しいドライバの用意
-    switch (type) {
-      case GDI:
-      default:
-        newdraw = new WinDrawGDI();
-        break;
-      case DDFull:
-        newdraw = new WinDrawDDS(force480);
-        break;
-      case D2D:
-        newdraw = new WinDrawD2D();
-        break;
-      case D3D:
-        newdraw = new WinDrawD3D12();
-        break;
-    }
-
-    if (!newdraw || !newdraw->Init(hwnd_, width_, height_, &gmonitor_)) {
-      // 初期化に失敗した場合 GDI ドライバで再挑戦
-      if (type == DDFull)
-        statusdisplay.Show(50, 2500, "画面切り替えに失敗しました");
-      else
-        statusdisplay.Show(120, 3000, "GDI ドライバを使用します");
-
-      newdraw = new WinDrawGDI();
-      type = GDI;
-      result = false;
-
-      if (!newdraw || !newdraw->Init(hwnd_, width_, height_, nullptr)) {
-        drawsub_.reset();
-        display_type_ = None;
-      }
-    }
-
-    if (newdraw) {
-      drawsub_.reset(newdraw);
-      drawsub_->SetFlipMode(flipmode_);
-      drawsub_->SetGUIMode(false);
-    }
-
-    gui_count_ = 0;
+  if (display_type_ == None && !drawsub_) {
+    DisplayType type = D3D;
+    drawsub_ = std::make_unique<WinDrawD3D12>();
+    if (!drawsub_->Init(hwnd_, width_, height_, &gmonitor_))
+      return false;
+    display_type_ = type;
   }
+
+  ShowCursor(!fullscreen);
 
   draw_all_ = true;
   refresh_ = true;
   pal_region_begin_ = std::min(pal_change_begin_, pal_region_begin_);
   pal_region_end_ = std::max(pal_change_end_, pal_region_end_);
-  //      if (draw)
-  //          draw->Resize(width, height);
-
-  if (type == DDFull)
-    ShowCursor(false);
-  if (display_type_ == DDFull)
-    ShowCursor(true);
-  display_type_ = type;
   refresh_ = 2;
 
-  return result;
+  return true;
 }
 
 // ---------------------------------------------------------------------------

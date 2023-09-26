@@ -197,16 +197,8 @@ add_library(win32 ${LIB_TYPE}
         src/win32/module.cpp
         src/win32/newdisk.h
         src/win32/newdisk.cpp
-        src/win32/screen/dderr.h
-        src/win32/screen/dderr.cpp
-        src/win32/screen/drawd2d.h
-        src/win32/screen/drawd2d.cpp
         src/win32/screen/drawd3d12.h
         src/win32/screen/drawd3d12.cpp
-        src/win32/screen/drawdds.h
-        src/win32/screen/drawdds.cpp
-        src/win32/screen/drawgdi.h
-        src/win32/screen/drawgdi.cpp
         src/win32/screen/windraw.h
         src/win32/screen/windraw.cpp
         src/win32/sound/sounddrv.h
