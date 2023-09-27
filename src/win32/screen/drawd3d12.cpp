@@ -75,7 +75,7 @@ void WinDrawD3D12::DrawScreen(const RECT& rect, bool refresh) {
 
   RECT rc = rect;
   if (refresh || update_palette_) {
-    ::SetRect(&rc, 0, 0, width_, height_);
+    ::SetRect(&rc, 0, 0, kTextureWidth, kTextureHeight);
     update_palette_ = false;
   } else {
     if (::IsRectEmpty(&rc))

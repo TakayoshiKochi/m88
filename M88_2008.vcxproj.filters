@@ -285,18 +285,6 @@
     <ClCompile Include="src\win32\monitor\winmon.cpp">
       <Filter>win32\monitor</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\screen\dderr.cpp">
-      <Filter>win32\screen</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\screen\drawd2d.cpp">
-      <Filter>win32\screen</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\screen\drawdds.cpp">
-      <Filter>win32\screen</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32\screen\drawgdi.cpp">
-      <Filter>win32\screen</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\screen\windraw.cpp">
       <Filter>win32\screen</Filter>
     </ClCompile>
@@ -607,18 +595,6 @@
     </ClInclude>
     <ClInclude Include="src\win32\monitor\winmon.h">
       <Filter>win32\monitor</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\screen\dderr.h">
-      <Filter>win32\screen</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\screen\drawd2d.h">
-      <Filter>win32\screen</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\screen\drawdds.h">
-      <Filter>win32\screen</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\screen\drawgdi.h">
-      <Filter>win32\screen</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\screen\windraw.h">
       <Filter>win32\screen</Filter>

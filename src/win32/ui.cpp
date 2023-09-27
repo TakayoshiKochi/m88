@@ -502,7 +502,7 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
 //
 void WinUI::ToggleDisplayMode() {
   uint32_t tick = GetTickCount();
-  if ((tick - displaychanged_time_) < 1000)
+  if ((tick - displaychanged_time_) < 100)
     return;
 
   displaychanged_time_ = GetTickCount();

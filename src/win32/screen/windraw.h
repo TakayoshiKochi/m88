@@ -82,14 +82,14 @@ class WinDraw : public Draw {
 
   void SetPriorityLow(bool low);
   void SetGUIFlag(bool flag);
-  bool ChangeDisplayMode(bool fullscreen, bool force480 = true);
+  bool ChangeDisplayMode(bool fullscreen, bool);
   void Refresh() { refresh_ = 1; }
   void WindowMoved(int cx, int cy);
 
   int CaptureScreen(uint8_t* dest);
 
  private:
-  enum DisplayType { None, GDI, DDFull, D2D, D3D };
+  enum DisplayType { None, D3D };
   void PaintWindow();
 
   static BOOL WINAPI
