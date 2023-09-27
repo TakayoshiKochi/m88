@@ -46,7 +46,7 @@ class Memory : public Device, public IGetMemoryBank {
   union Quadbyte {
     Quadbyte() = default;
     Quadbyte(uint32_t p) : pack(p) {}
-    uint32_t pack;
+    uint32_t pack{};
     uint8_t byte[4];
   };
 
@@ -81,10 +81,10 @@ class Memory : public Device, public IGetMemoryBank {
     mERAM,
   };
 
-  Memory(const ID& id);
-  ~Memory();
+  explicit Memory(const ID& id);
+  ~Memory() override;
 
-  const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   void ApplyConfig(const Config* cfg);
   uint8_t* GetRAM() { return ram_.get(); }
@@ -105,9 +105,9 @@ class Memory : public Device, public IGetMemoryBank {
   bool IFCALL LoadStatus(const uint8_t* status) override;
   bool IFCALL SaveStatus(uint8_t* status) override;
 
-  bool IsN80Ready() { return !!n80rom_.get(); }
-  bool IsN80V2Ready() { return !!n80v2rom_.get(); }
-  bool IsCDBIOSReady() { return !!cdbios_.get(); }
+  bool IsN80Ready() { return !!n80rom_; }
+  bool IsN80V2Ready() { return !!n80v2rom_; }
+  bool IsCDBIOSReady() { return !!cdbios_; }
 
   bool Init(MemoryManager* mgr, IOBus* bus, CRTC* crtc, int* waittbl);
   void IOCALL Reset(uint32_t, uint32_t);

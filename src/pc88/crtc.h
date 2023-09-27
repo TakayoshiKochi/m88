@@ -152,7 +152,7 @@ class CRTC : public Device {
   void ExpandAttributes(uint8_t* dest, const uint8_t* src, uint32_t y);
   [[nodiscard]] uint8_t ChangeAttr(uint8_t code, uint8_t old_attr) const;
 
-  void DrawInline(packed& dest, packed data) { dest = (dest & pat_mask_) | data; }
+  void DrawInline(packed& dest, packed data) const { dest = (dest & pat_mask_) | data; }
 
   void PutChar(packed* dest, uint8_t c, uint8_t a);
   void PutNormal(packed* dest, const packed* src);

@@ -75,8 +75,8 @@ class FDC : public Device {
   };
 
  public:
-  FDC(const ID& id);
-  ~FDC();
+  explicit FDC(const ID& id);
+  ~FDC() override;
 
   bool Init(DiskManager* dm, Scheduler* scheduler, IOBus* bus, int intport, int statport = -1);
   void ApplyConfig(const Config* cfg);
@@ -91,11 +91,11 @@ class FDC : public Device {
   uint32_t IOCALL Status(uint32_t);                     // ステータス入力
   uint32_t IOCALL GetData(uint32_t);                    // データ取得
 
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* status);
-  bool IFCALL LoadStatus(const uint8_t* status);
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
 
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
   enum Phase {

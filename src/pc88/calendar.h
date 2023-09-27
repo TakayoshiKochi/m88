@@ -21,12 +21,12 @@ class Calendar : public Device {
     kIn40 = 0,
   };
 
-  Calendar(const ID& id);
+  explicit Calendar(const ID& id);
   ~Calendar() override;
   bool Init() { return true; }
 
   // Implements Device
-  const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
   uint32_t IFCALL GetStatusSize() override;
   bool IFCALL SaveStatus(uint8_t* status) override;
   bool IFCALL LoadStatus(const uint8_t* status) override;

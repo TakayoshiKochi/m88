@@ -22,10 +22,10 @@ class JoyPad : public Device {
 
  public:
   JoyPad();
-  ~JoyPad();
+  ~JoyPad() override;
 
   bool Connect(IPadInput* ui);
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   void IOCALL Reset() {}
   uint32_t IOCALL GetDirection(uint32_t port);

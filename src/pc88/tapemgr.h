@@ -30,7 +30,7 @@ class TapeManager : public Device {
   bool Close();
   bool Rewind(bool timer = true);
 
-  bool IsOpen() { return !!tags_; }
+  bool IsOpen() { return tags_ != nullptr; }
 
   bool Motor(bool on);
   bool Carrier();

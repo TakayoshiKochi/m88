@@ -30,14 +30,14 @@ class SubSystem : public Device {
   enum { intack = 0, m_read0, m_read1, m_read2, s_read0, s_read1, s_read2 };
 
  public:
-  SubSystem(const ID& id);
-  ~SubSystem();
+  explicit SubSystem(const ID& id);
+  ~SubSystem() override;
 
   bool Init(MemoryManager* mmgr);
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* status);
-  bool IFCALL LoadStatus(const uint8_t* status);
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
 
   uint8_t* GetRAM() { return ram; }
   uint8_t* GetROM() { return rom; }

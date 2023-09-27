@@ -29,21 +29,21 @@ class IOViewer : public Device {
 
  public:
   IOViewer();
-  ~IOViewer();
+  ~IOViewer() override;
 
   bool Connect(IIOBus* bus);
   bool Disconnect();
   int Read(int c) { return buf[c]; }
 
   void Reset() {
-    for (int i = 0; i < 256; i++)
-      buf[i] |= ~0xff;
+    for (unsigned int& i : buf)
+      i |= ~0xff;
   }
   void Dim();
 
   void IOCALL Out(uint32_t = 0, uint32_t = 0);
 
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
   IIOBus* bus;

@@ -19,11 +19,11 @@
 //
 class Device : public IDevice {
  public:
-  Device(const ID& id) : id_(id) {}
-  virtual ~Device() {}
+  explicit Device(const ID& id) : id_(id) {}
+  virtual ~Device() = default;
 
-  const ID& IFCALL GetID() const final { return id_; }
-  const Descriptor* IFCALL GetDesc() const override { return nullptr; }
+  [[nodiscard]] const ID& IFCALL GetID() const final { return id_; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return nullptr; }
   uint32_t IFCALL GetStatusSize() override { return 0; }
   bool IFCALL LoadStatus(const uint8_t* status) override { return false; }
   bool IFCALL SaveStatus(uint8_t* status) override { return false; }
@@ -44,9 +44,9 @@ class DeviceList {
   ~DeviceList() = default;
 
   bool Add(IDevice* t);
-  bool Del(IDevice* t) { return t->GetID() ? Del(t->GetID()) : false; }
-  bool Del(const ID id);
-  IDevice* Find(const ID id);
+  bool Del(IDevice* t) { return t->GetID() != 0 && Del(t->GetID()); }
+  bool Del(ID id);
+  IDevice* Find(ID id);
 
   bool LoadStatus(const uint8_t*);
   bool SaveStatus(uint8_t*);
@@ -64,7 +64,7 @@ class DeviceList {
     uint32_t size;
   };
 
-  std::vector<Node>::iterator FindNode(const ID id);
+  std::vector<Node>::iterator FindNode(ID id);
   bool CheckStatus(const uint8_t*);
 
   std::vector<Node> node_;

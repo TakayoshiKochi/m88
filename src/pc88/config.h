@@ -55,8 +55,8 @@ class Config {
     kSwappedButtons = 1 << 13,   // パッドのボタンを入れ替え
     kDisableSing = 1 << 14,      // CMD SING 無効
     kDigitalPalette = 1 << 15,   // ディジタルパレットモード
-    useqpc = 1 << 16,            // QueryPerformanceCounter つかう (not used)
-    kForce480 = 1 << 17,         // 全画面を常に 640x480 で
+    useqpc = 1 << 16,            // QueryPerformanceCounter つかう (obsolete)
+    kForce480 = 1 << 17,         // 全画面を常に 640x480 で (obsolete)
     kOPNonA8 = 1 << 18,          // OPN (a8h)
     kOPNAonA8 = 1 << 19,         // OPNA (a8h)
     kDrawPriorityLow = 1 << 20,  // 描画の優先度を落とす

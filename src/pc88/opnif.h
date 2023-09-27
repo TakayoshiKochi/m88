@@ -48,24 +48,24 @@ class OPNIF : public Device, public ISoundSource {
   };
 
  public:
-  OPNIF(const ID& id);
-  ~OPNIF();
+  explicit OPNIF(const ID& id);
+  ~OPNIF() override;
 
   bool Init(IOBus* bus, int intrport, int io, Scheduler* s);
   void SetIMask(uint32_t port, uint32_t bit);
 
   void CleanUp();
 
-  bool IFCALL Connect(ISoundControl* c);
-  bool IFCALL SetRate(uint32_t rate);
-  void IFCALL Mix(int32_t* buffer, int nsamples);
+  bool IFCALL Connect(ISoundControl* c) override;
+  bool IFCALL SetRate(uint32_t rate) override;
+  void IFCALL Mix(int32_t* buffer, int nsamples) override;
 
   void SetVolume(const Config* config);
   void SetFMMixMode(bool);
 
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* status);
-  bool IFCALL LoadStatus(const uint8_t* status);
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
 
   void Enable(bool en) { enable = en; }
   void SetOPNMode(bool _opna) { opnamode = _opna; }
@@ -84,7 +84,7 @@ class OPNIF : public Device, public ISoundSource {
   uint32_t IOCALL ReadStatusEx(uint32_t);
   void IOCALL Sync(uint32_t, uint32_t);
 
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
   class OPNUnit :
