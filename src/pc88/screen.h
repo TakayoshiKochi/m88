@@ -38,8 +38,8 @@ class Screen : public Device {
   enum IDOut { reset = 0, out30, out31, out32, out33, out52, out53, out54, out55to5b };
 
  public:
-  Screen(const ID& id);
-  ~Screen();
+  explicit Screen(const ID& id);
+  ~Screen() override;
 
   bool Init(IOBus* bus, Memory* memory, CRTC* crtc);
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
@@ -56,11 +56,11 @@ class Screen : public Device {
   void IOCALL Out54(uint32_t port, uint32_t data);
   void IOCALL Out55to5b(uint32_t port, uint32_t data);
 
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* status);
-  bool IFCALL LoadStatus(const uint8_t* status);
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
 
  private:
   struct Pal {

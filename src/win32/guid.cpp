@@ -2,3 +2,7 @@
 
 #define INITGUID
 #include "if/ifguid.h"
+
+#include <mmsystem.h>
+#include <ddraw.h>
+#include <dsound.h>

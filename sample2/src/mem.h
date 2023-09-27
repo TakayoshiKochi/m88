@@ -18,13 +18,13 @@ public:
 
 public:
 	GVRAMReverse();
-	~GVRAMReverse();
+	~GVRAMReverse() override;
 
 	bool Init(IMemoryManager* mm);
-	void CleanUp();
+	// void CleanUp();
 
 	// IDevice Method
-	const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+	[[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
 	// I/O port functions
 	void IOCALL Out32(uint32_t, uint32_t data);

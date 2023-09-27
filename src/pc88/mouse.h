@@ -25,13 +25,13 @@ class Mouse : public Device {
   };
 
  public:
-  Mouse(const ID& id);
-  ~Mouse();
+  explicit Mouse(const ID& id);
+  ~Mouse() override;
 
   bool Init(Scheduler* sched);
   bool Connect(IUnk* ui);
 
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   uint32_t IOCALL GetMove(uint32_t);
   uint32_t IOCALL GetButton(uint32_t);

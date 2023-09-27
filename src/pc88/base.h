@@ -22,10 +22,10 @@ class Base : public Device {
   enum IDIn { in30 = 0, in31, in40, in6e };
 
   explicit Base(const ID& id);
-  virtual ~Base() = default;
+  ~Base() override = default;
 
   bool Init(PC88* pc88);
-  const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   void SetSwitch(const Config* cfg);
   BasicMode GetBasicMode() { return basic_mode_; }

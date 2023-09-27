@@ -27,7 +27,7 @@ class Beep : public Device, public ISoundSource {
   };
 
   explicit Beep(const ID& id);
-  ~Beep();
+  ~Beep() override;
 
   bool Init();
   void CleanUp();
@@ -37,7 +37,7 @@ class Beep : public Device, public ISoundSource {
   }
 
   // Implements Device
-  const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
   uint32_t IFCALL GetStatusSize() override;
   bool IFCALL SaveStatus(uint8_t* status) override;
   bool IFCALL LoadStatus(const uint8_t* status) override;

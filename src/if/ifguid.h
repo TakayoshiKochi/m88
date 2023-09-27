@@ -6,9 +6,6 @@
 #pragma once
 
 #include <windows.h>
-#include <mmsystem.h>
-#include <ddraw.h>
-#include <dsound.h>
 
 // ----------------------------------------------------------------------------
 //  M88 interface GUID

@@ -14,18 +14,18 @@ class Sine : public Device, public ISoundSource {
 
  public:
   Sine();
-  ~Sine();
+  ~Sine() override;
 
   bool Init();
-  void CleanUp();
+  // void CleanUp();
 
   // ISoundSource method
-  bool IFCALL Connect(ISoundControl* sc);
-  bool IFCALL SetRate(uint32_t rate);
-  void IFCALL Mix(int32_t*, int);
+  bool IFCALL Connect(ISoundControl* sc) override;
+  bool IFCALL SetRate(uint32_t rate) override;
+  void IFCALL Mix(int32_t*, int) override;
 
   // IDevice Method
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   // I/O port functions
   void IOCALL SetVolume(uint32_t, uint32_t data);

@@ -59,7 +59,7 @@ class FloppyDisk {
 
   bool Init(DiskType type, bool readonly);
 
-  bool IsReadOnly() { return readonly; }
+  [[nodiscard]] bool IsReadOnly() const { return readonly; }
   DiskType GetType() { return type; }
 
   void Seek(uint32_t tr);
@@ -68,7 +68,7 @@ class FloppyDisk {
   uint32_t GetNumSectors();
   uint32_t GetTrackCapacity();
   uint32_t GetTrackSize();
-  uint32_t GetNumTracks() { return ntracks; }
+  [[nodiscard]] uint32_t GetNumTracks() const { return ntracks; }
   bool Resize(Sector* sector, uint32_t newsize);
   bool FormatTrack(int nsec, int secsize);
   Sector* AddSector(int secsize);

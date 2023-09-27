@@ -42,16 +42,16 @@ class CDIF : public Device {
   };
 
  public:
-  CDIF(const ID& id);
-  ~CDIF();
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  explicit CDIF(const ID& id);
+  ~CDIF() override;
   bool Init(IDMAAccess* mdev);
 
   bool Enable(bool f);
 
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* status);
-  bool IFCALL LoadStatus(const uint8_t* status);
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   void IOCALL SystemReset(uint32_t, uint32_t d);
   void IOCALL Out90(uint32_t, uint32_t d);

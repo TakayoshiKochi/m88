@@ -21,8 +21,8 @@ class INTC : public Device {
   enum { reset = 0, request, setmask, setreg, intack = 0 };
 
  public:
-  INTC(const ID& id);
-  ~INTC();
+  explicit INTC(const ID& id);
+  ~INTC() override;
   bool Init(IOBus* bus, uint32_t irqport, uint32_t ipbase);
 
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
@@ -31,11 +31,11 @@ class INTC : public Device {
   void IOCALL SetRegister(uint32_t, uint32_t data);
   uint32_t IOCALL IntAck(uint32_t);
 
-  uint32_t IFCALL GetStatusSize();
-  bool IFCALL SaveStatus(uint8_t* status);
-  bool IFCALL LoadStatus(const uint8_t* status);
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
 
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
   struct Status {
