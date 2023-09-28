@@ -12,9 +12,18 @@
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
+
+#ifdef COMPILE_SHADER_FROM_FILE
 #pragma comment(lib, "d3dcompiler.lib")
+#endif
 
 namespace {
+
+#ifndef COMPILE_SHADER_FROM_FILE
+#include "win32/screen/vertex_shader.h"
+#include "win32/screen/pixel_shader.h"
+#endif
+
 constexpr int kTextureWidth = 640;
 constexpr int kTextureHeight = 400;
 }  // namespace
@@ -254,12 +263,13 @@ bool WinDrawD3D12::SetUpShaders() {
   scoped_comptr<ID3DBlob> error_blob;
 
   if (!vs_blob_) {
+#ifdef COMPILE_SHADER_FROM_FILE
     uint32_t flags = 0;
 #if defined(_DEBUG)
     flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
     HRESULT hr =
-        D3DCompileFromFile(L"BasicVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        D3DCompileFromFile(L"vertex_shader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
                            "BasicVS", "vs_5_0", flags, 0, &vs_blob_, &error_blob);
     if (FAILED(hr)) {
       if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND)) {
@@ -276,15 +286,21 @@ bool WinDrawD3D12::SetUpShaders() {
         OutputDebugStringA(errstr.c_str());
       }
     }
+#endif
+    HRESULT hr = D3DCreateBlob(sizeof(g_BasicVS), &vs_blob_);
+    std::copy_n(g_BasicVS, sizeof(g_BasicVS), (char*)vs_blob_->GetBufferPointer());
+    if (FAILED(hr))
+      return false;
   }
 
   if (!ps_blob_) {
+#ifdef COMPILE_SHADER_FROM_FILE
     uint32_t flags = 0;
 #if defined(_DEBUG)
     flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
     HRESULT hr =
-        D3DCompileFromFile(L"BasicPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        D3DCompileFromFile(L"pixel_shader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
                            "BasicPS", "ps_5_0", flags, 0, &ps_blob_, &error_blob);
     if (FAILED(hr)) {
       if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND)) {
@@ -301,7 +317,13 @@ bool WinDrawD3D12::SetUpShaders() {
         OutputDebugStringA(errstr.c_str());
       }
     }
+#endif
+    HRESULT hr = D3DCreateBlob(sizeof(g_BasicPS), &ps_blob_);
+    std::copy_n(g_BasicPS, sizeof(g_BasicPS), (char*)ps_blob_->GetBufferPointer());
+    if (FAILED(hr))
+      return false;
   }
+
   return true;
 }
 
