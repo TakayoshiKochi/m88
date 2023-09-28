@@ -216,7 +216,7 @@ uint32_t WinKeyIF::GetKey(const Key* key) {
 void IOCALL WinKeyIF::VSync(uint32_t, uint32_t d) {
   if (d && active_) {
     if (hwnd) {
-      PostMessage(hwnd, WM_M88_SENDKEYSTATE, reinterpret_cast<DWORD>(keyboard), (DWORD)hevent);
+      PostMessage(hwnd, WM_M88_SENDKEYSTATE, reinterpret_cast<WPARAM>(keyboard), (LPARAM)hevent);
       WaitForSingleObject(hevent, 10);
     }
 
