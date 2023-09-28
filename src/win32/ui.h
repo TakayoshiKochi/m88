@@ -111,6 +111,7 @@ class WinUI {
   // When WM_DISPLAYCHANGE is received, the window size is reset.
   // This is a counter.
   uint32_t reset_window_size_ = 0;
+  int dpi_ = 96;
   DWORD wstyle_ = 0;
   // fullscreen 時にウィンドウ位置が保存される
   POINT point_{};

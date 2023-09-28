@@ -643,4 +643,9 @@
       <Filter>win32\screen</Filter>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="src\win32\dpiaware.manifest">
+      <Filter>win32</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>
