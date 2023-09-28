@@ -147,8 +147,20 @@ bool StatusDisplayImpl::ShowV(int priority, int duration, const char* msg, va_li
     return false;
   memset(entry, 0, sizeof(List));
 
-  int tl = vsprintf(entry->msg, msg, args);
+  char u8msg[1024];
+  int tl = vsprintf(u8msg, msg, args);
   assert(tl < 128);
+
+  // TODO: Remove this UTF-8 to Shift_JIS conversion
+  {
+    wchar_t msgutf16[MAX_PATH];
+    int len_utf16 = MultiByteToWideChar(CP_UTF8, 0, u8msg, strlen(u8msg)+1, nullptr, 0);
+    if (len_utf16 <= sizeof(msgutf16)/sizeof(msgutf16[0])) {
+      MultiByteToWideChar(CP_UTF8, 0, u8msg, strlen(u8msg)+1, msgutf16, MAX_PATH);
+      WideCharToMultiByte(932, 0, msgutf16, len_utf16,
+                          entry->msg, 128, nullptr, nullptr);
+    }
+  }
 
   entry->duration = GetTickCount() + duration;
   entry->priority = priority;
