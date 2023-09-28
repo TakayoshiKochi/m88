@@ -108,9 +108,9 @@ class WinUI {
   bool background_ = false;
   bool fullscreen_ = false;
   uint32_t displaychanged_time_ = 0;
-  // When WM_DISPLAYCHANGE is received, the window size is reset.
-  // This is a counter.
-  uint32_t reset_window_size_ = 0;
+  // When WM_DISPLAYCHANGE/DPICHANGED is received, the window size is adjusted.
+  // This is a counter for delay in seconds.
+  uint32_t reset_window_size_delay_ = 0;
   int dpi_ = 96;
   DWORD wstyle_ = 0;
   // fullscreen 時にウィンドウ位置が保存される
@@ -159,6 +159,7 @@ class WinUI {
   LRESULT WmEnterMenuLoop(HWND, WPARAM, LPARAM);
   LRESULT WmExitMenuLoop(HWND, WPARAM, LPARAM);
   LRESULT WmDisplayChange(HWND, WPARAM, LPARAM);
+  LRESULT WmDpiChanged(HWND, WPARAM, LPARAM);
   LRESULT WmDropFiles(HWND, WPARAM, LPARAM);
   LRESULT WmLButtonDown(HWND, WPARAM, LPARAM);
   LRESULT WmLButtonUp(HWND, WPARAM, LPARAM);

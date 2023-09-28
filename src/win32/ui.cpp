@@ -295,6 +295,7 @@ LRESULT WinUI::WinProc(HWND hwnd, UINT umsg, WPARAM wp, LPARAM lp) {
     PROC_MSG(WM_ENTERMENULOOP, WmEnterMenuLoop);
     PROC_MSG(WM_EXITMENULOOP, WmExitMenuLoop);
     PROC_MSG(WM_DISPLAYCHANGE, WmDisplayChange);
+    PROC_MSG(WM_DPICHANGED, WmDpiChanged);
     PROC_MSG(WM_DROPFILES, WmDropFiles);
     PROC_MSG(WM_LBUTTONDOWN, WmLButtonDown);
     PROC_MSG(WM_LBUTTONUP, WmLButtonUp);
@@ -830,6 +831,14 @@ void WinUI::ShowStatusWindow() {
 //
 void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
   assert(!fullscreen_);
+
+  statusdisplay.ResetSize();
+
+  dpi_ = GetDpiForWindow(hwnd_);
+  double ratio = dpi_ / 96.0;
+  width *= ratio;
+  height *= ratio;
+
   RECT rect;
   rect.left = 0;
   rect.right = width;
@@ -837,7 +846,6 @@ void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
   rect.bottom = height + statusdisplay.GetHeight();
 
   // AdjustWindowRectEx(&rect, wstyle_, TRUE, 0);
-  dpi_ = GetDpiForWindow(hwnd_);
   AdjustWindowRectExForDpi(&rect, wstyle_, TRUE, 0, dpi_);
   SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
                SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
@@ -1430,7 +1438,12 @@ LRESULT WinUI::WmExitMenuLoop(HWND, WPARAM wp, LPARAM) {
 //  WM_DISPLAYCHANGE ハンドラ
 //
 LRESULT WinUI::WmDisplayChange(HWND, WPARAM, LPARAM) {
-  reset_window_size_ = fullscreen_ ? 0 : 5;
+  reset_window_size_delay_ = fullscreen_ ? 0 : 1;
+  return 0;
+}
+
+LRESULT WinUI::WmDpiChanged(HWND, WPARAM, LPARAM) {
+  reset_window_size_delay_ = fullscreen_ ? 0 : 1;
   return 0;
 }
 
@@ -1851,9 +1864,10 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM) {
         SetWindowText(hwnd, "M88");
     }
 
-    if (reset_window_size_ > 0) {
-      --reset_window_size_;
-      ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
+    if (reset_window_size_delay_ > 0) {
+      --reset_window_size_delay_;
+      if (reset_window_size_delay_ == 0)
+        ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
     }
     return 0;
   }

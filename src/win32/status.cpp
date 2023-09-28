@@ -43,26 +43,27 @@ bool StatusDisplayImpl::Enable(bool showfd) {
     if (!chwnd_)
       return false;
   }
-  {
-    show_fdc_status_ = showfd;
-    SendMessage(chwnd_, SB_GETBORDERS, 0, (LPARAM)&border_);
-
-    RECT rect{};
-    GetWindowRect(parent_hwnd_, &rect);
-
-    int widths[2] = {
-        (rect.right - rect.left - border_.vertical) - (96 + border_.split),
-        -1
-    };
-    SendMessage(chwnd_, SB_SETPARTS, 2, (LPARAM)widths);
-    InvalidateRect(parent_hwnd_, nullptr, false);
-
-    GetWindowRect(chwnd_, &rect);
-    height_ = rect.bottom - rect.top;
-
-    PostMessage(chwnd_, SB_SETTEXT, SBT_OWNERDRAW | 1, 0);
-  }
+  show_fdc_status_ = showfd;
+  ResetSize();
   return true;
+}
+
+void StatusDisplayImpl::ResetSize() {
+  SendMessage(chwnd_, SB_GETBORDERS, 0, (LPARAM)&border_);
+  RECT rect{};
+  GetWindowRect(parent_hwnd_, &rect);
+
+  int widths[2] = {
+      (rect.right - rect.left - border_.vertical) - (96 + border_.split),
+      -1
+  };
+  SendMessage(chwnd_, SB_SETPARTS, 2, (LPARAM)widths);
+  InvalidateRect(parent_hwnd_, nullptr, false);
+
+  GetWindowRect(chwnd_, &rect);
+  height_ = rect.bottom - rect.top;
+
+  PostMessage(chwnd_, SB_SETTEXT, SBT_OWNERDRAW | 1, 0);
 }
 
 bool StatusDisplayImpl::Disable() {
@@ -263,5 +264,3 @@ void StatusDisplayImpl::UpdateDisplay() {
       Update();
   }
 }
-
-//
