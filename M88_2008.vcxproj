@@ -1200,6 +1200,7 @@
     <ClInclude Include="src\common\misc.h" />
     <ClInclude Include="src\common\scheduler.h" />
     <ClInclude Include="src\common\scoped_comptr.h" />
+    <ClInclude Include="src\common\scoped_handle.h" />
     <ClInclude Include="src\common\sequencer.h" />
     <ClInclude Include="src\common\soundsrc.h" />
     <ClInclude Include="src\common\srcbuf.h" />

@@ -1070,10 +1070,21 @@ void WinUI::LoadWindowPosition() {
 //  表示メソッドの変更
 //
 LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
-  // 画面ドライバの切替え
-  // ドライバが false を返した場合 GDI ドライバが使用されることになる
   if (!draw.ChangeDisplayMode(fullscreen_, (config.flags & PC8801::Config::kForce480) != 0)) {
-    // fullscreen_ = false;
+    fullscreen_ = false;
+  }
+
+  REASON_CONTEXT ctx{};
+  ctx.Version = POWER_REQUEST_CONTEXT_VERSION;
+  ctx.Flags = POWER_REQUEST_CONTEXT_SIMPLE_STRING;
+  if (!hpower_)
+    hpower_.reset(PowerCreateRequest(&ctx));
+  if (fullscreen_) {
+    PowerSetRequest(hpower_.get(), PowerRequestSystemRequired);
+    PowerSetRequest(hpower_.get(), PowerRequestDisplayRequired);
+  } else {
+    PowerClearRequest(hpower_.get(), PowerRequestDisplayRequired);
+    PowerClearRequest(hpower_.get(), PowerRequestSystemRequired);
   }
 
   // ウィンドウスタイル関係の変更

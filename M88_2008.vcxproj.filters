@@ -617,6 +617,9 @@
     <ClInclude Include="src\win32\screen\drawd3d12.h">
       <Filter>win32\screen</Filter>
     </ClInclude>
+    <ClInclude Include="src\common\scoped_handle.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\win32\M88.rc">

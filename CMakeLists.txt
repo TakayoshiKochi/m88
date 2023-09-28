@@ -51,6 +51,7 @@ add_library(common ${LIB_TYPE}
         src/common/sequencer.h
         src/common/sequencer.cpp
         src/common/scoped_comptr.h
+        src/common/scoped_handle.h
         src/common/soundsrc.h
         src/common/srcbuf.h
         src/common/srcbuf.cpp
