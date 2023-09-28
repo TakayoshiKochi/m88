@@ -107,15 +107,6 @@ bool WinUI::InitWindow(int) {
   if (!draw.Init0(hwnd_))
     return false;
 
-  // Avoid window corner rounding.
-  DWORD dwm_attr = 0;
-  HRESULT hr =
-      DwmGetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
-  if (SUCCEEDED(hr)) {
-    dwm_attr |= DWMWCP_DONOTROUND;
-    DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
-  }
-
   clipmode_ = 0;
   gui_mode_by_mouse_ = false;
 
@@ -819,10 +810,17 @@ void WinUI::OpenTapeImage(const char* filename) {
 void WinUI::ShowStatusWindow() {
   if (fullscreen_)
     return;
-  if (config.flags & PC8801::Config::kShowStatusBar)
+  if (config.flags & PC8801::Config::kShowStatusBar) {
     statusdisplay.Enable((config.flags & PC8801::Config::kShowFDCStatus) != 0);
-  else
+    // Allow window corner rounding.
+    DWORD dwm_attr = DWMWCP_DEFAULT;
+    DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
+  } else {
     statusdisplay.Disable();
+    // Avoid window corner rounding.
+    DWORD dwm_attr = DWMWCP_DONOTROUND;
+    DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
+  }
   ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
 }
 
@@ -831,6 +829,7 @@ void WinUI::ShowStatusWindow() {
 //  ウィンドウの大きさを変える
 //
 void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
+  assert(!fullscreen_);
   RECT rect;
   rect.left = 0;
   rect.right = width;
