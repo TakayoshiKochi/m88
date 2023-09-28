@@ -23,7 +23,7 @@ class scoped_comptr {
 
   T* detach() {
     T* p = ptr_;
-    ptr_ = NULL;
+    ptr_ = nullptr;
     return p;
   }
 

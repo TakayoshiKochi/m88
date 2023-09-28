@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <memory>
 
+#include "common/scoped_handle.h"
 #include "win32/88config.h"
 #include "win32/monitor/basmon.h"
 #include "win32/monitor/codemon.h"
@@ -130,6 +131,9 @@ class WinUI {
   // PC88
   bool capture_mouse_ = true;
   uint32_t mouse_button_ = 0;
+
+  // Power management
+  scoped_handle<HANDLE> hpower_;
 
   WinCore core;
   WinDraw draw;
