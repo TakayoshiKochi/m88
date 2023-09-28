@@ -9,7 +9,7 @@
 #include "win32/ui.h"
 
 #include <commdlg.h>
-#include <ddraw.h>
+#include <dwmapi.h>
 #include <shellapi.h>
 #include <mbstring.h>
 
@@ -106,6 +106,15 @@ bool WinUI::InitWindow(int) {
 
   if (!draw.Init0(hwnd_))
     return false;
+
+  // Avoid window corner rounding.
+  DWORD dwm_attr = 0;
+  HRESULT hr =
+      DwmGetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
+  if (SUCCEEDED(hr)) {
+    dwm_attr |= DWMWCP_DONOTROUND;
+    DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
+  }
 
   clipmode_ = 0;
   gui_mode_by_mouse_ = false;

@@ -313,7 +313,7 @@ add_executable(m88 WIN32
 
 target_link_libraries(m88
         PRIVATE common devices fmgen pc88core pc88shell win32 win32mon romeo zlib
-        winmm.lib comctl32.lib d2d1.lib)
+        winmm.lib comctl32.lib dwmapi.lib d3d12.lib dxgi.lib d3dcompiler.lib)
 
 add_library(cdif ${LIB_TYPE}
         cdif/src/aspi.h
