@@ -12,10 +12,7 @@
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
-
-#ifdef COMPILE_SHADER_FROM_FILE
 #pragma comment(lib, "d3dcompiler.lib")
-#endif
 
 namespace {
 
