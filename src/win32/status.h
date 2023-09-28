@@ -37,6 +37,9 @@ class StatusDisplayImpl : public StatusDisplayInterface {
   bool ShowV(int priority, int duration, const char* msg, va_list args) override;
   void Update() override;
 
+  // TODO: clean up the code paths.
+  void ResetSize();
+
   [[nodiscard]] UINT_PTR GetTimerID() const { return timer_id_; }
   [[nodiscard]] HWND GetHWnd() const { return chwnd_; }
 
