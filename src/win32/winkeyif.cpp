@@ -22,55 +22,55 @@ using namespace PC8801;
 //  Construct/Destruct
 //
 WinKeyIF::WinKeyIF() : Device(0) {
-  hwnd = 0;
-  hevent = 0;
-  for (int i = 0; i < 16; i++) {
-    keyport_[i] = -1;
+  hwnd_ = nullptr;
+  hevent_ = nullptr;
+  for (int& i : keyport_) {
+    i = -1;
   }
-  memset(keyboard, 0, 256);
-  memset(keystate, 0, 512);
-  usearrow = false;
+  memset(keyboard_, 0, 256);
+  memset(keystate_, 0, 512);
+  usearrow_ = false;
 
   disabled_ = false;
 }
 
 WinKeyIF::~WinKeyIF() {
-  if (hevent)
-    CloseHandle(hevent);
+  if (hevent_)
+    CloseHandle(hevent_);
 }
 
 // ---------------------------------------------------------------------------
 //  初期化
 //
 bool WinKeyIF::Init(HWND hwndmsg) {
-  hwnd = hwndmsg;
-  hevent = CreateEvent(0, 0, 0, 0);
-  keytable = KeyTable106[0];
-  return hevent != 0;
+  hwnd_ = hwndmsg;
+  hevent_ = CreateEvent(0, 0, 0, 0);
+  keytable_ = KeyTable106[0];
+  return hevent_ != 0;
 }
 
 // ---------------------------------------------------------------------------
 //  リセット（というか、BASIC モードの変更）
 //
 void IOCALL WinKeyIF::Reset(uint32_t, uint32_t) {
-  pc80mode = (static_cast<uint32_t>(basicmode) & 2) != 0;
+  pc80mode_ = (static_cast<uint32_t>(basicmode_) & 2) != 0;
 }
 
 // ---------------------------------------------------------------------------
 //  設定反映
 //
 void WinKeyIF::ApplyConfig(const Config* config) {
-  usearrow = 0 != (config->flags & Config::kUseArrowFor10);
-  basicmode = config->basicmode;
+  usearrow_ = 0 != (config->flags & Config::kUseArrowFor10);
+  basicmode_ = config->basicmode;
 
   switch (config->keytype) {
     case KeyboardType::kAT101:
-      keytable = KeyTable101[0];
+      keytable_ = KeyTable101[0];
       break;
 
     case KeyboardType::kAT106:
     default:
-      keytable = KeyTable106[0];
+      keytable_ = KeyTable106[0];
       break;
   }
 }
@@ -79,16 +79,17 @@ void WinKeyIF::ApplyConfig(const Config* config) {
 //  WM_KEYDOWN
 //
 void WinKeyIF::KeyDown(uint32_t vkcode, uint32_t keydata) {
-  if (keytable == KeyTable106[0]) {
+  if (keytable_ == KeyTable106[0]) {
     // 半角・全角キー対策
     if (vkcode == 0xf3 || vkcode == 0xf4) {
-      keystate[0xf4] = 3;
+      keystate_[0xf4] = 3;
       return;
     }
   }
+  // Note: 1<<24: extended key flag (e.g. right ctrl)
   uint32_t keyindex = (vkcode & 0xff) | ((keydata & (1 << 24)) ? 0x100 : 0);
   Log("KeyDown  = %.2x %.3x\n", vkcode, keyindex);
-  keystate[keyindex] = 1;
+  keystate_[keyindex] = 1;
 }
 
 // ---------------------------------------------------------------------------
@@ -96,52 +97,52 @@ void WinKeyIF::KeyDown(uint32_t vkcode, uint32_t keydata) {
 //
 void WinKeyIF::KeyUp(uint32_t vkcode, uint32_t keydata) {
   uint32_t keyindex = (vkcode & 0xff) | (keydata & (1 << 24) ? 0x100 : 0);
-  keystate[keyindex] = 0;
+  keystate_[keyindex] = 0;
   Log("KeyUp   = %.2x %.3x\n", vkcode, keyindex);
 
   // SHIFT + テンキーによる押しっぱなし現象対策
 
-  if (keytable == KeyTable106[0] || keytable == KeyTable101[0]) {
+  if (keytable_ == KeyTable106[0] || keytable_ == KeyTable101[0]) {
     switch (keyindex) {
       case VK_NUMPAD0:
       case VK_INSERT:
-        keystate[VK_NUMPAD0] = keystate[VK_INSERT] = 0;
+        keystate_[VK_NUMPAD0] = keystate_[VK_INSERT] = 0;
         break;
       case VK_NUMPAD1:
       case VK_END:
-        keystate[VK_NUMPAD1] = keystate[VK_END] = 0;
+        keystate_[VK_NUMPAD1] = keystate_[VK_END] = 0;
         break;
       case VK_NUMPAD2:
       case VK_DOWN:
-        keystate[VK_NUMPAD2] = keystate[VK_DOWN] = 0;
+        keystate_[VK_NUMPAD2] = keystate_[VK_DOWN] = 0;
         break;
       case VK_NUMPAD3:
       case VK_NEXT:
-        keystate[VK_NUMPAD3] = keystate[VK_NEXT] = 0;
+        keystate_[VK_NUMPAD3] = keystate_[VK_NEXT] = 0;
         break;
       case VK_NUMPAD4:
       case VK_LEFT:
-        keystate[VK_NUMPAD4] = keystate[VK_LEFT] = 0;
+        keystate_[VK_NUMPAD4] = keystate_[VK_LEFT] = 0;
         break;
       case VK_NUMPAD5:
       case VK_CLEAR:
-        keystate[VK_NUMPAD5] = keystate[VK_CLEAR] = 0;
+        keystate_[VK_NUMPAD5] = keystate_[VK_CLEAR] = 0;
         break;
       case VK_NUMPAD6:
       case VK_RIGHT:
-        keystate[VK_NUMPAD6] = keystate[VK_RIGHT] = 0;
+        keystate_[VK_NUMPAD6] = keystate_[VK_RIGHT] = 0;
         break;
       case VK_NUMPAD7:
       case VK_HOME:
-        keystate[VK_NUMPAD7] = keystate[VK_HOME] = 0;
+        keystate_[VK_NUMPAD7] = keystate_[VK_HOME] = 0;
         break;
       case VK_NUMPAD8:
       case VK_UP:
-        keystate[VK_NUMPAD8] = keystate[VK_UP] = 0;
+        keystate_[VK_NUMPAD8] = keystate_[VK_UP] = 0;
         break;
       case VK_NUMPAD9:
       case VK_PRIOR:
-        keystate[VK_NUMPAD9] = keystate[VK_PRIOR] = 0;
+        keystate_[VK_NUMPAD9] = keystate_[VK_PRIOR] = 0;
         break;
     }
   }
@@ -154,55 +155,55 @@ void WinKeyIF::KeyUp(uint32_t vkcode, uint32_t keydata) {
 uint32_t WinKeyIF::GetKey(const Key* key) {
   uint32_t i;
 
-  for (i = 0; i < 8 && key->k; i++, key++) {
+  for (i = 0; i < 8 && key->k; ++i, ++key) {
     switch (key->f) {
       case lock:
-        if (keyboard[key->k] & 0x01)
+        if (keyboard_[key->k] & 0x01)
           return 0;
         break;
 
       case keyb:
-        if (keyboard[key->k] & 0x80)
+        if (keyboard_[key->k] & 0x80)
           return 0;
         break;
 
       case nex:
-        if (keystate[key->k])
+        if (keystate_[key->k])
           return 0;
         break;
 
       case ext:
-        if (keystate[key->k | 0x100])
+        if (keystate_[key->k | 0x100])
           return 0;
         break;
 
       case arrowten:
-        if (usearrow && (keyboard[key->k] & 0x80))
+        if (usearrow_ && (keyboard_[key->k] & 0x80))
           return 0;
         break;
 
       case noarrowten:
-        if (!usearrow && (keyboard[key->k] & 0x80))
+        if (!usearrow_ && (keyboard_[key->k] & 0x80))
           return 0;
         break;
 
       case noarrowtenex:
-        if (!usearrow && keystate[key->k | 0x100])
+        if (!usearrow_ && keystate_[key->k | 0x100])
           return 0;
         break;
 
       case pc80sft:
-        if (pc80mode && ((keyboard[VK_DOWN] & 0x80) || (keyboard[VK_LEFT] & 0x80)))
+        if (pc80mode_ && ((keyboard_[VK_DOWN] & 0x80) || (keyboard_[VK_LEFT] & 0x80)))
           return 0;
         break;
 
       case pc80key:
-        if (pc80mode && (keyboard[key->k] & 0x80))
+        if (pc80mode_ && (keyboard_[key->k] & 0x80))
           return 0;
         break;
 
       default:
-        if (keystate[key->k] | keystate[key->k | 0x100])  // & 0x80)
+        if (keystate_[key->k] | keystate_[key->k | 0x100])  // & 0x80)
           return 0;
         break;
     }
@@ -215,32 +216,32 @@ uint32_t WinKeyIF::GetKey(const Key* key) {
 //
 void IOCALL WinKeyIF::VSync(uint32_t, uint32_t d) {
   if (d && active_) {
-    if (hwnd) {
-      PostMessage(hwnd, WM_M88_SENDKEYSTATE, reinterpret_cast<WPARAM>(keyboard), (LPARAM)hevent);
-      WaitForSingleObject(hevent, 10);
+    if (hwnd_) {
+      PostMessage(hwnd_, WM_M88_SENDKEYSTATE, reinterpret_cast<WPARAM>(keyboard_), (LPARAM)hevent_);
+      WaitForSingleObject(hevent_, 10);
     }
 
-    if (keytable == KeyTable106[0] || keytable == KeyTable101[0]) {
-      keystate[0xf4] = std::max(keystate[0xf4] - 1, 0);
+    if (keytable_ == KeyTable106[0] || keytable_ == KeyTable101[0]) {
+      keystate_[0xf4] = std::max(keystate_[0xf4] - 1, 0);
     }
-    for (int i = 0; i < 16; i++) {
-      keyport_[i] = -1;
+    for (int& i : keyport_) {
+      i = -1;
     }
   }
 }
 
-void WinKeyIF::Activate(bool yes) {
-  active_ = yes;
+void WinKeyIF::Activate(bool active) {
+  active_ = active;
   if (active_) {
-    memset(keystate, 0, 512);
-    for (int i = 0; i < 16; i++) {
-      keyport_[i] = -1;
+    memset(keystate_, 0, 512);
+    for (int& i : keyport_) {
+      i = -1;
     }
   }
 }
 
-void WinKeyIF::Disable(bool yes) {
-  disabled_ = yes;
+void WinKeyIF::Disable(bool disabled) {
+  disabled_ = disabled;
 }
 
 // ---------------------------------------------------------------------------
@@ -252,15 +253,15 @@ uint32_t IOCALL WinKeyIF::In(uint32_t port) {
   if (active_) {
     int r = keyport_[port];
     if (r == -1) {
-      const Key* key = keytable + port * 64 + 56;
+      const Key* key = keytable_ + port * 64 + 56;
       r = 0;
-      for (int i = 0; i < 8; i++) {
+      for (int i = 0; i < 8; ++i) {
         r = r * 2 + GetKey(key);
         key -= 8;
       }
       keyport_[port] = r;
       if (port == 0x0d) {
-        Log("In(13)   = %.2x %.2x %.2x\n", r, keystate[0xf4], keystate[0x1f4]);
+        Log("In(13)   = %.2x %.2x %.2x\n", r, keystate_[0xf4], keystate_[0x1f4]);
       }
     }
     return uint8_t(r);
@@ -532,7 +533,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable106[16 * 8][8] = {
 //  キー対応表 for 101 キーボード
 //
 const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
-    // 00
+    // I/O port 00H
     {
         KEY(VK_NUMPAD0),
         KEYF(VK_INSERT, nex),
@@ -577,7 +578,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
         TERM,
     },  // num 7
 
-    // 01
+    // I/O port 01H
     {
         KEY(VK_NUMPAD8),
         KEYF(VK_UP, nex),
@@ -614,7 +615,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
         TERM,
     },  // RET
 
-    // 02
+    // I/O port 02H
     {KEY(0xdb), TERM},  // @
     {KEY('A'), TERM},   // A
     {KEY('B'), TERM},   // B
@@ -624,7 +625,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY('F'), TERM},   // F
     {KEY('G'), TERM},   // G
 
-    // 03
+    // I/O port 03H
     {KEY('H'), TERM},  // H
     {KEY('I'), TERM},  // I
     {KEY('J'), TERM},  // J
@@ -634,7 +635,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY('N'), TERM},  // N
     {KEY('O'), TERM},  // O
 
-    // 04
+    // I/O port 04H
     {KEY('P'), TERM},  // P
     {KEY('Q'), TERM},  // Q
     {KEY('R'), TERM},  // R
@@ -644,7 +645,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY('V'), TERM},  // V
     {KEY('W'), TERM},  // W
 
-    // 05
+    // I/O port 05H
     {KEY('X'), TERM},   // X
     {KEY('Y'), TERM},   // Y
     {KEY('Z'), TERM},   // Z
@@ -654,7 +655,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY(0xbb), TERM},  // ^ ok
     {KEY(0xbd), TERM},  // - ok
 
-    // 06
+    // I/O port 06H
     {KEY('0'), TERM},  // 0
     {KEY('1'), TERM},  // 1
     {KEY('2'), TERM},  // 2
@@ -664,7 +665,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY('6'), TERM},  // 6
     {KEY('7'), TERM},  // 7
 
-    // 07
+    // I/O port 07H
     {KEY('8'), TERM},   // 8
     {KEY('9'), TERM},   // 9
     {KEY(0xba), TERM},  // :
@@ -674,7 +675,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY(0xbf), TERM},  // /
     {KEY(0xe2), TERM},  // _
 
-    // 08
+    // I/O port 08H
     {KEYF(VK_HOME, ext), TERM},                                        // CLR
     {KEYF(VK_UP, noarrowtenex), KEYF(VK_DOWN, pc80key), TERM},         // ↑
     {KEYF(VK_RIGHT, noarrowtenex), KEYF(VK_LEFT, pc80key), TERM},      // →
@@ -685,7 +686,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
      KEYF(VK_INSERT, ext), KEYF(1, pc80sft)},  // SHIFT
     {KEY(VK_CONTROL), TERM},                   // CTRL
 
-    // 09
+    // I/O port 09H
     {KEY(VK_F11), KEY(VK_PAUSE), TERM},                          // STOP
     {KEY(VK_F1), KEY(VK_F6), TERM},                              // F1
     {KEY(VK_F2), KEY(VK_F7), TERM},                              // F2
@@ -695,7 +696,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY(VK_SPACE), KEY(VK_CONVERT), KEY(VK_NONCONVERT), TERM},  // SPACE
     {KEY(VK_ESCAPE), TERM},                                      // ESC
 
-    // 0a
+    // I/O port 0aH
     {KEY(VK_TAB), TERM},                      // TAB
     {KEYF(VK_DOWN, noarrowtenex), TERM},      // ↓
     {KEYF(VK_LEFT, noarrowtenex), TERM},      // ←
@@ -705,7 +706,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY(0x6f), TERM},                        // /
     {KEYF(VK_CAPITAL, lock), TERM},           // CAPS LOCK
 
-    // 0b
+    // I/O port 0bH
     {KEYF(VK_NEXT, ext), TERM},   // ROLL DOWN
     {KEYF(VK_PRIOR, ext), TERM},  // ROLL UP
     {
@@ -727,7 +728,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
         TERM,
     },
 
-    // 0c
+    // I/O port 0cH
     {KEY(VK_F6), TERM},            // F6
     {KEY(VK_F7), TERM},            // F7
     {KEY(VK_F8), TERM},            // F8
@@ -737,7 +738,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEYF(VK_INSERT, ext), TERM},  // INS
     {KEYF(VK_DELETE, ext), TERM},  // DEL
 
-    // 0d
+    // I/O port 0dH
     {KEY(VK_CONVERT), TERM},                     // 変換
     {KEY(VK_NONCONVERT), KEY(VK_ACCEPT), TERM},  // 決定
     {TERM},                                      // PC
@@ -747,7 +748,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {TERM},
     {TERM},
 
-    // 0e
+    // I/O port 0eH
     {KEYF(VK_RETURN, nex), TERM},  // RET FK
     {KEYF(VK_RETURN, ext), TERM},  // RET 10
     {KEY(VK_LSHIFT), TERM},        // SHIFT L
@@ -757,7 +758,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {TERM},
     {TERM},
 
-    // 0f
+    // I/O port 0fH
     {TERM},
     {TERM},
     {TERM},
