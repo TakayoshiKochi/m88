@@ -16,13 +16,14 @@ class StatusDisplayInterface {
   virtual void FDAccess(uint32_t dr, bool hd, bool active) = 0;
   virtual void UpdateDisplay() = 0;
   virtual bool Show(int priority, int duration, const char* msg, ...) = 0;
+  virtual bool ShowV(int priority, int duration, const char* msg, va_list args) = 0;
   virtual void Update() = 0;
   virtual void WaitSubSys() = 0;
 };
 
 class StatusDisplay {
  public:
-  StatusDisplay(StatusDisplayInterface* impl) : impl_(impl) {}
+  explicit StatusDisplay(StatusDisplayInterface* impl) : impl_(impl) {}
   ~StatusDisplay() = default;
 
   void FDAccess(uint32_t dr, bool hd, bool active) { impl_->FDAccess(dr, hd, active); }
@@ -30,7 +31,7 @@ class StatusDisplay {
   bool Show(int priority, int duration, const char* msg, ...) {
     va_list args;
     va_start(args, msg);
-    bool r = impl_->Show(priority, duration, msg, args);
+    bool r = impl_->ShowV(priority, duration, msg, args);
     va_end(args);
     return r;
   }
@@ -47,6 +48,7 @@ class DummyStatusDisplay : public StatusDisplayInterface {
   void FDAccess(uint32_t dr, bool hd, bool active) override {}
   void UpdateDisplay() override {}
   bool Show(int priority, int duration, const char* msg, ...) override { return true; }
+  bool ShowV(int priority, int duration, const char* msg, va_list args) override { return true; }
   void Update() override {}
   void WaitSubSys() override {}
 };

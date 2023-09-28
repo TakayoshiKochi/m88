@@ -309,7 +309,8 @@ add_library(zlib ${LIB_TYPE}
 add_executable(m88 WIN32
         src/win32/main.cpp
         src/win32/m88.rc
-        src/win32/dpiaware.manifest)
+        src/win32/dpiaware.manifest
+        src/win32/utf8.manifest)
 
 target_link_libraries(m88
         PRIVATE common devices fmgen pc88core pc88shell win32 win32mon romeo zlib

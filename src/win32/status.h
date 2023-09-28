@@ -17,26 +17,28 @@
 class StatusDisplayImpl : public StatusDisplayInterface {
  public:
   StatusDisplayImpl();
-  ~StatusDisplayImpl();
+  ~StatusDisplayImpl() override;
 
-  bool Init(HWND hwndparent);
+  bool Init(HWND parent);
   void CleanUp();
 
   bool Enable(bool sfs = false);
   bool Disable();
-  int GetHeight() { return height; }
+  int GetHeight() { return height_; }
   void DrawItem(DRAWITEMSTRUCT* dis);
+
   // Implements StatusDisplayInterface
   void FDAccess(uint32_t dr, bool hd, bool active) override;
   void UpdateDisplay() override;
-  void WaitSubSys() override { litstat[2] = 9; }
+  void WaitSubSys() override { litstat_[2] = 9; }
 
   // Implements StatusDisplayInterface
   bool Show(int priority, int duration, const char* msg, ...) override;
+  bool ShowV(int priority, int duration, const char* msg, va_list args) override;
   void Update() override;
-  UINT_PTR GetTimerID() { return timerid; }
 
-  HWND GetHWnd() { return hwnd; }
+  [[nodiscard]] UINT_PTR GetTimerID() const { return timer_id_; }
+  [[nodiscard]] HWND GetHWnd() const { return chwnd_; }
 
  private:
   struct List {
@@ -54,22 +56,22 @@ class StatusDisplayImpl : public StatusDisplayInterface {
 
   void Clean();
 
-  HWND hwnd;
-  HWND hwndparent;
-  List* list;
-  UINT_PTR timerid;
+  HWND chwnd_ = nullptr;
+  HWND parent_hwnd_ = nullptr;
+  List* list_ = nullptr;
+  UINT_PTR timer_id_ = 0;
   std::mutex mtx_;
-  Border border;
-  int height;
-  int litstat[3];
-  int litcurrent[3];
-  bool showfdstat;
-  bool updatemessage;
+  Border border_{};
+  int height_ = 0;
+  int litstat_[3]{};
+  int litcurrent_[3]{};
+  bool show_fdc_status_ = false;
+  bool update_message_ = false;
 
-  int currentduration;
-  int currentpriority;
+  int current_duration_ = 0;
+  int current_priority_ = 10000;
 
-  char buf[128];
+  char buf_[128]{};
 };
 
 extern StatusDisplayImpl statusdisplay;

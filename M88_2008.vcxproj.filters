@@ -644,7 +644,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="src\win32\dpiaware.manifest">
+    <Manifest Include="src\win32\utf8.manifest">
       <Filter>win32</Filter>
     </Manifest>
   </ItemGroup>
