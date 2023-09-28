@@ -1,4 +1,4 @@
-#include "BasicShaderHeader.hlsli"
+#include "shader_header.hlsli"
 
 float4 BasicPS(Output input) : SV_TARGET
 {

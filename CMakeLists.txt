@@ -201,6 +201,8 @@ add_library(win32 ${LIB_TYPE}
         src/win32/newdisk.cpp
         src/win32/screen/drawd3d12.h
         src/win32/screen/drawd3d12.cpp
+        src/win32/screen/pixel_shader.h
+        src/win32/screen/vertex_shader.h
         src/win32/screen/windraw.h
         src/win32/screen/windraw.cpp
         src/win32/sound/sounddrv.h

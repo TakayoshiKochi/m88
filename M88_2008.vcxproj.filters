@@ -620,6 +620,12 @@
     <ClInclude Include="src\common\scoped_handle.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="src\win32\screen\pixel_shader.h">
+      <Filter>win32\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\screen\vertex_shader.h">
+      <Filter>win32\screen</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\win32\M88.rc">
@@ -631,7 +637,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="m88dev.html" />
-    <None Include="src\win32\screen\BasicShaderHeader.hlsli">
+    <None Include="src\win32\screen\shader_header.hlsli">
       <Filter>win32\screen</Filter>
     </None>
   </ItemGroup>
@@ -639,10 +645,10 @@
     <Text Include="memo.txt" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\win32\screen\BasicPixelShader.hlsl">
+    <FxCompile Include="src\win32\screen\pixel_shader.hlsl">
       <Filter>win32\screen</Filter>
     </FxCompile>
-    <FxCompile Include="src\win32\screen\BasicVertexShader.hlsl">
+    <FxCompile Include="src\win32\screen\vertex_shader.hlsl">
       <Filter>win32\screen</Filter>
     </FxCompile>
   </ItemGroup>
