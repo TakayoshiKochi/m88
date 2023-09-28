@@ -49,14 +49,13 @@ bool StatusDisplayImpl::Enable(bool showfd) {
 }
 
 void StatusDisplayImpl::ResetSize() {
+  if (chwnd_ == nullptr)
+    return;
   SendMessage(chwnd_, SB_GETBORDERS, 0, (LPARAM)&border_);
   RECT rect{};
   GetWindowRect(parent_hwnd_, &rect);
 
-  int widths[2] = {
-      (rect.right - rect.left - border_.vertical) - (96 + border_.split),
-      -1
-  };
+  int widths[2] = {(rect.right - rect.left - border_.vertical) - (96 + border_.split), -1};
   SendMessage(chwnd_, SB_SETPARTS, 2, (LPARAM)widths);
   InvalidateRect(parent_hwnd_, nullptr, false);
 
@@ -155,11 +154,10 @@ bool StatusDisplayImpl::ShowV(int priority, int duration, const char* msg, va_li
   // TODO: Remove this UTF-8 to Shift_JIS conversion
   {
     wchar_t msgutf16[MAX_PATH];
-    int len_utf16 = MultiByteToWideChar(CP_UTF8, 0, u8msg, strlen(u8msg)+1, nullptr, 0);
-    if (len_utf16 <= sizeof(msgutf16)/sizeof(msgutf16[0])) {
-      MultiByteToWideChar(CP_UTF8, 0, u8msg, strlen(u8msg)+1, msgutf16, MAX_PATH);
-      WideCharToMultiByte(932, 0, msgutf16, len_utf16,
-                          entry->msg, 128, nullptr, nullptr);
+    int len_utf16 = MultiByteToWideChar(CP_UTF8, 0, u8msg, strlen(u8msg) + 1, nullptr, 0);
+    if (len_utf16 <= sizeof(msgutf16) / sizeof(msgutf16[0])) {
+      MultiByteToWideChar(CP_UTF8, 0, u8msg, strlen(u8msg) + 1, msgutf16, MAX_PATH);
+      WideCharToMultiByte(932, 0, msgutf16, len_utf16, entry->msg, 128, nullptr, nullptr);
     }
   }
 

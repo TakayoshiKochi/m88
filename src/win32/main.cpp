@@ -11,7 +11,6 @@
 #include "win32/ui.h"
 #include "win32/file.h"
 
-
 // Use modern visual style in common controls
 // https://learn.microsoft.com/ja-jp/windows/win32/controls/cookbook-overview
 #if defined _M_IX86
