@@ -37,18 +37,18 @@ class WinKeyIF : public Device {
 
   void Activate(bool);
   void Disable(bool);
-  void KeyDown(uint32_t, uint32_t);
-  void KeyUp(uint32_t, uint32_t);
+  void KeyDown(uint32_t vkcode, uint32_t keydata);
+  void KeyUp(uint32_t vkcode, uint32_t keydata);
 
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
-  enum KeyState {
+  enum KeyState : uint8_t {
     locked = 1,
     down = 2,
     downex = 4,
   };
-  enum KeyFlags {
+  enum KeyFlags : uint8_t {
     none = 0,
     lock,
     nex,
@@ -64,26 +64,29 @@ class WinKeyIF : public Device {
     uint8_t k, f;
   };
 
+  // Returns 0 if the specified key is pressed, otherwise returns 1.
   uint32_t GetKey(const Key* key);
 
-  static const Key KeyTable106[16 * 8][8];
-  static const Key KeyTable101[16 * 8][8];
-
-  const Key* keytable = nullptr;
+  const Key* keytable_ = nullptr;
   // int keyboardtype;
 
   bool active_;
   bool disabled_;
-  bool usearrow;
-  bool pc80mode;
+  bool usearrow_;
+  bool pc80mode_;
 
-  HWND hwnd;
-  HANDLE hevent;
-  BasicMode basicmode;
+  HWND hwnd_;
+  HANDLE hevent_;
+  BasicMode basicmode_;
 
+  // I/O port return value cache.
+  // Reset once VRTC happens, and recalculated from |keystate_| etc.
   int keyport_[16];
-  uint8_t keyboard[256];
-  uint8_t keystate[512];
+  uint8_t keyboard_[256];
+  uint8_t keystate_[512];
+
+  static const Key KeyTable106[16 * 8][8];
+  static const Key KeyTable101[16 * 8][8];
 
   static const Descriptor descriptor;
   static const InFuncPtr indef[];
