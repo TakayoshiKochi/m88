@@ -11,19 +11,19 @@
 // ---------------------------------------------------------------------------
 
 struct SchedulerEvent {
-  SchedulerEvent() : count(0), inst(nullptr), func(nullptr), arg(0), time(0) {}
+  SchedulerEvent() = default;
   // イベント発火時刻 (time_ と直接比較可能な時間)
-  int count;
-  int64_t count_ns;
+  int count = 0;
+  int64_t count_ns = 0;
   // nullptr の場合、イベントが無効化されている
-  IDevice* inst;
+  IDevice* inst = nullptr;
   // Callback関数
-  IDevice::TimeFunc func;
+  IDevice::TimeFunc func = nullptr;
   // Callback関数に渡す引数
-  int arg;
+  int arg = 0;
   // リピートするイベントの場合の間隔 (単位は Ticks)
-  int time;
-  int64_t time_ns;
+  int time = 0;
+  int64_t time_ns = 0;
 };
 
 class Scheduler : public IScheduler, public ITime {

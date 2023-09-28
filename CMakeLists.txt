@@ -14,6 +14,7 @@ if (MSVC)
     add_compile_definitions(NOMINMAX)
     add_compile_definitions(STRICT)
     add_compile_definitions(WIN32_LEAN_AND_MEAN)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
     add_compile_options(/utf-8)
     #add_compile_options(/source-charset:utf-8)
 

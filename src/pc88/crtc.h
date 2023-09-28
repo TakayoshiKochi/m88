@@ -41,7 +41,7 @@ class CRTC : public Device {
   void ApplyConfig(const Config* config);
   //  1 フレーム分に相当する時間を求める
   [[nodiscard]] int GetFramePeriod() const { return int(GetFramePeriodNS() / 10000); }
-  [[nodiscard]] int GetFramePeriodNS() const { return line_time_ns_ * (height_ + v_retrace_); }
+  [[nodiscard]] int GetFramePeriodNS() const { return int(line_time_ns_ * (height_ + v_retrace_)); }
 
   // rendering
   void UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool refresh);
