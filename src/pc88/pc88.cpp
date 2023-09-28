@@ -163,7 +163,7 @@ int PC88::Execute(int clocks) {
 //
 void SchedulerImpl::ShortenNS(int64_t ns) {
   // int64 nanos_per_clock = 10000LL / clocks_per_tick_;
-  Z80::StopDual(ns / (10000LL / clocks_per_tick_));
+  Z80::StopDual(int(ns / (10000LL / clocks_per_tick_)));
 }
 
 int64_t SchedulerImpl::GetNS() {

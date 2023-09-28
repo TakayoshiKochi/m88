@@ -79,7 +79,7 @@ bool IOBus::Disconnect(IDevice* device) {
   if (devlist_)
     devlist_->Del(device);
 
-  for (int i = 0; i < bank_size_; i++) {
+  for (uint32_t i = 0; i < bank_size_; ++i) {
     InBank& v = ins_[i];
     for (auto in : v) {
       auto it = find_if(v.begin(), v.end(),
@@ -94,7 +94,7 @@ bool IOBus::Disconnect(IDevice* device) {
     }
   }
 
-  for (int i = 0; i < bank_size_; i++) {
+  for (uint32_t i = 0; i < bank_size_; ++i) {
     OutBank& v = outs_[i];
     for (auto in : v) {
       auto it = find_if(v.begin(), v.end(),
