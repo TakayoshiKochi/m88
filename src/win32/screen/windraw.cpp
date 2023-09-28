@@ -45,7 +45,7 @@ bool WinDraw::Init0(HWND hwindow) {
   display_type_ = None;
 
   hthread_ = nullptr;
-  hevredraw_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+  hevredraw_.reset(CreateEvent(nullptr, FALSE, FALSE, nullptr));
 
   HDC hdc = GetDC(hwnd_);
   has_palette_ = !!(GetDeviceCaps(hdc, RASTERCAPS) & RC_PALETTE);
@@ -85,7 +85,7 @@ bool WinDraw::CleanUp() {
     int i = 300;
     do {
       should_terminate_ = true;
-      ::SetEvent(hevredraw_);
+      ::SetEvent(hevredraw_.get());
     } while (--i > 0 && WAIT_TIMEOUT == WaitForSingleObject(hthread_, 10));
 
     if (!i)
@@ -93,9 +93,7 @@ bool WinDraw::CleanUp() {
 
     CloseHandle(hthread_), hthread_ = 0;
   }
-  if (hevredraw_)
-    CloseHandle(hevredraw_), hevredraw_ = 0;
-
+  hevredraw_.reset();
   drawsub_.reset();
   return true;
 }
@@ -107,7 +105,7 @@ uint32_t WinDraw::ThreadMain() {
   drawing_ = false;
   while (!should_terminate_) {
     PaintWindow();
-    WaitForSingleObject(hevredraw_, 1000);
+    WaitForSingleObject(hevredraw_.get(), 1000);
   }
   return 0;
 }
@@ -145,7 +143,7 @@ void WinDraw::RequestPaint() {
   std::lock_guard<std::mutex> lock(mtx_);
   draw_all_ = true;
   drawing_ = true;
-  ::SetEvent(hevredraw_);
+  ::SetEvent(hevredraw_.get());
 #else
   draw_all_ = true;
   drawing_ = true;
@@ -166,7 +164,7 @@ void WinDraw::DrawScreen(const Region& region) {
     draw_area_.right = std::min(width_, region.right);
     draw_area_.bottom = std::min(height_, region.bottom + 1);
 #ifdef DRAW_THREAD
-    ::SetEvent(hevredraw_);
+    ::SetEvent(hevredraw_.get());
 #else
     PaintWindow();
 #endif

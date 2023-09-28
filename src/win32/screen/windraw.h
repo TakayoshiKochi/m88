@@ -13,6 +13,7 @@
 #include <stdint.h>
 
 #include "common/draw.h"
+#include "common/scoped_handle.h"
 
 #include <atomic>
 #include <memory>
@@ -123,7 +124,7 @@ class WinDraw : public Draw {
   int height_ = 400;
 
   HWND hwnd_ = nullptr;
-  HANDLE hevredraw_ = nullptr;
+  scoped_handle<HANDLE> hevredraw_;
   std::unique_ptr<WinDrawSub> drawsub_;
 
   std::mutex mtx_;
