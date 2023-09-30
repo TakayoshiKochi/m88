@@ -137,8 +137,8 @@ int Piccolo_SCCI::Init() {
   return PICCOLO_SUCCESS;
 }
 
-int Piccolo_SCCI::GetChip(PICCOLO_CHIPTYPE _type, PiccoloChip** _pc) {
-  *_pc = nullptr;
+int Piccolo_SCCI::GetChip(PICCOLO_CHIPTYPE _type, PiccoloChip** pc) {
+  *pc = nullptr;
   Log("GetChip %d\n", _type);
 
   if (!avail_) {
@@ -146,7 +146,7 @@ int Piccolo_SCCI::GetChip(PICCOLO_CHIPTYPE _type, PiccoloChip** _pc) {
   }
 
   Log(" allocated\n");
-  *_pc = new SpfmIf(this);
+  *pc = new SpfmIf(this);
 
   return PICCOLO_SUCCESS;
 }
