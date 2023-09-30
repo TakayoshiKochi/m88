@@ -86,7 +86,7 @@ void Piccolo::CleanUp() {
 //  Core Thread
 //
 uint32_t Piccolo::ThreadMain() {
-  ::SetThreadPriority(hthread_, THREAD_PRIORITY_ABOVE_NORMAL);
+  // ::SetThreadPriority(hthread_, THREAD_PRIORITY_ABOVE_NORMAL);
   while (!should_terminate_) {
     Event* ev;
     constexpr int wait_default_ms = 1;
