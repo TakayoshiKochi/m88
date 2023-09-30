@@ -49,7 +49,7 @@ bool OPNIF::Init(IOBus* bus, int intrport, int io, Scheduler* sched) {
 
   if (!opn_.Init(clock_, 8000, false))
     return false;
-  prev_time_ = scheduler_->GetTime();
+  prev_time_ns_ = scheduler_->GetTimeNS();
   TimeEvent(1);
 
   piccolo_ = Piccolo::GetInstance();
@@ -225,7 +225,8 @@ void IOCALL OPNIF::SetIndex1(uint32_t a, uint32_t data) {
 //
 //
 inline uint32_t OPNIF::ChipTime() {
-  return base_time_ + (scheduler_->GetTime() - base_tick_) * 10 + delay_;
+  // in microseconds
+  return base_time_ + (scheduler_->GetTimeNS() - base_time_ns_) / 1000 + delay_;
 }
 
 // ---------------------------------------------------------------------------
@@ -340,16 +341,16 @@ void OPNIF::UpdateTimer() {
 //  タイマー
 //
 void IOCALL OPNIF::TimeEvent(uint32_t e) {
-  int currenttime = scheduler_->GetTime();
-  int diff = currenttime - prev_time_;
-  prev_time_ = currenttime;
+  int64_t currenttime_ns = scheduler_->GetTimeNS();
+  int64_t diff_ns = currenttime_ns - prev_time_ns_;
+  prev_time_ns_ = currenttime_ns;
 
   if (enable_) {
     Log("%.8x:TimeEvent(%d) : diff:%d\n", currenttime, e, diff);
 
     if (sound_control_)
       sound_control_->Update(this);
-    if (opn_.Count(diff * 10) || e)
+    if (opn_.Count(diff_ns / 1000) || e)
       UpdateTimer();
   }
 }
@@ -390,7 +391,7 @@ bool IFCALL OPNIF::LoadStatus(const uint8_t* s) {
   if (st->rev != ssrev)
     return false;
 
-  prev_time_ = scheduler_->GetTime();
+  prev_time_ns_ = scheduler_->GetTimeNS();
 
   // PSG
   for (int i = 8; i <= 0x0a; ++i) {
@@ -463,8 +464,8 @@ bool IFCALL OPNIF::LoadStatus(const uint8_t* s) {
 //
 void IOCALL OPNIF::Sync(uint32_t, uint32_t) {
   if (chip_) {
-    base_time_ = piccolo_->GetCurrentTime();
-    base_tick_ = scheduler_->GetTime();
+    base_time_ = piccolo_->GetCurrentTimeUS();
+    base_time_ns_ = scheduler_->GetTimeNS();
   }
 }
 

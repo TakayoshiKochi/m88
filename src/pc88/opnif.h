@@ -133,13 +133,13 @@ class OPNIF : public Device, public ISoundSource {
   int32_t next_count_ = 0;
   uint32_t is_mask_port_ = 0;
   int is_mask_bit_ = 0;
-  int prev_time_ = 0;
+  int64_t prev_time_ns_ = 0;
   int port_io_ = 0;
   uint32_t current_rate_ = 0;
   bool fm_mix_mode_ = true;
 
   uint32_t base_time_ = 0;
-  uint32_t base_tick_ = 0;
+  int64_t base_time_ns_ = 0;
   uint32_t clock_ = 0;
 
   bool opna_mode_ = false;
@@ -149,6 +149,7 @@ class OPNIF : public Device, public ISoundSource {
   uint32_t index1_ = 0;
   uint32_t data1_ = 0;
 
+  //
   int delay_ = 100000;
 
   uint8_t regs_[0x200]{};
