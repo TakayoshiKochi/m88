@@ -40,19 +40,21 @@ static PCIDRV pcidrv = {
 
 class ChipIF : public PiccoloChip {
  public:
-  ChipIF(Piccolo_Romeo *p) { pic = p; }
-  ~ChipIF() { Mute(); }
-  int Init(uint32_t param) {
+  explicit ChipIF(Piccolo_Romeo *p) { pic = p; }
+  ~ChipIF() override { Mute(); }
+  int Init(uint32_t param) override {
     pic->Reset();
     return true;
   }
-  void Reset(bool opna) {
+  void Reset(bool opna) override {
     pic->DrvReset();
     pic->Reset();
   }
-  bool SetReg(uint32_t at, uint32_t addr, uint32_t data) { return pic->DrvSetReg(at, addr, data); }
-  void SetChannelMask(uint32_t mask) {}
-  void SetVolume(int ch, int value) {}
+  bool SetReg(uint32_t at, uint32_t addr, uint32_t data) override {
+    return pic->DrvSetReg(at, addr, data);
+  }
+  void SetChannelMask(uint32_t mask) override {}
+  void SetVolume(int ch, int value) override {}
 
  private:
   Piccolo_Romeo *pic;
@@ -76,15 +78,15 @@ static bool LoadDLL() {
       return false;
 
     FARPROC proc;
-    for (int i = 0; i < sizeof(dllproc) / sizeof(DLLPROCESS); i++) {
-      proc = GetProcAddress(pcidrv.mod, dllproc[i].symbol);
-      *(DWORD *)(((BYTE *)&pcidrv) + dllproc[i].addr) = (DWORD)proc;
+    for (auto i : dllproc) {
+      proc = GetProcAddress(pcidrv.mod, i.symbol);
+      *(DWORD *)(((BYTE *)&pcidrv) + i.addr) = (DWORD)proc;
       if (!proc)
         break;
     }
     if (!proc) {
       FreeLibrary(pcidrv.mod);
-      pcidrv.mod = 0;
+      pcidrv.mod = nullptr;
     }
   }
   return !!pcidrv.mod;
@@ -114,7 +116,7 @@ int Piccolo_Romeo::Init() {
     if (!LoadDLL())
       return PICCOLOE_DLL_NOT_FOUND;
 
-    avail = 1;
+    avail_ = 1;
 
     // ROMEO の存在確認
     // デバイスを探す
@@ -129,14 +131,14 @@ int Piccolo_Romeo::Init() {
 
     // ROMEO はありそうだが、デバイスは？
     id >>= 16;
-    addr = pcidrv.read32(id, ROMEO_BASEADDRESS1);
-    irq = pcidrv.read32(id, ROMEO_PCIINTERRUPT) & 0xff;
-    Log(" ADDR = %.8x\n", addr);
-    Log(" IRQ  = %.8x\n", irq);
+    addr_ = pcidrv.read32(id, ROMEO_BASEADDRESS1);
+    irq_ = pcidrv.read32(id, ROMEO_PCIINTERRUPT) & 0xff;
+    Log(" ADDR = %.8x\n", addr_);
+    Log(" IRQ  = %.8x\n", irq_);
 
-    if (!addr)
+    if (!addr_)
       return PICCOLOE_ROMEO_NOT_FOUND;
-    addr += ROMEO_YMF288BASE;
+    addr_ += ROMEO_YMF288BASE;
   }
   Reset();
 
@@ -146,13 +148,13 @@ int Piccolo_Romeo::Init() {
 }
 
 int Piccolo_Romeo::GetChip(PICCOLO_CHIPTYPE type, PiccoloChip **_pc) {
-  *_pc = 0;
+  *_pc = nullptr;
   Log("GetChip %d\n", type);
   if (type != PICCOLO_YMF288)
     return PICCOLOE_HARDWARE_NOT_AVAILABLE;
 
   Log(" Type: YMF288\n");
-  if (pcidrv.reserve == true) {
+  if (pcidrv.reserve) {
     return PICCOLOE_HARDWARE_IN_USE;
   }
   Log(" allocated\n");
@@ -166,17 +168,17 @@ int Piccolo_Romeo::GetChip(PICCOLO_CHIPTYPE type, PiccoloChip **_pc) {
 void Piccolo_Romeo::Reset() {
   Log("YMF288::Reset()\n");
   Mute();
-  if (avail) {
-    pcidrv.out32(addr + CTRL, 0x00);
+  if (avail_) {
+    pcidrv.out32(addr_ + CTRL, 0x00);
     Sleep(150);
-    pcidrv.out32(addr + CTRL, 0x80);
+    pcidrv.out32(addr_ + CTRL, 0x80);
     Sleep(150);
   }
 }
 
 bool Piccolo_Romeo::IsBusy() {
-  if (avail)
-    return (pcidrv.in8(addr + ADDR0) & 0x80) != 0;
+  if (avail_)
+    return (pcidrv.in8(addr_ + ADDR0) & 0x80) != 0;
   return false;
 }
 
@@ -192,13 +194,13 @@ void Piccolo_Romeo::Mute() {
 }
 
 void Piccolo_Romeo::SetReg(uint32_t a, uint32_t d) {
-  if (avail) {
+  if (avail_) {
     while (IsBusy())
       Sleep(0);
-    pcidrv.out8(addr + (a < 0x100 ? ADDR0 : ADDR1), a & 0xff);
+    pcidrv.out8(addr_ + (a < 0x100 ? ADDR0 : ADDR1), a & 0xff);
 
     while (IsBusy())
       Sleep(0);
-    pcidrv.out8(addr + (a < 0x100 ? DATA0 : DATA1), d & 0xff);
+    pcidrv.out8(addr_ + (a < 0x100 ? DATA0 : DATA1), d & 0xff);
   }
 }

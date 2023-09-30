@@ -2,7 +2,8 @@
 //	Sound Chip common Interface
 //----------------------------------------------------------------------
 #pragma once
-#include <Windows.h>
+
+#include <windows.h>
 
 // Sound Interface Infomation
 typedef struct {
@@ -64,7 +65,7 @@ class SoundInterfaceManager {
   // config scci
   virtual BOOL __stdcall config() = 0;
   // get version info
-  virtual DWORD __stdcall getVersion(DWORD* pMVersion = NULL) = 0;
+  virtual DWORD __stdcall getVersion(DWORD* pMVersion = nullptr) = 0;
 };
 
 //----------------------------------------

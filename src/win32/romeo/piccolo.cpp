@@ -4,80 +4,65 @@
 
 #include <mmsystem.h>
 #include <process.h>
-#include <winioctl.h>
+
+#include "piccolo/piioctl.h"
 #include "win32/romeo/piccolo_romeo.h"
 #include "win32/romeo/piccolo_gimic.h"
 #include "win32/romeo/piccolo_scci.h"
 #include "win32/romeo/romeo.h"
 #include "win32/status.h"
-#include "../../piccolo/piioctl.h"
 
 // #define LOGNAME "piccolo"
 #include "common/diag.h"
 
-Piccolo* Piccolo::instance = NULL;
+Piccolo* Piccolo::instance = nullptr;
 
 // ---------------------------------------------------------------------------
 //
 //
 Piccolo* Piccolo::GetInstance() {
-  if (instance) {
+  if (instance)
     return instance;
-  } else {
-    instance = new Piccolo_Romeo();
-    if (instance->Init() == PICCOLO_SUCCESS) {
-      return instance;
-    }
-    delete instance;
-    instance = new Piccolo_Gimic();
-    if (instance->Init() == PICCOLO_SUCCESS) {
-      return instance;
-    }
-    instance = new Piccolo_Scci();
-    if (instance->Init() == PICCOLO_SUCCESS) {
-      return instance;
-    }
-    delete instance;
-    instance = 0;
+
+  instance = new Piccolo_Romeo();
+  if (instance->Init() == PICCOLO_SUCCESS) {
+    return instance;
+  }
+  delete instance;
+
+  instance = new Piccolo_Gimic();
+  if (instance->Init() == PICCOLO_SUCCESS) {
+    return instance;
   }
 
-  return 0;
+  instance = new Piccolo_SCCI();
+  if (instance->Init() == PICCOLO_SUCCESS) {
+    return instance;
+  }
+
+  delete instance;
+  instance = nullptr;
+  return nullptr;
 }
 
 void Piccolo::DeleteInstance() {
   if (instance) {
     delete instance;
-    instance = 0;
+    instance = nullptr;
   }
 }
 
-Piccolo::Piccolo()
-    : active(false),
-      hthread(0),
-      idthread(0),
-      avail(0),
-      events(0),
-      evread(0),
-      evwrite(0),
-      eventries(0),
-      maxlatency(0),
-      shouldterminate(true) {}
-
-Piccolo::~Piccolo() {}
-
-// ---------------------------------------------------------------------------
-//
-//
 int Piccolo::Init() {
   // thread 作成
-  shouldterminate = false;
-  if (!hthread) {
-    hthread =
-        (HANDLE)_beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &idthread);
+  should_terminate_ = false;
+  if (!hthread_) {
+    hthread_ = (HANDLE)_beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0,
+                                      &thread_id_);
   }
-  if (!hthread)
+  if (!hthread_)
     return PICCOLOE_THREAD_ERROR;
 
+  // 1000000us = 1s
   SetMaximumLatency(1000000);
   SetLatencyBufferSize(16384);
   return PICCOLO_SUCCESS;
@@ -87,13 +72,13 @@ int Piccolo::Init() {
 //  後始末
 //
 void Piccolo::CleanUp() {
-  if (hthread) {
-    shouldterminate = true;
-    if (WAIT_TIMEOUT == WaitForSingleObject(hthread, 3000)) {
-      TerminateThread(hthread, 0);
+  if (hthread_) {
+    should_terminate_ = true;
+    if (WAIT_TIMEOUT == WaitForSingleObject(hthread_, 3000)) {
+      TerminateThread(hthread_, 0);
     }
-    CloseHandle(hthread);
-    hthread = 0;
+    CloseHandle(hthread_);
+    hthread_ = nullptr;
   }
 }
 
@@ -101,30 +86,30 @@ void Piccolo::CleanUp() {
 //  Core Thread
 //
 uint32_t Piccolo::ThreadMain() {
-  ::SetThreadPriority(hthread, THREAD_PRIORITY_TIME_CRITICAL);
-  while (!shouldterminate) {
+  ::SetThreadPriority(hthread_, THREAD_PRIORITY_TIME_CRITICAL);
+  while (!should_terminate_) {
     Event* ev;
-    const int waitdefault = 1;
-    int wait = waitdefault;
+    constexpr int wait_default_ms = 1;
+    int wait_ms = wait_default_ms;
     {
       std::lock_guard<std::mutex> lock(mtx_);
-      uint32_t time = GetCurrentTime();
-      while ((ev = Top()) && !shouldterminate) {
-        int32_t d = ev->at - time;
+      uint32_t time_us = GetCurrentTimeUS();
+      while ((ev = Top()) && !should_terminate_) {
+        int32_t d_us = ev->at - time_us;
 
-        if (d >= 1000) {
-          if (d > maxlatency)
-            d = maxlatency;
-          wait = d / 1000;
+        if (d_us >= 1000) {
+          if (d_us > max_latency_us_)
+            d_us = max_latency_us_;
+          wait_ms = d_us / 1000;
           break;
         }
         SetReg(ev->addr, ev->data);
         Pop();
       }
     }
-    if (wait > waitdefault)
-      wait = waitdefault;
-    Sleep(wait);
+    if (wait_ms > wait_default_ms)
+      wait_ms = wait_default_ms;
+    Sleep(wait_ms);
   }
   return 0;
 }
@@ -133,10 +118,12 @@ uint32_t Piccolo::ThreadMain() {
 //  キューに追加
 //
 bool Piccolo::Push(Piccolo::Event& ev) {
-  if ((evwrite + 1) % eventries == evread)
+  // Note: mtx_ should be acquired??
+  // std::lock_guard<std::mutex> lock(mtx_);
+  if ((ev_write_ + 1) % ev_entries_ == ev_read_)
     return false;
-  events[evwrite] = ev;
-  evwrite = (evwrite + 1) % eventries;
+  events_[ev_write_] = ev;
+  ev_write_ = (ev_write_ + 1) % ev_entries_;
   return true;
 }
 
@@ -144,14 +131,16 @@ bool Piccolo::Push(Piccolo::Event& ev) {
 //  キューから一個貰う
 //
 Piccolo::Event* Piccolo::Top() {
-  if (evwrite == evread)
-    return 0;
+  // Note: mtx_ should have been already acquired
+  if (ev_write_ == ev_read_)
+    return nullptr;
 
-  return &events[evread];
+  return &events_[ev_read_];
 }
 
 void Piccolo::Pop() {
-  evread = (evread + 1) % eventries;
+  // Note: mtx_ should have been already acquired
+  ev_read_ = (ev_read_ + 1) % ev_entries_;
 }
 
 // ---------------------------------------------------------------------------
@@ -170,16 +159,17 @@ bool Piccolo::SetLatencyBufferSize(uint32_t entries) {
   if (!ne)
     return false;
 
-  delete[] events;
-  events = ne;
-  eventries = entries;
-  evread = 0;
-  evwrite = 0;
+  delete[] events_;
+  events_ = ne;
+  ev_entries_ = entries;
+  ev_read_ = 0;
+  ev_write_ = 0;
   return true;
 }
 
-bool Piccolo::SetMaximumLatency(uint32_t nanosec) {
-  maxlatency = nanosec;
+bool Piccolo::SetMaximumLatency(uint32_t microsec) {
+  std::lock_guard<std::mutex> lock(mtx_);
+  max_latency_us_ = microsec;
   return true;
 }
 
@@ -193,13 +183,13 @@ void Piccolo::DrvReset() {
   std::lock_guard<std::mutex> lock(mtx_);
 
   // 本当は該当するエントリだけ削除すべきだが…
-  evread = 0;
-  evwrite = 0;
+  ev_read_ = 0;
+  ev_write_ = 0;
 }
 
 bool Piccolo::DrvSetReg(uint32_t at, uint32_t addr, uint32_t data) {
-  if (int32_t(at - GetCurrentTime()) > maxlatency) {
-    //      statusdisplay.Show(100, 0, "Piccolo: Time %.6d", at - GetCurrentTime());
+  if (int32_t(at - GetCurrentTimeUS()) > max_latency_us_) {
+    //      statusdisplay.Show(100, 0, "Piccolo: Time %.6d", at - GetCurrentTimeUS());
     return false;
   }
 
@@ -211,7 +201,7 @@ bool Piccolo::DrvSetReg(uint32_t at, uint32_t addr, uint32_t data) {
   /*int d = evwrite - evread;
   if (d < 0) d += eventries;
   statusdisplay.Show(100, 0, "Piccolo: Time %.6d  Buf: %.6d  R:%.8d W:%.8d w:%.6d", at -
-  GetCurrentTime(), d, evread, GetCurrentTime(), asleep);
+  GetCurrentTimeUS(), d, evread, GetCurrentTimeUS(), asleep);
   */
   return Push(ev);
 }

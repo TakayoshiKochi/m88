@@ -7,10 +7,10 @@
 class Piccolo_Gimic : public Piccolo {
  public:
   Piccolo_Gimic();
-  virtual ~Piccolo_Gimic();
-  int Init();
-  int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc);
-  void SetReg(uint32_t addr, uint32_t data);
+  ~Piccolo_Gimic() override;
+  int Init() override;
+  int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc) override;
+  void SetReg(uint32_t addr, uint32_t data) override;
 
  private:
 };

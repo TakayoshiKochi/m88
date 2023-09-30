@@ -7,10 +7,10 @@
 class Piccolo_Romeo : public Piccolo {
  public:
   Piccolo_Romeo();
-  virtual ~Piccolo_Romeo();
-  int Init();
-  int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc);
-  void SetReg(uint32_t addr, uint32_t data);
+  ~Piccolo_Romeo() override;
+  int Init() override;
+  int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc) override;
+  void SetReg(uint32_t addr, uint32_t data) override;
 
   void Reset();
   void Mute();

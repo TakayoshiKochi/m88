@@ -1,7 +1,6 @@
 //  $Id: piccolo.h,v 1.2 2002/05/31 09:45:22 cisc Exp $
 
-#ifndef incl_romeo_piccolo_h
-#define incl_romeo_piccolo_h
+#pragma once
 
 #include <windows.h>
 
@@ -14,7 +13,8 @@
 //
 class PiccoloChip {
  public:
-  virtual ~PiccoloChip(){};
+  PiccoloChip() = default;
+  virtual ~PiccoloChip() = default;
   virtual int Init(uint32_t c) = 0;
   virtual void Reset(bool) = 0;
   virtual bool SetReg(uint32_t at, uint32_t addr, uint32_t data) = 0;
@@ -26,7 +26,8 @@ enum PICCOLO_CHIPTYPE { PICCOLO_INVALID = 0, PICCOLO_YMF288, PICCOLO_YM2608 };
 
 class Piccolo {
  public:
-  virtual ~Piccolo();
+  // constructor is protected
+  virtual ~Piccolo() = default;
 
   enum PICCOLO_ERROR {
     PICCOLO_SUCCESS = 0,
@@ -46,9 +47,9 @@ class Piccolo {
   bool SetLatencyBufferSize(uint32_t entry);
 
   // 遅延時間の最大値を設定
-  // SetReg が呼び出されたとき、nanosec 後以降のレジスタ書き込みを指示する at の値を指定した場合
+  // SetReg が呼び出されたとき、microsec 後以降のレジスタ書き込みを指示する at の値を指定した場合
   // 呼び出しは却下されるかもしれない。
-  bool SetMaximumLatency(uint32_t nanosec);
+  bool SetMaximumLatency(uint32_t microsec);
 
   // メソッド呼び出し時点での時間を渡す(単位は microsec)
   uint32_t GetCurrentTimeUS();
@@ -57,14 +58,15 @@ class Piccolo {
   virtual int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc) = 0;
   virtual void SetReg(uint32_t addr, uint32_t data) = 0;
 
-  int IsDriverBased() { return avail; }
+  int IsDriverBased() const { return avail_; }
 
- public:
   bool DrvSetReg(uint32_t at, uint32_t addr, uint32_t data);
   void DrvReset();
   void DrvRelease();
 
  protected:
+  Piccolo() = default;
+
   struct Event {
     uint32_t at;
     uint32_t addr;
@@ -73,35 +75,32 @@ class Piccolo {
 
   static Piccolo* instance;
 
-  Piccolo();
   virtual int Init();
   void CleanUp();
   static uint32_t CALLBACK ThreadEntry(void* arg);
   uint32_t ThreadMain();
 
-  TimeKeeper timekeeper;
+  TimeKeeper keeper_;
   std::mutex mtx_;
 
   bool Push(Event&);
   Event* Top();
   void Pop();
 
-  Event* events;
-  int evread;
-  int evwrite;
-  int eventries;
+  Event* events_ = nullptr;
+  int ev_read_ = 0;
+  int ev_write_ = 0;
+  int ev_entries_ = 0;
 
-  int maxlatency;
+  int max_latency_us_ = 0;
 
-  uint32_t addr;
-  uint32_t irq;
+  uint32_t addr_ = 0;
+  uint32_t irq_ = 0;
 
-  std::atomic<bool> shouldterminate;
-  std::atomic<bool> active;
-  HANDLE hthread;
-  uint32_t idthread;
+  std::atomic<bool> should_terminate_ = false;
+  std::atomic<bool> active_ = false;
+  HANDLE hthread_ = nullptr;
+  uint32_t thread_id_ = 0;
 
-  int avail;
+  int avail_ = 0;
 };
-
-#endif  // incl_romeo_piccolo_h

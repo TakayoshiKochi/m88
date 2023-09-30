@@ -12,8 +12,8 @@
 // #define LOGNAME "piccolo"
 #include "common/diag.h"
 
-HMODULE g_mod = 0;
-IRealChipBase* g_chipbase = 0;
+HMODULE g_mod = nullptr;
+IRealChipBase* g_chipbase = nullptr;
 
 struct GMCDRV {
   IGimic* gimic;
@@ -26,29 +26,29 @@ static GMCDRV gmcdrv = {0, 0, PICCOLO_INVALID, false};
 
 class GimicIf : public PiccoloChip {
  public:
-  GimicIf(Piccolo* p) : pic(p) {}
-  ~GimicIf() {
+  explicit GimicIf(Piccolo* p) : pic(p) {}
+  ~GimicIf() override {
     Log("YMF288::Reset()\n");
     Mute();
   }
-  int Init(uint32_t param) {
+  int Init(uint32_t param) override {
     gmcdrv.chip->reset();
     return true;
   }
-  void Reset(bool opna) {
+  void Reset(bool opna) override {
     pic->DrvReset();
     gmcdrv.chip->reset();
     gmcdrv.gimic->setSSGVolume(opna ? 63 : 68);  // FM/PSG比 50%/55%
   }
-  bool SetReg(uint32_t at, uint32_t addr, uint32_t data) {
+  bool SetReg(uint32_t at, uint32_t addr, uint32_t data) override {
     if (gmcdrv.chip) {
       gmcdrv.chip->out(addr, data);
     }
     //      pic->DrvSetReg( at, addr, data );
     return true;
   }
-  void SetChannelMask(uint32_t mask){};
-  void SetVolume(int ch, int value){};
+  void SetChannelMask(uint32_t mask) override{};
+  void SetVolume(int ch, int value) override{};
 
  private:
   Piccolo* pic;
@@ -67,7 +67,7 @@ class GimicIf : public PiccoloChip {
 };
 
 static bool LoadDLL() {
-  if (g_mod == NULL) {
+  if (g_mod == nullptr) {
     g_mod = ::LoadLibrary("c86ctl.dll");
     if (!g_mod) {
       return false;
@@ -83,14 +83,14 @@ static bool LoadDLL() {
         g_chipbase->initialize();
       } else {
         ::FreeLibrary(g_mod);
-        g_mod = 0;
+        g_mod = nullptr;
       }
     } else {
       ::FreeLibrary(g_mod);
-      g_mod = 0;
+      g_mod = nullptr;
     }
   }
-  return g_mod ? true : false;
+  return g_mod != nullptr;
 }
 
 static void FreeDLL() {
@@ -138,19 +138,19 @@ int Piccolo_Gimic::Init() {
       gmcdrv.chip->reset();
       gmcdrv.gimic->setPLLClock(7987200);
       gmcdrv.gimic->setSSGVolume(63);  // FM/PSG比 50%
-      avail = 2;
+      avail_ = 2;
       break;
     }
     if (strncmp(info.Devname, "GMC-OPN3L", sizeof(info.Devname)) == 0) {
       gmcdrv.type = PICCOLO_YMF288;
       found_device = true;
       gmcdrv.chip->reset();
-      avail = 1;
+      avail_ = 1;
       break;
     }
   }
 
-  if (found_device == false) {
+  if (!found_device) {
     return PICCOLOE_ROMEO_NOT_FOUND;
   }
 
@@ -163,7 +163,7 @@ int Piccolo_Gimic::GetChip(PICCOLO_CHIPTYPE _type, PiccoloChip** _pc) {
   *_pc = 0;
   Log("GetChip %d\n", _type);
 
-  if (!avail) {
+  if (!avail_) {
     return PICCOLOE_HARDWARE_NOT_AVAILABLE;
   }
 
@@ -175,7 +175,7 @@ int Piccolo_Gimic::GetChip(PICCOLO_CHIPTYPE _type, PiccoloChip** _pc) {
   if (gmcdrv.type == PICCOLO_INVALID) {
     return PICCOLOE_HARDWARE_NOT_AVAILABLE;
   }
-  if (gmcdrv.reserve == true) {
+  if (gmcdrv.reserve) {
     return PICCOLOE_HARDWARE_IN_USE;
   }
 
@@ -187,7 +187,7 @@ int Piccolo_Gimic::GetChip(PICCOLO_CHIPTYPE _type, PiccoloChip** _pc) {
 }
 
 void Piccolo_Gimic::SetReg(uint32_t addr, uint32_t data) {
-  if (avail) {
+  if (avail_) {
     gmcdrv.chip->out(addr, data);
   }
 }
