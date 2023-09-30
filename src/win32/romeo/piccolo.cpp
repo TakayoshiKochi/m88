@@ -179,7 +179,7 @@ bool Piccolo::SetMaximumLatency(uint32_t nanosec) {
   return true;
 }
 
-uint32_t Piccolo::GetCurrentTime() {
+uint32_t Piccolo::GetCurrentTimeUS() {
   return ::timeGetTime() * 1000;
 }
 

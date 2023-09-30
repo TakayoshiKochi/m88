@@ -16,7 +16,7 @@ void Piccolo::DeleteInstance() {}
 
 // ???
 // GetCurrentTime() is replaced by GetTickCount() in winbase.h
-uint32_t Piccolo::GetTickCount() {
+uint32_t Piccolo::GetCurrentTimeUS() {
   return 0;
 }
 

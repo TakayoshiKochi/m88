@@ -50,8 +50,8 @@ class Piccolo {
   // 呼び出しは却下されるかもしれない。
   bool SetMaximumLatency(uint32_t nanosec);
 
-  // メソッド呼び出し時点での時間を渡す(単位は nanosec)
-  uint32_t GetCurrentTime();
+  // メソッド呼び出し時点での時間を渡す(単位は microsec)
+  uint32_t GetCurrentTimeUS();
 
   //
   virtual int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc) = 0;

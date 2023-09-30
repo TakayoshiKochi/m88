@@ -138,16 +138,24 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
  public:
   enum SpecialPort {
+    // Serial port interrupt (RXRDY)
     kPint0 = 0x100,
+    // VRTC interrupt (VRTC)
     kPint1,
+    // RTC (1/600s) interrupt (CLOCK)
     kPint2,
+    // user interrupt (~INT4)
     kPint3,
+    // OPN interrupt (~INT3)
     kPint4,
+    // user interrupt (~INT2)
     kPint5,
+    // FDD interrupt (~FDINT1)
     kPint6,
+    // FDD interrupt (~FDINT2)
     kPint7,
     kPReset,   // reset
-    kPIRQ,     // IRQ
+    kPIRQ,     // IRQ (for CPU)
     kPIAck,    // interrupt acknowledgement
     kVrtc,     // vertical retrace
     kPOPNio1,  // OPN の入出力ポート 1

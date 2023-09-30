@@ -23,69 +23,56 @@ using namespace PC8801;
 
 #define ROMEO_JULIET 0
 
+namespace {
+constexpr int kBaseClockOPNA = 7987200;
+constexpr size_t kADPCMBufferSize = 0x40000;  // 256KiB
+}  // namespace
+
 // ---------------------------------------------------------------------------
 //  プリスケーラの設定値
 //  static にするのは，FMGen の制限により，複数の OPN を異なるクロックに
 //  することが出来ないため．
-//
+// static
 int OPNIF::prescaler = 0x2d;
 
-// ---------------------------------------------------------------------------
-//  生成・破棄
-//
-OPNIF::OPNIF(const ID& id) : Device(id), chip(nullptr), piccolo(nullptr) {
-  Log("Hello\n");
-  scheduler = nullptr;
-  soundcontrol = nullptr;
-  opnamode = false;
-  nextcount = 0;
-  fmmixmode = true;
-  imaskport = 0;
-
-  delay = 100000;
-}
-
-OPNIF::~OPNIF() {}
+OPNIF::OPNIF(const ID& id) : Device(id) {}
 
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool OPNIF::Init(IOBus* b, int intrport, int io, Scheduler* s) {
-  bus = b;
-  scheduler = s;
-  portio = io;
-  opn.SetIntr(bus, intrport);
-  clock = baseclock;
+bool OPNIF::Init(IOBus* bus, int intrport, int io, Scheduler* sched) {
+  bus_ = bus;
+  scheduler_ = sched;
+  port_io_ = io;
+  opn_.SetIntr(bus_, intrport);
+  clock_ = kBaseClockOPNA;
 
-  if (!opn.Init(clock, 8000, 0))
+  if (!opn_.Init(clock_, 8000, false))
     return false;
-  prevtime = scheduler->GetTime();
+  prev_time_ns_ = scheduler_->GetTimeNS();
   TimeEvent(1);
 
-  piccolo = Piccolo::GetInstance();
-  if (piccolo) {
+  piccolo_ = Piccolo::GetInstance();
+  if (piccolo_) {
     Log("asking piccolo to obtain YMF288 instance\n");
-    if (piccolo->GetChip(PICCOLO_YMF288, &chip) >= 0) {
+    if (piccolo_->GetChip(PICCOLO_YMF288, &chip_) >= 0) {
       Log(" success.\n");
-      switch (piccolo->IsDriverBased()) {
+      switch (piccolo_->IsDriverBased()) {
         case 1:
           g_status_display->Show(100, 10000, "ROMEO/GIMIC: YMF288 enabled");
-          opn.SetChannelMask(0xfdff);
+          opn_.SetChannelMask(0xfdff);
           break;
         case 2:
           g_status_display->Show(100, 10000, "GIMIC: YM2608 enabled");
-          opn.SetChannelMask(0xffff);
+          opn_.SetChannelMask(0xffff);
           break;
         default:
         case 0:
           g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 enabled");
           break;
       }
-#ifdef USE_OPN
-      clock = 4000000;
-#else
-      clock = 8000000;
-#endif
+      // ??
+      clock_ = 8000000;
       //  opn.Init(clock, 8000, 0);
     }
   }
@@ -94,8 +81,8 @@ bool OPNIF::Init(IOBus* b, int intrport, int io, Scheduler* s) {
 }
 
 void OPNIF::SetIMask(uint32_t port, uint32_t bit) {
-  imaskport = port;
-  imaskbit = bit;
+  is_mask_port_ = port;
+  is_mask_bit_ = bit;
 }
 
 void OPNIF::CleanUp() {
@@ -107,11 +94,11 @@ void OPNIF::CleanUp() {
 //
 //
 bool IFCALL OPNIF::Connect(ISoundControl* c) {
-  if (soundcontrol)
-    soundcontrol->Disconnect(this);
-  soundcontrol = c;
-  if (soundcontrol)
-    soundcontrol->Connect(this);
+  if (sound_control_)
+    sound_control_->Disconnect(this);
+  sound_control_ = c;
+  if (sound_control_)
+    sound_control_->Connect(this);
   return true;
 }
 
@@ -119,9 +106,9 @@ bool IFCALL OPNIF::Connect(ISoundControl* c) {
 //  合成・再生レート設定
 //
 bool IFCALL OPNIF::SetRate(uint32_t rate) {
-  opn.SetReg(prescaler, 0);
-  opn.SetRate(clock, rate, fmmixmode);
-  currentrate = rate;
+  opn_.SetReg(prescaler, 0);
+  opn_.SetRate(clock_, rate, fm_mix_mode_);
+  current_rate_ = rate;
   return true;
 }
 
@@ -129,16 +116,16 @@ bool IFCALL OPNIF::SetRate(uint32_t rate) {
 //  FM 音源の合成モードを設定
 //
 void OPNIF::SetFMMixMode(bool mm) {
-  fmmixmode = mm;
-  SetRate(currentrate);
+  fm_mix_mode_ = mm;
+  SetRate(current_rate_);
 }
 
 // ---------------------------------------------------------------------------
 //  合成
 //
 void IFCALL OPNIF::Mix(int32_t* dest, int nsamples) {
-  if (enable)
-    opn.Mix(dest, nsamples);
+  if (enable_)
+    opn_.Mix(dest, nsamples);
 }
 
 // ---------------------------------------------------------------------------
@@ -149,21 +136,22 @@ static inline int ConvertVolume(int volume) {
 }
 
 void OPNIF::SetVolume(const Config* config) {
-  opn.SetVolumeFM(ConvertVolume(config->volfm));
-  opn.SetVolumePSG(ConvertVolume(config->volssg));
-#ifndef USE_OPN
-  opn.SetVolumeADPCM(ConvertVolume(config->voladpcm));
-  opn.SetVolumeRhythmTotal(ConvertVolume(config->volrhythm));
-  opn.SetVolumeRhythm(0, ConvertVolume(config->volbd));
-  opn.SetVolumeRhythm(1, ConvertVolume(config->volsd));
-  opn.SetVolumeRhythm(2, ConvertVolume(config->voltop));
-  opn.SetVolumeRhythm(3, ConvertVolume(config->volhh));
-  opn.SetVolumeRhythm(4, ConvertVolume(config->voltom));
-  opn.SetVolumeRhythm(5, ConvertVolume(config->volrim));
-#endif
+  // OPN
+  opn_.SetVolumeFM(ConvertVolume(config->volfm));
+  opn_.SetVolumePSG(ConvertVolume(config->volssg));
 
-  if (chip) {
-    delay = config->romeolatency * 1000;
+  // OPNA
+  opn_.SetVolumeADPCM(ConvertVolume(config->voladpcm));
+  opn_.SetVolumeRhythmTotal(ConvertVolume(config->volrhythm));
+  opn_.SetVolumeRhythm(0, ConvertVolume(config->volbd));
+  opn_.SetVolumeRhythm(1, ConvertVolume(config->volsd));
+  opn_.SetVolumeRhythm(2, ConvertVolume(config->voltop));
+  opn_.SetVolumeRhythm(3, ConvertVolume(config->volhh));
+  opn_.SetVolumeRhythm(4, ConvertVolume(config->voltom));
+  opn_.SetVolumeRhythm(5, ConvertVolume(config->volrim));
+
+  if (chip_) {
+    delay_ = config->romeolatency * 1000;
   }
 }
 
@@ -171,30 +159,30 @@ void OPNIF::SetVolume(const Config* config) {
 //  Reset
 //
 void IOCALL OPNIF::Reset(uint32_t, uint32_t) {
-  memset(regs, 0, sizeof(regs));
+  memset(regs_, 0, sizeof(regs_));
 
-  regs[0x29] = 0x1f;
-  regs[0x110] = 0x1c;
+  regs_[0x29] = 0x1f;
+  regs_[0x110] = 0x1c;
   for (int i = 0; i < 3; i++)
-    regs[0xb4 + i] = regs[0x1b4 + i] = 0xc0;
+    regs_[0xb4 + i] = regs_[0x1b4 + i] = 0xc0;
 
-  opn.Reset();
-  opn.SetIntrMask(true);
+  opn_.Reset();
+  opn_.SetIntrMask(true);
   prescaler = 0x2d;
 
-  if (chip)
-    chip->Reset(opnamode);
+  if (chip_)
+    chip_->Reset(opna_mode_);
 }
 
 // ---------------------------------------------------------------------------
 //  割り込み
 //
 void OPNIF::OPNUnit::Intr(bool flag) {
-  bool prev = intrpending && intrenabled && bus;
-  intrpending = flag;
-  Log("OPN     :Interrupt %d %d %d\n", intrpending, intrenabled, !prev);
-  if (intrpending && intrenabled && bus && !prev) {
-    bus->Out(pintr, true);
+  bool prev = intr_pending_ && intr_enabled_ && bus_;
+  intr_pending_ = flag;
+  Log("OPN     :Interrupt %d %d %d\n", intr_pending_, intr_enabled_, !prev);
+  if (intr_pending_ && intr_enabled_ && bus_ && !prev) {
+    bus_->Out(pintr_, true);
   }
 }
 
@@ -202,16 +190,16 @@ void OPNIF::OPNUnit::Intr(bool flag) {
 //  割り込み許可？
 //
 inline void OPNIF::OPNUnit::SetIntrMask(bool en) {
-  bool prev = intrpending && intrenabled && bus;
-  intrenabled = en;
-  if (intrpending && intrenabled && bus && !prev)
-    bus->Out(pintr, true);
+  bool prev = intr_pending_ && intr_enabled_ && bus_;
+  intr_enabled_ = en;
+  if (intr_pending_ && intr_enabled_ && bus_ && !prev)
+    bus_->Out(pintr_, true);
 }
 
 void OPNIF::SetIntrMask(uint32_t port, uint32_t intrmask) {
   //  Log("Intr enabled (%.2x)[%.2x]\n", a, intrmask);
-  if (port == imaskport) {
-    opn.SetIntrMask(!(imaskbit & intrmask));
+  if (port == is_mask_port_) {
+    opn_.SetIntrMask(!(is_mask_bit_ & intrmask));
   }
 }
 
@@ -220,24 +208,25 @@ void OPNIF::SetIntrMask(uint32_t port, uint32_t intrmask) {
 //
 void IOCALL OPNIF::SetIndex0(uint32_t a, uint32_t data) {
   //  Log("Index0[%.2x] = %.2x\n", a, data);
-  index0 = data;
-  if (enable && (data & 0xfc) == 0x2c) {
-    regs[0x2f] = 1;
+  index0_ = data;
+  if (enable_ && (data & 0xfc) == 0x2c) {
+    regs_[0x2f] = 1;
     prescaler = data;
-    opn.SetReg(data, 0);
+    opn_.SetReg(data, 0);
   }
 }
 
 void IOCALL OPNIF::SetIndex1(uint32_t a, uint32_t data) {
   //  Log("Index1[%.2x] = %.2x\n", a, data);
-  index1 = data1 = data;
+  index1_ = data1_ = data;
 }
 
 // ---------------------------------------------------------------------------
 //
 //
 inline uint32_t OPNIF::ChipTime() {
-  return basetime + (scheduler->GetTime() - basetick) * 10 + delay;
+  // in microseconds
+  return base_time_ + (scheduler_->GetTimeNS() - base_time_ns_) / 1000 + delay_;
 }
 
 // ---------------------------------------------------------------------------
@@ -245,52 +234,50 @@ inline uint32_t OPNIF::ChipTime() {
 //
 void IOCALL OPNIF::WriteData0(uint32_t a, uint32_t data) {
   //  Log("Write0[%.2x] = %.2x\n", a, data);
-  if (enable) {
-    Log("%.8x:OPN[0%.2x] = %.2x\n", scheduler->GetTime(), index0, data);
+  if (enable_) {
+    Log("%.8x:OPN[0%.2x] = %.2x\n", scheduler_->GetTime(), index0_, data);
     TimeEvent(0);
 
-    if (!opnamode) {
-      if ((index0 & 0xf0) == 0x10)
+    if (!opna_mode_) {
+      if ((index0_ & 0xf0) == 0x10)
         return;
-      if (index0 == 0x22)
+      if (index0_ == 0x22)
         data = 0;
-      if (index0 == 0x28 && (data & 4))
+      if (index0_ == 0x28 && (data & 4))
         return;
-      if (index0 == 0x29)
+      if (index0_ == 0x29)
         data = 3;
-      if (index0 >= 0xb4)
+      if (index0_ >= 0xb4)
         data = 0xc0;
     }
-    regs[index0] = data;
-    opn.SetReg(index0, data);
+    regs_[index0_] = data;
+    opn_.SetReg(index0_, data);
 #if ROMEO_JULIET
     if (ROMEOEnabled())
       juliet_YMF288A(index0, data);
 #endif
-    if (chip && index0 != 0x20)
-      chip->SetReg(ChipTime(), index0, data);
+    if (chip_ && index0_ != 0x20)
+      chip_->SetReg(ChipTime(), index0_, data);
 
-    if (index0 == 0x27) {
+    if (index0_ == 0x27) {
       UpdateTimer();
     }
   }
 }
 
 void IOCALL OPNIF::WriteData1(uint32_t a, uint32_t data) {
-//  Log("Write1[%.2x] = %.2x\n", a, data);
-#ifndef USE_OPN
-  if (enable && opnamode) {
-    Log("%.8x:OPN[1%.2x] = %.2x\n", scheduler->GetTime(), index1, data);
-    if (index1 != 0x08 && index1 != 0x10)
+  //  Log("Write1[%.2x] = %.2x\n", a, data);
+  if (enable_ && opna_mode_) {
+    Log("%.8x:OPN[1%.2x] = %.2x\n", scheduler_->GetTime(), index1_, data);
+    if (index1_ != 0x08 && index1_ != 0x10)
       TimeEvent(0);
-    data1 = data;
-    regs[0x100 | index1] = data;
-    opn.SetReg(0x100 | index1, data);
+    data1_ = data;
+    regs_[0x100 | index1_] = data;
+    opn_.SetReg(0x100 | index1_, data);
 
-    if (chip)
-      chip->SetReg(ChipTime(), 0x100 | index1, data);
+    if (chip_)
+      chip_->SetReg(ChipTime(), 0x100 | index1_, data);
   }
-#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -298,29 +285,27 @@ void IOCALL OPNIF::WriteData1(uint32_t a, uint32_t data) {
 //
 uint32_t IOCALL OPNIF::ReadData0(uint32_t a) {
   uint32_t ret;
-  if (!enable)
+  if (!enable_)
     ret = 0xff;
-  else if ((index0 & 0xfe) == 0x0e)
-    ret = bus->In(portio + (index0 & 1));
-  else if (index0 == 0xff && !opnamode)
+  else if ((index0_ & 0xfe) == 0x0e)
+    ret = bus_->In(port_io_ + (index0_ & 1));
+  else if (index0_ == 0xff && !opna_mode_)
     ret = 0;
   else
-    ret = opn.GetReg(index0);
+    ret = opn_.GetReg(index0_);
   //  Log("Read0 [%.2x] = %.2x\n", a, ret);
   return ret;
 }
 
 uint32_t IOCALL OPNIF::ReadData1(uint32_t a) {
   uint32_t ret = 0xff;
-#ifndef USE_OPN
-  if (enable && opnamode) {
-    if (index1 == 0x08)
-      ret = opn.GetReg(0x100 | index1);
+  if (enable_ && opna_mode_) {
+    if (index1_ == 0x08)
+      ret = opn_.GetReg(0x100 | index1_);
     else
-      ret = data1;
+      ret = data1_;
   }
-//  Log("Read1 [%.2x] = %.2x  (d1:%.2x)\n", a, ret, data1);
-#endif
+  //  Log("Read1 [%.2x] = %.2x  (d1:%.2x)\n", a, ret, data1);
   return ret;
 }
 
@@ -328,13 +313,13 @@ uint32_t IOCALL OPNIF::ReadData1(uint32_t a) {
 //  ReadStatus
 //
 uint32_t IOCALL OPNIF::ReadStatus(uint32_t a) {
-  uint32_t ret = enable ? opn.ReadStatus() : 0xff;
+  uint32_t ret = enable_ ? opn_.ReadStatus() : 0xff;
   //  Log("status[%.2x] = %.2x\n", a, ret);
   return ret;
 }
 
 uint32_t IOCALL OPNIF::ReadStatusEx(uint32_t a) {
-  uint32_t ret = enable && opnamode ? opn.ReadStatusEx() : 0xff;
+  uint32_t ret = enable_ && opna_mode_ ? opn_.ReadStatusEx() : 0xff;
   //  Log("statex[%.2x] = %.2x\n", a, ret);
   return ret;
 }
@@ -343,12 +328,12 @@ uint32_t IOCALL OPNIF::ReadStatusEx(uint32_t a) {
 //  タイマー更新
 //
 void OPNIF::UpdateTimer() {
-  scheduler->DelEvent(this);
-  nextcount = opn.GetNextEvent();
-  if (nextcount) {
-    nextcount = (nextcount + 9) / 10;
-    scheduler->AddEventNS(nextcount * 10000ULL, this, static_cast<TimeFunc>(&OPNIF::TimeEvent), 1,
-                          false);
+  scheduler_->DelEvent(this);
+  next_count_ = opn_.GetNextEvent();
+  if (next_count_) {
+    next_count_ = (next_count_ + 9) / 10;
+    scheduler_->AddEventNS(next_count_ * 10000ULL, this, static_cast<TimeFunc>(&OPNIF::TimeEvent),
+                           1, false);
   }
 }
 
@@ -356,16 +341,16 @@ void OPNIF::UpdateTimer() {
 //  タイマー
 //
 void IOCALL OPNIF::TimeEvent(uint32_t e) {
-  int currenttime = scheduler->GetTime();
-  int diff = currenttime - prevtime;
-  prevtime = currenttime;
+  int64_t currenttime_ns = scheduler_->GetTimeNS();
+  int64_t diff_ns = currenttime_ns - prev_time_ns_;
+  prev_time_ns_ = currenttime_ns;
 
-  if (enable) {
+  if (enable_) {
     Log("%.8x:TimeEvent(%d) : diff:%d\n", currenttime, e, diff);
 
-    if (soundcontrol)
-      soundcontrol->Update(this);
-    if (opn.Count(diff * 10) || e)
+    if (sound_control_)
+      sound_control_->Update(this);
+    if (opn_.Count(diff_ns / 1000) || e)
       UpdateTimer();
   }
 }
@@ -374,8 +359,8 @@ void IOCALL OPNIF::TimeEvent(uint32_t e) {
 //  状態のサイズ
 //
 uint32_t IFCALL OPNIF::GetStatusSize() {
-  if (enable)
-    return sizeof(Status) + (opnamode ? 0x40000 : 0);
+  if (enable_)
+    return sizeof(Status) + (opna_mode_ ? kADPCMBufferSize : 0);
   else
     return 0;
 }
@@ -386,16 +371,15 @@ uint32_t IFCALL OPNIF::GetStatusSize() {
 bool IFCALL OPNIF::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
-  st->i0 = index0;
-  st->i1 = index1;
+  st->i0 = index0_;
+  st->i1 = index1_;
   st->d0 = 0;
-  st->d1 = data1;
-  st->is = opn.IntrStat();
-  memcpy(st->regs, regs, 0x200);
-#ifndef USE_OPN
-  if (opnamode)
-    memcpy(s + sizeof(Status), opn.GetADPCMBuffer(), 0x40000);
-#endif
+  st->d1 = data1_;
+  st->is = opn_.IntrStat();
+  memcpy(st->regs, regs_, 0x200);
+
+  if (opna_mode_)
+    memcpy(s + sizeof(Status), opn_.GetADPCMBuffer(), 0x40000);
   return true;
 }
 
@@ -407,57 +391,70 @@ bool IFCALL OPNIF::LoadStatus(const uint8_t* s) {
   if (st->rev != ssrev)
     return false;
 
-  prevtime = scheduler->GetTime();
+  prev_time_ns_ = scheduler_->GetTimeNS();
 
-  int i;
-  for (i = 8; i <= 0x0a; i++)
-    opn.SetReg(i, 0);
-  for (i = 0x40; i < 0x4f; i++)
-    opn.SetReg(i, 0x7f), opn.SetReg(i + 0x100, 0x7f);
-
-  for (i = 0; i < 0x10; i++)
-    SetIndex0(0, i), WriteData0(0, st->regs[i]);
-
-  opn.SetReg(0x10, 0xdf);
-
-  for (i = 11; i < 0x28; i++)
-    SetIndex0(0, i), WriteData0(0, st->regs[i]);
-
-  SetIndex0(0, 0x29), WriteData0(0, st->regs[0x29]);
-
-  for (i = 0x30; i < 0xa0; i++) {
-    index0 = i, WriteData0(0, st->regs[i]);
-    index1 = i, WriteData1(0, st->regs[i + 0x100]);
+  // PSG
+  for (int i = 8; i <= 0x0a; ++i) {
+    opn_.SetReg(i, 0);
   }
-  for (i = 0xb0; i < 0xb7; i++) {
-    index0 = i, WriteData0(0, st->regs[i]);
-    index1 = i, WriteData1(0, st->regs[i + 0x100]);
-  }
-  for (i = 0; i < 3; i++) {
-    index0 = 0xa4 + i, WriteData0(0, st->regs[0xa4 + i]);
-    index0 = 0xa0 + i, WriteData0(0, st->regs[0xa0 + i]);
-    index0 = 0xac + i, WriteData0(0, st->regs[0xac + i]);
-    index0 = 0xa8 + i, WriteData0(0, st->regs[0xa8 + i]);
-    index1 = 0xa4 + i, WriteData1(0, st->regs[0x1a4 + i]);
-    index1 = 0xa0 + i, WriteData1(0, st->regs[0x1a0 + i]);
-    index1 = 0xac + i, WriteData1(0, st->regs[0x1ac + i]);
-    index1 = 0xa8 + i, WriteData1(0, st->regs[0x1a8 + i]);
-  }
-  for (index1 = 0x00; index1 < 0x08; index1++)
-    WriteData1(0, st->regs[0x100 | index1]);
-  for (index1 = 0x09; index1 < 0x0e; index1++)
-    WriteData1(0, st->regs[0x100 | index1]);
 
-  opn.SetIntrMask(!!(st->is & 1));
-  opn.Intr(!!(st->is & 2));
-  index0 = st->i0;
-  index1 = st->i1;
-  data1 = st->d1;
+  for (int i = 0x40; i < 0x4f; ++i) {
+    opn_.SetReg(i, 0x7f);
+    opn_.SetReg(i + 0x100, 0x7f);
+  }
 
-#ifndef USE_OPN
-  if (opnamode)
-    memcpy(opn.GetADPCMBuffer(), s + sizeof(Status), 0x40000);
-#endif
+  for (int i = 0; i < 0x10; ++i) {
+    SetIndex0(0, i);
+    WriteData0(0, st->regs[i]);
+  }
+
+  opn_.SetReg(0x10, 0xdf);
+
+  for (int i = 11; i < 0x28; ++i) {
+    SetIndex0(0, i);
+    WriteData0(0, st->regs[i]);
+  }
+
+  SetIndex0(0, 0x29);
+  WriteData0(0, st->regs[0x29]);
+
+  for (int i = 0x30; i < 0xa0; ++i) {
+    index0_ = i;
+    WriteData0(0, st->regs[i]);
+    index1_ = i;
+    WriteData1(0, st->regs[i + 0x100]);
+  }
+
+  for (int i = 0xb0; i < 0xb7; ++i) {
+    index0_ = i;
+    WriteData0(0, st->regs[i]);
+    index1_ = i;
+    WriteData1(0, st->regs[i + 0x100]);
+  }
+  for (int i = 0; i < 3; ++i) {
+    index0_ = 0xa4 + i, WriteData0(0, st->regs[0xa4 + i]);
+    index0_ = 0xa0 + i, WriteData0(0, st->regs[0xa0 + i]);
+    index0_ = 0xac + i, WriteData0(0, st->regs[0xac + i]);
+    index0_ = 0xa8 + i, WriteData0(0, st->regs[0xa8 + i]);
+    index1_ = 0xa4 + i, WriteData1(0, st->regs[0x1a4 + i]);
+    index1_ = 0xa0 + i, WriteData1(0, st->regs[0x1a0 + i]);
+    index1_ = 0xac + i, WriteData1(0, st->regs[0x1ac + i]);
+    index1_ = 0xa8 + i, WriteData1(0, st->regs[0x1a8 + i]);
+  }
+  for (index1_ = 0x00; index1_ < 0x08; ++index1_)
+    WriteData1(0, st->regs[0x100 | index1_]);
+  for (index1_ = 0x09; index1_ < 0x0e; ++index1_)
+    WriteData1(0, st->regs[0x100 | index1_]);
+
+  opn_.SetIntrMask(!!(st->is & 1));
+  opn_.Intr(!!(st->is & 2));
+  index0_ = st->i0;
+  index1_ = st->i1;
+  data1_ = st->d1;
+
+  if (opna_mode_)
+    memcpy(opn_.GetADPCMBuffer(), s + sizeof(Status), 0x40000);
+
   UpdateTimer();
   return true;
 }
@@ -466,9 +463,9 @@ bool IFCALL OPNIF::LoadStatus(const uint8_t* s) {
 //  カウンタを同期
 //
 void IOCALL OPNIF::Sync(uint32_t, uint32_t) {
-  if (chip) {
-    basetime = piccolo->GetCurrentTime();
-    basetick = scheduler->GetTime();
+  if (chip_) {
+    base_time_ = piccolo_->GetCurrentTimeUS();
+    base_time_ns_ = scheduler_->GetTimeNS();
   }
 }
 
@@ -478,15 +475,18 @@ void IOCALL OPNIF::Sync(uint32_t, uint32_t) {
 const Device::Descriptor OPNIF::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr OPNIF::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&Reset),      static_cast<Device::OutFuncPtr>(&SetIndex0),
-    static_cast<Device::OutFuncPtr>(&SetIndex1),  static_cast<Device::OutFuncPtr>(&WriteData0),
-    static_cast<Device::OutFuncPtr>(&WriteData1), static_cast<Device::OutFuncPtr>(&SetIntrMask),
-    static_cast<Device::OutFuncPtr>(&Sync),
+    static_cast<Device::OutFuncPtr>(&OPNIF::Reset),
+    static_cast<Device::OutFuncPtr>(&OPNIF::SetIndex0),
+    static_cast<Device::OutFuncPtr>(&OPNIF::SetIndex1),
+    static_cast<Device::OutFuncPtr>(&OPNIF::WriteData0),
+    static_cast<Device::OutFuncPtr>(&OPNIF::WriteData1),
+    static_cast<Device::OutFuncPtr>(&OPNIF::SetIntrMask),
+    static_cast<Device::OutFuncPtr>(&OPNIF::Sync),
 };
 
 const Device::InFuncPtr OPNIF::indef[] = {
-    static_cast<Device::InFuncPtr>(&ReadStatus),
-    static_cast<Device::InFuncPtr>(&ReadStatusEx),
-    static_cast<Device::InFuncPtr>(&ReadData0),
-    static_cast<Device::InFuncPtr>(&ReadData1),
+    static_cast<Device::InFuncPtr>(&OPNIF::ReadStatus),
+    static_cast<Device::InFuncPtr>(&OPNIF::ReadStatusEx),
+    static_cast<Device::InFuncPtr>(&OPNIF::ReadData0),
+    static_cast<Device::InFuncPtr>(&OPNIF::ReadData1),
 };

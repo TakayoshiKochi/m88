@@ -82,7 +82,9 @@ class WinKeyIF : public Device {
   // I/O port return value cache.
   // Reset once VRTC happens, and recalculated from |keystate_| etc.
   int keyport_[16];
+  // Sent to |::GetKeyboardState| API.
   uint8_t keyboard_[256];
+  // local state of keys (indexed by VK_XXX and VK_XXX + 0x100 for extended keys)
   uint8_t keystate_[512];
 
   static const Key KeyTable106[16 * 8][8];
