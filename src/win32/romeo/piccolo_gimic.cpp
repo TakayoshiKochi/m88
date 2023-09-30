@@ -44,7 +44,7 @@ class GimicIf : public PiccoloChip {
     if (gmcdrv.chip) {
       gmcdrv.chip->out(addr, data);
     }
-    //      pic->DrvSetReg( at, addr, data );
+    // pic->DrvSetReg(at, addr, data);
     return true;
   }
   void SetChannelMask(uint32_t mask) override{};

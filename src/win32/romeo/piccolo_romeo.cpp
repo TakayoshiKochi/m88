@@ -147,8 +147,8 @@ int Piccolo_Romeo::Init() {
   return PICCOLO_SUCCESS;
 }
 
-int Piccolo_Romeo::GetChip(PICCOLO_CHIPTYPE type, PiccoloChip **_pc) {
-  *_pc = nullptr;
+int Piccolo_Romeo::GetChip(PICCOLO_CHIPTYPE type, PiccoloChip **pc) {
+  *pc = nullptr;
   Log("GetChip %d\n", type);
   if (type != PICCOLO_YMF288)
     return PICCOLOE_HARDWARE_NOT_AVAILABLE;
@@ -159,7 +159,7 @@ int Piccolo_Romeo::GetChip(PICCOLO_CHIPTYPE type, PiccoloChip **_pc) {
   }
   Log(" allocated\n");
   pcidrv.reserve = true;
-  *_pc = new ChipIF(this);
+  *pc = new ChipIF(this);
   return PICCOLO_SUCCESS;
 }
 

@@ -37,9 +37,10 @@ class SpfmIf : public PiccoloChip {
 
   bool SetReg(uint32_t at, uint32_t addr, uint32_t data) override {
     // SCCIデータ出力
-    if (g_pSoundChip) {
-      g_pSoundChip->setRegister(addr, data);
-    }
+//    if (g_pSoundChip) {
+//      g_pSoundChip->setRegister(addr, data);
+//    }
+    piccolo_->DrvSetReg(at, addr, data);
     return true;
   }
 

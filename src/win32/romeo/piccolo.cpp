@@ -86,7 +86,7 @@ void Piccolo::CleanUp() {
 //  Core Thread
 //
 uint32_t Piccolo::ThreadMain() {
-  ::SetThreadPriority(hthread_, THREAD_PRIORITY_TIME_CRITICAL);
+  ::SetThreadPriority(hthread_, THREAD_PRIORITY_ABOVE_NORMAL);
   while (!should_terminate_) {
     Event* ev;
     constexpr int wait_default_ms = 1;
@@ -119,7 +119,7 @@ uint32_t Piccolo::ThreadMain() {
 //
 bool Piccolo::Push(Piccolo::Event& ev) {
   // Note: mtx_ should be acquired??
-  // std::lock_guard<std::mutex> lock(mtx_);
+  std::lock_guard<std::mutex> lock(mtx_);
   if ((ev_write_ + 1) % ev_entries_ == ev_read_)
     return false;
   events_[ev_write_] = ev;
@@ -174,7 +174,7 @@ bool Piccolo::SetMaximumLatency(uint32_t microsec) {
 }
 
 uint32_t Piccolo::GetCurrentTimeUS() {
-  return ::timeGetTime() * 1000;
+  return static_cast<uint32_t>(keeper_.GetTimeNS() / 1000);
 }
 
 // ---------------------------------------------------------------------------
