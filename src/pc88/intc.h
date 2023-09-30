@@ -22,7 +22,7 @@ class INTC : public Device {
 
  public:
   explicit INTC(const ID& id);
-  ~INTC() override;
+  ~INTC() override = default;
   bool Init(IOBus* bus, uint32_t irqport, uint32_t ipbase);
 
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
@@ -45,10 +45,10 @@ class INTC : public Device {
   };
   void IRQ(bool);
 
-  IOBus* bus;
-  Status stat;
-  uint32_t irqport;
-  uint32_t iportbase;
+  IOBus* bus_ = nullptr;
+  Status stat_{};
+  uint32_t irq_port_ = 0;
+  uint32_t i_port_base_ = 0;
 
   static const Descriptor descriptor;
   static const InFuncPtr indef[];
