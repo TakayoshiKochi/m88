@@ -39,23 +39,22 @@ class OPNIF : public Device, public ISoundSource {
     readdata0,
     readdata1,
   };
-  enum {
-#ifdef USE_OPN
-    baseclock = 3993600,
-#else
-    baseclock = 7987200,
-#endif
-  };
 
  public:
   explicit OPNIF(const ID& id);
-  ~OPNIF() override;
+  ~OPNIF() override = default;
 
-  bool Init(IOBus* bus, int intrport, int io, Scheduler* s);
+  bool Init(IOBus* bus, int intrport, int io, Scheduler* sched);
   void SetIMask(uint32_t port, uint32_t bit);
 
   void CleanUp();
 
+  // Overrides Device
+  uint32_t IFCALL GetStatusSize() override;
+  bool IFCALL SaveStatus(uint8_t* status) override;
+  bool IFCALL LoadStatus(const uint8_t* status) override;
+
+  // Overrides ISoundSource
   bool IFCALL Connect(ISoundControl* c) override;
   bool IFCALL SetRate(uint32_t rate) override;
   void IFCALL Mix(int32_t* buffer, int nsamples) override;
@@ -63,13 +62,9 @@ class OPNIF : public Device, public ISoundSource {
   void SetVolume(const Config* config);
   void SetFMMixMode(bool);
 
-  uint32_t IFCALL GetStatusSize() override;
-  bool IFCALL SaveStatus(uint8_t* status) override;
-  bool IFCALL LoadStatus(const uint8_t* status) override;
-
-  void Enable(bool en) { enable = en; }
-  void SetOPNMode(bool _opna) { opnamode = _opna; }
-  const uint8_t* GetRegs() { return regs; }
+  void Enable(bool en) { enable_ = en; }
+  void SetOPNMode(bool _opna) { opna_mode_ = _opna; }
+  const uint8_t* GetRegs() const { return regs_; }
   void SetChannelMask(uint32_t ch);
 
   void IOCALL SetIntrMask(uint32_t, uint32_t intrmask);
@@ -87,30 +82,30 @@ class OPNIF : public Device, public ISoundSource {
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
-  class OPNUnit :
-#ifndef USE_OPN
-      public FM::OPNA
-#else
-      public FM::OPN
-#endif
-  {
+  class OPNUnit : public FM::OPNA {
    public:
-    OPNUnit() : bus(0) {}
-    ~OPNUnit() {}
-    void Intr(bool f);
-    void SetIntr(IOBus* b, int p) { bus = b, pintr = p; }
+    OPNUnit() = default;
+    ~OPNUnit() override = default;
+    void Intr(bool f) override;
+    void SetIntr(IOBus* b, int p) {
+      bus_ = b;
+      pintr_ = p;
+    }
     void SetIntrMask(bool e);
-    uint32_t IntrStat() { return (intrenabled ? 1 : 0) | (intrpending ? 2 : 0); }
+    [[nodiscard]] uint32_t IntrStat() const {
+      return (intr_enabled_ ? 1 : 0) | (intr_pending_ ? 2 : 0);
+    }
 
    private:
-    IOBus* bus;
-    int pintr;
-    bool intrenabled;
-    bool intrpending;
+    IOBus* bus_ = nullptr;
+    int pintr_ = 0;
+    bool intr_enabled_ = false;
+    bool intr_pending_ = false;
 
     friend class OPNIF;
   };
 
+  // TODO: bump version and add |opna_mode_| to Status
   enum {
     ssrev = 3,
   };
@@ -125,38 +120,38 @@ class OPNIF : public Device, public ISoundSource {
   void UpdateTimer();
   void IOCALL TimeEvent(uint32_t);
   uint32_t ChipTime();
-#if 0
-    bool ROMEOInit();
-    bool ROMEOEnabled() { return romeo_user == this; }
-#endif
-  OPNUnit opn;
-  Piccolo* piccolo;
-  PiccoloChip* chip;
-  ISoundControl* soundcontrol;
-  IOBus* bus;
-  Scheduler* scheduler;
-  int32_t nextcount;
-  uint32_t imaskport;
-  int imaskbit;
-  int prevtime;
-  int portio;
-  uint32_t currentrate;
-  bool fmmixmode;
+  // bool ROMEOInit();
+  // bool ROMEOEnabled() { return romeo_user == this; }
 
-  uint32_t basetime;
-  uint32_t basetick;
-  uint32_t clock;
+  OPNUnit opn_;
+  Piccolo* piccolo_ = nullptr;
+  PiccoloChip* chip_ = nullptr;
+  ISoundControl* sound_control_ = nullptr;
+  IOBus* bus_ = nullptr;
+  Scheduler* scheduler_ = nullptr;
 
-  bool opnamode;
-  bool enable;
+  int32_t next_count_ = 0;
+  uint32_t is_mask_port_ = 0;
+  int is_mask_bit_ = 0;
+  int prev_time_ = 0;
+  int port_io_ = 0;
+  uint32_t current_rate_ = 0;
+  bool fm_mix_mode_ = true;
 
-  uint32_t index0;
-  uint32_t index1;
-  uint32_t data1;
+  uint32_t base_time_ = 0;
+  uint32_t base_tick_ = 0;
+  uint32_t clock_ = 0;
 
-  int delay;
+  bool opna_mode_ = false;
+  bool enable_ = false;
 
-  uint8_t regs[0x200];
+  uint32_t index0_ = 0;
+  uint32_t index1_ = 0;
+  uint32_t data1_ = 0;
+
+  int delay_ = 100000;
+
+  uint8_t regs_[0x200]{};
 
   static int prescaler;
 
@@ -168,7 +163,7 @@ class OPNIF : public Device, public ISoundSource {
 };
 
 inline void OPNIF::SetChannelMask(uint32_t ch) {
-  opn.SetChannelMask(ch);
+  opn_.SetChannelMask(ch);
 }
 
 }  // namespace PC8801
