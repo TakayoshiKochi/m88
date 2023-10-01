@@ -12,9 +12,11 @@
 // #define LOGNAME "piccolo"
 #include "common/diag.h"
 
+namespace {
 HMODULE g_hScci = nullptr;
 SoundInterfaceManager* g_pManager = nullptr;
 SoundChip* g_pSoundChip = nullptr;
+}  // namespace
 
 class SpfmIf : public PiccoloChip {
  public:
@@ -26,20 +28,21 @@ class SpfmIf : public PiccoloChip {
 
   int Init(uint32_t param) override {
     // SCCI Reset
-    g_pManager->reset();
+    if (g_pManager)
+      g_pManager->reset();
     return true;
   }
 
   void Reset(bool opna) override {
     // SCCI Reset
-    g_pManager->reset();
+    if (g_pManager)
+      g_pManager->reset();
   }
 
   bool SetReg(uint32_t at, uint32_t addr, uint32_t data) override {
     // SCCIデータ出力
-    //    if (g_pSoundChip) {
-    //      g_pSoundChip->setRegister(addr, data);
-    //    }
+    // if (g_pSoundChip)
+    //   g_pSoundChip->setRegister(addr, data);
     piccolo_->DrvSetReg(at, addr, data);
     return true;
   }
@@ -50,6 +53,8 @@ class SpfmIf : public PiccoloChip {
  private:
   void Mute() {
     Log("YMF288::Mute()\n");
+    if (!g_pSoundChip)
+      return;
     for (uint32_t r = 0x40; r < 0x4f; r++) {
       if (~r & 3) {
         g_pSoundChip->setRegister(0x000 + r, 0x7f);
@@ -59,32 +64,33 @@ class SpfmIf : public PiccoloChip {
   }
 
   Piccolo* piccolo_;
-  // Piccolo::Driver* drv;
 };
 
 static bool LoadDLL() {
-  if (g_hScci == nullptr) {
-    g_hScci = ::LoadLibrary("scci.dll");
-    if (!g_hScci) {
-      return false;
-    }
+  if (g_hScci)
+    return true;
 
-    auto getSoundInterfaceManager =
-        (SCCIFUNC)(::GetProcAddress(g_hScci, "getSoundInterfaceManager"));
+  g_hScci = ::LoadLibrary("scci.dll");
+  if (!g_hScci)
+    return false;
 
-    g_pManager = getSoundInterfaceManager();
-    if (g_pManager == nullptr) {
-      ::FreeLibrary(g_hScci);
-      g_hScci = nullptr;
-    }
-    // インスタンス初期化
-    g_pManager->initializeInstance();
+  auto getSoundInterfaceManager =
+      (SCCIFUNC)(::GetProcAddress(g_hScci, "getSoundInterfaceManager"));
+
+  g_pManager = getSoundInterfaceManager();
+  if (g_pManager == nullptr) {
+    ::FreeLibrary(g_hScci);
+    g_hScci = nullptr;
+    return false;
   }
-  return g_hScci != nullptr;
+
+  // インスタンス初期化
+  g_pManager->initializeInstance();
+  return true;
 }
 
 static void FreeDLL() {
-  if (g_pSoundChip) {
+  if (g_pManager && g_pSoundChip) {
     g_pManager->releaseSoundChip(g_pSoundChip);
     g_pSoundChip = nullptr;
   }
@@ -129,12 +135,10 @@ int Piccolo_SCCI::Init() {
   }
   avail_ = 3;
 
-  if (!found_device) {
+  if (!found_device)
     return PICCOLOE_ROMEO_NOT_FOUND;
-  }
 
   Piccolo::Init();
-
   return PICCOLO_SUCCESS;
 }
 
@@ -142,9 +146,8 @@ int Piccolo_SCCI::GetChip(PICCOLO_CHIPTYPE _type, PiccoloChip** pc) {
   *pc = nullptr;
   Log("GetChip %d\n", _type);
 
-  if (!avail_) {
+  if (!avail_)
     return PICCOLOE_HARDWARE_NOT_AVAILABLE;
-  }
 
   Log(" allocated\n");
   *pc = new SpfmIf(this);
