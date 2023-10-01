@@ -90,6 +90,10 @@ class WinUI {
   void SaveWindowPosition();
   void LoadWindowPosition();
 
+  // Power management
+  void PreventSleep();
+  void AllowSleep();
+
   // int AllocControlID();
   // void FreeControlID(int);
 
