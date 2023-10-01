@@ -313,6 +313,32 @@ add_library(zlib ${LIB_TYPE}
         src/zlib/zutil.c
         src/zlib/zutil.h)
 
+add_library(libpng ${LIB_TYPE}
+        third_party/libpng/png.c
+        third_party/libpng/png.h
+        third_party/libpng/pngconf.h
+        third_party/libpng/pngdebug.h
+        third_party/libpng/pngerror.c
+        third_party/libpng/pngget.c
+        third_party/libpng/pnginfo.h
+        third_party/libpng/pngmem.c
+        third_party/libpng/pngpread.c
+        third_party/libpng/pngpriv.h
+        third_party/libpng/pngread.c
+        third_party/libpng/pngrio.c
+        third_party/libpng/pngrtran.c
+        third_party/libpng/pngrutil.c
+        third_party/libpng/pngset.c
+        third_party/libpng/pngstruct.h
+        third_party/libpng/pngtrans.c
+        third_party/libpng/pngwio.c
+        third_party/libpng/pngwrite.c
+        third_party/libpng/pngwtran.c
+        third_party/libpng/pngwutil.c)
+
+target_include_directories(libpng
+        PUBLIC ${CMAKE_SOURCE_DIR}/src/zlib)
+
 add_executable(m88 WIN32
         src/win32/main.cpp
         src/win32/m88.rc
@@ -320,7 +346,7 @@ add_executable(m88 WIN32
         src/win32/utf8.manifest)
 
 target_link_libraries(m88
-        PRIVATE common devices fmgen pc88core pc88shell win32 win32mon romeo zlib
+        PRIVATE common devices fmgen pc88core pc88shell win32 win32mon romeo zlib libpng
         winmm.lib comctl32.lib dwmapi.lib d3d12.lib dxgi.lib d3dcompiler.lib)
 
 add_library(cdif ${LIB_TYPE}
