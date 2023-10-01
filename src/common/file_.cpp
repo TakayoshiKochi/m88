@@ -4,8 +4,10 @@
 
 bool FileIODummy::Open(const char* filename, uint32_t flg) {
   Close();
-
   flags_ = 0;
+
+  if (flg & create)
+    return CreateNew(filename);
 
   fp_ = fopen(filename, (flg & readonly) ? "rb" : "r+b");
   if (fp_) {
@@ -18,9 +20,10 @@ bool FileIODummy::Open(const char* filename, uint32_t flg) {
 
 bool FileIODummy::CreateNew(const char* filename) {
   fp_ = fopen(filename, "wb");
-  if (fp_) {
-    flags_ = open;
-  }
+  if (!fp_)
+    return false;
+
+  flags_ = open;
   return true;
 }
 
