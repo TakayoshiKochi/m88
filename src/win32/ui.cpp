@@ -16,6 +16,7 @@
 #include <algorithm>
 
 #include "common/error.h"
+#include "common/image_codec.h"
 #include "pc88/opnif.h"
 #include "pc88/diskmgr.h"
 #include "pc88/tapemgr.h"
@@ -1007,63 +1008,39 @@ bool WinUI::MakeSnapshotMenu() {
 //  WinUI::CaptureScreen
 //
 void WinUI::CaptureScreen() {
-  int bmpsize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFO) + 15 * sizeof(RGBQUAD) + 320 * 400;
-  std::unique_ptr<uint8_t[]> bmp = std::make_unique<uint8_t[]>(bmpsize);
+  std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(640 * 400);
+  if (!buf)
+    return;
 
-  bmpsize = draw.CaptureScreen(bmp.get());
-  if (bmpsize) {
-    // TODO: make this under config flag.
-    CopyToClipboard(bmp.get(), bmpsize);
+  draw.CaptureScreen(buf.get());
 
-    bool save = false;
-    char filename[MAX_PATH];
+  const std::string type("png");
+  std::unique_ptr<ImageCodec> codec;
+  codec.reset(ImageCodec::GetCodec(type));
+  if (codec) {
+    codec->Encode(buf.get(), draw.GetPalette());
+    codec->Save(ImageCodec::GenerateFileName(type));
+  }
+  statusdisplay.Show(80, 1500, "画面イメージを保存しました");
 
-    if (config.flag2 & Config::kGenScrnShotName) {
-      SYSTEMTIME time;
-      GetLocalTime(&time);
-      wsprintf(filename, "%.2d%.2d%.2d%.2d%.2d.bmp", time.wDay, time.wHour, time.wMinute,
-               time.wSecond, time.wMilliseconds / 10);
-      save = true;
-      statusdisplay.Show(80, 1500, "画面イメージを %s に保存しました", filename);
-    } else {
-      filename[0] = 0;
-
-      OPENFILENAME ofn;
-      memset(&ofn, 0, sizeof(ofn));
-      ofn.lStructSize = sizeof(OPENFILENAME);
-      ofn.hwndOwner = hwnd_;
-      ofn.lpstrFilter = "bitmap image [4bpp] (*.bmp)\0*.bmp\0";
-      ofn.lpstrFile = filename;
-      ofn.nMaxFile = MAX_PATH;
-      ofn.Flags = OFN_CREATEPROMPT | OFN_NOREADONLYRETURN;
-      ofn.lpstrDefExt = "bmp";
-      ofn.lpstrTitle = "Save captured image";
-      ofn.FlagsEx = config.flag2 & Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
-
-      SetGUIFlag(true);
-      (*EnableIME)(hwnd_, true);
-      save = !!GetSaveFileName(&ofn);
-      (*EnableIME)(hwnd_, false);
-      SetGUIFlag(false);
-    }
-    if (save) {
-      FileIOWin file;
-      if (file.Open(filename, FileIO::create))
-        file.Write(bmp.get(), bmpsize);
-    }
+  codec.reset(ImageCodec::GetCodec("bmp"));
+  if (codec) {
+    codec->Encode(buf.get(), draw.GetPalette());
+    if (CopyToClipboard(codec->data(), codec->encoded_size()))
+      statusdisplay.Show(80, 1500, "クリップボードに画面イメージを保存しました");
   }
 }
 
-bool WinUI::CopyToClipboard(uint8_t* bmp, int size) {
+bool WinUI::CopyToClipboard(uint8_t* bmp, int bmp_size) {
   HGLOBAL hglobal;
-  if (OpenClipboard(nullptr) && EmptyClipboard())
+  if (!OpenClipboard(nullptr) || !EmptyClipboard())
     return false;
 
-  hglobal = GlobalAlloc(GMEM_MOVEABLE, size - sizeof(BITMAPFILEHEADER));
+  hglobal = GlobalAlloc(GMEM_MOVEABLE, bmp_size - sizeof(BITMAPFILEHEADER));
   if (hglobal == nullptr)
     return false;
 
-  memcpy(GlobalLock(hglobal), bmp + sizeof(BITMAPFILEHEADER), size - sizeof(BITMAPFILEHEADER));
+  memcpy(GlobalLock(hglobal), bmp + sizeof(BITMAPFILEHEADER), bmp_size - sizeof(BITMAPFILEHEADER));
   GlobalUnlock(hglobal);
 
   bool result = true;

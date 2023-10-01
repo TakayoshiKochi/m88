@@ -351,101 +351,21 @@ void WinDraw::SetGUIFlag(bool usegui) {
   }
 }
 
-// ---------------------------------------------------------------------------
-//  画面を 640x400x4 の BMP に変換する
-//  dest    変換した BMP の置き場所、置けるだけの領域が必要。
-//  ret     巧くできたかどうか
-//
-int WinDraw::CaptureScreen(uint8_t* dest) {
-  const bool half = false;
+void WinDraw::CaptureScreen(uint8_t* buf) {
   if (!drawsub_)
-    return false;
+    return;
 
-  uint8_t* src = new uint8_t[640 * 400];
-  if (!src)
-    return false;
-
-  uint8_t* s;
-  int bpl;
+  uint8_t* s = nullptr;
+  int bpl = 0;
   if (drawsub_->Lock(&s, &bpl)) {
-    uint8_t* d = src;
+    uint8_t* d = buf;
     for (int y = 0; y < 400; y++) {
       memcpy(d, s, 640);
-      d += 640, s += bpl;
+      d += 640;
+      s += bpl;
     }
     drawsub_->Unlock();
   }
-
-  // 構造体の準備
-
-  auto* filehdr = reinterpret_cast<BITMAPFILEHEADER*>(dest);
-  auto* binfo = reinterpret_cast<BITMAPINFO*>(filehdr + 1);
-
-  // headers
-  ((char*)&filehdr->bfType)[0] = 'B';
-  ((char*)&filehdr->bfType)[1] = 'M';
-  filehdr->bfReserved1 = 0;
-  filehdr->bfReserved2 = 0;
-  binfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-  binfo->bmiHeader.biWidth = 640;
-  binfo->bmiHeader.biHeight = half ? 200 : 400;
-  binfo->bmiHeader.biPlanes = 1;
-  binfo->bmiHeader.biBitCount = 4;
-  binfo->bmiHeader.biCompression = BI_RGB;
-  binfo->bmiHeader.biSizeImage = 0;
-  binfo->bmiHeader.biXPelsPerMeter = 0;
-  binfo->bmiHeader.biYPelsPerMeter = 0;
-
-  // １６色パレットの作成
-  RGBQUAD* pal = binfo->bmiColors;
-  memset(pal, 0, sizeof(RGBQUAD) * 16);
-
-  uint8_t ctable[256];
-  memset(ctable, 0, sizeof(ctable));
-
-  int colors = 0;
-  for (int index = 0; index < 144; index++) {
-    RGBQUAD rgb;
-    rgb.rgbBlue = palette_[0x40 + index].peBlue;
-    rgb.rgbRed = palette_[0x40 + index].peRed;
-    rgb.rgbGreen = palette_[0x40 + index].peGreen;
-    //      Log("c[%.2x] = G:%.2x R:%.2x B:%.2x\n", index, rgb.rgbGreen, rgb.rgbRed, rgb.rgbBlue);
-    uint32_t entry = *((uint32_t*)&rgb);
-
-    int k;
-    for (k = 0; k < colors; k++) {
-      if (!((*((uint32_t*)&pal[k]) ^ entry) & 0xffffff))
-        goto match;
-    }
-    if (colors < 15) {
-      //          Log("pal[%.2x] = G:%.2x R:%.2x B:%.2x\n", colors, rgb.rgbGreen, rgb.rgbRed,
-      //          rgb.rgbBlue);
-      pal[colors++] = rgb;
-    } else
-      k = 15;
-  match:
-    ctable[64 + index] = k;
-  }
-
-  binfo->bmiHeader.biClrImportant = colors;
-
-  colors = 16;  // やっぱ固定じゃなきゃ駄目か？
-  uint8_t* image = ((uint8_t*)(binfo + 1)) + (colors - 1) * sizeof(RGBQUAD);
-  filehdr->bfSize = image + 640 * 400 / 2 - dest;
-  binfo->bmiHeader.biClrUsed = colors;
-  filehdr->bfOffBits = image - dest;
-
-  // 色変換
-  uint8_t* d = image;
-  for (int y = 0; y < 400; y += half ? 2 : 1) {
-    uint8_t* s = src + 640 * (399 - y);
-
-    for (int x = 0; x < 320; x++, s += 2)
-      *d++ = ctable[s[0]] * 16 + ctable[s[1]];
-  }
-
-  delete[] src;
-  return d - dest;
 }
 
 BOOL WINAPI
