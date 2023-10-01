@@ -458,7 +458,7 @@ bool WinDrawD3D12::SetUpTexture() {
 
     D3D12_RESOURCE_DESC resource_desc_tex = {};
     resource_desc_tex.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    resource_desc_tex.Width = kTextureWidth;  // fixed
+    resource_desc_tex.Width = kTextureWidth;    // fixed
     resource_desc_tex.Height = kTextureHeight;  // fixed
     resource_desc_tex.DepthOrArraySize = 1;
     resource_desc_tex.SampleDesc.Count = 1;
@@ -593,7 +593,8 @@ void WinDrawD3D12::PrepareIndicesForTexture() {
   cmd_list_->IASetIndexBuffer(&ib_view);
 }
 
-bool WinDrawD3D12::SetUpPipelineForTexture(D3D12_INPUT_ELEMENT_DESC* input_layout, int num_elements) {
+bool WinDrawD3D12::SetUpPipelineForTexture(D3D12_INPUT_ELEMENT_DESC* input_layout,
+                                           int num_elements) {
   assert(root_signature_);
   assert(vs_blob_);
   assert(ps_blob_);

@@ -53,8 +53,8 @@ bool WinDraw::Init0(HWND hwindow) {
 
 #ifdef DRAW_THREAD
   if (!hthread_)
-    hthread_ = HANDLE(
-        _beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &draw_thread_id_));
+    hthread_ = HANDLE(_beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0,
+                                     &draw_thread_id_));
   if (!hthread_) {
     Error::SetError(Error::ThreadInitFailed);
     return false;

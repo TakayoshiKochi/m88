@@ -1,13 +1,14 @@
-//  $Id: piccolo.h,v 1.2 2002/05/31 09:45:22 cisc Exp $
-
 #pragma once
 
-#include "win32/romeo/piccolo.h"
+#include "piccolo.h"
 
-class Piccolo_Gimic : public Piccolo {
+#include <stdint.h>
+
+class Piccolo_SCCI : public Piccolo {
  public:
-  Piccolo_Gimic();
-  ~Piccolo_Gimic() override;
+  Piccolo_SCCI();
+  ~Piccolo_SCCI() override;
+
   int Init() override;
   int GetChip(PICCOLO_CHIPTYPE type, PiccoloChip** pc) override;
   void SetReg(uint32_t addr, uint32_t data) override;

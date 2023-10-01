@@ -204,6 +204,9 @@
     <ClCompile Include="src\win32\romeo\piccolo_romeo.cpp">
       <Filter>win32\romeo</Filter>
     </ClCompile>
+    <ClCompile Include="src\win32\romeo\piccolo_scci.cpp">
+      <Filter>win32\romeo</Filter>
+    </ClCompile>
     <ClCompile Include="src\zlib\adler32.c">
       <Filter>zlib</Filter>
     </ClCompile>
@@ -495,6 +498,15 @@
       <Filter>win32\romeo</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\romeo\piccolo_romeo.h">
+      <Filter>win32\romeo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\romeo\piccolo_scci.h">
+      <Filter>win32\romeo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\romeo\scci.h">
+      <Filter>win32\romeo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\romeo\SCCIDefines.h">
       <Filter>win32\romeo</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\romeo\romeo.h">

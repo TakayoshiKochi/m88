@@ -282,7 +282,11 @@ add_library(romeo ${LIB_TYPE}
         src/win32/romeo/piccolo_gimic.cpp
         src/win32/romeo/piccolo_romeo.h
         src/win32/romeo/piccolo_romeo.cpp
-        src/win32/romeo/romeo.h)
+        src/win32/romeo/romeo.h
+        src/win32/romeo/piccolo_scci.h
+        src/win32/romeo/piccolo_scci.cpp
+        src/win32/romeo/scci.h
+        src/win32/romeo/SCCIDefines.h)
 
 target_include_directories(romeo
         PUBLIC ${CMAKE_SOURCE_DIR}/src
