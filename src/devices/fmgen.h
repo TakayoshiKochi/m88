@@ -4,8 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: fmgen.h,v 1.37 2003/08/25 13:33:11 cisc Exp $
 
-#ifndef FM_GEN_H
-#define FM_GEN_H
+#pragma once
 
 #include <stdint.h>
 
@@ -13,30 +12,31 @@ inline int Limit(int v, int max, int min) {
   return v > max ? max : (v < min ? min : v);
 }
 
+namespace FM {
+
 // ---------------------------------------------------------------------------
 //  出力サンプルの型
 //
-#define FM_SAMPLETYPE int32_t  // int16 or int32
+using FM_SAMPLETYPE = int32_t;  // int16 or int32
 
 // ---------------------------------------------------------------------------
 //  定数その１
 //  静的テーブルのサイズ
 
-#define FM_LFOBITS 8  // 変更不可
-#define FM_TLBITS 7
+constexpr int FM_LFOBITS = 8;  // 変更不可
+constexpr int FM_TLBITS = 7;
 
 // ---------------------------------------------------------------------------
 
-#define FM_TLENTS (1 << FM_TLBITS)
-#define FM_LFOENTS (1 << FM_LFOBITS)
-#define FM_TLPOS (FM_TLENTS / 4)
+constexpr int FM_TLENTS = 1 << FM_TLBITS;
+constexpr int FM_LFOENTS = 1 << FM_LFOBITS;
+constexpr int FM_TLPOS = FM_TLENTS / 4;
 
 //  サイン波の精度は 2^(1/256)
-#define FM_CLENTS (0x1000 * 2)  // sin + TL + LFO
+constexpr int FM_CLENTS = 0x1000 * 2;  // sin + TL + LFO
 
 // ---------------------------------------------------------------------------
 
-namespace FM {
 //  Types ----------------------------------------------------------------
 using Sample = FM_SAMPLETYPE;
 using ISample = int32_t;
@@ -60,6 +60,7 @@ class Operator {
   ISample CalcFB(uint32_t fb);
   ISample CalcFBL(uint32_t fb);
   ISample CalcN(uint32_t noise);
+
   void Prepare();
   void KeyOn();
   void KeyOnCsm();
@@ -137,8 +138,8 @@ class Operator {
   int eg_count_diff_;           // eg_count_ の差分
   int eg_out_;                  // EG+TL を合わせた出力値
   int tl_out_;                  // TL 分の出力値
-                                //      int     pm_depth_;      // PM depth
-                                //      int     am_depth_;      // AM depth
+                                // int pm_depth_;  // PM depth
+                                // int am_depth_;  // AM depth
   int eg_rate_;
   int eg_curve_count_;
   int ssg_offset_;
@@ -166,6 +167,7 @@ class Operator {
   bool mute_;
 
   //  Tables ---------------------------------------------------------------
+
   // static Counter rate_table[16];
   // static uint32_t multable[4][16];
 
@@ -202,12 +204,15 @@ class Channel4 {
   ISample CalcL();
   ISample CalcN(uint32_t noise);   // OPM only
   ISample CalcLN(uint32_t noise);  // OPM only
+
   void SetFNum(uint32_t fnum);
   void SetFB(uint32_t feedback);
   // Used in the OPM implementation
   void SetKCKF(uint32_t kc, uint32_t kf);
   void SetAlgorithm(uint32_t algo);
+
   int Prepare();
+
   void KeyControl(uint32_t key);
   void KeyOnCsm(uint32_t key);
   void KeyOffCsm(uint32_t key);
@@ -225,11 +230,11 @@ class Channel4 {
 
  private:
   static const uint8_t fbtable[8];
-  uint32_t fb;
-  int buf[4];
-  int* in[3];   // 各 OP の入力ポインタ
-  int* out[3];  // 各 OP の出力ポインタ
-  int* pms;
+  uint32_t fb_;
+  int buf_[4];
+  int* in_[3];   // 各 OP の入力ポインタ
+  int* out_[3];  // 各 OP の出力ポインタ
+  int* pms_;
   int algo_;
   Chip* chip_;
 
@@ -239,13 +244,14 @@ class Channel4 {
   static int kftable[64];
 
  public:
-  Operator op[4];
+  Operator op_[4];
 };
 
 //  Chip resource
 class Chip {
  public:
-  Chip();
+  Chip() = default;
+
   void SetRatio(uint32_t ratio);
   void SetAML(uint32_t l);
   void SetPML(uint32_t l);
@@ -262,16 +268,14 @@ class Chip {
  private:
   void MakeTable();
 
-  uint32_t ratio_;
-  uint32_t aml_;
-  uint32_t pml_;
-  int pmv_;
-  OpType optype_;
-  uint32_t multable_[4][16];
+  uint32_t ratio_ = 0;
+  uint32_t aml_ = 0;
+  uint32_t pml_ = 0;
+  int pmv_ = 0;
+  OpType optype_ = typeN;
+  uint32_t multable_[4][16]{};
 };
 }  // namespace FM
-
-#endif  // FM_GEN_H
 
 // ---------------------------------------------------------------------------
 //  FM Sound Generator
@@ -279,83 +283,85 @@ class Chip {
 // ---------------------------------------------------------------------------
 //  $Id: fmgeninl.h,v 1.27 2003/09/10 13:22:50 cisc Exp $
 
-#ifndef FM_GEN_INL_H
-#define FM_GEN_INL_H
-
 // ---------------------------------------------------------------------------
 //  定数その２
 //
-#define FM_PI 3.14159265358979323846
+namespace FM {
 
-#define FM_SINEPRESIS 2  // EGとサイン波の精度の差  0(低)-2(高)
+constexpr double FM_PI = 3.14159265358979323846;
 
-#define FM_OPSINBITS 10
-#define FM_OPSINENTS (1 << FM_OPSINBITS)
+// EGとサイン波の精度の差  0(低)-2(高)
+constexpr int FM_SINEPRESIS = 2;
 
-#define FM_EGCBITS 18  // eg の count のシフト値
-#define FM_LFOCBITS 14
+constexpr int FM_OPSINBITS = 10;
+constexpr int FM_OPSINENTS = 1 << FM_OPSINBITS;
+
+// eg の count のシフト値
+constexpr int FM_EGCBITS = 18;
+constexpr int FM_LFOCBITS = 14;
 
 #ifdef FM_TUNEBUILD
 #define FM_PGBITS 2
 #define FM_RATIOBITS 0
 #else
-#define FM_PGBITS 9
-#define FM_RATIOBITS 7  // 8-12 くらいまで？
+constexpr int FM_PGBITS = 9;
+constexpr int FM_RATIOBITS = 7;  // 8-12 くらいまで？
 #endif
 
-#define FM_EGBITS 16
+constexpr int FM_EGBITS = 16;
 
 // extern int paramcount[];
 // #define PARAMCHANGE(i) paramcount[i]++;
 #define PARAMCHANGE(i)
-
-namespace FM {
 
 // ---------------------------------------------------------------------------
 //  Operator
 //
 //  フィードバックバッファをクリア
 inline void Operator::ResetFB() {
-  out_ = out2_ = 0;
+  out_ = 0;
+  out2_ = 0;
 }
 
 //  キーオン
 inline void Operator::KeyOn() {
-  if (!keyon_) {
-    if (eg_phase_ == off || eg_phase_ == release) {
-      if (ssg_type_ & 8) {
-        //  フラグリセット
-        ssg_type_ &= (uint8_t)~0x10;
-        ssg_type_ |= (uint8_t)((ssg_type_ & 4) << 2);
-      }
+  if (keyon_)
+    return;
 
-      ShiftPhase(attack);
-      EGUpdate();
-      in2_ = out_ = out2_ = 0;
-      pg_count_ = 0;
+  if (eg_phase_ == off || eg_phase_ == release) {
+    if (ssg_type_ & 8) {
+      //  フラグリセット
+      ssg_type_ &= (uint8_t)~0x10;
+      ssg_type_ |= (uint8_t)((ssg_type_ & 4) << 2);
     }
 
-    keyon_ = true;
-    csmkeyon_ = false;
+    ShiftPhase(attack);
+    EGUpdate();
+    in2_ = out_ = out2_ = 0;
+    pg_count_ = 0;
   }
+
+  keyon_ = true;
+  csmkeyon_ = false;
 }
 
 //  キーオン(CSM)
 inline void Operator::KeyOnCsm() {
-  if (!keyon_) {
-    csmkeyon_ = true;
-    {
-      if (ssg_type_ & 8) {
-        //  フラグリセット
-        ssg_type_ &= (uint8_t)~0x10;
-        ssg_type_ |= (uint8_t)((ssg_type_ & 4) << 2);
-      }
+  if (keyon_)
+    return;
 
-      ShiftPhase(attack);
-      EGUpdate();
-      in2_ = out_ = out2_ = 0;
-      pg_count_ = 0;
+  csmkeyon_ = true;
+  {
+    if (ssg_type_ & 8) {
+      //  フラグリセット
+      ssg_type_ &= (uint8_t)~0x10;
+      ssg_type_ |= (uint8_t)((ssg_type_ & 4) << 2);
     }
+
+    ShiftPhase(attack);
+    EGUpdate();
+    in2_ = out_ = out2_ = 0;
+    pg_count_ = 0;
   }
 }
 
@@ -384,26 +390,30 @@ inline int Operator::IsOn() {
 
 //  Detune (0-7)
 inline void Operator::SetDT(uint32_t dt) {
-  detune_ = dt * 0x20, param_changed_ = true;
+  detune_ = dt * 0x20;
+  param_changed_ = true;
   PARAMCHANGE(4);
 }
 
 //  DT2 (0-3)
 inline void Operator::SetDT2(uint32_t dt2) {
-  detune2_ = dt2 & 3, param_changed_ = true;
+  detune2_ = dt2 & 3;
+  param_changed_ = true;
   PARAMCHANGE(5);
 }
 
 //  Multiple (0-15)
 inline void Operator::SetMULTI(uint32_t mul) {
-  multiple_ = mul, param_changed_ = true;
+  multiple_ = mul;
+  param_changed_ = true;
   PARAMCHANGE(6);
 }
 
 //  Total Level (0-127) (0.75dB step)
 inline void Operator::SetTL(uint32_t tl, bool csm) {
   if (!csm) {
-    tl_ = tl, param_changed_ = true;
+    tl_ = tl;
+    param_changed_ = true;
     PARAMCHANGE(7);
   }
   tl_latch_ = tl;
@@ -483,27 +493,27 @@ inline void Operator::SetMS(uint32_t ms) {
 
 //  オペレータの種類 (LFO) を設定
 inline void Channel4::SetType(OpType type) {
-  for (int i = 0; i < 4; i++)
-    op[i].type_ = type;
+  for (auto& op : op_)
+    op.type_ = type;
 }
 
 //  セルフ・フィードバックレートの設定 (0-7)
 inline void Channel4::SetFB(uint32_t feedback) {
-  fb = fbtable[feedback];
+  fb_ = fbtable[feedback];
 }
 
 //  OPNA 系 LFO の設定
 inline void Channel4::SetMS(uint32_t ms) {
-  op[0].SetMS(ms);
-  op[1].SetMS(ms);
-  op[2].SetMS(ms);
-  op[3].SetMS(ms);
+  op_[0].SetMS(ms);
+  op_[1].SetMS(ms);
+  op_[2].SetMS(ms);
+  op_[3].SetMS(ms);
 }
 
 //  チャンネル・マスク
 inline void Channel4::Mute(bool m) {
-  for (int i = 0; i < 4; i++)
-    op[i].Mute(m);
+  for (auto& op : op_)
+    op.Mute(m);
 }
 
 #if 0
@@ -517,8 +527,8 @@ inline void Channel4::Refresh() {
 
 inline void Channel4::SetChip(Chip* chip) {
   chip_ = chip;
-  for (int i = 0; i < 4; i++)
-    op[i].SetChip(chip);
+  for (auto& op : op_)
+    op.SetChip(chip);
 }
 
 // ---------------------------------------------------------------------------
@@ -543,5 +553,3 @@ inline void Chip::SetPML(uint32_t l) {
 }
 
 }  // namespace FM
-
-#endif  // FM_GEN_INL_H

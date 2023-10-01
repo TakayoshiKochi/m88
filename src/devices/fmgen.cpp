@@ -30,12 +30,13 @@
 
 // ---------------------------------------------------------------------------
 
-#define FM_EG_BOTTOM 955
+namespace FM {
+
+constexpr int FM_EG_BOTTOM = 955;
 
 // ---------------------------------------------------------------------------
 //  Table/etc
 //
-namespace FM {
 const uint8_t Operator::notetable[128] = {
     // clang-format off
    0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  3,  3,  3,  3,  3,  3,
@@ -175,7 +176,7 @@ void MakeLFOTable() {
 
   tablemade = true;
 
-  int i;
+  int i = 0;
 
   static const double pms[2][8] = {
       // clang-format off
@@ -221,7 +222,6 @@ void MakeLFOTable() {
 // ---------------------------------------------------------------------------
 //  チップ内で共通な部分
 //
-Chip::Chip() : ratio_(0), aml_(0), pml_(0), pmv_(0), optype_(typeN) {}
 
 //  クロック・サンプリングレート比に依存するテーブルを作成
 void Chip::SetRatio(uint32_t ratio) {
@@ -254,7 +254,7 @@ uint32_t FM::Operator::sinetable[1024];
 int32_t FM::Operator::cltable[FM_CLENTS];
 
 //  構築
-FM::Operator::Operator() : chip_(0) {
+FM::Operator::Operator() : chip_(nullptr) {
   if (!tablehasmade)
     MakeTable();
 
@@ -666,7 +666,7 @@ Channel4::Channel4() {
     MakeTable();
 
   SetAlgorithm(0);
-  pms = pmtable[0][0];
+  pms_ = pmtable[0][0];
 }
 
 void Channel4::MakeTable() {
@@ -678,29 +678,30 @@ void Channel4::MakeTable() {
 
 // リセット
 void Channel4::Reset() {
-  op[0].Reset();
-  op[1].Reset();
-  op[2].Reset();
-  op[3].Reset();
+  op_[0].Reset();
+  op_[1].Reset();
+  op_[2].Reset();
+  op_[3].Reset();
 }
 
 //  Calc の用意
 int Channel4::Prepare() {
-  op[0].Prepare();
-  op[1].Prepare();
-  op[2].Prepare();
-  op[3].Prepare();
+  op_[0].Prepare();
+  op_[1].Prepare();
+  op_[2].Prepare();
+  op_[3].Prepare();
 
-  pms = pmtable[op[0].type_][op[0].ms_ & 7];
-  int key = (op[0].IsOn() | op[1].IsOn() | op[2].IsOn() | op[3].IsOn()) ? 1 : 0;
-  int lfo = op[0].ms_ & (op[0].amon_ | op[1].amon_ | op[2].amon_ | op[3].amon_ ? 0x37 : 7) ? 2 : 0;
+  pms_ = pmtable[op_[0].type_][op_[0].ms_ & 7];
+  int key = (op_[0].IsOn() | op_[1].IsOn() | op_[2].IsOn() | op_[3].IsOn()) ? 1 : 0;
+  int lfo =
+      op_[0].ms_ & (op_[0].amon_ | op_[1].amon_ | op_[2].amon_ | op_[3].amon_ ? 0x37 : 7) ? 2 : 0;
   return key | lfo;
 }
 
 //  F-Number/BLOCK を設定
 void Channel4::SetFNum(uint32_t f) {
-  for (int i = 0; i < 4; i++)
-    op[i].SetFNum(f);
+  for (auto& op : op_)
+    op.SetFNum(f);
 }
 
 //  KC/KF を設定 (OPM only)
@@ -724,55 +725,55 @@ void Channel4::SetKCKF(uint32_t kc, uint32_t kf) {
   dp <<= 16 + 3;
   dp >>= oct;
   uint32_t bn = (kc >> 2) & 31;
-  op[0].SetDPBN(dp, bn);
-  op[1].SetDPBN(dp, bn);
-  op[2].SetDPBN(dp, bn);
-  op[3].SetDPBN(dp, bn);
+  op_[0].SetDPBN(dp, bn);
+  op_[1].SetDPBN(dp, bn);
+  op_[2].SetDPBN(dp, bn);
+  op_[3].SetDPBN(dp, bn);
   // printf(" %.8x\n", dp);
 }
 
 //  キー制御
 void Channel4::KeyControl(uint32_t key) {
   if (key & 0x1)
-    op[0].KeyOn();
+    op_[0].KeyOn();
   else
-    op[0].KeyOff();
+    op_[0].KeyOff();
   if (key & 0x2)
-    op[1].KeyOn();
+    op_[1].KeyOn();
   else
-    op[1].KeyOff();
+    op_[1].KeyOff();
   if (key & 0x4)
-    op[2].KeyOn();
+    op_[2].KeyOn();
   else
-    op[2].KeyOff();
+    op_[2].KeyOff();
   if (key & 0x8)
-    op[3].KeyOn();
+    op_[3].KeyOn();
   else
-    op[3].KeyOff();
+    op_[3].KeyOff();
 }
 
 //  キーオン(CSM専用)
 void Channel4::KeyOnCsm(uint32_t key) {
   if (key & 0x1)
-    op[0].KeyOnCsm();
+    op_[0].KeyOnCsm();
   if (key & 0x2)
-    op[1].KeyOnCsm();
+    op_[1].KeyOnCsm();
   if (key & 0x4)
-    op[2].KeyOnCsm();
+    op_[2].KeyOnCsm();
   if (key & 0x8)
-    op[3].KeyOnCsm();
+    op_[3].KeyOnCsm();
 }
 
 //  キーオフ(CSM専用)
 void Channel4::KeyOffCsm(uint32_t key) {
   if (key & 0x1)
-    op[0].KeyOffCsm();
+    op_[0].KeyOffCsm();
   if (key & 0x2)
-    op[1].KeyOffCsm();
+    op_[1].KeyOffCsm();
   if (key & 0x4)
-    op[2].KeyOffCsm();
+    op_[2].KeyOffCsm();
   if (key & 0x8)
-    op[3].KeyOffCsm();
+    op_[3].KeyOffCsm();
 }
 
 //  アルゴリズムを設定
@@ -786,14 +787,14 @@ void Channel4::SetAlgorithm(uint32_t algo) {
       // clang-format on
   };
 
-  in[0] = &buf[table1[algo][0]];
-  out[0] = &buf[table1[algo][1]];
-  in[1] = &buf[table1[algo][2]];
-  out[1] = &buf[table1[algo][3]];
-  in[2] = &buf[table1[algo][4]];
-  out[2] = &buf[table1[algo][5]];
+  in_[0] = &buf_[table1[algo][0]];
+  out_[0] = &buf_[table1[algo][1]];
+  in_[1] = &buf_[table1[algo][2]];
+  out_[1] = &buf_[table1[algo][3]];
+  in_[2] = &buf_[table1[algo][4]];
+  out_[2] = &buf_[table1[algo][5]];
 
-  op[0].ResetFB();
+  op_[0].ResetFB();
   algo_ = algo;
 }
 
@@ -802,52 +803,52 @@ ISample Channel4::Calc() {
   int r = 0;
   switch (algo_) {
     case 0:
-      op[2].Calc(op[1].Out());
-      op[1].Calc(op[0].Out());
-      r = op[3].Calc(op[2].Out());
-      op[0].CalcFB(fb);
+      op_[2].Calc(op_[1].Out());
+      op_[1].Calc(op_[0].Out());
+      r = op_[3].Calc(op_[2].Out());
+      op_[0].CalcFB(fb_);
       break;
     case 1:
-      op[2].Calc(op[0].Out() + op[1].Out());
-      op[1].Calc(0);
-      r = op[3].Calc(op[2].Out());
-      op[0].CalcFB(fb);
+      op_[2].Calc(op_[0].Out() + op_[1].Out());
+      op_[1].Calc(0);
+      r = op_[3].Calc(op_[2].Out());
+      op_[0].CalcFB(fb_);
       break;
     case 2:
-      op[2].Calc(op[1].Out());
-      op[1].Calc(0);
-      r = op[3].Calc(op[0].Out() + op[2].Out());
-      op[0].CalcFB(fb);
+      op_[2].Calc(op_[1].Out());
+      op_[1].Calc(0);
+      r = op_[3].Calc(op_[0].Out() + op_[2].Out());
+      op_[0].CalcFB(fb_);
       break;
     case 3:
-      op[2].Calc(0);
-      op[1].Calc(op[0].Out());
-      r = op[3].Calc(op[1].Out() + op[2].Out());
-      op[0].CalcFB(fb);
+      op_[2].Calc(0);
+      op_[1].Calc(op_[0].Out());
+      r = op_[3].Calc(op_[1].Out() + op_[2].Out());
+      op_[0].CalcFB(fb_);
       break;
     case 4:
-      op[2].Calc(0);
-      r = op[1].Calc(op[0].Out());
-      r += op[3].Calc(op[2].Out());
-      op[0].CalcFB(fb);
+      op_[2].Calc(0);
+      r = op_[1].Calc(op_[0].Out());
+      r += op_[3].Calc(op_[2].Out());
+      op_[0].CalcFB(fb_);
       break;
     case 5:
-      r = op[2].Calc(op[0].Out());
-      r += op[1].Calc(op[0].Out());
-      r += op[3].Calc(op[0].Out());
-      op[0].CalcFB(fb);
+      r = op_[2].Calc(op_[0].Out());
+      r += op_[1].Calc(op_[0].Out());
+      r += op_[3].Calc(op_[0].Out());
+      op_[0].CalcFB(fb_);
       break;
     case 6:
-      r = op[2].Calc(0);
-      r += op[1].Calc(op[0].Out());
-      r += op[3].Calc(0);
-      op[0].CalcFB(fb);
+      r = op_[2].Calc(0);
+      r += op_[1].Calc(op_[0].Out());
+      r += op_[3].Calc(0);
+      op_[0].CalcFB(fb_);
       break;
     case 7:
-      r = op[2].Calc(0);
-      r += op[1].Calc(0);
-      r += op[3].Calc(0);
-      r += op[0].CalcFB(fb);
+      r = op_[2].Calc(0);
+      r += op_[1].Calc(0);
+      r += op_[3].Calc(0);
+      r += op_[0].CalcFB(fb_);
       break;
   }
   return r;
@@ -855,57 +856,57 @@ ISample Channel4::Calc() {
 
 //  合成
 ISample Channel4::CalcL() {
-  chip_->SetPMV(pms[chip_->GetPML()]);
+  chip_->SetPMV(pms_[chip_->GetPML()]);
 
   int r = 0;
   switch (algo_) {
     case 0:
-      op[2].CalcL(op[1].Out());
-      op[1].CalcL(op[0].Out());
-      r = op[3].CalcL(op[2].Out());
-      op[0].CalcFBL(fb);
+      op_[2].CalcL(op_[1].Out());
+      op_[1].CalcL(op_[0].Out());
+      r = op_[3].CalcL(op_[2].Out());
+      op_[0].CalcFBL(fb_);
       break;
     case 1:
-      op[2].CalcL(op[0].Out() + op[1].Out());
-      op[1].CalcL(0);
-      r = op[3].CalcL(op[2].Out());
-      op[0].CalcFBL(fb);
+      op_[2].CalcL(op_[0].Out() + op_[1].Out());
+      op_[1].CalcL(0);
+      r = op_[3].CalcL(op_[2].Out());
+      op_[0].CalcFBL(fb_);
       break;
     case 2:
-      op[2].CalcL(op[1].Out());
-      op[1].CalcL(0);
-      r = op[3].CalcL(op[0].Out() + op[2].Out());
-      op[0].CalcFBL(fb);
+      op_[2].CalcL(op_[1].Out());
+      op_[1].CalcL(0);
+      r = op_[3].CalcL(op_[0].Out() + op_[2].Out());
+      op_[0].CalcFBL(fb_);
       break;
     case 3:
-      op[2].CalcL(0);
-      op[1].CalcL(op[0].Out());
-      r = op[3].CalcL(op[1].Out() + op[2].Out());
-      op[0].CalcFBL(fb);
+      op_[2].CalcL(0);
+      op_[1].CalcL(op_[0].Out());
+      r = op_[3].CalcL(op_[1].Out() + op_[2].Out());
+      op_[0].CalcFBL(fb_);
       break;
     case 4:
-      op[2].CalcL(0);
-      r = op[1].CalcL(op[0].Out());
-      r += op[3].CalcL(op[2].Out());
-      op[0].CalcFBL(fb);
+      op_[2].CalcL(0);
+      r = op_[1].CalcL(op_[0].Out());
+      r += op_[3].CalcL(op_[2].Out());
+      op_[0].CalcFBL(fb_);
       break;
     case 5:
-      r = op[2].CalcL(op[0].Out());
-      r += op[1].CalcL(op[0].Out());
-      r += op[3].CalcL(op[0].Out());
-      op[0].CalcFBL(fb);
+      r = op_[2].CalcL(op_[0].Out());
+      r += op_[1].CalcL(op_[0].Out());
+      r += op_[3].CalcL(op_[0].Out());
+      op_[0].CalcFBL(fb_);
       break;
     case 6:
-      r = op[2].CalcL(0);
-      r += op[1].CalcL(op[0].Out());
-      r += op[3].CalcL(0);
-      op[0].CalcFBL(fb);
+      r = op_[2].CalcL(0);
+      r += op_[1].CalcL(op_[0].Out());
+      r += op_[3].CalcL(0);
+      op_[0].CalcFBL(fb_);
       break;
     case 7:
-      r = op[2].CalcL(0);
-      r += op[1].CalcL(0);
-      r += op[3].CalcL(0);
-      r += op[0].CalcFBL(fb);
+      r = op_[2].CalcL(0);
+      r += op_[1].CalcL(0);
+      r += op_[3].CalcL(0);
+      r += op_[0].CalcFBL(fb_);
       break;
   }
   return r;
@@ -913,29 +914,29 @@ ISample Channel4::CalcL() {
 
 //  合成
 ISample Channel4::CalcN(uint32_t noise) {
-  buf[1] = buf[2] = buf[3] = 0;
+  buf_[1] = buf_[2] = buf_[3] = 0;
 
-  buf[0] = op[0].out_;
-  op[0].CalcFB(fb);
-  *out[0] += op[1].Calc(*in[0]);
-  *out[1] += op[2].Calc(*in[1]);
-  int o = op[3].out_;
-  op[3].CalcN(noise);
-  return *out[2] + o;
+  buf_[0] = op_[0].out_;
+  op_[0].CalcFB(fb_);
+  *out_[0] += op_[1].Calc(*in_[0]);
+  *out_[1] += op_[2].Calc(*in_[1]);
+  int o = op_[3].out_;
+  op_[3].CalcN(noise);
+  return *out_[2] + o;
 }
 
 //  合成
 ISample Channel4::CalcLN(uint32_t noise) {
-  chip_->SetPMV(pms[chip_->GetPML()]);
-  buf[1] = buf[2] = buf[3] = 0;
+  chip_->SetPMV(pms_[chip_->GetPML()]);
+  buf_[1] = buf_[2] = buf_[3] = 0;
 
-  buf[0] = op[0].out_;
-  op[0].CalcFBL(fb);
-  *out[0] += op[1].CalcL(*in[0]);
-  *out[1] += op[2].CalcL(*in[1]);
-  int o = op[3].out_;
-  op[3].CalcN(noise);
-  return *out[2] + o;
+  buf_[0] = op_[0].out_;
+  op_[0].CalcFBL(fb_);
+  *out_[0] += op_[1].CalcL(*in_[0]);
+  *out_[1] += op_[2].CalcL(*in_[1]);
+  int o = op_[3].out_;
+  op_[3].CalcN(noise);
+  return *out_[2] + o;
 }
 
 }  // namespace FM

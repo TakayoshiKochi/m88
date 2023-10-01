@@ -4,8 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: fmtimer.h,v 1.2 2003/04/22 13:12:53 cisc Exp $
 
-#ifndef FM_TIMER_H
-#define FM_TIMER_H
+#pragma once
 
 #include <stdint.h>
 
@@ -27,26 +26,26 @@ class Timer {
   void SetTimerB(uint32_t data);
   void SetTimerControl(uint32_t data);
 
-  uint8_t status;
-  uint8_t regtc;
+  uint8_t status_;
+  uint8_t reg_tc_;
 
  private:
   virtual void TimerA() {}
   uint8_t regta[2];
 
-  int32_t timera, timera_count;
-  int32_t timerb, timerb_count;
-  int32_t timer_step;
+  int32_t timera_;
+  int32_t timera_count_ = 0;
+  int32_t timerb_;
+  int32_t timerb_count_ = 0;
+  int32_t timer_step_;
 };
 
 // ---------------------------------------------------------------------------
 //  初期化
 //
 inline void Timer::Reset() {
-  timera_count = 0;
-  timerb_count = 0;
+  timera_count_ = 0;
+  timerb_count_ = 0;
 }
 
 }  // namespace FM
-
-#endif  // FM_TIMER_H

@@ -76,15 +76,15 @@ namespace FM {
 class OPM : public Timer {
  public:
   OPM();
-  ~OPM() {}
+  ~OPM() = default;
 
   bool Init(uint32_t c, uint32_t r, bool = false);
   bool SetRate(uint32_t c, uint32_t r, bool);
-  void SetLPFCutoff(uint32_t freq);
+  // void SetLPFCutoff(uint32_t freq);
   void Reset();
 
   void SetReg(uint32_t addr, uint32_t data);
-  uint32_t GetReg(uint32_t addr);
+  // uint32_t GetReg(uint32_t addr);
   uint32_t ReadStatus() { return status & 0x03; }
 
   void Mix(Sample* buffer, int nsamples);
@@ -110,14 +110,14 @@ class OPM : public Timer {
   void LFO();
   uint32_t Noise();
 
-  int fmvolume;
+  int fm_volume_;
 
   uint32_t clock;
-  uint32_t rate;
-  uint32_t pcmrate;
+  uint32_t rate_;
+  uint32_t pcm_rate_;
 
-  uint32_t pmd;
-  uint32_t amd;
+  uint32_t pmd_;
+  uint32_t amd_;
   uint32_t lfocount;
   uint32_t lfodcount;
 
@@ -132,25 +132,25 @@ class OPM : public Timer {
   int32_t noisecount;
   uint32_t noisedelta;
 
-  bool interpolation;
+  // bool interpolation_ = false;
   uint8_t lfofreq;
   uint8_t status;
   uint8_t reg01;
 
-  uint8_t kc[8];
-  uint8_t kf[8];
-  uint8_t pan[8];
+  uint8_t kc_[8];
+  uint8_t kf_[8];
+  uint8_t pan_[8];
 
-  Channel4 ch[8];
-  Chip chip;
+  Channel4 ch_[8];
+  Chip chip_;
 
   static void BuildLFOTable();
   static int amtable[4][OPM_LFOENTS];
   static int pmtable[4][OPM_LFOENTS];
 
  public:
-  int dbgGetOpOut(int c, int s) { return ch[c].op[s].dbgopout_; }
-  Channel4* dbgGetCh(int c) { return &ch[c]; }
+  int dbgGetOpOut(int c, int s) { return ch_[c].op_[s].dbgopout_; }
+  Channel4* dbgGetCh(int c) { return &ch_[c]; }
 };
 }  // namespace FM
 
