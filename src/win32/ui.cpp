@@ -1012,7 +1012,10 @@ void WinUI::CaptureScreen() {
 
   bmpsize = draw.CaptureScreen(bmp.get());
   if (bmpsize) {
-    bool save;
+    // TODO: make this under config flag.
+    CopyToClipboard(bmp.get(), bmpsize);
+
+    bool save = false;
     char filename[MAX_PATH];
 
     if (config.flag2 & Config::kGenScrnShotName) {
@@ -1049,6 +1052,28 @@ void WinUI::CaptureScreen() {
         file.Write(bmp.get(), bmpsize);
     }
   }
+}
+
+bool WinUI::CopyToClipboard(uint8_t* bmp, int size) {
+  HGLOBAL hglobal;
+  if (OpenClipboard(nullptr) && EmptyClipboard())
+    return false;
+
+  hglobal = GlobalAlloc(GMEM_MOVEABLE, size - sizeof(BITMAPFILEHEADER));
+  if (hglobal == nullptr)
+    return false;
+
+  memcpy(GlobalLock(hglobal), bmp + sizeof(BITMAPFILEHEADER), size - sizeof(BITMAPFILEHEADER));
+  GlobalUnlock(hglobal);
+
+  bool result = true;
+  if (SetClipboardData(CF_DIB, hglobal) == nullptr)
+    result = false;
+
+  CloseClipboard();
+  GlobalFree(hglobal);
+
+  return result;
 }
 
 // ---------------------------------------------------------------------------
