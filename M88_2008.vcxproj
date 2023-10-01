@@ -151,7 +151,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\src;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;ISOLATION_AWARE_ENABLED;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -214,7 +214,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\src;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN64;WIN32;NDEBUG;_WINDOWS;ISOLATION_AWARE_ENABLED;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -273,7 +273,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\src;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -326,7 +326,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\src;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN64;WIN32;_DEBUG;_WINDOWS;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -382,7 +382,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\src;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_DEBUG;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -439,7 +439,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\src;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_DEBUG;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -483,6 +483,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\common\bmp_codec.cpp" />
     <ClCompile Include="src\common\device.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -501,6 +502,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="src\common\file_.cpp" />
+    <ClCompile Include="src\common\image_codec.cpp" />
     <ClCompile Include="src\common\io_bus.cpp" />
     <ClCompile Include="src\common\memory_manager.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
@@ -511,6 +513,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="src\common\memory_bus.cpp" />
+    <ClCompile Include="src\common\png_codec.cpp" />
     <ClCompile Include="src\common\scheduler.cpp" />
     <ClCompile Include="src\common\sequencer.cpp" />
     <ClCompile Include="src\common\srcbuf.cpp">
@@ -1188,17 +1191,35 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Tuning|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="third_party\libpng\png.c" />
+    <ClCompile Include="third_party\libpng\pngerror.c" />
+    <ClCompile Include="third_party\libpng\pngget.c" />
+    <ClCompile Include="third_party\libpng\pngmem.c" />
+    <ClCompile Include="third_party\libpng\pngpread.c" />
+    <ClCompile Include="third_party\libpng\pngread.c" />
+    <ClCompile Include="third_party\libpng\pngrio.c" />
+    <ClCompile Include="third_party\libpng\pngrtran.c" />
+    <ClCompile Include="third_party\libpng\pngrutil.c" />
+    <ClCompile Include="third_party\libpng\pngset.c" />
+    <ClCompile Include="third_party\libpng\pngtrans.c" />
+    <ClCompile Include="third_party\libpng\pngwio.c" />
+    <ClCompile Include="third_party\libpng\pngwrite.c" />
+    <ClCompile Include="third_party\libpng\pngwtran.c" />
+    <ClCompile Include="third_party\libpng\pngwutil.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\common\bmp_codec.h" />
     <ClInclude Include="src\common\device.h" />
     <ClInclude Include="src\common\diag.h" />
     <ClInclude Include="src\common\draw.h" />
     <ClInclude Include="src\common\error.h" />
     <ClInclude Include="src\common\file.h" />
+    <ClInclude Include="src\common\image_codec.h" />
     <ClInclude Include="src\common\io_bus.h" />
     <ClInclude Include="src\common\memory_manager.h" />
     <ClInclude Include="src\common\memory_bus.h" />
     <ClInclude Include="src\common\misc.h" />
+    <ClInclude Include="src\common\png_codec.h" />
     <ClInclude Include="src\common\scheduler.h" />
     <ClInclude Include="src\common\scoped_comptr.h" />
     <ClInclude Include="src\common\scoped_handle.h" />
@@ -1299,6 +1320,13 @@
     <ClInclude Include="src\zlib\zconf.h" />
     <ClInclude Include="src\zlib\zlib.h" />
     <ClInclude Include="src\zlib\zutil.h" />
+    <ClInclude Include="third_party\libpng\png.h" />
+    <ClInclude Include="third_party\libpng\pngconf.h" />
+    <ClInclude Include="third_party\libpng\pngdebug.h" />
+    <ClInclude Include="third_party\libpng\pnginfo.h" />
+    <ClInclude Include="third_party\libpng\pnglibconf.h" />
+    <ClInclude Include="third_party\libpng\pngpriv.h" />
+    <ClInclude Include="third_party\libpng\pngstruct.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\win32\M88.rc">
