@@ -27,9 +27,9 @@ OPM::OPM() {
   lfo_count_ = 0;
   lfo_count_prev_ = ~0;
   BuildLFOTable();
-  for (int i = 0; i < 8; i++) {
-    ch[i].SetChip(&chip);
-    ch[i].SetType(typeM);
+  for (auto& ch : ch_) {
+    ch.SetChip(&chip_);
+    ch.SetType(typeM);
   }
 }
 
@@ -52,8 +52,8 @@ bool OPM::Init(uint32_t c, uint32_t rf, bool ip) {
 //
 bool OPM::SetRate(uint32_t c, uint32_t r, bool) {
   clock = c;
-  pcmrate = r;
-  rate = r;
+  pcm_rate_ = r;
+  rate_ = r;
 
   RebuildTimeTable();
 
@@ -65,7 +65,7 @@ bool OPM::SetRate(uint32_t c, uint32_t r, bool) {
 //
 void OPM::SetChannelMask(uint32_t mask) {
   for (int i = 0; i < 8; i++)
-    ch[i].Mute(!!(mask & (1 << i)));
+    ch_[i].Mute(!!(mask & (1 << i)));
 }
 
 // ---------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void OPM::Reset() {
   noisecount = 0;
 
   for (i = 0; i < 8; i++)
-    ch[i].Reset();
+    ch_[i].Reset();
 }
 
 // ---------------------------------------------------------------------------
@@ -93,11 +93,11 @@ void OPM::RebuildTimeTable() {
   uint32_t fmclock = clock / 64;
 
   assert(fmclock < (0x80000000 >> FM_RATIOBITS));
-  rateratio = ((fmclock << FM_RATIOBITS) + rate / 2) / rate;
+  rateratio = ((fmclock << FM_RATIOBITS) + rate_ / 2) / rate_;
   SetTimerBase(fmclock);
 
   //  FM::MakeTimeTable(rateratio);
-  chip.SetRatio(rateratio);
+  chip_.SetRatio(rateratio);
 
   //  lfo_diff_ =
 
@@ -109,10 +109,10 @@ void OPM::RebuildTimeTable() {
 //  タイマー A 発生時イベント (CSM)
 //
 void OPM::TimerA() {
-  if (regtc & 0x80) {
-    for (int i = 0; i < 8; i++) {
-      ch[i].KeyControl(0);
-      ch[i].KeyControl(0xf);
+  if (reg_tc_ & 0x80) {
+    for (auto& ch : ch_) {
+      ch.KeyControl(0);
+      ch.KeyControl(0xf);
     }
   }
 }
@@ -123,9 +123,9 @@ void OPM::TimerA() {
 void OPM::SetVolume(int db) {
   db = std::min(db, 20);
   if (db > -192)
-    fmvolume = int(16384.0 * pow(10, db / 40.0));
+    fm_volume_ = int(16384.0 * pow(10, db / 40.0));
   else
-    fmvolume = 0;
+    fm_volume_ = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -167,18 +167,18 @@ void OPM::SetReg(uint32_t addr, uint32_t data) {
       break;
 
     case 0x08:  // KEYON
-      if (!(regtc & 0x80))
-        ch[data & 7].KeyControl(data >> 3);
+      if (!(reg_tc_ & 0x80))
+        ch_[data & 7].KeyControl(data >> 3);
       else {
         c = data & 7;
         if (!(data & 0x08))
-          ch[c].op[0].KeyOff();
+          ch_[c].op_[0].KeyOff();
         if (!(data & 0x10))
-          ch[c].op[1].KeyOff();
+          ch_[c].op_[1].KeyOff();
         if (!(data & 0x20))
-          ch[c].op[2].KeyOff();
+          ch_[c].op_[2].KeyOff();
         if (!(data & 0x40))
-          ch[c].op[3].KeyOff();
+          ch_[c].op_[3].KeyOff();
       }
       break;
 
@@ -205,7 +205,7 @@ void OPM::SetReg(uint32_t addr, uint32_t data) {
       break;
 
     case 0x19:  // PMD/AMD
-      (data & 0x80 ? pmd : amd) = data & 0x7f;
+      (data & 0x80 ? pmd_ : amd_) = data & 0x7f;
       break;
 
     case 0x1b:  // CT, W(lfo waveform)
@@ -221,9 +221,9 @@ void OPM::SetReg(uint32_t addr, uint32_t data) {
     case 0x25:
     case 0x26:
     case 0x27:
-      ch[c].SetFB((data >> 3) & 7);
-      ch[c].SetAlgorithm(data & 7);
-      pan[c] = (data >> 6) & 3;
+      ch_[c].SetFB((data >> 3) & 7);
+      ch_[c].SetAlgorithm(data & 7);
+      pan_[c] = (data >> 6) & 3;
       break;
 
       // KC
@@ -235,8 +235,8 @@ void OPM::SetReg(uint32_t addr, uint32_t data) {
     case 0x2d:
     case 0x2e:
     case 0x2f:
-      kc[c] = data;
-      ch[c].SetKCKF(kc[c], kf[c]);
+      kc_[c] = data;
+      ch_[c].SetKCKF(kc_[c], kf_[c]);
       break;
 
       // KF
@@ -248,8 +248,8 @@ void OPM::SetReg(uint32_t addr, uint32_t data) {
     case 0x35:
     case 0x36:
     case 0x37:
-      kf[c] = data >> 2;
-      ch[c].SetKCKF(kc[c], kf[c]);
+      kf_[c] = data >> 2;
+      ch_[c].SetKCKF(kc_[c], kf_[c]);
       break;
 
       // PMS, AMS
@@ -261,7 +261,7 @@ void OPM::SetReg(uint32_t addr, uint32_t data) {
     case 0x3d:
     case 0x3e:
     case 0x3f:
-      ch[c].SetMS((data << 4) | (data >> 4));
+      ch_[c].SetMS((data << 4) | (data >> 4));
       break;
 
     case 0x0f:  // NE/NFRQ (noise)
@@ -286,7 +286,7 @@ void OPM::SetParameter(uint32_t addr, uint32_t data) {
   const static uint8_t slottable[4] = {0, 2, 1, 3};
 
   uint32_t slot = slottable[(addr >> 3) & 3];
-  Operator* op = &ch[addr & 7].op[slot];
+  Operator* op = &ch_[addr & 7].op_[slot];
 
   switch ((addr >> 5) & 7) {
     case 2:  // 40-5F DT1/MULTI
@@ -295,7 +295,7 @@ void OPM::SetParameter(uint32_t addr, uint32_t data) {
       break;
 
     case 3:  // 60-7F TL
-      op->SetTL(data & 0x7f, (regtc & 0x80) != 0);
+      op->SetTL(data & 0x7f, (reg_tc_ & 0x80) != 0);
       break;
 
     case 4:  // 80-9F KS/AR
@@ -372,14 +372,14 @@ inline void OPM::LFO() {
     {
       int c = (lfo_count_ >> 15) & 0x1fe;
       //  fprintf(stderr, "%.8x %.2x\n", lfo_count_, c);
-      chip.SetPML(pmtable[lfowaveform][c] * pmd / 128 + 0x80);
-      chip.SetAML(amtable[lfowaveform][c] * amd / 128);
+      chip_.SetPML(pmtable[lfowaveform][c] * pmd_ / 128 + 0x80);
+      chip_.SetAML(amtable[lfowaveform][c] * amd_ / 128);
     }
   } else {
     if ((lfo_count_ ^ lfo_count_prev_) & ~((1 << 17) - 1)) {
       int c = (rand() / 17) & 0xff;
-      chip.SetPML((c - 0x80) * pmd / 128 + 0x80);
-      chip.SetAML(c * amd / 128);
+      chip_.SetPML((c - 0x80) * pmd_ / 128 + 0x80);
+      chip_.SetAML(c * amd_ / 128);
     }
   }
   lfo_count_prev_ = lfo_count_;
@@ -409,47 +409,47 @@ inline uint32_t OPM::Noise() {
 //
 inline void OPM::MixSub(int activech, ISample** idest) {
   if (activech & 0x4000)
-    (*idest[0] = ch[0].Calc());
+    (*idest[0] = ch_[0].Calc());
   if (activech & 0x1000)
-    (*idest[1] += ch[1].Calc());
+    (*idest[1] += ch_[1].Calc());
   if (activech & 0x0400)
-    (*idest[2] += ch[2].Calc());
+    (*idest[2] += ch_[2].Calc());
   if (activech & 0x0100)
-    (*idest[3] += ch[3].Calc());
+    (*idest[3] += ch_[3].Calc());
   if (activech & 0x0040)
-    (*idest[4] += ch[4].Calc());
+    (*idest[4] += ch_[4].Calc());
   if (activech & 0x0010)
-    (*idest[5] += ch[5].Calc());
+    (*idest[5] += ch_[5].Calc());
   if (activech & 0x0004)
-    (*idest[6] += ch[6].Calc());
+    (*idest[6] += ch_[6].Calc());
   if (activech & 0x0001) {
     if (noisedelta & 0x80)
-      *idest[7] += ch[7].CalcN(Noise());
+      *idest[7] += ch_[7].CalcN(Noise());
     else
-      *idest[7] += ch[7].Calc();
+      *idest[7] += ch_[7].Calc();
   }
 }
 
 inline void OPM::MixSubL(int activech, ISample** idest) {
   if (activech & 0x4000)
-    (*idest[0] = ch[0].CalcL());
+    (*idest[0] = ch_[0].CalcL());
   if (activech & 0x1000)
-    (*idest[1] += ch[1].CalcL());
+    (*idest[1] += ch_[1].CalcL());
   if (activech & 0x0400)
-    (*idest[2] += ch[2].CalcL());
+    (*idest[2] += ch_[2].CalcL());
   if (activech & 0x0100)
-    (*idest[3] += ch[3].CalcL());
+    (*idest[3] += ch_[3].CalcL());
   if (activech & 0x0040)
-    (*idest[4] += ch[4].CalcL());
+    (*idest[4] += ch_[4].CalcL());
   if (activech & 0x0010)
-    (*idest[5] += ch[5].CalcL());
+    (*idest[5] += ch_[5].CalcL());
   if (activech & 0x0004)
-    (*idest[6] += ch[6].CalcL());
+    (*idest[6] += ch_[6].CalcL());
   if (activech & 0x0001) {
     if (noisedelta & 0x80)
-      *idest[7] += ch[7].CalcLN(Noise());
+      *idest[7] += ch_[7].CalcLN(Noise());
     else
-      *idest[7] += ch[7].CalcL();
+      *idest[7] += ch_[7].CalcL();
   }
 }
 
@@ -457,13 +457,13 @@ inline void OPM::MixSubL(int activech, ISample** idest) {
 //  合成 (stereo)
 //
 void OPM::Mix(Sample* buffer, int nsamples) {
-#define IStoSample(s) ((Limit(s, 0xffff, -0x10000) * fmvolume) >> 14)
+#define IStoSample(s) ((Limit(s, 0xffff, -0x10000) * fm_volume_) >> 14)
   // #define IStoSample(s) ((s * fmvolume) >> 14)
 
   // odd bits - active, even bits - lfo
   uint32_t activech = 0;
   for (int i = 0; i < 8; i++)
-    activech = (activech << 2) | ch[i].Prepare();
+    activech = (activech << 2) | ch_[i].Prepare();
 
   if (activech & 0x5555) {
     // LFO 波形初期化ビット = 1 ならば LFO はかからない?
@@ -473,14 +473,14 @@ void OPM::Mix(Sample* buffer, int nsamples) {
     // Mix
     ISample ibuf[8];
     ISample* idest[8];
-    idest[0] = &ibuf[pan[0]];
-    idest[1] = &ibuf[pan[1]];
-    idest[2] = &ibuf[pan[2]];
-    idest[3] = &ibuf[pan[3]];
-    idest[4] = &ibuf[pan[4]];
-    idest[5] = &ibuf[pan[5]];
-    idest[6] = &ibuf[pan[6]];
-    idest[7] = &ibuf[pan[7]];
+    idest[0] = &ibuf[pan_[0]];
+    idest[1] = &ibuf[pan_[1]];
+    idest[2] = &ibuf[pan_[2]];
+    idest[3] = &ibuf[pan_[3]];
+    idest[4] = &ibuf[pan_[4]];
+    idest[5] = &ibuf[pan_[5]];
+    idest[6] = &ibuf[pan_[6]];
+    idest[7] = &ibuf[pan_[7]];
 
     Sample* limit = buffer + nsamples * 2;
     for (Sample* dest = buffer; dest < limit; dest += 2) {

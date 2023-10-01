@@ -74,8 +74,7 @@ static bool LoadDLL() {
   if (!g_hScci)
     return false;
 
-  auto getSoundInterfaceManager =
-      (SCCIFUNC)(::GetProcAddress(g_hScci, "getSoundInterfaceManager"));
+  auto getSoundInterfaceManager = (SCCIFUNC)(::GetProcAddress(g_hScci, "getSoundInterfaceManager"));
 
   g_pManager = getSoundInterfaceManager();
   if (g_pManager == nullptr) {

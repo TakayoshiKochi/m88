@@ -4,8 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: opna.h,v 1.33 2003/06/12 13:14:37 cisc Exp $
 
-#ifndef FM_OPNA_H
-#define FM_OPNA_H
+#pragma once
 
 #include "devices/fmgen.h"
 #include "devices/fmtimer.h"
@@ -96,23 +95,23 @@ class OPNBase : public Timer {
   void SetPrescaler(uint32_t p);
   void RebuildTimeTable();
 
-  int fmvolume;
+  int fm_volume_;
 
-  uint32_t clock;    // OPN クロック
-  uint32_t rate;     // FM 音源合成レート
-  uint32_t psgrate;  // FMGen  出力レート
+  uint32_t clock;      // OPN クロック
+  uint32_t rate_;      // FM 音源合成レート
+  uint32_t psg_rate_;  // FMGen  出力レート
   uint32_t status;
-  Channel4* csmch;
+  Channel4* csm_ch_;
 
   static uint32_t lfotable[8];
 
  private:
   void TimerA();
-  uint8_t prescale;
+  uint8_t prescale_;
 
  protected:
-  Chip chip;
-  PSG psg;
+  Chip chip_;
+  PSG psg_;
 };
 
 //  OPN2 Base ------------------------------------------------------
@@ -160,11 +159,11 @@ class OPNABase : public OPNBase {
   int DecodeADPCMBSample(uint32_t);
 
   // FM 音源関係
-  uint8_t pan[6];
-  uint8_t fnum2[9];
+  uint8_t pan_[6];
+  uint8_t fnum2_[9];
 
-  uint8_t reg22;
-  uint32_t reg29;  // OPNA only?
+  uint8_t reg22_;
+  uint32_t reg29_;  // OPNA only?
 
   uint32_t stmask;
   uint32_t statusnext;
@@ -172,42 +171,42 @@ class OPNABase : public OPNBase {
   uint32_t lfocount;
   uint32_t lfodcount;
 
-  uint32_t fnum[6];
-  uint32_t fnum3[3];
+  uint32_t fnum_[6];
+  uint32_t fnum3_[3];
 
   // ADPCM 関係
-  uint8_t* adpcmbuf;     // ADPCM RAM
-  uint32_t adpcmmask;    // メモリアドレスに対するビットマスク
-  uint32_t adpcmnotice;  // ADPCM 再生終了時にたつビット
-  uint32_t startaddr;    // Start address
-  uint32_t stopaddr;     // Stop address
-  uint32_t memaddr;      // 再生中アドレス
-  uint32_t limitaddr;    // Limit address/mask
-  int adpcmlevel;        // ADPCM 音量
-  int adpcmvolume;
-  int adpcmvol;
-  uint32_t deltan;    // ⊿N
-  int adplc;          // 周波数変換用変数
-  int adpld;          // 周波数変換用変数差分値
-  uint32_t adplbase;  // adpld の元
-  int adpcmx;         // ADPCM 合成用 x
-  int adpcmd;         // ADPCM 合成用 ⊿
-  int adpcmout;       // ADPCM 合成後の出力
-  int apout0;         // out(t-2)+out(t-1)
-  int apout1;         // out(t-1)+out(t)
+  uint8_t* adpcm_buf_;     // ADPCM RAM
+  uint32_t adpcm_mask_;    // メモリアドレスに対するビットマスク
+  uint32_t adpcm_notice_;  // ADPCM 再生終了時にたつビット
+  uint32_t start_addr_;    // Start address
+  uint32_t stop_addr_;     // Stop address
+  uint32_t mem_addr_;      // 再生中アドレス
+  uint32_t limit_addr_;    // Limit address/mask
+  int adpcm_level_;        // ADPCM 音量
+  int adpcm_volume_;
+  int adpcm_vol_;
+  uint32_t delta_n_;    // ⊿N
+  int adplc_;           // 周波数変換用変数
+  int adpld_;           // 周波数変換用変数差分値
+  uint32_t adpl_base_;  // adpld の元
+  int adpcm_x_;         // ADPCM 合成用 x
+  int adpcm_d_;         // ADPCM 合成用 ⊿
+  int adpcm_out_;       // ADPCM 合成後の出力
+  int apout0_;          // out(t-2)+out(t-1)
+  int apout1_;          // out(t-1)+out(t)
 
-  uint32_t adpcmreadbuf;  // ADPCM リード用バッファ
-  bool adpcmplay;         // ADPCM 再生中
-  int8_t granuality;
+  uint32_t adpcm_read_buf_;  // ADPCM リード用バッファ
+  bool adpcm_playing_;       // ADPCM 再生中
+  int8_t granularity_;
   bool adpcmmask_;
 
-  uint8_t control1;     // ADPCM コントロールレジスタ１
-  uint8_t control2;     // ADPCM コントロールレジスタ２
-  uint8_t adpcmreg[8];  // ADPCM レジスタの一部分
+  uint8_t control1_;     // ADPCM コントロールレジスタ１
+  uint8_t control2_;     // ADPCM コントロールレジスタ２
+  uint8_t adpcmreg_[8];  // ADPCM レジスタの一部分
 
   int rhythmmask_;
 
-  Channel4 ch[6];
+  Channel4 ch_[6];
 
   static void BuildLFOTable();
   static int amtable[FM_LFOENTS];
@@ -220,7 +219,7 @@ class OPNABase : public OPNBase {
 class OPN : public OPNBase {
  public:
   OPN();
-  virtual ~OPN() {}
+  virtual ~OPN() = default;
 
   bool Init(uint32_t c, uint32_t r, bool = false, const char* = 0);
   bool SetRate(uint32_t c, uint32_t r, bool = false);
@@ -234,9 +233,9 @@ class OPN : public OPNBase {
 
   void SetChannelMask(uint32_t mask);
 
-  int dbgGetOpOut(int c, int s) { return ch[c].op[s].dbgopout_; }
-  int dbgGetPGOut(int c, int s) { return ch[c].op[s].dbgpgout_; }
-  Channel4* dbgGetCh(int c) { return &ch[c]; }
+  int dbgGetOpOut(int c, int s) { return ch_[c].op_[s].dbgopout_; }
+  int dbgGetPGOut(int c, int s) { return ch_[c].op_[s].dbgpgout_; }
+  Channel4* dbgGetCh(int c) { return &ch_[c]; }
 
  private:
   virtual void Intr(bool) {}
@@ -244,11 +243,11 @@ class OPN : public OPNBase {
   void SetStatus(uint32_t bit);
   void ResetStatus(uint32_t bit);
 
-  uint32_t fnum[3];
-  uint32_t fnum3[3];
-  uint8_t fnum2[6];
+  uint32_t fnum_[3];
+  uint32_t fnum3_[3];
+  uint8_t fnum2_[6];
 
-  Channel4 ch[3];
+  Channel4 ch_[3];
 };
 
 //  YM2608(OPNA) ---------------------------------------------------
@@ -271,11 +270,11 @@ class OPNA : public OPNABase {
   void SetVolumeRhythmTotal(int db);
   void SetVolumeRhythm(int index, int db);
 
-  uint8_t* GetADPCMBuffer() { return adpcmbuf; }
+  uint8_t* GetADPCMBuffer() { return adpcm_buf_; }
 
-  int dbgGetOpOut(int c, int s) { return ch[c].op[s].dbgopout_; }
-  int dbgGetPGOut(int c, int s) { return ch[c].op[s].dbgpgout_; }
-  Channel4* dbgGetCh(int c) { return &ch[c]; }
+  int dbgGetOpOut(int c, int s) { return ch_[c].op_[s].dbgopout_; }
+  int dbgGetPGOut(int c, int s) { return ch_[c].op_[s].dbgpgout_; }
+  Channel4* dbgGetCh(int c) { return &ch_[c]; }
 
  private:
   struct Rhythm {
@@ -292,10 +291,10 @@ class OPNA : public OPNABase {
   void RhythmMix(Sample* buffer, uint32_t count);
 
   // リズム音源関係
-  Rhythm rhythm[6];
-  int8_t rhythmtl;  // リズム全体の音量
-  int rhythmtvol;
-  uint8_t rhythmkey;  // リズムのキー
+  Rhythm rhythm_[6];
+  int8_t rhythm_tl_;  // リズム全体の音量
+  int rhythm_vol_;
+  uint8_t rhythm_key_;  // リズムのキー
 };
 
 //  YM2610/B(OPNB) ---------------------------------------------------
@@ -398,13 +397,11 @@ class OPN2 : public OPNBase {
 // ---------------------------------------------------------------------------
 
 inline void FM::OPNBase::RebuildTimeTable() {
-  int p = prescale;
-  prescale = -1;
+  int p = prescale_;
+  prescale_ = -1;
   SetPrescaler(p);
 }
 
 inline void FM::OPNBase::SetVolumePSG(int db) {
-  psg.SetVolume(db);
+  psg_.SetVolume(db);
 }
-
-#endif  // FM_OPNA_H
