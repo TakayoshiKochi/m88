@@ -70,8 +70,8 @@ bool OPNIF::Init(IOBus* bus, int intrport, int io, Scheduler* sched) {
           g_status_display->Show(100, 10000, "SCCI: YM2608 enabled");
           opn_.SetChannelMask(0xffff);
           break;
-        default:
         case 0:
+        default:
           g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 enabled");
           break;
       }

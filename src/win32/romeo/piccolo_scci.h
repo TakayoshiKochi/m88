@@ -1,6 +1,7 @@
 #pragma once
 
-#include "piccolo.h"
+#include "win32/romeo/piccolo.h"
+#include "win32/romeo/scci.h"
 
 #include <stdint.h>
 
