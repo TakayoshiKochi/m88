@@ -87,7 +87,7 @@ class WinDraw : public Draw {
   void Refresh() { refresh_ = 1; }
   void WindowMoved(int cx, int cy);
 
-  int CaptureScreen(uint8_t* dest);
+  void CaptureScreen();
 
  private:
   enum DisplayType { None, D3D };
