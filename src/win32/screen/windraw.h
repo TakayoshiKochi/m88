@@ -67,6 +67,8 @@ class WinDraw : public Draw {
   void DrawScreen(const Region& region) override;
   RECT GetFullScreenRect() { return drawsub_->GetFullScreenRect(); }
 
+  const PALETTEENTRY* GetPalette() const { return palette_; }
+
   uint32_t GetStatus() override;
   void Flip() override;
   bool SetFlipMode(bool f) override;
@@ -87,7 +89,7 @@ class WinDraw : public Draw {
   void Refresh() { refresh_ = 1; }
   void WindowMoved(int cx, int cy);
 
-  void CaptureScreen();
+  void CaptureScreen(uint8_t* buf);
 
  private:
   enum DisplayType { None, D3D };

@@ -14,7 +14,6 @@
 #include <algorithm>
 
 #include "common/error.h"
-#include "common/image_codec.h"
 #include "win32/monitor/loadmon.h"
 #include "win32/screen/drawd3d12.h"
 #include "win32/status.h"
@@ -352,37 +351,20 @@ void WinDraw::SetGUIFlag(bool usegui) {
   }
 }
 
-// ---------------------------------------------------------------------------
-//  画面を 640x400x4 の BMP に変換する
-//  dest    変換した BMP の置き場所、置けるだけの領域が必要。
-//  ret     巧くできたかどうか
-//
-void WinDraw::CaptureScreen() {
+void WinDraw::CaptureScreen(uint8_t* buf) {
   if (!drawsub_)
-    return;
-
-  std::unique_ptr<uint8_t[]> src = std::make_unique<uint8_t[]>(640 * 400);
-  if (!src)
     return;
 
   uint8_t* s = nullptr;
   int bpl = 0;
   if (drawsub_->Lock(&s, &bpl)) {
-    uint8_t* d = src.get();
+    uint8_t* d = buf;
     for (int y = 0; y < 400; y++) {
       memcpy(d, s, 640);
       d += 640;
       s += bpl;
     }
     drawsub_->Unlock();
-  }
-
-  const std::string type("png");
-  std::unique_ptr<ImageCodec> codec;
-  codec.reset(ImageCodec::GetCodec(type));
-  if (codec) {
-    codec->Encode(src.get(), palette_);
-    codec->Save(ImageCodec::GenerateFileName(type));
   }
 }
 

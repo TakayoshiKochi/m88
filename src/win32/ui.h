@@ -86,7 +86,7 @@ class WinUI {
   bool MakeSnapshotMenu();
 
   void CaptureScreen();
-  bool CopyToClipboard(uint8_t* bmp, int size);
+  bool CopyToClipboard(uint8_t* bmp, int bmp_size);
 
   void SaveWindowPosition();
   void LoadWindowPosition();

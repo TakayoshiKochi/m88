@@ -16,6 +16,7 @@
 #include <algorithm>
 
 #include "common/error.h"
+#include "common/image_codec.h"
 #include "pc88/opnif.h"
 #include "pc88/diskmgr.h"
 #include "pc88/tapemgr.h"
@@ -1007,23 +1008,39 @@ bool WinUI::MakeSnapshotMenu() {
 //  WinUI::CaptureScreen
 //
 void WinUI::CaptureScreen() {
-  draw.CaptureScreen();
+  std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(640 * 400);
+  if (!buf)
+    return;
+
+  draw.CaptureScreen(buf.get());
+
+  const std::string type("png");
+  std::unique_ptr<ImageCodec> codec;
+  codec.reset(ImageCodec::GetCodec(type));
+  if (codec) {
+    codec->Encode(buf.get(), draw.GetPalette());
+    codec->Save(ImageCodec::GenerateFileName(type));
+  }
   statusdisplay.Show(80, 1500, "画面イメージを保存しました");
-  // int bmpsize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFO) + 15 * sizeof(RGBQUAD) + 320 * 400;
-  // std::unique_ptr<uint8_t[]> bmp = std::make_unique<uint8_t[]>(bmpsize);
-  // CopyToClipboard(bmp.get(), bmpsize);
+
+  codec.reset(ImageCodec::GetCodec("bmp"));
+  if (codec) {
+    codec->Encode(buf.get(), draw.GetPalette());
+    if (CopyToClipboard(codec->data(), codec->encoded_size()))
+      statusdisplay.Show(80, 1500, "クリップボードに画面イメージを保存しました");
+  }
 }
 
-bool WinUI::CopyToClipboard(uint8_t* bmp, int size) {
+bool WinUI::CopyToClipboard(uint8_t* bmp, int bmp_size) {
   HGLOBAL hglobal;
-  if (OpenClipboard(nullptr) && EmptyClipboard())
+  if (!OpenClipboard(nullptr) || !EmptyClipboard())
     return false;
 
-  hglobal = GlobalAlloc(GMEM_MOVEABLE, size - sizeof(BITMAPFILEHEADER));
+  hglobal = GlobalAlloc(GMEM_MOVEABLE, bmp_size - sizeof(BITMAPFILEHEADER));
   if (hglobal == nullptr)
     return false;
 
-  memcpy(GlobalLock(hglobal), bmp + sizeof(BITMAPFILEHEADER), size - sizeof(BITMAPFILEHEADER));
+  memcpy(GlobalLock(hglobal), bmp + sizeof(BITMAPFILEHEADER), bmp_size - sizeof(BITMAPFILEHEADER));
   GlobalUnlock(hglobal);
 
   bool result = true;
