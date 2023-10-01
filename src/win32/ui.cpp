@@ -107,6 +107,20 @@ bool WinUI::InitWindow(int) {
   if (!draw.Init0(hwnd_))
     return false;
 
+  // Power management
+  REASON_CONTEXT ctx{};
+  ctx.Version = POWER_REQUEST_CONTEXT_VERSION;
+  ctx.Flags = POWER_REQUEST_CONTEXT_SIMPLE_STRING;
+  ctx.Reason.SimpleReasonString = L"M88 wakelock for fulllscreen";
+  if (!hpower_) {
+    hpower_.reset(PowerCreateRequest(&ctx));
+    if (hpower_.get() == INVALID_HANDLE_VALUE) {
+      auto error = GetLastError();
+      Log("PowerCreateRequest failed: %d\n", error);
+      hpower_.reset();
+    }
+  }
+
   clipmode_ = 0;
   gui_mode_by_mouse_ = false;
 
@@ -1065,6 +1079,24 @@ void WinUI::LoadWindowPosition() {
   }
 }
 
+void WinUI::PreventSleep() {
+  if (hpower_) {
+    PowerSetRequest(hpower_.get(), PowerRequestDisplayRequired);
+    PowerSetRequest(hpower_.get(), PowerRequestSystemRequired);
+  } else {
+    SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED);
+  }
+}
+
+void WinUI::AllowSleep() {
+  if (hpower_) {
+    PowerClearRequest(hpower_.get(), PowerRequestDisplayRequired);
+    PowerClearRequest(hpower_.get(), PowerRequestSystemRequired);
+  } else {
+    SetThreadExecutionState(ES_CONTINUOUS);
+  }
+}
+
 // ---------------------------------------------------------------------------
 //  WinUI::M88ChangeDisplay
 //  表示メソッドの変更
@@ -1074,17 +1106,10 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
     fullscreen_ = false;
   }
 
-  REASON_CONTEXT ctx{};
-  ctx.Version = POWER_REQUEST_CONTEXT_VERSION;
-  ctx.Flags = POWER_REQUEST_CONTEXT_SIMPLE_STRING;
-  if (!hpower_)
-    hpower_.reset(PowerCreateRequest(&ctx));
-  if (fullscreen_) {
-    PowerSetRequest(hpower_.get(), PowerRequestSystemRequired);
-    PowerSetRequest(hpower_.get(), PowerRequestDisplayRequired);
+  if (hpower_ && fullscreen_) {
+    PreventSleep();
   } else {
-    PowerClearRequest(hpower_.get(), PowerRequestDisplayRequired);
-    PowerClearRequest(hpower_.get(), PowerRequestSystemRequired);
+    AllowSleep();
   }
 
   // ウィンドウスタイル関係の変更
