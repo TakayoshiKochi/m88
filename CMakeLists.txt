@@ -30,6 +30,8 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/gtest)
 #add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/abseil)
 
 add_library(common ${LIB_TYPE}
+        src/common/bmp_codec.h
+        src/common/bmp_codec.cpp
         src/common/device.h
         src/common/device.cpp
         src/common/diag.h
@@ -41,11 +43,15 @@ add_library(common ${LIB_TYPE}
         src/common/file_.cpp
         src/common/io_bus.h
         src/common/io_bus.cpp
+        src/common/image_codec.h
+        src/common/image_codec.cpp
         src/common/memory_manager.h
         src/common/memory_manager.cpp
         src/common/memory_bus.h
         src/common/memory_bus.cpp
         src/common/misc.h
+        src/common/png_codec.h
+        src/common/png_codec.cpp
         src/common/scheduler.h
         src/common/scheduler.cpp
         src/common/sequencer.h
