@@ -210,7 +210,9 @@ class Memory : public Device, public IGetMemoryBank {
   uint32_t portf0 = 0;
 
   uint32_t sw31 = 0;
-  uint32_t erommask = 0;
+  // bit0 : ~IEROM (internal EROM, 0: select, 1: no select)
+  // bit1-7 : ~EROM1-EROM7 (0: select, 1: noselect)
+  uint32_t erom_mask_ = 0xfffffffe;
   uint32_t waitmode = 0;
   uint32_t waittype = 0;  // b0 = disp/vrtc,
   bool selgvram = false;

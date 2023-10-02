@@ -18,8 +18,6 @@ using namespace PC8801;
 //
 DiskIO::DiskIO(const ID& id) : Device(id) {}
 
-DiskIO::~DiskIO() {}
-
 // ---------------------------------------------------------------------------
 //  Init
 //
@@ -29,96 +27,73 @@ bool DiskIO::Init() {
 }
 
 void DiskIO::Reset(uint32_t, uint32_t) {
-  writebuffer = false;
-  filename[0] = 0;
+  write_buffer_ = false;
+  filename_[0] = 0;
   IdlePhase();
 }
 
-// ---------------------------------------------------------------------------
-//  コマンド
-//
 void DiskIO::SetCommand(uint32_t, uint32_t d) {
-  if (d != 0x84 || !writebuffer)
-    file.Close();
-  phase = idlephase;
-  cmd = d;
+  if (d != 0x84 || !write_buffer_)
+    file_.Close();
+  phase_ = kIdlePhase;
+  cmd_ = d;
   Log("\n[%.2x]", d);
-  status |= 1;
+  status_ |= 1;
   ProcCommand();
 }
 
-// ---------------------------------------------------------------------------
-//  ステータス
-//
 uint32_t DiskIO::GetStatus(uint32_t) {
-  return status;
+  return status_;
 }
-
-// ---------------------------------------------------------------------------
-//  データセット
-//
 void DiskIO::SetData(uint32_t, uint32_t d) {
-  if (phase == recvphase || phase == argphase) {
-    *ptr++ = d;
-    if (--len <= 0) {
-      status &= ~2;
+  if (phase_ == kRecvPhase || phase_ == kArgPhase) {
+    *ptr_++ = d;
+    if (--len_ <= 0) {
+      status_ &= ~2;
       ProcCommand();
     }
   }
 }
 
-// ---------------------------------------------------------------------------
-//  データげっと
-//
 uint32_t DiskIO::GetData(uint32_t) {
   uint32_t r = 0xff;
-  if (phase == sendphase) {
-    r = *ptr++;
-    if (--len <= 0) {
-      status &= ~(2 | 4);
+  if (phase_ == kSendPhase) {
+    r = *ptr_++;
+    if (--len_ <= 0) {
+      status_ &= ~(2 | 4);
       ProcCommand();
     }
   }
   return r;
 }
 
-// ---------------------------------------------------------------------------
-//
-//
 void DiskIO::SendPhase(uint8_t* p, int l) {
-  ptr = p, len = l;
-  phase = sendphase;
-  status |= 2 | 4;
+  ptr_ = p, len_ = l;
+  phase_ = kSendPhase;
+  status_ |= 2 | 4;
 }
 
 void DiskIO::ArgPhase(int l) {
-  ptr = arg, len = l;
-  phase = argphase;
+  ptr_ = arg_;
+  len_ = l;
+  phase_ = kArgPhase;
 }
 
-// ---------------------------------------------------------------------------
-//
-//
 void DiskIO::RecvPhase(uint8_t* p, int l) {
-  ptr = p, len = l;
-  phase = recvphase;
-  status |= 2;
+  ptr_ = p;
+  len_ = l;
+  phase_ = kRecvPhase;
+  status_ |= 2;
 }
 
-// ---------------------------------------------------------------------------
-//
-//
 void DiskIO::IdlePhase() {
-  phase = idlephase;
-  status = 0;
-  file.Close();
+  phase_ = kIdlePhase;
+  status_ = 0;
+  file_.Close();
 }
 
-// ---------------------------------------------------------------------------
-//
-//
 void DiskIO::ProcCommand() {
-  switch (cmd) {
+  switch (cmd_) {
     case 0x80:
       CmdSetFileName();
       break;
@@ -140,24 +115,22 @@ void DiskIO::ProcCommand() {
   }
 }
 
-// ---------------------------------------------------------------------------
-
 void DiskIO::CmdSetFileName() {
-  switch (phase) {
-    case idlephase:
+  switch (phase_) {
+    case kIdlePhase:
       Log("SetFileName ");
       ArgPhase(1);
       break;
 
-    case argphase:
-      if (arg[0]) {
-        RecvPhase(filename, arg[0]);
-        err = 0;
+    case kArgPhase:
+      if (arg_[0]) {
+        RecvPhase((uint8_t*)filename_, arg_[0]);
+        err_ = 0;
         break;
       }
-      err = 56;
-    case recvphase:
-      filename[arg[0]] = 0;
+      err_ = 56;
+    case kRecvPhase:
+      filename_[arg_[0]] = 0;
       Log("Path=%s", filename);
       IdlePhase();
       break;
@@ -167,39 +140,39 @@ void DiskIO::CmdSetFileName() {
 // ---------------------------------------------------------------------------
 
 void DiskIO::CmdReadFile() {
-  switch (phase) {
-    case idlephase:
-      writebuffer = false;
+  switch (phase_) {
+    case kIdlePhase:
+      write_buffer_ = false;
       Log("ReadFile(%s) - ", filename);
-      if (file.Open((char*)filename, FileIO::readonly)) {
-        file.Seek(0, FileIO::end);
-        size = std::min(0xffff, file.Tellp());
-        file.Seek(0, FileIO::begin);
-        buf[0] = size & 0xff;
-        buf[1] = (size >> 8) & 0xff;
-        Log("%d bytes  ", size);
-        SendPhase(buf, 2);
+      if (file_.Open(filename_, FileIO::readonly)) {
+        file_.Seek(0, FileIO::end);
+        size_ = std::min(0xffff, file_.Tellp());
+        file_.Seek(0, FileIO::begin);
+        buf_[0] = size_ & 0xff;
+        buf_[1] = (size_ >> 8) & 0xff;
+        Log("%d bytes  ", size_);
+        SendPhase(buf_, 2);
       } else {
         Log("failed");
-        err = 53;
+        err_ = 53;
         IdlePhase();
       }
       break;
 
-    case sendphase:
-      if (size > 0) {
-        int b = std::min(1024, size);
-        size -= b;
-        if (file.Read(buf, b)) {
-          SendPhase(buf, b);
+    case kSendPhase:
+      if (size_ > 0) {
+        int b = std::min(1024, size_);
+        size_ -= b;
+        if (file_.Read(buf_, b)) {
+          SendPhase(buf_, b);
           break;
         }
-        err = 64;
+        err_ = 64;
       }
 
       Log("success");
       IdlePhase();
-      err = 0;
+      err_ = 0;
       break;
   }
 }
@@ -207,40 +180,40 @@ void DiskIO::CmdReadFile() {
 // ---------------------------------------------------------------------------
 
 void DiskIO::CmdWriteFile() {
-  switch (phase) {
-    case idlephase:
-      writebuffer = true;
+  switch (phase_) {
+    case kIdlePhase:
+      write_buffer_ = true;
       Log("WriteFile(%s) - ", filename);
-      if (file.Open((char*)filename, FileIO::create))
+      if (file_.Open(filename_, FileIO::create))
         ArgPhase(2);
       else {
         Log("failed");
-        IdlePhase(), err = 60;
+        IdlePhase(), err_ = 60;
       }
       break;
 
-    case argphase:
-      size = arg[0] + arg[1] * 256;
-      if (size > 0) {
+    case kArgPhase:
+      size_ = arg_[0] + arg_[1] * 256;
+      if (size_ > 0) {
         Log("%d bytes ");
-        length = std::min(1024, size);
-        size -= length;
-        RecvPhase(buf, length);
+        length_ = std::min(1024, size_);
+        size_ -= length_;
+        RecvPhase(buf_, length_);
       } else {
         Log("success");
-        IdlePhase(), err = 0;
+        IdlePhase(), err_ = 0;
       }
       break;
 
-    case recvphase:
-      if (!file.Write(buf, length)) {
+    case kRecvPhase:
+      if (!file_.Write(buf_, length_)) {
         Log("write error");
-        IdlePhase(), err = 61;
+        IdlePhase(), err_ = 61;
       }
-      if (size > 0) {
-        length = std::min(1024, size);
-        size -= length;
-        RecvPhase(buf, length);
+      if (size_ > 0) {
+        length_ = std::min(1024, size_);
+        size_ -= length_;
+        RecvPhase(buf_, length_);
       } else
         ArgPhase(2);
       break;
@@ -248,17 +221,17 @@ void DiskIO::CmdWriteFile() {
 }
 
 void DiskIO::CmdWriteFlush() {
-  switch (phase) {
-    case idlephase:
+  switch (phase_) {
+    case kIdlePhase:
       Log("WriteFlush ");
-      if (writebuffer) {
-        if (length - len > 0)
-          Log("%d bytes\n", length - len);
-        file.Write(buf, length - len);
-        writebuffer = false;
+      if (write_buffer_) {
+        if (length_ - len_ > 0)
+          Log("%d bytes\n", length_ - len_);
+        file_.Write(buf_, length_ - len_);
+        write_buffer_ = false;
       } else {
         Log("failed\n");
-        err = 51;
+        err_ = 51;
       }
       IdlePhase();
       break;
@@ -268,13 +241,13 @@ void DiskIO::CmdWriteFlush() {
 // ---------------------------------------------------------------------------
 
 void DiskIO::CmdGetError() {
-  switch (phase) {
-    case idlephase:
-      buf[0] = err;
-      SendPhase(buf, 1);
+  switch (phase_) {
+    case kIdlePhase:
+      buf_[0] = err_;
+      SendPhase(buf_, 1);
       break;
 
-    case sendphase:
+    case kSendPhase:
       IdlePhase();
       break;
   }
@@ -285,13 +258,14 @@ void DiskIO::CmdGetError() {
 //
 const Device::Descriptor DiskIO::descriptor = {DiskIO::indef, DiskIO::outdef};
 
-const Device::OutFuncPtr DiskIO::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&Reset),
-    static_cast<Device::OutFuncPtr>(&SetCommand),
-    static_cast<Device::OutFuncPtr>(&SetData),
-};
+const Device::OutFuncPtr DiskIO::outdef[] = {static_cast<Device::OutFuncPtr>(&DiskIO::Reset),
+                                             // port 0xd0
+                                             static_cast<Device::OutFuncPtr>(&DiskIO::SetCommand),
+                                             // port 0xd1
+                                             static_cast<Device::OutFuncPtr>(&DiskIO::SetData)};
 
 const Device::InFuncPtr DiskIO::indef[] = {
-    static_cast<Device::InFuncPtr>(&GetStatus),
-    static_cast<Device::InFuncPtr>(&GetData),
-};
+    // port 0xd0
+    static_cast<Device::InFuncPtr>(&DiskIO::GetStatus),
+    // port 0xd1
+    static_cast<Device::InFuncPtr>(&DiskIO::GetData)};

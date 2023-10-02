@@ -11,6 +11,8 @@
 #include "common/device.h"
 #include "win32/file.h"
 
+#include <string>
+
 namespace PC8801 {
 
 // ---------------------------------------------------------------------------
@@ -20,8 +22,8 @@ class DiskIO : public Device {
   enum { reset = 0, setcommand, setdata, getstatus = 0, getdata };
 
  public:
-  DiskIO(const ID& id);
-  ~DiskIO();
+  explicit DiskIO(const ID& id);
+  ~DiskIO() override = default;
   bool Init();
 
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
@@ -30,14 +32,14 @@ class DiskIO : public Device {
   uint32_t IOCALL GetStatus(uint32_t = 0);
   uint32_t IOCALL GetData(uint32_t = 0);
 
-  const Descriptor* IFCALL GetDesc() const { return &descriptor; }
+  [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
   enum Phase {
-    idlephase,
-    argphase,
-    recvphase,
-    sendphase,
+    kIdlePhase,
+    kArgPhase,
+    kRecvPhase,
+    kSendPhase,
   };
 
   void ProcCommand();
@@ -52,21 +54,21 @@ class DiskIO : public Device {
   void CmdGetError();
   void CmdWriteFlush();
 
-  uint8_t* ptr;
-  int len;
+  uint8_t* ptr_ = nullptr;
+  int len_ = 0;
 
-  FileIOWin file;
-  int size;
-  int length;
+  FileIOWin file_;
+  int size_ = 0;
+  int length_ = 0;
 
-  Phase phase;
-  bool writebuffer;
-  uint8_t status;
-  uint8_t cmd;
-  uint8_t err;
-  uint8_t arg[5];
-  uint8_t filename[MAX_PATH];
-  uint8_t buf[1024];
+  Phase phase_ = kIdlePhase;
+  bool write_buffer_ = false;
+  uint8_t status_ = 0;
+  uint8_t cmd_ = 0;
+  uint8_t err_ = 0;
+  uint8_t arg_[5]{};
+  char filename_[1024]{};
+  uint8_t buf_[1024]{};
 
   static const Descriptor descriptor;
   static const InFuncPtr indef[];

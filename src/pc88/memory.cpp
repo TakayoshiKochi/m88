@@ -349,7 +349,7 @@ void IOCALL Memory::Out70(uint32_t, uint32_t data) {
 //  b0      N88ROM/~EROM
 //
 void IOCALL Memory::Out71(uint32_t, uint32_t data) {
-  port71 = (data | erommask) & 0xff;
+  port71 = (data | erom_mask_) & 0xff;
   if (!n80mode) {
     if ((port31 & 6) == 0) {
       //          Update00R();
@@ -515,7 +515,7 @@ void Memory::UpdateN80R() {
       read60 = read + (port71 & 1 ? kOffset : 0x8000);
     } else {
       read = n80rom_.get();
-      read60 = ((port31 | (erommask >> 8)) & 1) ? read + kOffset : erom_[8].get();
+      read60 = ((port31 | (erom_mask_ >> 8)) & 1) ? read + kOffset : erom_[8].get();
     }
   }
   if (r00_ != read) {
@@ -905,8 +905,8 @@ bool Memory::LoadOptROM(const char* name, std::unique_ptr<uint8_t[]>& rom, int s
     rom = std::make_unique<uint8_t[]>(size);
     ;
     if (rom) {
-      int r = file.Read(rom_.get(), size);
-      memset(rom_.get() + r, 0xff, size - r);
+      int r = file.Read(rom.get(), size);
+      memset(rom.get() + r, 0xff, size - r);
       if (r > 0)
         return true;
     }
@@ -927,11 +927,12 @@ bool Memory::LoadROM() {
   LoadOptROM("n80_3.rom", n80v2rom_, 0xa000);
   char name[] = "e0.rom";
 
-  erommask = ~1;
+  erom_mask_ = ~1;
   for (int i = 1; i < 9; i++) {
     name[1] = '0' + i;
-    if (LoadOptROM(name, erom_[i], 0x2000))
-      erommask &= ~(1 << i);
+    if (LoadOptROM(name, erom_[i], 0x2000)) {
+      erom_mask_ &= ~(1 << i);
+    }
   }
 
   if (file.Open("pc88.rom", FileIO::readonly)) {

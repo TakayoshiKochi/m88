@@ -639,7 +639,11 @@ static std::string GetFileNameTitle(const std::string_view name) {
 //  OpenDiskImage
 //  ディスクイメージを開く
 //
-bool WinUI::OpenDiskImage(int drive, const std::string_view name, bool readonly, int id, bool create) {
+bool WinUI::OpenDiskImage(int drive,
+                          const std::string_view name,
+                          bool readonly,
+                          int id,
+                          bool create) {
   DiskInfo& dinfo = diskinfo[drive];
 
   bool result = false;

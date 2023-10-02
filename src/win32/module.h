@@ -8,17 +8,18 @@
 
 #include "if/ifcommon.h"
 
+#include <string_view>
+
 namespace PC8801 {
 
-//
 class ExtendModule {
  public:
   ExtendModule();
   ~ExtendModule();
 
-  static ExtendModule* Create(const char* dllname, ISystem* pc);
+  static ExtendModule* Create(const std::string_view dllname, ISystem* pc);
 
-  bool Connect(const char* dllname, ISystem* pc);
+  bool Connect(const std::string_view dllname, ISystem* pc);
   bool Disconnect();
 
   IDevice::ID GetID();
@@ -27,12 +28,12 @@ class ExtendModule {
  private:
   typedef IModule*(__cdecl* F_CONNECT2)(ISystem*);
 
-  HMODULE hdll;
-  IModule* mod;
+  HMODULE hdll_ = nullptr;
+  IModule* mod_ = nullptr;
 };
 
 inline void* ExtendModule::QueryIF(REFIID iid) {
-  return mod ? mod->QueryIF(iid) : 0;
+  return mod_ ? mod_->QueryIF(iid) : nullptr;
 }
 
 }  // namespace PC8801

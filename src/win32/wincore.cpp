@@ -349,7 +349,7 @@ bool WinCore::ConnectExternalDevices() {
       if (em) {
         extmodules.push_back(em);
       } else {
-        ExternalDevice* extdevice = new ExternalDevice();
+        auto* extdevice = new ExternalDevice();
         if (extdevice) {
           if (extdevice->Init(modname, this->GetScheduler(), &bus1, GetDMAC(), &sound, &mm1)) {
             devlist.Add(extdevice);
