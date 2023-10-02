@@ -18,8 +18,8 @@
 #include "common/error.h"
 #include "common/image_codec.h"
 #include "pc88/opnif.h"
-#include "pc88/diskmgr.h"
-#include "pc88/tapemgr.h"
+#include "services/diskmgr.h"
+#include "services/tapemgr.h"
 #include "win32/88config.h"
 #include "win32/about.h"
 #include "win32/file.h"
@@ -53,10 +53,8 @@ WinUI::WinUI(HINSTANCE hinstance) : hinst_(hinstance) {
   displaychanged_time_ = GetTickCount();
 
   diskinfo[0].hmenu = nullptr;
-  diskinfo[0].filename[0] = 0;
   diskinfo[0].idchgdisk = IDM_CHANGEDISK_1;
   diskinfo[1].hmenu = nullptr;
-  diskinfo[1].filename[0] = 0;
   diskinfo[1].idchgdisk = IDM_CHANGEDISK_2;
   hmenuss[0] = nullptr;
   hmenuss[1] = nullptr;
@@ -177,7 +175,7 @@ int WinUI::Main(const char* cmdline) {
 //
 bool WinUI::InitM88(const char* cmdline) {
   active_ = false;
-  tapetitle[0] = 0;
+  tapetitle_.clear();
 
   //  設定読み込み
   Log("%d\tLoadConfig\n", timeGetTime());
@@ -258,7 +256,7 @@ bool WinUI::InitM88(const char* cmdline) {
 
   // あとごちゃごちゃしたもの
   Log("%d\tetc\n", timeGetTime());
-  if (!diskinfo[0].filename[0])
+  if (diskinfo[0].filename_.empty())
     PC8801::LoadConfigDirectory(&config, m88ini, "Directory", false);
 
   Log("%d\tend initm88\n", timeGetTime());
@@ -612,7 +610,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
       if (newdisk.DoFormat())
         diskmgr_->FormatDisk(drive);
     }
-    if (drive == 0 && !diskinfo[1].filename[0] && diskmgr_->GetNumDisks(0) > 1) {
+    if (drive == 0 && diskinfo[1].filename_.empty() && diskmgr_->GetNumDisks(0) > 1) {
       OpenDiskImage(1, filename, ofn.Flags & OFN_READONLY, 1, false);
     }
   } else
@@ -625,34 +623,34 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
 
 // ---------------------------------------------------------------------------
 //  ファイルネームの部分を取り出す
-//
-static void GetFileNameTitle(char* title, size_t tlen, const char* name) {
-  if (name) {
-    uint8_t* ptr;
-    ptr = _mbsrchr((uint8_t*)name, '\\');
-    _mbscpy_s((uint8_t*)title, tlen, ptr ? ptr + 1 : (uint8_t*)(name));
-    ptr = _mbschr((uint8_t*)title, '.');
-    if (ptr)
-      *ptr = 0;
+static std::string GetFileNameTitle(const std::string_view name) {
+  std::string title;
+  if (!name.empty()) {
+    auto pos = name.rfind('\\');
+    title = pos == std::string::npos ? title : name.substr(pos + 1);
+    pos = title.rfind('.');
+    if (pos != std::string::npos)
+      title = title.substr(0, pos);
   }
+  return title;
 }
 
 // ---------------------------------------------------------------------------
 //  OpenDiskImage
 //  ディスクイメージを開く
 //
-bool WinUI::OpenDiskImage(int drive, const char* name, bool readonly, int id, bool create) {
+bool WinUI::OpenDiskImage(int drive, const std::string_view name, bool readonly, int id, bool create) {
   DiskInfo& dinfo = diskinfo[drive];
 
   bool result = false;
-  if (name) {
-    strncpy_s(dinfo.filename, sizeof(dinfo.filename), name, _TRUNCATE);
-    result = diskmgr_->Mount(drive, dinfo.filename, readonly, id, create);
+  if (!name.empty()) {
+    dinfo.filename_ = name;
+    result = diskmgr_->Mount(drive, dinfo.filename_, readonly, id, create);
     dinfo.readonly = readonly;
     dinfo.currentdisk = diskmgr_->GetCurrentDisk(0);
   }
   if (!result)
-    dinfo.filename[0] = 0;
+    dinfo.filename_.clear();
 
   CreateDiskMenu(drive);
   return true;
@@ -661,7 +659,7 @@ bool WinUI::OpenDiskImage(int drive, const char* name, bool readonly, int id, bo
 // ---------------------------------------------------------------------------
 //  適当にディスクイメージを開く
 //
-void WinUI::OpenDiskImage(const char* path) {
+void WinUI::OpenDiskImage(const std::string_view path) {
   // ディスクイメージをマウントする
   OpenDiskImage(0, path, false, 0, false);
   if (diskmgr_->GetNumDisks(0) > 1) {
@@ -686,7 +684,7 @@ bool WinUI::SelectDisk(uint32_t drive, int id, bool menuonly) {
 
   bool result = true;
   if (!menuonly)
-    result = diskmgr_->Mount(drive, dinfo.filename, dinfo.readonly, id, false);
+    result = diskmgr_->Mount(drive, dinfo.filename_, dinfo.readonly, id, false);
 
   int current = result ? diskmgr_->GetCurrentDisk(drive) : -1;
 
@@ -744,10 +742,9 @@ bool WinUI::CreateDiskMenu(uint32_t drive) {
     wsprintf(buf, "Drive &%d...", drive + 1);
     mii.hSubMenu = nullptr;
   } else {
-    char title[MAX_PATH] = "";
-    GetFileNameTitle(title, sizeof(title), diskinfo[drive].filename);
+    std::string title = GetFileNameTitle(diskinfo[drive].filename_);
 
-    wsprintf(buf, "Drive &%d - %s", drive + 1, title);
+    wsprintf(buf, "Drive &%d - %s", drive + 1, title.c_str());
     mii.hSubMenu = dinfo.hmenu;
   }
   SetMenuItemInfo(GetMenu(hwnd_), drive ? IDM_DRIVE_2 : IDM_DRIVE_1, false, &mii);
@@ -812,8 +809,8 @@ void WinUI::OpenTapeImage(const char* filename) {
   mii.fType = MFT_STRING;
 
   if (tapemgr_->Open(filename)) {
-    GetFileNameTitle(tapetitle, sizeof(tapetitle), filename);
-    wsprintf(buf, "&Open - %s...", tapetitle);
+    tapetitle_ = GetFileNameTitle(filename);
+    wsprintf(buf, "&Open - %s...", tapetitle_.c_str());
     mii.dwTypeData = buf;
   } else {
     mii.dwTypeData = "&Open...";
@@ -902,9 +899,9 @@ void WinUI::LoadSnapshot(int n) {
   char name[MAX_PATH];
   GetSnapshotName(name, n);
   bool r;
-  if (diskinfo[0].filename && diskmgr_->GetNumDisks(0) >= 2) {
-    OpenDiskImage(1, diskinfo[0].filename, diskinfo[0].readonly, 1, false);
-    r = core.LoadShapshot(name, diskinfo[0].filename);
+  if (!diskinfo[0].filename_.empty() && diskmgr_->GetNumDisks(0) >= 2) {
+    OpenDiskImage(1, diskinfo[0].filename_, diskinfo[0].readonly, 1, false);
+    r = core.LoadShapshot(name, diskinfo[0].filename_);
   } else {
     r = core.LoadShapshot(name, nullptr);
   }
@@ -923,22 +920,20 @@ void WinUI::LoadSnapshot(int n) {
 //  スナップショットの名前を作る
 //
 void WinUI::GetSnapshotName(char* name, int n) {
-  char buf[MAX_PATH];
-  char* title;
+  std::string title;
 
   if (diskmgr_->GetNumDisks(0)) {
-    GetFileNameTitle(buf, sizeof(buf), diskinfo[0].filename);
-    title = buf;
+    title = GetFileNameTitle(diskinfo[0].filename_);
   } else if (tapemgr_->IsOpen()) {
-    title = tapetitle;
+    title = tapetitle_;
   } else {
     title = "snapshot";
   }
 
   if (n >= 0)
-    wsprintf(name, "%s_%d.s88", title, n);
+    wsprintf(name, "%s_%d.s88", title.c_str(), n);
   else
-    wsprintf(name, "%s_?.s88", title);
+    wsprintf(name, "%s_?.s88", title.c_str());
 }
 
 // ---------------------------------------------------------------------------
@@ -1303,7 +1298,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
 
     case IDM_BOTHDRIVE:
       diskmgr_->Unmount(1);
-      OpenDiskImage(1, nullptr, false, 0, false);
+      OpenDiskImage(1, "", false, 0, false);
       ChangeDiskImage(hwnd, 0);
       break;
 
@@ -1519,7 +1514,7 @@ LRESULT WinUI::WmDropFiles(HWND, WPARAM wparam, LPARAM) {
     OpenDiskImage(path);
 
     // 正常にマウントできたらリセット
-    if (diskinfo[0].filename[0])
+    if (!diskinfo[0].filename_.empty())
       Reset();
   } else if (strcmpi(ext, ".t88") == 0) {
     OpenTapeImage(path);

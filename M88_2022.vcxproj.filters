@@ -34,6 +34,9 @@
     <Filter Include="libpng">
       <UniqueIdentifier>{16c485b2-1a91-4b37-bb46-84b1bb39c5bf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="services">
+      <UniqueIdentifier>{2800f041-702a-46d3-9fb2-77f9ec40ca31}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\device.cpp">
@@ -84,22 +87,13 @@
     <ClCompile Include="src\pc88\crtc.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
-    <ClCompile Include="src\pc88\diskmgr.cpp">
-      <Filter>PC88</Filter>
-    </ClCompile>
     <ClCompile Include="src\pc88\fdc.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
     <ClCompile Include="src\pc88\fdu.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
-    <ClCompile Include="src\pc88\floppy.cpp">
-      <Filter>PC88</Filter>
-    </ClCompile>
     <ClCompile Include="src\pc88\intc.cpp">
-      <Filter>PC88</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pc88\ioview.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
     <ClCompile Include="src\pc88\joypad.cpp">
@@ -109,9 +103,6 @@
       <Filter>PC88</Filter>
     </ClCompile>
     <ClCompile Include="src\pc88\memory.cpp">
-      <Filter>PC88</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pc88\memview.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
     <ClCompile Include="src\pc88\mouse.cpp">
@@ -135,13 +126,7 @@
     <ClCompile Include="src\pc88\sio.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
-    <ClCompile Include="src\pc88\sound.cpp">
-      <Filter>PC88</Filter>
-    </ClCompile>
     <ClCompile Include="src\pc88\subsys.cpp">
-      <Filter>PC88</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pc88\tapemgr.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\88config.cpp">
@@ -363,6 +348,27 @@
     <ClCompile Include="src\common\png_codec.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="src\services\diskmgr.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\ioview.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\memview.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\sound.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\tapemgr.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\floppy.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\disk_image_holder.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -428,22 +434,13 @@
     <ClInclude Include="src\pc88\crtc.h">
       <Filter>PC88</Filter>
     </ClInclude>
-    <ClInclude Include="src\pc88\diskmgr.h">
-      <Filter>PC88</Filter>
-    </ClInclude>
     <ClInclude Include="src\pc88\fdc.h">
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\fdu.h">
       <Filter>PC88</Filter>
     </ClInclude>
-    <ClInclude Include="src\pc88\floppy.h">
-      <Filter>PC88</Filter>
-    </ClInclude>
     <ClInclude Include="src\pc88\intc.h">
-      <Filter>PC88</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pc88\ioview.h">
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\joypad.h">
@@ -453,9 +450,6 @@
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\memory.h">
-      <Filter>PC88</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pc88\memview.h">
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\mouse.h">
@@ -482,13 +476,7 @@
     <ClInclude Include="src\pc88\sio.h">
       <Filter>PC88</Filter>
     </ClInclude>
-    <ClInclude Include="src\pc88\sound.h">
-      <Filter>PC88</Filter>
-    </ClInclude>
     <ClInclude Include="src\pc88\subsys.h">
-      <Filter>PC88</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pc88\tapemgr.h">
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\88config.h">
@@ -724,6 +712,27 @@
     </ClInclude>
     <ClInclude Include="src\common\png_codec.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\diskmgr.h">
+      <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\ioview.h">
+      <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\memview.h">
+      <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\sound.h">
+      <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\tapemgr.h">
+      <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\floppy.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\disk_image_holder.h">
+      <Filter>services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

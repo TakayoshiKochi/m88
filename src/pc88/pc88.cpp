@@ -20,7 +20,6 @@
 #include "pc88/calendar.h"
 #include "pc88/config.h"
 #include "pc88/crtc.h"
-#include "pc88/diskmgr.h"
 #include "pc88/fdc.h"
 #include "pc88/intc.h"
 #include "pc88/joypad.h"
@@ -31,7 +30,8 @@
 #include "pc88/screen.h"
 #include "pc88/sio.h"
 #include "pc88/subsys.h"
-#include "pc88/tapemgr.h"
+#include "services/diskmgr.h"
+#include "services/tapemgr.h"
 #include "win32/monitor/loadmon.h"
 
 // #define LOGNAME "pc88"

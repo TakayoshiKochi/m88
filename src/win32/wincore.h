@@ -44,16 +44,16 @@ class WinCore : public PC88, public ISystem, public ILockCore {
   void Reset();
   void ApplyConfig(PC8801::Config* config);
 
-  bool SaveShapshot(const char* filename);
-  bool LoadShapshot(const char* filename, const char* diskname = 0);
+  bool SaveShapshot(const std::string_view filename);
+  bool LoadShapshot(const std::string_view filename, const std::string_view diskname);
 
   PC8801::WinSound* GetSound() { return &sound; }
 
   long GetExecCount() { return seq.GetExecCount(); }
   void Wait(bool dowait) { dowait ? seq.Deactivate() : seq.Activate(); }
-  void* IFCALL QueryIF(REFIID iid);
-  void IFCALL Lock() { seq.Lock(); }
-  void IFCALL Unlock() { seq.Unlock(); }
+  void* IFCALL QueryIF(REFIID iid) override;
+  void IFCALL Lock() override { seq.Lock(); }
+  void IFCALL Unlock() override { seq.Unlock(); }
 
  private:
   //  Snapshot ヘッダー

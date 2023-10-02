@@ -4,9 +4,10 @@
 // ----------------------------------------------------------------------------
 //  $Id: ioview.cpp,v 1.1 2001/02/21 11:57:57 cisc Exp $
 
-#include "pc88/ioview.h"
+#include "services/ioview.h"
 
 #include "common/device.h"
+#include "common/io_bus.h"
 
 using namespace PC8801;
 

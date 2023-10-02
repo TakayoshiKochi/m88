@@ -12,7 +12,7 @@
 #include "common/status.h"
 #include "pc88/pc88.h"
 #include "pc88/config.h"
-#include "pc88/tapemgr.h"
+#include "services/tapemgr.h"
 
 // #define LOGNAME "base"
 // #include "common/diag.h"

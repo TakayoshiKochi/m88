@@ -9,7 +9,7 @@
 #include <algorithm>
 
 #include "pc88/fdc.h"
-#include "pc88/diskmgr.h"
+#include "services/diskmgr.h"
 
 using namespace PC8801;
 

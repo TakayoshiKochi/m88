@@ -46,7 +46,7 @@ class WinUI {
     int currentdisk;
     int idchgdisk;
     bool readonly;
-    char filename[MAX_PATH];
+    std::string filename_;
   };
   struct ExtNode {
     ExtNode* next;
@@ -68,8 +68,8 @@ class WinUI {
   void ChangeDisplayType(bool savepos);
 
   void ChangeDiskImage(HWND hwnd, int drive);
-  bool OpenDiskImage(int drive, const char* filename, bool readonly, int id, bool create);
-  void OpenDiskImage(const char* filename);
+  bool OpenDiskImage(int drive, const std::string_view filename, bool readonly, int id, bool create);
+  void OpenDiskImage(const std::string_view filename);
   bool SelectDisk(uint32_t drive, int id, bool menuonly);
   bool CreateDiskMenu(uint32_t drive);
 
@@ -126,7 +126,7 @@ class WinUI {
 
   // disk
   DiskInfo diskinfo[2];
-  char tapetitle[MAX_PATH];
+  std::string tapetitle_;
 
   // snapshot 関係
   HMENU hmenuss[2];

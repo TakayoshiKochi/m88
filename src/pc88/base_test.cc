@@ -2,9 +2,9 @@
 
 #include "common/draw.h"
 #include "gtest/gtest.h"
-#include "pc88/diskmgr.h"
+#include "services/diskmgr.h"
 #include "pc88/pc88.h"
-#include "pc88/tapemgr.h"
+#include "services/tapemgr.h"
 
 class DummyDraw : public Draw {
  public:

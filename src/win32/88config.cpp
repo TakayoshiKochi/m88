@@ -15,12 +15,12 @@ namespace PC8801 {
 // ---------------------------------------------------------------------------
 //  LoadConfigEntry
 //
-static bool LoadConfigEntry(const char* inifile,
+static bool LoadConfigEntry(const std::string_view inifile,
                             const char* entry,
                             int* value,
                             int def,
                             bool applydefault) {
-  int n = GetPrivateProfileInt(AppName, entry, -1, inifile);
+  int n = GetPrivateProfileInt(AppName, entry, -1, inifile.data());
 
   if (n == -1 && applydefault)
     n = def;
@@ -34,10 +34,10 @@ static bool LoadConfigEntry(const char* inifile,
 // ---------------------------------------------------------------------------
 //  LoadConfigDirectory
 //
-void LoadConfigDirectory(Config* cfg, const char* inifile, const char* entry, bool readalways) {
+void LoadConfigDirectory(Config* cfg, const std::string_view inifile, const char* entry, bool readalways) {
   if (readalways || (cfg->flags & Config::kSaveDirectory)) {
     char path[MAX_PATH];
-    if (GetPrivateProfileString(AppName, entry, ";", path, MAX_PATH, inifile)) {
+    if (GetPrivateProfileString(AppName, entry, ";", path, MAX_PATH, inifile.data())) {
       if (path[0] != ';')
         SetCurrentDirectory(path);
     }
@@ -53,7 +53,7 @@ void LoadConfigDirectory(Config* cfg, const char* inifile, const char* entry, bo
   if (LoadConfigEntry(inifile, key, &n, def, applydefault)) \
     vol = n - VOLUME_BIAS;
 
-void LoadConfig(Config* cfg, const char* inifile, bool applydefault) {
+void LoadConfig(Config* cfg, const std::string_view inifile, bool applydefault) {
   int n;
 
   n = Config::kSubCPUControl | Config::kSaveDirectory | Config::kForce480 | Config::kEnableWait;
@@ -141,36 +141,36 @@ void LoadConfig(Config* cfg, const char* inifile, bool applydefault) {
 // ---------------------------------------------------------------------------
 //  SaveEntry
 //
-static bool SaveEntry(const char* inifile, const char* entry, int value, bool applydefault) {
+static bool SaveEntry(const std::string_view inifile, const char* entry, int value, bool applydefault) {
   char buf[MAX_PATH];
-  if (applydefault || -1 != GetPrivateProfileInt(AppName, entry, -1, inifile)) {
+  if (applydefault || -1 != GetPrivateProfileInt(AppName, entry, -1, inifile.data())) {
     wsprintf(buf, "%d", value);
-    WritePrivateProfileString(AppName, entry, buf, inifile);
+    WritePrivateProfileString(AppName, entry, buf, inifile.data());
     return true;
   }
   return false;
 }
 
-static bool SaveEntry(const char* inifile,
+static bool SaveEntry(const std::string_view inifile,
                       const char* entry,
                       const char* value,
                       bool applydefault) {
   bool apply = applydefault;
   if (!applydefault) {
     char buf[8];
-    GetPrivateProfileString(AppName, entry, ";", buf, sizeof(buf), inifile);
+    GetPrivateProfileString(AppName, entry, ";", buf, sizeof(buf), inifile.data());
     if (buf[0] != ';')
       apply = true;
   }
   if (apply)
-    WritePrivateProfileString(AppName, entry, value, inifile);
+    WritePrivateProfileString(AppName, entry, value, inifile.data());
   return apply;
 }
 
 // ---------------------------------------------------------------------------
 //  SaveConfig
 //
-void SaveConfig(Config* cfg, const char* inifile, bool writedefault) {
+void SaveConfig(Config* cfg, const std::string_view inifile, bool writedefault) {
   char buf[MAX_PATH];
   GetCurrentDirectory(MAX_PATH, buf);
   SaveEntry(inifile, "Directory", buf, writedefault);
