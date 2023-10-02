@@ -9,9 +9,9 @@
 #pragma once
 
 #include "common/device.h"
+#include "common/floppy.h"
 #include "common/scheduler.h"
 #include "pc88/fdu.h"
-#include "pc88/floppy.h"
 
 class DiskManager;
 class IOBus;

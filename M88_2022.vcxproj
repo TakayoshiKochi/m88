@@ -344,6 +344,7 @@
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
     <ClCompile Include="src\common\file_.cpp" />
+    <ClCompile Include="src\common\floppy.cpp" />
     <ClCompile Include="src\common\image_codec.cpp" />
     <ClCompile Include="src\common\io_bus.cpp" />
     <ClCompile Include="src\common\memory_manager.cpp">
@@ -462,12 +463,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
-    <ClCompile Include="src\pc88\floppy.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-    </ClCompile>
     <ClCompile Include="src\pc88\intc.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -541,6 +536,7 @@
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
     <ClCompile Include="src\services\diskmgr.cpp" />
+    <ClCompile Include="src\services\disk_image_holder.cpp" />
     <ClCompile Include="src\services\ioview.cpp" />
     <ClCompile Include="src\services\memview.cpp" />
     <ClCompile Include="src\services\sound.cpp" />
@@ -854,6 +850,7 @@
     <ClInclude Include="src\common\draw.h" />
     <ClInclude Include="src\common\error.h" />
     <ClInclude Include="src\common\file.h" />
+    <ClInclude Include="src\common\floppy.h" />
     <ClInclude Include="src\common\image_codec.h" />
     <ClInclude Include="src\common\io_bus.h" />
     <ClInclude Include="src\common\memory_manager.h" />
@@ -889,7 +886,6 @@
     <ClInclude Include="src\pc88\crtc.h" />
     <ClInclude Include="src\pc88\fdc.h" />
     <ClInclude Include="src\pc88\fdu.h" />
-    <ClInclude Include="src\pc88\floppy.h" />
     <ClInclude Include="src\pc88\intc.h" />
     <ClInclude Include="src\pc88\joypad.h" />
     <ClInclude Include="src\pc88\kanjirom.h" />
@@ -904,6 +900,7 @@
     <ClInclude Include="src\pc88\sio.h" />
     <ClInclude Include="src\pc88\subsys.h" />
     <ClInclude Include="src\services\diskmgr.h" />
+    <ClInclude Include="src\services\disk_image_holder.h" />
     <ClInclude Include="src\services\ioview.h" />
     <ClInclude Include="src\services\memview.h" />
     <ClInclude Include="src\services\sound.h" />

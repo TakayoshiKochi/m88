@@ -93,9 +93,6 @@
     <ClCompile Include="src\pc88\fdu.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
-    <ClCompile Include="src\pc88\floppy.cpp">
-      <Filter>PC88</Filter>
-    </ClCompile>
     <ClCompile Include="src\pc88\intc.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
@@ -366,6 +363,12 @@
     <ClCompile Include="src\services\tapemgr.cpp">
       <Filter>services</Filter>
     </ClCompile>
+    <ClCompile Include="src\common\floppy.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\disk_image_holder.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -435,9 +438,6 @@
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\fdu.h">
-      <Filter>PC88</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pc88\floppy.h">
       <Filter>PC88</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\intc.h">
@@ -726,6 +726,12 @@
       <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="src\services\tapemgr.h">
+      <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\floppy.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\disk_image_holder.h">
       <Filter>services</Filter>
     </ClInclude>
   </ItemGroup>

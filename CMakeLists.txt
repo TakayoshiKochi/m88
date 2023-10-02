@@ -41,6 +41,8 @@ add_library(common ${LIB_TYPE}
         src/common/error.cpp
         src/common/file.h
         src/common/file_.cpp
+        src/common/floppy.h
+        src/common/floppy.cpp
         src/common/io_bus.h
         src/common/io_bus.cpp
         src/common/image_codec.h
@@ -128,8 +130,6 @@ add_library(pc88core ${LIB_TYPE}
         src/pc88/fdc.cpp
         src/pc88/fdu.h
         src/pc88/fdu.cpp
-        src/pc88/floppy.h
-        src/pc88/floppy.cpp
         src/pc88/intc.h
         src/pc88/intc.cpp
         src/pc88/joypad.h

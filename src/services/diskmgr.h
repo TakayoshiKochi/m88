@@ -9,8 +9,8 @@
 #include <windows.h>
 
 #include "common/file.h"
+#include "common/floppy.h"
 #include "pc88/fdu.h"
-#include "pc88/floppy.h"
 #include "services/disk_image_holder.h"
 
 #include <mutex>

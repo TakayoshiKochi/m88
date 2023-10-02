@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "pc88/floppy.h"
+#include "common/floppy.h"
 
 class DiskManager;
 

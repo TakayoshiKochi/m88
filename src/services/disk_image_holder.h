@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 #include "common/file.h"
+#include "common/floppy.h"
 #include "common/status.h"
-#include "pc88/floppy.h"
 
 namespace D88 {
 struct ImageHeader {
