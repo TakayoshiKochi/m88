@@ -6,7 +6,7 @@
 
 #include "services/memview.h"
 
-#include "pc88/memory.h"
+#include "pc88/subsys.h"
 
 using namespace PC8801;
 
@@ -27,8 +27,8 @@ bool MemoryViewer::Init(PC88* _pc) {
   mem1_ = pc_->GetMem1();
   mem2_ = pc_->GetMem2();
   z80_ = nullptr;
-#ifdef Z80C_STATISTICSS
-  stat = 0;
+#ifdef Z80C_STATISTICS
+  stat_ = 0;
 #endif
 
   SelectBank(kMainRam, kMainRam, kMainRam, kMainRam, kMainRam);

@@ -12,7 +12,6 @@
 #include "common/memory_bus.h"
 #include "pc88/memory.h"
 #include "pc88/pc88.h"
-#include "pc88/subsys.h"
 
 namespace PC8801 {
 // ----------------------------------------------------------------------------
@@ -22,6 +21,8 @@ namespace PC8801 {
 //  C0  RAM GV0 GV1 GV2
 //  F0  RAM TV
 //
+class SubSystem;
+
 class MemoryViewer {
  public:
   enum Type {

@@ -7,6 +7,7 @@
 #include "services/ioview.h"
 
 #include "common/device.h"
+#include "common/io_bus.h"
 
 using namespace PC8801;
 
