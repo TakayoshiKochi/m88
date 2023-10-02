@@ -357,7 +357,7 @@ target_link_libraries(m88
         PRIVATE common devices fmgen pc88core pc88shell win32 win32mon romeo zlib libpng
         winmm.lib comctl32.lib dwmapi.lib d3d12.lib dxgi.lib d3dcompiler.lib)
 
-add_library(cdif ${LIB_TYPE}
+add_library(cdif SHARED
         cdif/src/aspi.h
         cdif/src/aspi.cpp
         cdif/src/aspidef.h
@@ -383,11 +383,19 @@ target_include_directories(cdif
 target_link_libraries(cdif
         common devices)
 
-add_library(diskdrv ${LIB_TYPE}
+add_custom_command(TARGET cdif POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:cdif>
+        ${CMAKE_SOURCE_DIR}/run/cdif.m88
+        COMMENT "Copying 'cdif.dll' library to 'cdif.m88'")
+
+add_library(diskdrv SHARED
         diskdrv/src/diskio.h
         diskdrv/src/diskio.cpp
         diskdrv/src/guid.cpp
-        diskdrv/src/moduleif.cpp)
+        diskdrv/src/moduleif.cpp
+        src/win32/file.h
+        src/win32/file.cpp)
 
 target_include_directories(diskdrv
         PRIVATE ${CMAKE_SOURCE_DIR}
@@ -395,6 +403,12 @@ target_include_directories(diskdrv
 
 target_link_libraries(diskdrv
         common devices)
+
+add_custom_command(TARGET diskdrv POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:diskdrv>
+        ${CMAKE_SOURCE_DIR}/run/diskdrv.m88
+        COMMENT "Copying 'diskdrv.dll' library to 'diskdrv.m88'")
 
 add_library(sample1 ${LIB_TYPE}
         sample1/src/guid.cpp
@@ -429,3 +443,9 @@ target_link_libraries(sample2
 
 add_executable(writetag
         tools/writetag.cpp)
+
+add_custom_command(TARGET writetag POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:writetag>
+        ${CMAKE_SOURCE_DIR}/bin
+        COMMENT "Copying 'writetag.exe' binary to 'bin'")
