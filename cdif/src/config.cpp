@@ -6,22 +6,22 @@
 
 // ---------------------------------------------------------------------------
 
-ConfigCDIF::ConfigCDIF() {}
+ConfigCDIF::ConfigCDIF() = default;
 
-bool ConfigCDIF::Init(HINSTANCE _hinst) {
-  hinst = _hinst;
+bool ConfigCDIF::Init(HINSTANCE hinst) {
+  hinst_ = hinst;
   return true;
 }
 
 bool IFCALL ConfigCDIF::Setup(IConfigPropBase* _base, PROPSHEETPAGE* psp) {
-  base = _base;
+  base_ = _base;
 
   memset(psp, 0, sizeof(PROPSHEETPAGE));
   psp->dwSize = sizeof(PROPSHEETPAGE);
   psp->dwFlags = 0;
-  psp->hInstance = hinst;
+  psp->hInstance = hinst_;
   psp->pszTemplate = MAKEINTRESOURCE(IDD_CONFIG);
-  psp->pszIcon = 0;
+  psp->pszIcon = nullptr;
   psp->pfnDlgProc = (DLGPROC)(void*)PageGate;
   psp->lParam = (LPARAM)this;
   return true;
@@ -35,11 +35,11 @@ INT_PTR ConfigCDIF::PageProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
     case WM_NOTIFY:
       switch (((NMHDR*)lp)->code) {
         case PSN_SETACTIVE:
-          base->PageSelected(this);
+          base_->PageSelected(this);
           break;
 
         case PSN_APPLY:
-          base->Apply();
+          base_->Apply();
           return PSNRET_NOERROR;
       }
       return TRUE;

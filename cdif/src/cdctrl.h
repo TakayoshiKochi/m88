@@ -52,7 +52,7 @@ class CDControl {
   uint32_t ThreadMain();
   static uint32_t __stdcall ThreadEntry(LPVOID arg);
 
-  HANDLE hthread;
+  HANDLE hthread_;
   uint32_t idthread;
   int vel;
   bool diskpresent;

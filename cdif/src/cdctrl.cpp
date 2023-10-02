@@ -21,7 +21,7 @@
 //  構築・破棄
 //
 CDControl::CDControl() {
-  hthread = 0;
+  hthread_ = nullptr;
 }
 
 CDControl::~CDControl() {
@@ -38,10 +38,10 @@ bool CDControl::Init(CDROM* cd, Device* dev, DONEFUNC func) {
   diskpresent = false;
   shouldterminate = false;
 
-  if (!hthread)
-    hthread =
+  if (!hthread_)
+    hthread_ =
         HANDLE(_beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &idthread));
-  if (!hthread)
+  if (!hthread_)
     return false;
 
   while (!PostThreadMessage(idthread, 0, 0, 0))
@@ -55,18 +55,18 @@ bool CDControl::Init(CDROM* cd, Device* dev, DONEFUNC func) {
 //  後片づけ
 //
 void CDControl::CleanUp() {
-  if (hthread) {
+  if (hthread_) {
     int i = 100;
     shouldterminate = true;
     do {
       PostThreadMessage(idthread, WM_QUIT, 0, 0);
-    } while (WAIT_TIMEOUT == WaitForSingleObject(hthread, 50) && --i);
+    } while (WAIT_TIMEOUT == WaitForSingleObject(hthread_, 50) && --i);
 
     if (i)
-      TerminateThread(hthread, 0);
+      TerminateThread(hthread_, 0);
 
-    CloseHandle(hthread);
-    hthread = 0;
+    CloseHandle(hthread_);
+    hthread_ = 0;
   }
 }
 

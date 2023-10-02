@@ -10,7 +10,7 @@
 
 using namespace PC8801;
 
-static HINSTANCE hinst;
+static HINSTANCE hinst = nullptr;
 
 // ---------------------------------------------------------------------------
 
@@ -37,34 +37,32 @@ enum SpecialPort {
 class CDROMModule : public IModule {
  public:
   CDROMModule();
-  ~CDROMModule() {}
+  ~CDROMModule() = default;
 
   bool Init(ISystem* system);
   void IFCALL Release();
-  void* IFCALL QueryIF(REFIID) { return 0; }
+  void* IFCALL QueryIF(REFIID) override { return nullptr; }
 
  private:
-  CDIF cdif;
-  ConfigCDIF cfg;
+  CDIF cdif_;
+  ConfigCDIF cfg_;
 
-  ISystem* sys;
-  IIOBus* bus;
-  IConfigPropBase* pb;
+  ISystem* sys_ = nullptr;
+  IIOBus* bus_ = nullptr;
+  IConfigPropBase* pb_ = nullptr;
 };
 
-CDROMModule::CDROMModule() : cdif(DEV_ID('c', 'd', 'i', 'f')) {
-  cfg.Init(hinst);
+CDROMModule::CDROMModule() : cdif_(DEV_ID('c', 'd', 'i', 'f')) {
+  cfg_.Init(hinst);
 }
 
-bool CDROMModule::Init(ISystem* _sys) {
-  IDMAAccess* dmac;
+bool CDROMModule::Init(ISystem* system) {
+  sys_ = system;
 
-  sys = _sys;
-
-  bus = (IIOBus*)sys->QueryIF(M88IID_IOBus1);
-  dmac = (IDMAAccess*)sys->QueryIF(M88IID_DMA);
-  pb = (IConfigPropBase*)sys->QueryIF(M88IID_ConfigPropBase);
-  if (!bus || !dmac || !pb)
+  bus_ = (IIOBus*)sys_->QueryIF(M88IID_IOBus1);
+  auto dmac = (IDMAAccess*)sys_->QueryIF(M88IID_DMA);
+  pb_ = (IConfigPropBase*)sys_->QueryIF(M88IID_ConfigPropBase);
+  if (!bus_ || !dmac || !pb_)
     return false;
 
   const static IIOBus::Connector c_cdif[] = {
@@ -77,19 +75,19 @@ bool CDROMModule::Init(ISystem* _sys) {
       {0x96, IIOBus::portin, CDIF::in96},   {0x98, IIOBus::portin, CDIF::in98},
       {0x99, IIOBus::portin, CDIF::in99},   {0x9b, IIOBus::portin, CDIF::in9b},
       {0x9d, IIOBus::portin, CDIF::in9d},   {0, 0, 0}};
-  if (!cdif.Init(dmac) || !bus->Connect(&cdif, c_cdif))
+  if (!cdif_.Init(dmac) || !bus_->Connect(&cdif_, c_cdif))
     return false;
-  cdif.Enable(true);
-  pb->Add(&cfg);
+  cdif_.Enable(true);
+  pb_->Add(&cfg_);
 
   return true;
 }
 
 void CDROMModule::Release() {
-  if (bus)
-    bus->Disconnect(&cdif);
-  if (pb)
-    pb->Remove(&cfg);
+  if (bus_)
+    bus_->Disconnect(&cdif_);
+  if (pb_)
+    pb_->Remove(&cfg_);
   delete this;
 }
 
@@ -97,14 +95,14 @@ void CDROMModule::Release() {
 
 //  Module を作成
 extern "C" EXTDEVAPI IModule* __cdecl M88CreateModule(ISystem* system) {
-  CDROMModule* module = new CDROMModule;
+  auto* module = new CDROMModule;
 
   if (module) {
     if (module->Init(system))
       return module;
     delete module;
   }
-  return 0;
+  return nullptr;
 }
 
 BOOL APIENTRY DllMain(HANDLE hmod, DWORD rfc, LPVOID) {
@@ -112,14 +110,10 @@ BOOL APIENTRY DllMain(HANDLE hmod, DWORD rfc, LPVOID) {
     case DLL_PROCESS_ATTACH:
       hinst = (HINSTANCE)hmod;
       break;
-
     case DLL_THREAD_ATTACH:
-      break;
-
     case DLL_THREAD_DETACH:
-      break;
-
     case DLL_PROCESS_DETACH:
+    default:
       break;
   }
   return true;

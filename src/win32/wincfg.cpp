@@ -19,72 +19,71 @@ WinConfig* WinConfig::instance = 0;
 //  構築/消滅
 //
 WinConfig::WinConfig()
-    : pplist(0),
-      npages(0),
-      ccpu(config, orgconfig),
-      cscrn(config, orgconfig),
-      csound(config, orgconfig),
-      cvol(config, orgconfig),
-      cfunc(config, orgconfig),
-      cswitch(config, orgconfig),
-      cenv(config, orgconfig),
-      cromeo(config, orgconfig) {
-  page = 0;
-  hwndps = 0;
+    : pplist_(nullptr),
+      npages_(0),
+      ccpu_(config_, orgconfig_),
+      cscrn_(config_, orgconfig_),
+      csound_(config_, orgconfig_),
+      cvol_(config_, orgconfig_),
+      cfunc_(config_, orgconfig_),
+      cswitch_(config_, orgconfig_),
+      cenv_(config_, orgconfig_),
+      cromeo_(config_, orgconfig_) {
+  page_ = 0;
+  hwndps_ = nullptr;
 
-  Add(&ccpu);
-  Add(&cscrn);
-  Add(&csound);
-  Add(&cvol);
-  Add(&cswitch);
-  Add(&cfunc);
-  Add(&cenv);
-  Add(&cromeo);
+  Add(&ccpu_);
+  Add(&cscrn_);
+  Add(&csound_);
+  Add(&cvol_);
+  Add(&cswitch_);
+  Add(&cfunc_);
+  Add(&cenv_);
+  Add(&cromeo_);
   instance = this;
 }
 
 WinConfig::~WinConfig() {
   propsheets.clear();
-  instance = 0;
+  instance = nullptr;
 }
 
 // ---------------------------------------------------------------------------
 //  設定ダイアログの実行
 //
 bool WinConfig::Show(HINSTANCE hinstance, HWND hwnd, Config* conf) {
-  if (!hwndps) {
-    orgconfig = config = *conf;
-    hinst = hinstance;
-    hwndparent = hwnd;
+  if (!hwndps_) {
+    orgconfig_ = config_ = *conf;
+    hinst_ = hinstance;
+    hwndparent_ = hwnd;
 
     PROPSHEETHEADER psh;
     PROPSHEETPAGE* psp = new PROPSHEETPAGE[propsheets.size()];
     if (!psp)
       return false;
 
-    ccpu.Init(hinst);
-    cscrn.Init(hinst);
-    csound.Init(hinst);
-    cvol.Init(hinst);
-    cfunc.Init(hinst);
-    cswitch.Init(hinst);
-    cenv.Init(hinst);
-    cromeo.Init(hinst);
+    ccpu_.Init(hinst_);
+    cscrn_.Init(hinst_);
+    csound_.Init(hinst_);
+    cvol_.Init(hinst_);
+    cfunc_.Init(hinst_);
+    cswitch_.Init(hinst_);
+    cenv_.Init(hinst_);
+    cromeo_.Init(hinst_);
 
     // 拡張モジュールの場合、headerのバージョンによって PROPSHEETPAGE のサイズが違ったりする
     PROPSHEETPAGE tmppage[2];  // 2個分確保するのは、拡張側の PROPSHEETPAGE のサイズが
                                // M88 の PROPSHEETPAGE より大きいケースに備えている
 
     int i = 0;
-    for (PropSheets::iterator n = propsheets.begin(); n != propsheets.end() && i < MAXPROPPAGES;
-         ++n) {
+    for (auto n = propsheets.begin(); n != propsheets.end() && i < MAXPROPPAGES; ++n) {
       memset(tmppage, 0, sizeof(tmppage));
       tmppage[0].dwSize = sizeof(PROPSHEETPAGE);
 
       if ((*n)->Setup(this, tmppage)) {
         memcpy(&psp[i], tmppage, sizeof(PROPSHEETPAGE));
         psp[i].dwSize = sizeof(PROPSHEETPAGE);
-        i++;
+        ++i;
       }
     }
 
@@ -96,27 +95,27 @@ bool WinConfig::Show(HINSTANCE hinstance, HWND hwnd, Config* conf) {
       psh.dwSize = sizeof(psh);
 #endif
       psh.dwFlags = PSH_PROPSHEETPAGE | PSH_MODELESS;
-      psh.hwndParent = hwndparent;
-      psh.hInstance = hinst;
+      psh.hwndParent = hwndparent_;
+      psh.hInstance = hinst_;
       psh.pszCaption = "設定";
       psh.nPages = i;
-      psh.nStartPage = std::min(page, i - 1);
+      psh.nStartPage = std::min(page_, i - 1);
       psh.ppsp = psp;
       psh.pfnCallback = (PFNPROPSHEETCALLBACK)(void*)PropProcGate;
 
-      hwndps = (HWND)PropertySheet(&psh);
+      hwndps_ = (HWND)PropertySheet(&psh);
     }
     delete[] psp;
   } else {
-    SetFocus(hwndps);
+    SetFocus(hwndps_);
   }
   return false;
 }
 
 void WinConfig::Close() {
-  if (hwndps) {
-    DestroyWindow(hwndps);
-    hwndps = 0;
+  if (hwndps_) {
+    DestroyWindow(hwndps_);
+    hwndps_ = nullptr;
   }
 }
 
@@ -124,9 +123,9 @@ void WinConfig::Close() {
 //  PropSheetProc
 //
 bool WinConfig::ProcMsg(MSG& msg) {
-  if (hwndps) {
-    if (PropSheet_IsDialogMessage(hwndps, &msg)) {
-      if (!PropSheet_GetCurrentPageHwnd(hwndps))
+  if (hwndps_) {
+    if (PropSheet_IsDialogMessage(hwndps_, &msg)) {
+      if (!PropSheet_GetCurrentPageHwnd(hwndps_))
         Close();
       return true;
     }
@@ -137,7 +136,7 @@ bool WinConfig::ProcMsg(MSG& msg) {
 int WinConfig::PropProc(HWND hwnd, UINT m, LPARAM) {
   switch (m) {
     case PSCB_INITIALIZED:
-      hwndps = hwnd;
+      hwndps_ = hwnd;
       break;
   }
   return 0;
@@ -171,25 +170,25 @@ bool IFCALL WinConfig::Remove(IConfigPropSheet* sheet) {
 bool IFCALL WinConfig::PageSelected(IConfigPropSheet* sheet) {
   PropSheets::iterator i = find(propsheets.begin(), propsheets.end(), sheet);
   if (i == propsheets.end()) {
-    page = 0;
+    page_ = 0;
     return false;
   }
-  page = i - propsheets.begin();
+  page_ = i - propsheets.begin();
   return true;
 }
 
 bool IFCALL WinConfig::PageChanged(HWND hdlg) {
-  if (hwndps)
-    PropSheet_Changed(hwndps, hdlg);
+  if (hwndps_)
+    PropSheet_Changed(hwndps_, hdlg);
   return true;
 }
 
 bool IFCALL WinConfig::Apply() {
-  orgconfig = config;
-  PostMessage(hwndparent, WM_M88_APPLYCONFIG, (WPARAM)&config, 0);
+  orgconfig_ = config_;
+  PostMessage(hwndparent_, WM_M88_APPLYCONFIG, (WPARAM)&config_, 0);
   return true;
 }
 
 void IFCALL WinConfig::_ChangeVolume(bool current) {
-  PostMessage(hwndparent, WM_M88_CHANGEVOLUME, (WPARAM)(current ? &config : &orgconfig), 0);
+  PostMessage(hwndparent_, WM_M88_CHANGEVOLUME, (WPARAM)(current ? &config_ : &orgconfig_), 0);
 }
