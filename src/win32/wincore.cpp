@@ -163,7 +163,7 @@ bool WinCore::ConnectDevices(WinKeyIF* keyb) {
 // ---------------------------------------------------------------------------
 //  スナップショット保存
 //
-bool WinCore::SaveShapshot(const char* filename) {
+bool WinCore::SaveShapshot(const std::string_view filename) {
   LockObj lock(this);
 
   bool docomp = !!(config.flag2 & Config::kCompressSnapshot);
@@ -217,7 +217,7 @@ bool WinCore::SaveShapshot(const char* filename) {
 // ---------------------------------------------------------------------------
 //  スナップショット復元
 //
-bool WinCore::LoadShapshot(const char* filename, const char* diskname) {
+bool WinCore::LoadShapshot(const std::string_view filename, const std::string_view diskname) {
   LockObj lock(this);
 
   FileIOWin file;
@@ -279,7 +279,7 @@ bool WinCore::LoadShapshot(const char* filename, const char* diskname) {
 
     if (read) {
       r = devlist.LoadStatus(buf);
-      if (r && diskname) {
+      if (r && !diskname.empty()) {
         for (uint32_t i = 0; i < 2; i++) {
           diskmgr->Unmount(i);
           diskmgr->Mount(i, diskname, false, ssh.disk[i], false);

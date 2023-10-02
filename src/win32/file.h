@@ -10,24 +10,23 @@
 
 #include <windows.h>
 
-#include "common/file.h"
-
 #include <stdint.h>
 #include <stdlib.h>
+#include <string>
 
-// ---------------------------------------------------------------------------
+#include "common/file.h"
 
 class FileIOWin : public FileIO {
  public:
   FileIOWin();
-  explicit FileIOWin(const char* filename, uint32_t flg);
+  explicit FileIOWin(const std::string_view filename, uint32_t flg);
   ~FileIOWin() override;
 
   FileIOWin(const FileIOWin&) = delete;
   const FileIOWin& operator=(const FileIOWin&) = delete;
 
-  bool Open(const char* filename, uint32_t flg) override;
-  bool CreateNew(const char* filename) override;
+  bool Open(const std::string_view filename, uint32_t flg) override;
+  bool CreateNew(const std::string_view filename) override;
   bool Reopen(uint32_t flg) override;
   void Close() override;
 
@@ -39,7 +38,7 @@ class FileIOWin : public FileIO {
 
  private:
   HANDLE hfile_;
-  char path[MAX_PATH];
+  std::string path_;
 };
 
 // ---------------------------------------------------------------------------

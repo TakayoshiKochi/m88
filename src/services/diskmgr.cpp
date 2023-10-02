@@ -45,7 +45,7 @@ bool DiskManager::Init() {
 //  ディスクイメージが既に開かれているかどうか確認
 //  arg:diskname    ディスクイメージのファイルネーム
 //
-bool DiskManager::IsImageOpen(const char* diskname) {
+bool DiskManager::IsImageOpen(const std::string_view diskname) {
   std::lock_guard<std::mutex> lock(mtx_);
 
   for (auto& i : holder_) {
@@ -64,7 +64,7 @@ bool DiskManager::IsImageOpen(const char* diskname) {
 //      readonly    読み込みのみ
 //      index       mount するディスクイメージの番号 (-1 == no disk)
 //
-bool DiskManager::Mount(uint32_t dr, const char* diskname, bool readonly, int index, bool create) {
+bool DiskManager::Mount(uint32_t dr, const std::string_view diskname, bool readonly, int index, bool create) {
   int i;
 
   Unmount(dr);
@@ -536,7 +536,7 @@ int DiskManager::GetCurrentDisk(uint32_t dr) {
 //  type    b1-0    ディスクのメディアタイプ
 //                  00 = 2D, 01 = 2DD, 10 = 2HD
 //
-bool DiskManager::AddDisk(uint32_t dr, const char* title, uint32_t type) {
+bool DiskManager::AddDisk(uint32_t dr, const std::string_view title, uint32_t type) {
   if (dr < kMaxDrives) {
     if (drive_[dr].holder && drive_[dr].holder->AddDisk(title, type))
       return true;

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string_view>
 
 class FileIO {
  public:
@@ -24,8 +25,8 @@ class FileIO {
   FileIO() = default;
   virtual ~FileIO() = default;
 
-  virtual bool Open(const char* filename, uint32_t flg) = 0;
-  virtual bool CreateNew(const char* filename) = 0;
+  virtual bool Open(const std::string_view filename, uint32_t flg) = 0;
+  virtual bool CreateNew(const std::string_view filename) = 0;
   virtual bool Reopen(uint32_t flg) = 0;
   virtual void Close() = 0;
   [[nodiscard]] Error GetError() const { return error_; }
@@ -54,8 +55,8 @@ class FileIODummy : public FileIO {
   FileIODummy(const char* filename, uint32_t flg) { Open(filename, flg); }
   ~FileIODummy() override = default;
 
-  bool Open(const char* filename, uint32_t flg) override;
-  bool CreateNew(const char* filename) override;
+  bool Open(const std::string_view filename, uint32_t flg) override;
+  bool CreateNew(const std::string_view filename) override;
   bool Reopen(uint32_t flg) override;
   void Close() override;
 

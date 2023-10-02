@@ -47,7 +47,7 @@ bool TapeManager::Init(Scheduler* s, IOBus* b, int pi) {
 // ---------------------------------------------------------------------------
 //  T88 を開く
 //
-bool TapeManager::Open(const char* file) {
+bool TapeManager::Open(const std::string_view file) {
   Close();
 
   FileIODummy fio;

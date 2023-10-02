@@ -16,7 +16,7 @@ FileIOWin::FileIOWin() {
   flags_ = 0;
 }
 
-FileIOWin::FileIOWin(const char* filename, uint32_t flg) {
+FileIOWin::FileIOWin(const std::string_view filename, uint32_t flg) {
   flags_ = 0;
   Open(filename, flg);
 }
@@ -29,16 +29,16 @@ FileIOWin::~FileIOWin() {
 //  ファイルを開く
 // ---------------------------------------------------------------------------
 
-bool FileIOWin::Open(const char* filename, uint32_t flg) {
+bool FileIOWin::Open(const std::string_view filename, uint32_t flg) {
   Close();
 
-  strncpy_s(path, sizeof(path), filename, _TRUNCATE);
+  path_ = filename;
 
   DWORD access = (flg & readonly ? 0 : GENERIC_WRITE) | GENERIC_READ;
   DWORD share = (flg & readonly) ? FILE_SHARE_READ : 0;
   DWORD creation = flg & create ? CREATE_ALWAYS : OPEN_EXISTING;
 
-  hfile_ = ::CreateFile(filename, access, share, 0, creation, 0, 0);
+  hfile_ = ::CreateFile(filename.data(), access, share, nullptr, creation, 0, nullptr);
 
   flags_ = (flg & readonly) | (hfile_ == INVALID_HANDLE_VALUE ? 0 : open);
   if (!(flags_ & open)) {
@@ -63,16 +63,16 @@ bool FileIOWin::Open(const char* filename, uint32_t flg) {
 //  ファイルがない場合は作成
 // ---------------------------------------------------------------------------
 
-bool FileIOWin::CreateNew(const char* filename) {
+bool FileIOWin::CreateNew(const std::string_view filename) {
   Close();
 
-  strncpy_s(path, sizeof(path), filename, _TRUNCATE);
+  path_ = filename;
 
   DWORD access = GENERIC_WRITE | GENERIC_READ;
   DWORD share = 0;
   DWORD creation = CREATE_NEW;
 
-  hfile_ = ::CreateFile(filename, access, share, 0, creation, 0, 0);
+  hfile_ = ::CreateFile(filename.data(), access, share, 0, creation, 0, 0);
 
   flags_ = (hfile_ == INVALID_HANDLE_VALUE ? 0 : open);
   SetLogicalOrigin(0);
@@ -99,7 +99,7 @@ bool FileIOWin::Reopen(uint32_t flg) {
   DWORD share = flg & readonly ? FILE_SHARE_READ : 0;
   DWORD creation = flg & create ? CREATE_ALWAYS : OPEN_EXISTING;
 
-  hfile_ = ::CreateFile(path, access, share, 0, creation, 0, 0);
+  hfile_ = ::CreateFile(path_.c_str(), access, share, 0, creation, 0, 0);
 
   flags_ = (flg & readonly) | (hfile_ == INVALID_HANDLE_VALUE ? 0 : open);
   SetLogicalOrigin(0);

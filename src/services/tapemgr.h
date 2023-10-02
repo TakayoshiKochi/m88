@@ -7,9 +7,11 @@
 #pragma once
 
 #include "common/device.h"
+#include "common/scheduler.h"
 #include "devices/opna.h"
 #include "devices/psg.h"
-#include "common/scheduler.h"
+
+#include <string_view>
 
 class IOBus;
 
@@ -26,7 +28,7 @@ class TapeManager : public Device {
 
   bool Init(Scheduler* s, IOBus* bus, int pin);
 
-  bool Open(const char* file);
+  bool Open(const std::string_view file);
   bool Close();
   bool Rewind(bool timer = true);
 

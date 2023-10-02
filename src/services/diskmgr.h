@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <windows.h>
-
 #include "common/file.h"
 #include "common/floppy.h"
 #include "pc88/fdu.h"
@@ -26,13 +24,13 @@ class DiskManager {
   ~DiskManager();
   bool Init();
 
-  bool Mount(uint32_t drive, const char* diskname, bool readonly, int index, bool create);
+  bool Mount(uint32_t drive, const std::string_view diskname, bool readonly, int index, bool create);
   bool Unmount(uint32_t drive);
   const char* GetImageTitle(uint32_t dr, uint32_t index);
   uint32_t GetNumDisks(uint32_t dr);
   int GetCurrentDisk(uint32_t dr);
-  bool AddDisk(uint32_t dr, const char* title, uint32_t type);
-  bool IsImageOpen(const char* filename);
+  bool AddDisk(uint32_t dr, const std::string_view title, uint32_t type);
+  bool IsImageOpen(const std::string_view filename);
   bool FormatDisk(uint32_t dr);
 
   void Update();

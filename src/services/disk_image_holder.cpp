@@ -11,7 +11,7 @@ DiskImageHolder::~DiskImageHolder() {
 // ---------------------------------------------------------------------------
 //  ファイルを開く
 //
-bool DiskImageHolder::Open(const char* filename, bool ro, bool create) {
+bool DiskImageHolder::Open(const std::string_view filename, bool ro, bool create) {
   // 既に持っているファイルかどうかを確認
   if (Connect(filename))
     return true;
@@ -37,8 +37,7 @@ bool DiskImageHolder::Open(const char* filename, bool ro, bool create) {
   }
 
   // ファイル名を登録
-  strncpy(diskname_, filename, MAX_PATH - 1);
-  diskname_[MAX_PATH - 1] = 0;
+  diskname_.assign(filename);
 
   if (!ReadHeaders())
     return false;
@@ -51,7 +50,7 @@ bool DiskImageHolder::Open(const char* filename, bool ro, bool create) {
 //  新しいディスクイメージを加える
 //  type:   2D 0 / 2DD 1 / 2HD 2
 //
-bool DiskImageHolder::AddDisk(const char* title, uint32_t type) {
+bool DiskImageHolder::AddDisk(const std::string_view title, uint32_t type) {
   if (ndisks_ >= kMaxDisks)
     return false;
 
@@ -65,7 +64,7 @@ bool DiskImageHolder::AddDisk(const char* title, uint32_t type) {
 
   ImageHeader ih;
   memset(&ih, 0, sizeof(ImageHeader));
-  strncpy(ih.title, title, 16);
+  strncpy(ih.title, title.data(), 16);
   ih.disktype = type * 0x10;
   ih.disksize = sizeof(ImageHeader);
   fio_.SetLogicalOrigin(0);
@@ -138,10 +137,10 @@ void DiskImageHolder::Close() {
 // ---------------------------------------------------------------------------
 //  Connect
 //
-bool DiskImageHolder::Connect(const char* filename) {
+bool DiskImageHolder::Connect(const std::string_view filename) {
   // 既に持っているファイルかどうかを確認
-  if (!strnicmp(diskname_, filename, MAX_PATH)) {
-    ref_++;
+  if (diskname_.compare(filename) == 0) {
+    ++ref_;
     return true;
   }
   return false;

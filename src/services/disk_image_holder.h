@@ -1,7 +1,8 @@
 #pragma once
 
-#include <windows.h>
 #include <stdint.h>
+#include <string>
+#include <string_view>
 
 #include "common/file.h"
 #include "common/floppy.h"
@@ -38,8 +39,8 @@ class DiskImageHolder {
   DiskImageHolder() = default;
   ~DiskImageHolder();
 
-  bool Open(const char* filename, bool readonly, bool create);
-  bool Connect(const char* filename);
+  bool Open(const std::string_view filename, bool readonly, bool create);
+  bool Connect(const std::string_view filename);
   bool Disconnect();
 
   const char* GetTitle(int index);
@@ -48,7 +49,7 @@ class DiskImageHolder {
   bool SetDiskSize(int index, int newsize);
   [[nodiscard]] bool IsReadOnly() const { return readonly_; }
   [[nodiscard]] uint32_t IsOpen() const { return ref_ > 0; }
-  bool AddDisk(const char* title, uint32_t type);
+  bool AddDisk(const std::string_view title, uint32_t type);
 
  private:
   struct DiskInfo {
@@ -65,5 +66,5 @@ class DiskImageHolder {
   int ref_ = 0;
   bool readonly_;
   DiskInfo disks_[kMaxDisks];
-  char diskname_[MAX_PATH];
+  std::string diskname_;
 };
