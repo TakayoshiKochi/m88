@@ -172,6 +172,8 @@ target_link_libraries(pc88core_unittests
         common devices fmgen pc88core pc88shell)
 
 add_library(pc88shell ${LIB_TYPE}
+        src/services/disk_image_holder.h
+        src/services/disk_image_holder.cpp
         src/services/diskmgr.h
         src/services/diskmgr.cpp
         src/services/ioview.h
