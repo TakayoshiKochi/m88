@@ -33,40 +33,39 @@ enum SpecialPort {
 class DiskDrvModule : public IModule {
  public:
   DiskDrvModule();
-  ~DiskDrvModule() {}
+  ~DiskDrvModule() = default;
 
   bool Init(ISystem* system);
-  void IFCALL Release();
-  void* IFCALL QueryIF(REFIID) { return 0; }
+
+  void IFCALL Release() override;
+  void* IFCALL QueryIF(REFIID) override { return nullptr; }
 
  private:
-  DiskIO diskio;
+  DiskIO disk_io_;
 
-  ISystem* sys;
-  IIOBus* bus;
+  ISystem* sys_ = nullptr;
+  IIOBus* bus_ = nullptr;
 };
 
-DiskDrvModule::DiskDrvModule() : diskio(0) {}
+DiskDrvModule::DiskDrvModule() : disk_io_(0) {}
 
-bool DiskDrvModule::Init(ISystem* _sys) {
-  sys = _sys;
-  bus = (IIOBus*)sys->QueryIF(M88IID_IOBus1);
-  if (!bus)
+bool DiskDrvModule::Init(ISystem* system) {
+  sys_ = system;
+  bus_ = (IIOBus*)sys_->QueryIF(M88IID_IOBus1);
+  if (!bus_)
     return false;
 
   const static IIOBus::Connector c_diskio[] = {
       {pres, IIOBus::portout, DiskIO::reset},   {0xd0, IIOBus::portout, DiskIO::setcommand},
       {0xd1, IIOBus::portout, DiskIO::setdata}, {0xd0, IIOBus::portin, DiskIO::getstatus},
       {0xd1, IIOBus::portin, DiskIO::getdata},  {0, 0, 0}};
-  if (!diskio.Init() || !bus->Connect(&diskio, c_diskio))
-    return false;
 
-  return true;
+  return disk_io_.Init() && bus_->Connect(&disk_io_, c_diskio);
 }
 
 void DiskDrvModule::Release() {
-  if (bus)
-    bus->Disconnect(&diskio);
+  if (bus_)
+    bus_->Disconnect(&disk_io_);
   delete this;
 }
 
@@ -74,28 +73,23 @@ void DiskDrvModule::Release() {
 
 //  Module を作成
 extern "C" EXTDEVAPI IModule* __cdecl M88CreateModule(ISystem* system) {
-  DiskDrvModule* module = new DiskDrvModule;
+  auto* module = new DiskDrvModule;
 
   if (module) {
     if (module->Init(system))
       return module;
     delete module;
   }
-  return 0;
+  return nullptr;
 }
 
-BOOL APIENTRY DllMain(HANDLE hmod, DWORD rfc, LPVOID) {
+BOOL APIENTRY DllMain(HANDLE, DWORD rfc, LPVOID) {
   switch (rfc) {
     case DLL_PROCESS_ATTACH:
-      break;
-
     case DLL_THREAD_ATTACH:
-      break;
-
     case DLL_THREAD_DETACH:
-      break;
-
     case DLL_PROCESS_DETACH:
+    default:
       break;
   }
   return true;
