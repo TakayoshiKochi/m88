@@ -365,6 +365,7 @@ add_library(cdif SHARED
         cdif/src/cdctrl.cpp
         cdif/src/cdif.h
         cdif/src/cdif.cpp
+        cdif/src/cdif.rc
         cdif/src/cdrom.h
         cdif/src/cdrom.cpp
         cdif/src/cdromdef.h
