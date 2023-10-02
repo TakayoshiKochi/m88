@@ -386,7 +386,7 @@ target_link_libraries(cdif
 add_custom_command(TARGET cdif POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:cdif>
-        ${CMAKE_SOURCE_DIR}/run/cdif.m88
+        cdif.m88
         COMMENT "Copying 'cdif.dll' library to 'cdif.m88'")
 
 add_library(diskdrv SHARED
@@ -407,7 +407,7 @@ target_link_libraries(diskdrv
 add_custom_command(TARGET diskdrv POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:diskdrv>
-        ${CMAKE_SOURCE_DIR}/run/diskdrv.m88
+        diskdrv.m88
         COMMENT "Copying 'diskdrv.dll' library to 'diskdrv.m88'")
 
 add_library(sample1 ${LIB_TYPE}
