@@ -4,9 +4,8 @@
 // ----------------------------------------------------------------------------
 //  $Id: memview.cpp,v 1.5 2001/02/21 11:57:57 cisc Exp $
 
-#include "pc88/memview.h"
+#include "services/memview.h"
 
-#include "common/device.h"
 #include "pc88/memory.h"
 
 using namespace PC8801;

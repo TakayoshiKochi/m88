@@ -4,10 +4,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: tapemgr.cpp,v 1.3 2000/08/06 09:58:51 cisc Exp $
 
-#include "pc88/tapemgr.h"
+#include "services/tapemgr.h"
 
 #include <algorithm>
-#include <memory>
 
 #include "common/io_bus.h"
 #include "common/file.h"

@@ -140,6 +140,8 @@ add_library(pc88core ${LIB_TYPE}
         src/pc88/memory.cpp
         src/pc88/mouse.h
         src/pc88/mouse.cpp
+        src/pc88/opnif.h
+        src/pc88/opnif.cpp
         src/pc88/pc88.h
         src/pc88/pc88.cpp
         src/pc88/pd8257.h
@@ -150,8 +152,6 @@ add_library(pc88core ${LIB_TYPE}
         src/pc88/screen.cpp
         src/pc88/sio.h
         src/pc88/sio.cpp
-        src/pc88/sound.h
-        src/pc88/sound.cpp
         src/pc88/subsys.h
         src/pc88/subsys.cpp)
 
@@ -172,16 +172,16 @@ target_link_libraries(pc88core_unittests
         common devices fmgen pc88core pc88shell)
 
 add_library(pc88shell ${LIB_TYPE}
-        src/pc88/diskmgr.h
-        src/pc88/diskmgr.cpp
-        src/pc88/ioview.h
-        src/pc88/ioview.cpp
-        src/pc88/memview.h
-        src/pc88/memview.cpp
-        src/pc88/opnif.h
-        src/pc88/opnif.cpp
-        src/pc88/tapemgr.h
-        src/pc88/tapemgr.cpp)
+        src/services/diskmgr.h
+        src/services/diskmgr.cpp
+        src/services/ioview.h
+        src/services/ioview.cpp
+        src/services/memview.h
+        src/services/memview.cpp
+        src/services/sound.h
+        src/services/sound.cpp
+        src/services/tapemgr.h
+        src/services/tapemgr.cpp)
 
 target_include_directories(pc88shell
         PUBLIC ${CMAKE_SOURCE_DIR}/src

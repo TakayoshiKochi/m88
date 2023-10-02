@@ -15,7 +15,7 @@
 #include "common/io_bus.h"
 #include "common/status.h"
 #include "pc88/config.h"
-#include "pc88/diskmgr.h"
+#include "services/diskmgr.h"
 
 // #define LOGNAME "fdc"
 #include "common/diag.h"

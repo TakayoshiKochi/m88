@@ -7,7 +7,7 @@
 #pragma once
 
 #include "common/device.h"
-#include "pc88/memview.h"
+#include "services/memview.h"
 #include "win32/monitor/mvmon.h"
 #include "win32/wincore.h"
 

@@ -8,7 +8,7 @@
 
 #include "common/device.h"
 #include "common/memory_bus.h"
-#include "pc88/memview.h"
+#include "services/memview.h"
 #include "win32/monitor/winmon.h"
 
 // ---------------------------------------------------------------------------

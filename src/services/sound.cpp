@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: sound.cpp,v 1.32 2003/05/19 01:10:32 cisc Exp $
 
-#include "pc88/sound.h"
+#include "services/sound.h"
 
 #include <stdint.h>
 

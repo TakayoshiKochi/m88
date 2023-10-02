@@ -10,7 +10,7 @@
 
 #include "common/device.h"
 #include "devices/z80diag.h"
-#include "pc88/memview.h"
+#include "services/memview.h"
 #include "win32/monitor/mvmon.h"
 
 // ---------------------------------------------------------------------------
