@@ -24,7 +24,11 @@ class DiskManager {
   ~DiskManager();
   bool Init();
 
-  bool Mount(uint32_t drive, const std::string_view diskname, bool readonly, int index, bool create);
+  bool Mount(uint32_t drive,
+             const std::string_view diskname,
+             bool readonly,
+             int index,
+             bool create);
   bool Unmount(uint32_t drive);
   const char* GetImageTitle(uint32_t dr, uint32_t index);
   uint32_t GetNumDisks(uint32_t dr);

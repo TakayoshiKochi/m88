@@ -64,7 +64,11 @@ bool DiskManager::IsImageOpen(const std::string_view diskname) {
 //      readonly    読み込みのみ
 //      index       mount するディスクイメージの番号 (-1 == no disk)
 //
-bool DiskManager::Mount(uint32_t dr, const std::string_view diskname, bool readonly, int index, bool create) {
+bool DiskManager::Mount(uint32_t dr,
+                        const std::string_view diskname,
+                        bool readonly,
+                        int index,
+                        bool create) {
   int i;
 
   Unmount(dr);
