@@ -21,7 +21,7 @@ class WinConfig : public IConfigPropBase {
 
   bool Show(HINSTANCE, HWND, Config* config);
   bool ProcMsg(MSG& msg);
-  bool IsOpen() { return !!hwndps; }
+  bool IsOpen() { return hwndps_ != nullptr; }
   void Close();
 
  private:
@@ -30,38 +30,38 @@ class WinConfig : public IConfigPropBase {
     IConfigPropSheet* sheet;
   };
 
-  bool IFCALL Add(IConfigPropSheet* sheet);
-  bool IFCALL Remove(IConfigPropSheet* sheet);
+  bool IFCALL Add(IConfigPropSheet* sheet) override;
+  bool IFCALL Remove(IConfigPropSheet* sheet) override;
 
-  bool IFCALL Apply();
-  bool IFCALL PageSelected(IConfigPropSheet*);
-  bool IFCALL PageChanged(HWND);
-  void IFCALL _ChangeVolume(bool);
+  bool IFCALL Apply() override;
+  bool IFCALL PageSelected(IConfigPropSheet*) override;
+  bool IFCALL PageChanged(HWND) override;
+  void IFCALL _ChangeVolume(bool) override;
 
   int PropProc(HWND, UINT, LPARAM);
   static int CALLBACK PropProcGate(HWND, UINT, LPARAM);
   static WinConfig* instance;
 
-  PPNode* pplist;
+  PPNode* pplist_ = nullptr;
   typedef std::vector<IConfigPropSheet*> PropSheets;
   PropSheets propsheets;
 
-  HWND hwndparent;
-  HWND hwndps;
-  HINSTANCE hinst;
-  Config config;
-  Config orgconfig;
-  int page;
-  int npages;
+  HWND hwndparent_ = nullptr;
+  HWND hwndps_ = nullptr;
+  HINSTANCE hinst_ = nullptr;
+  Config config_;
+  Config orgconfig_;
+  int page_;
+  // int npages_;
 
-  ConfigCPU ccpu;
-  ConfigScreen cscrn;
-  ConfigSound csound;
-  ConfigVolume cvol;
-  ConfigFunction cfunc;
-  ConfigSwitch cswitch;
-  ConfigEnv cenv;
-  ConfigROMEO cromeo;
+  ConfigCPU ccpu_;
+  ConfigScreen cscrn_;
+  ConfigSound csound_;
+  ConfigVolume cvol_;
+  ConfigFunction cfunc_;
+  ConfigSwitch cswitch_;
+  ConfigEnv cenv_;
+  ConfigROMEO cromeo_;
 };
 
 }  // namespace PC8801

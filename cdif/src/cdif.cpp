@@ -23,13 +23,13 @@ CDIF::CDIF(const ID& id) : Device(id) {}
 // ----------------------------------------------------------------------------
 //  破棄
 //
-CDIF::~CDIF() {}
+CDIF::~CDIF() = default;
 
 // ----------------------------------------------------------------------------
 //  初期化
 //
-bool CDIF::Init(IDMAAccess* _dmac) {
-  dmac = _dmac;
+bool CDIF::Init(IDMAAccess* dmac) {
+  dmac_ = dmac;
   if (!cdrom.Init())
     return false;
   if (!cd.Init(&cdrom, this, (void(Device::*)(int)) & CDIF::Done))
@@ -244,7 +244,7 @@ void CDIF::ReadSector() {
         ResultPhase(0, 0);
         break;
       }
-      n = dmac->RequestWrite(1, tmpbuf, readmode ? 2340 : 2048);
+      n = dmac_->RequestWrite(1, tmpbuf, readmode ? 2340 : 2048);
       Log("DMA: %d bytes\n", n);
       ResultPhase(0, 0);
       break;

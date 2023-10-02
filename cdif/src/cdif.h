@@ -44,7 +44,7 @@ class CDIF : public Device {
  public:
   explicit CDIF(const ID& id);
   ~CDIF() override;
-  bool Init(IDMAAccess* mdev);
+  bool Init(IDMAAccess* dmac);
 
   bool Enable(bool f);
 
@@ -132,7 +132,7 @@ class CDIF : public Device {
     uint8_t buf[16 + 16 + 2340];
   };
 
-  IDMAAccess* dmac;
+  IDMAAccess* dmac_;
 
   int phase;
 
