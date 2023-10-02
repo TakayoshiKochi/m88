@@ -52,7 +52,7 @@ class WinConfig : public IConfigPropBase {
   Config config_;
   Config orgconfig_;
   int page_;
-  // int npages_;
+  int npages_;
 
   ConfigCPU ccpu_;
   ConfigScreen cscrn_;
