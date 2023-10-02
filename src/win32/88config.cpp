@@ -34,7 +34,10 @@ static bool LoadConfigEntry(const std::string_view inifile,
 // ---------------------------------------------------------------------------
 //  LoadConfigDirectory
 //
-void LoadConfigDirectory(Config* cfg, const std::string_view inifile, const char* entry, bool readalways) {
+void LoadConfigDirectory(Config* cfg,
+                         const std::string_view inifile,
+                         const char* entry,
+                         bool readalways) {
   if (readalways || (cfg->flags & Config::kSaveDirectory)) {
     char path[MAX_PATH];
     if (GetPrivateProfileString(AppName, entry, ";", path, MAX_PATH, inifile.data())) {
@@ -141,7 +144,10 @@ void LoadConfig(Config* cfg, const std::string_view inifile, bool applydefault) 
 // ---------------------------------------------------------------------------
 //  SaveEntry
 //
-static bool SaveEntry(const std::string_view inifile, const char* entry, int value, bool applydefault) {
+static bool SaveEntry(const std::string_view inifile,
+                      const char* entry,
+                      int value,
+                      bool applydefault) {
   char buf[MAX_PATH];
   if (applydefault || -1 != GetPrivateProfileInt(AppName, entry, -1, inifile.data())) {
     wsprintf(buf, "%d", value);

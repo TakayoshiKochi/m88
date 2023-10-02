@@ -258,17 +258,14 @@ void DiskIO::CmdGetError() {
 //
 const Device::Descriptor DiskIO::descriptor = {DiskIO::indef, DiskIO::outdef};
 
-const Device::OutFuncPtr DiskIO::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&DiskIO::Reset),
-    // port 0xd0
-    static_cast<Device::OutFuncPtr>(&DiskIO::SetCommand),
-    // port 0xd1
-    static_cast<Device::OutFuncPtr>(&DiskIO::SetData)
-};
+const Device::OutFuncPtr DiskIO::outdef[] = {static_cast<Device::OutFuncPtr>(&DiskIO::Reset),
+                                             // port 0xd0
+                                             static_cast<Device::OutFuncPtr>(&DiskIO::SetCommand),
+                                             // port 0xd1
+                                             static_cast<Device::OutFuncPtr>(&DiskIO::SetData)};
 
 const Device::InFuncPtr DiskIO::indef[] = {
     // port 0xd0
     static_cast<Device::InFuncPtr>(&DiskIO::GetStatus),
     // port 0xd1
-    static_cast<Device::InFuncPtr>(&DiskIO::GetData)
-};
+    static_cast<Device::InFuncPtr>(&DiskIO::GetData)};

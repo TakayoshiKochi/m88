@@ -68,7 +68,11 @@ class WinUI {
   void ChangeDisplayType(bool savepos);
 
   void ChangeDiskImage(HWND hwnd, int drive);
-  bool OpenDiskImage(int drive, const std::string_view filename, bool readonly, int id, bool create);
+  bool OpenDiskImage(int drive,
+                     const std::string_view filename,
+                     bool readonly,
+                     int id,
+                     bool create);
   void OpenDiskImage(const std::string_view filename);
   bool SelectDisk(uint32_t drive, int id, bool menuonly);
   bool CreateDiskMenu(uint32_t drive);
