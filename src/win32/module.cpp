@@ -8,43 +8,45 @@
 
 using namespace PC8801;
 
-ExtendModule::ExtendModule() : hdll(0), mod(0) {}
+ExtendModule::ExtendModule() = default;
 
 ExtendModule::~ExtendModule() {
   Disconnect();
 }
 
-bool ExtendModule::Connect(const char* dllname, ISystem* pc) {
+bool ExtendModule::Connect(const std::string_view dllname, ISystem* pc) {
   Disconnect();
 
-  hdll = LoadLibrary(dllname);
-  if (!hdll)
+  hdll_ = LoadLibrary(dllname.data());
+  if (!hdll_)
     return false;
 
-  F_CONNECT2 conn = (F_CONNECT2)GetProcAddress(hdll, "M88CreateModule");
+  auto conn = (F_CONNECT2)GetProcAddress(hdll_, "M88CreateModule");
   if (!conn)
     return false;
 
-  mod = (*conn)(pc);
-  return mod != 0;
+  mod_ = (*conn)(pc);
+  return mod_ != nullptr;
 }
 
 bool ExtendModule::Disconnect() {
-  if (mod) {
-    mod->Release(), mod = 0;
+  if (mod_) {
+    mod_->Release();
+    mod_ = nullptr;
   }
-  if (hdll) {
-    FreeLibrary(hdll), hdll = 0;
+  if (hdll_) {
+    FreeLibrary(hdll_);
+    hdll_ = nullptr;
   }
   return true;
 }
 
-ExtendModule* ExtendModule::Create(const char* dllname, ISystem* pc) {
-  ExtendModule* em = new ExtendModule;
+ExtendModule* ExtendModule::Create(const std::string_view dllname, ISystem* pc) {
+  auto* em = new ExtendModule;
   if (em) {
     if (em->Connect(dllname, pc))
       return em;
     delete em;
   }
-  return 0;
+  return nullptr;
 }
