@@ -7,6 +7,7 @@
 #pragma once
 
 #include <windows.h>
+#include <atomic>
 
 #include "common/device.h"
 
@@ -15,18 +16,18 @@ class CDROM;
 class CDControl {
  public:
   enum {
-    dummy = 0,
-    readtoc,
-    playtrack,
-    stop,
-    checkdisk,
-    playrev,
-    playaudio,
-    readsubcodeq,
-    pause,
-    read1,
-    read2,
-    ncmds
+    kDummy = 0,
+    kReadTOC,
+    kPlayTrack,
+    kStop,
+    kCheckDisc,
+    kPlayRev,
+    kPlayAudio,
+    kReadSubCodeq,
+    kPause,
+    kRead1,
+    kRead2,
+    kNumCommands
   };
 
   struct Time {
@@ -52,14 +53,14 @@ class CDControl {
   uint32_t ThreadMain();
   static uint32_t __stdcall ThreadEntry(LPVOID arg);
 
-  HANDLE hthread_;
-  uint32_t idthread;
-  int vel;
-  bool diskpresent;
-  bool shouldterminate;
+  HANDLE hthread_ = nullptr;
+  uint32_t thread_id_ = 0;
+  int vel_ = 0;
+  bool disc_present_ = false;
+  std::atomic<bool> should_terminate_ = false;
 
-  Device* device;
-  DONEFUNC donefunc;
+  Device* device_ = nullptr;
+  DONEFUNC done_func_ = nullptr;
 
-  CDROM* cdrom;
+  CDROM* cdrom_ = nullptr;
 };

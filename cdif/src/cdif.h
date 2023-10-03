@@ -75,17 +75,17 @@ class CDIF : public Device {
 
  private:
   enum Phase {
-    idlephase,
-    cmd1phase,
-    cmd2phase,
-    paramphase,
-    execphase,
-    waitphase,
-    resultphase,
-    statusphase,
-    sendphase,
-    endphase,
-    recvphase
+    kIdlePhase,
+    kCmd1Phase,
+    kCmd2Phase,
+    kParamPhase,
+    kExecPhase,
+    kWaitPhase,
+    kResultPhase,
+    kStatusPhase,
+    kSendPhase,
+    kEndPhase,
+    kRecvPhase
   };
   typedef void (CDIF::*CommandFunc)();
 
@@ -132,35 +132,36 @@ class CDIF : public Device {
     uint8_t buf[16 + 16 + 2340];
   };
 
-  IDMAAccess* dmac_;
+  IDMAAccess* dmac_ = nullptr;
 
-  int phase;
+  int phase_ = 0;
 
-  uint8_t* ptr;  // 転送モード
-  int length;
+  uint8_t* ptr_ = nullptr;  // 転送モード
+  int length_ = 0;
 
-  uint32_t addrs;  // 再生開始アドレス
+  uint32_t addrs_;  // 再生開始アドレス
 
-  uint32_t status;    // in 90
-  uint32_t data;      // port 91
-  uint32_t playmode;  // port 98
-  uint32_t retrycount;
-  uint32_t readmode;
-  uint32_t sector;
+  uint32_t status_ = 0;    // in 90
+  uint32_t data_ = 0;      // port 91
+  uint32_t play_mode_ = 0;  // port 98
+  uint32_t retry_count_ = 0;
+  uint32_t read_mode_ = 0;
+  uint32_t sector_ = 0;
 
-  uint8_t stillmode;
+  uint8_t still_mode_ = 0;
 
-  uint8_t clk;
-  uint8_t rslt;
-  uint8_t stat;
-  bool enable;
-  bool active;
+  uint8_t clk_ = 0;
+  uint8_t rslt_ = 0;
+  uint8_t stat_ = 0;
+  bool enable_ = false;
+  bool active_ = false;
 
-  uint8_t cmdbuf[16];  // バッファは連続して配置されること
-  uint8_t datbuf[16];
-  uint8_t tmpbuf[2340];
-  CDROM cdrom;
-  CDControl cd;
+  uint8_t cmdbuf_[16]{};  // バッファは連続して配置されること
+  uint8_t databuf_[16]{};
+  uint8_t tmpbuf_[2340]{};
+
+  CDROM cdrom_;
+  CDControl cd_;
 
   static const Descriptor descriptor;
   static const InFuncPtr indef[];

@@ -6,8 +6,9 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <windows.h>
+
+#include <stdint.h>
 
 class ASPI {
  public:
@@ -21,7 +22,7 @@ class ASPI {
   ASPI();
   ~ASPI();
 
-  uint32_t GetNHostAdapters() { return nhostadapters; }
+  uint32_t GetNHostAdapters() const { return n_hostadapters_; }
   bool PrintHAInquiry(uint32_t ha);
   bool InquiryAdapter(uint32_t ha, uint32_t* maxid, uint32_t* maxxfer);
   int GetDeviceType(uint32_t ha, uint32_t id, uint32_t lun);
@@ -31,7 +32,7 @@ class ASPI {
                          void* cdb,
                          uint32_t cdblen,
                          uint32_t dir = 0,
-                         void* data = 0,
+                         void* data = nullptr,
                          uint32_t datalen = 0);
 
  private:
@@ -40,11 +41,11 @@ class ASPI {
   bool ConnectAPI();
   void AbortService(uint32_t, void*);
 
-  uint32_t(__cdecl* psac)(void*);
-  uint32_t(__cdecl* pgasi)();
-  uint32_t nhostadapters;
-  HANDLE hevent;
-  HMODULE hmod;
+  uint32_t(__cdecl* psac_)(void*) = nullptr;
+  uint32_t(__cdecl* pgasi_)() = nullptr;
+  uint32_t n_hostadapters_ = 0;
+  HANDLE hevent_ = nullptr;
+  HMODULE hmod_ = nullptr;
 };
 
 struct LONGBE {
