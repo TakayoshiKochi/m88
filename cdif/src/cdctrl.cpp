@@ -32,22 +32,22 @@ CDControl::~CDControl() {
 //  初期化
 //
 bool CDControl::Init(CDROM* cd, Device* dev, DONEFUNC func) {
-  cdrom = cd;
-  device = dev;
-  donefunc = func;
-  diskpresent = false;
-  shouldterminate = false;
+  cdrom_ = cd;
+  device_ = dev;
+  done_func_ = func;
+  disc_present_ = false;
+  should_terminate_ = false;
 
   if (!hthread_)
     hthread_ =
-        HANDLE(_beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &idthread));
+        HANDLE(_beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &thread_id_));
   if (!hthread_)
     return false;
 
-  while (!PostThreadMessage(idthread, 0, 0, 0))
+  while (!PostThreadMessage(thread_id_, 0, 0, 0))
     Sleep(10);
 
-  vel = 0;
+  vel_ = 0;
   return true;
 }
 
@@ -57,9 +57,9 @@ bool CDControl::Init(CDROM* cd, Device* dev, DONEFUNC func) {
 void CDControl::CleanUp() {
   if (hthread_) {
     int i = 100;
-    shouldterminate = true;
+    should_terminate_ = true;
     do {
-      PostThreadMessage(idthread, WM_QUIT, 0, 0);
+      PostThreadMessage(thread_id_, WM_QUIT, 0, 0);
     } while (WAIT_TIMEOUT == WaitForSingleObject(hthread_, 50) && --i);
 
     if (i)
@@ -76,68 +76,68 @@ void CDControl::CleanUp() {
 void CDControl::ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
   int ret = 0;
   switch (cmd) {
-    case readtoc:
-      ret = cdrom->ReadTOC();
+    case kReadTOC:
+      ret = cdrom_->ReadTOC();
       if (ret)
-        diskpresent = true;
+        disc_present_ = true;
       Log("Read TOC - %d\n", ret);
       break;
 
-    case playaudio:
-      ret = cdrom->PlayAudio(arg1, arg2);
+    case kPlayAudio:
+      ret = cdrom_->PlayAudio(arg1, arg2);
       Log("Play Audio(%d, %d) - %d\n", arg1, arg2, ret);
       break;
 
-    case playtrack:
-      ret = cdrom->PlayTrack(arg1);
+    case kPlayTrack:
+      ret = cdrom_->PlayTrack(arg1);
       Log("Play Track(%d) - %d\n", arg1, ret);
       break;
 
-    case stop:
-      ret = cdrom->Stop();
+    case kStop:
+      ret = cdrom_->Stop();
       Log("Stop - %d\n", ret);
       if (arg1)
         return;
       break;
 
-    case pause:
-      ret = cdrom->Pause(true);
+    case kPause:
+      ret = cdrom_->Pause(true);
       Log("Pause - %d\n", ret);
       break;
 
-    case checkdisk:
-      ret = cdrom->CheckMedia();
+    case kCheckDisc:
+      ret = cdrom_->CheckMedia();
       Log("CheckDisk - %d\n", ret);
-      if (diskpresent) {
+      if (disc_present_) {
         if (!ret)
-          diskpresent = false;
+          disc_present_ = false;
         Log("unmount\n");
       } else {
         if (ret) {
-          if (cdrom->ReadTOC())
-            diskpresent = true;
+          if (cdrom_->ReadTOC())
+            disc_present_ = true;
           Log("Mount\n");
         }
       }
       break;
 
-    case readsubcodeq:
-      ret = cdrom->ReadSubCh((uint8_t*)arg1, true);
+    case kReadSubCodeq:
+      ret = cdrom_->ReadSubCh((uint8_t*)arg1, true);
       break;
 
-    case read1:
-      ret = cdrom->Read(arg1, (uint8_t*)arg2, 2048);
+    case kRead1:
+      ret = cdrom_->Read(arg1, (uint8_t*)arg2, 2048);
       break;
 
-    case read2:
-      ret = cdrom->Read2(arg1, (uint8_t*)arg2, 2340);
+    case kRead2:
+      ret = cdrom_->Read2(arg1, (uint8_t*)arg2, 2340);
       break;
 
     default:
       return;
   }
-  if (donefunc && !shouldterminate)
-    (device->*donefunc)(ret);
+  if (done_func_ && !should_terminate_)
+    (device_->*done_func_)(ret);
   return;
 }
 
@@ -145,9 +145,9 @@ void CDControl::ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
 //  現在の時間を求める
 //
 uint32_t CDControl::GetTime() {
-  if (diskpresent) {
+  if (disc_present_) {
     SubcodeQ sub;
-    cdrom->ReadSubCh((uint8_t*)&sub, false);
+    cdrom_->ReadSubCh((uint8_t*)&sub, false);
 
     return sub.absaddr;
   }
@@ -158,7 +158,7 @@ uint32_t CDControl::GetTime() {
 //  コマンドを送る
 //
 bool CDControl::SendCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
-  return !!PostThreadMessage(idthread, UM_CDCONTROL + cmd, arg1, arg2);
+  return !!PostThreadMessage(thread_id_, UM_CDCONTROL + cmd, arg1, arg2);
 }
 
 // ---------------------------------------------------------------------------
@@ -166,8 +166,8 @@ bool CDControl::SendCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
 //
 uint32_t CDControl::ThreadMain() {
   MSG msg;
-  while (GetMessage(&msg, 0, 0, 0) && !shouldterminate) {
-    if (UM_CDCONTROL <= msg.message && msg.message < UM_CDCONTROL + ncmds)
+  while (GetMessage(&msg, 0, 0, 0) && !should_terminate_) {
+    if (UM_CDCONTROL <= msg.message && msg.message < UM_CDCONTROL + kNumCommands)
       ExecCommand(msg.message - UM_CDCONTROL, msg.wParam, msg.lParam);
   }
   return 0;

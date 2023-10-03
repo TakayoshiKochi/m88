@@ -64,20 +64,20 @@ class CDROM {
                          void* _data = 0,
                          uint32_t _datalen = 0);
 
-  int m_driveletters[26];
-  int m_maxcd;
-  HANDLE hdev;
-  int ntracks;  // トラック数
-  int trstart;  // トラックの開始位置
+  int drive_letters_[26]{};
+  int max_cd_ = 0;
+  HANDLE hdev_ = nullptr;
+  int ntracks_ = 0;  // トラック数
+  int tr_start_ = 0;  // トラックの開始位置
 
-  Track track[100];
+  Track track_[100]{};
 };
 
 // ---------------------------------------------------------------------------
 //  LBA 時間を MSF 時間に変換
 //
 inline CDROM::MSF CDROM::ToMSF(uint32_t lba) {
-  lba += trstart;
+  lba += tr_start_;
   MSF msf;
   msf.min = NtoBCD(lba / 75 / 60);
   msf.sec = NtoBCD(lba / 75 % 60);
@@ -89,7 +89,7 @@ inline CDROM::MSF CDROM::ToMSF(uint32_t lba) {
 //  LBA 時間を MSF 時間に変換
 //
 inline uint32_t CDROM::ToLBA(MSF msf) {
-  return (BCDtoN(msf.min) * 60 + BCDtoN(msf.sec)) * 75 + BCDtoN(msf.frame) - trstart;
+  return (BCDtoN(msf.min) * 60 + BCDtoN(msf.sec)) * 75 + BCDtoN(msf.frame) - tr_start_;
 }
 
 // ---------------------------------------------------------------------------
@@ -97,9 +97,9 @@ inline uint32_t CDROM::ToLBA(MSF msf) {
 //  ReadTOC 後に有効
 //
 inline const CDROM::Track* CDROM::GetTrackInfo(int t) {
-  if (t < 0 || t > ntracks + 1)
-    return 0;
-  return &track[t ? t - 1 : ntracks];
+  if (t < 0 || t > ntracks_ + 1)
+    return nullptr;
+  return &track_[t ? t - 1 : ntracks_];
 }
 
 // ---------------------------------------------------------------------------
@@ -107,5 +107,5 @@ inline const CDROM::Track* CDROM::GetTrackInfo(int t) {
 //  ReadTOC 後に有効
 //
 inline int CDROM::GetNumTracks() {
-  return ntracks;
+  return ntracks_;
 }

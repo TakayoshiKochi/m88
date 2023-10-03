@@ -12,13 +12,13 @@
 //  構築
 //
 ASPI::ASPI() {
-  hmod = (HMODULE)LoadLibrary("wnaspi32.dll");
+  hmod_ = (HMODULE)LoadLibrary("wnaspi32.dll");
 
-  nhostadapters = 0;
+  n_hostadapters_ = 0;
   if (ConnectAPI()) {
-    uint32_t s = (*pgasi)();
+    uint32_t s = (*pgasi_)();
     if ((s & 0xff00) == 0x0100) {
-      nhostadapters = s & 0xff;
+      n_hostadapters_ = s & 0xff;
     }
   }
 }
@@ -27,15 +27,15 @@ ASPI::ASPI() {
 //  破棄
 //
 ASPI::~ASPI() {
-  if (hmod)
-    FreeLibrary(hmod);
+  if (hmod_)
+    FreeLibrary(hmod_);
 }
 
 // --------------------------------------------------------------------------
 //  SendASPI32Command
 //
 inline uint32_t ASPI::SendCommand(void* srb) {
-  return (*psac)(srb);
+  return (*psac_)(srb);
 }
 
 // --------------------------------------------------------------------------
@@ -54,23 +54,24 @@ inline uint32_t ASPI::SendCommandAndWait(void* srb) {
 //  wnaspi32.dll をインポート
 //
 bool ASPI::ConnectAPI() {
-  psac = 0, pgasi = 0;
+  psac_ = nullptr;
+  pgasi_ = nullptr;
   HMODULE hmod = GetModuleHandle("wnaspi32.dll");
   if (!hmod) {
     return false;
   }
 
-  pgasi = (uint32_t(__cdecl*)())(GetProcAddress(hmod, "GetASPI32SupportInfo"));
-  psac = (uint32_t(__cdecl*)(void*))(GetProcAddress(hmod, "SendASPI32Command"));
+  pgasi_ = (uint32_t(__cdecl*)())(GetProcAddress(hmod, "GetASPI32SupportInfo"));
+  psac_ = (uint32_t(__cdecl*)(void*))(GetProcAddress(hmod, "SendASPI32Command"));
 
-  return pgasi && psac;
+  return pgasi_ && psac_;
 }
 
 // --------------------------------------------------------------------------
 //  HA_INQUIRY test
 //
 bool ASPI::InquiryAdapter(uint32_t ha, uint32_t* maxid, uint32_t* maxxfer) {
-  if (ha < nhostadapters) {
+  if (ha < n_hostadapters_) {
     SRB_HAInquiry srb;
     memset(&srb, 0, sizeof(srb));
 

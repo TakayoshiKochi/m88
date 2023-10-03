@@ -39,11 +39,11 @@ static bool shift = false;
 //  構築
 //
 CDROM::CDROM() {
-  hdev = INVALID_HANDLE_VALUE;
-  ntracks = 0;
-  m_maxcd = 0;
-  memset(m_driveletters, 0x00, sizeof(m_driveletters));
-  memset(track, 0xff, sizeof(track));
+  hdev_ = INVALID_HANDLE_VALUE;
+  ntracks_ = 0;
+  max_cd_ = 0;
+  memset(drive_letters_, 0x00, sizeof(drive_letters_));
+  memset(track_, 0xff, sizeof(track_));
   Log("construct\n");
 }
 
@@ -51,9 +51,9 @@ CDROM::CDROM() {
 //  破棄
 //
 CDROM::~CDROM() {
-  if (hdev != INVALID_HANDLE_VALUE) {
-    CloseHandle(hdev);
-    hdev = INVALID_HANDLE_VALUE;
+  if (hdev_ != INVALID_HANDLE_VALUE) {
+    CloseHandle(hdev_);
+    hdev_ = INVALID_HANDLE_VALUE;
   }
 }
 
@@ -69,11 +69,11 @@ bool CDROM::Init() {
   // デバイスオープン
   // とりあえず一番最初に見つかったドライブを開く
   char devname[8] = {0};
-  sprintf_s(devname, sizeof(devname), "\\\\.\\%c:", m_driveletters[0]);
-  hdev = ::CreateFile(devname, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+  sprintf_s(devname, sizeof(devname), "\\\\.\\%c:", drive_letters_[0]);
+  hdev_ = ::CreateFile(devname, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                       0, NULL);
 
-  if (hdev == INVALID_HANDLE_VALUE) {
+  if (hdev_ == INVALID_HANDLE_VALUE) {
     return false;
   }
   return true;
@@ -90,15 +90,15 @@ bool CDROM::FindDrive() {
 
   for (int i = 0; buf[i] != 0; i += 4) {
     if (::GetDriveType(&buf[i]) == DRIVE_CDROM) {
-      m_driveletters[m_maxcd++] = buf[i];
-      Log("CDROM on %d:%d\n", i, m_maxcd);
-      if (m_maxcd >= MAX_DRIVE) {
+      drive_letters_[max_cd_++] = buf[i];
+      Log("CDROM on %d:%d\n", i, max_cd_);
+      if (max_cd_ >= MAX_DRIVE) {
         break;
       }
     }
   }
 
-  if (m_maxcd == 0) {
+  if (max_cd_ == 0) {
     // ドライブ無し
     return false;
   }
@@ -114,7 +114,7 @@ int CDROM::ReadTOC() {
   TOC<100> toc;
   int r;
 
-  memset(track, 0xff, sizeof(track));
+  memset(track_, 0xff, sizeof(track_));
   memset(&cdb, 0, sizeof(cdb));
 
   cdb.id = CD_READ_TOC;
@@ -125,7 +125,7 @@ int CDROM::ReadTOC() {
 
   Log("Read TOC ");
   for (int i = 0; i < 2; i++) {
-    r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, &toc, 12);
+    r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, &toc, 12);
     if (r >= 0)
       break;
   }
@@ -135,28 +135,28 @@ int CDROM::ReadTOC() {
   }
 
   r = toc.entry[0].addr;
-  trstart =
+  tr_start_ =
       BCDtoN((r >> 16) & 0xff) * 75 * 60 + BCDtoN((r >> 8) & 0xff) * 75 + BCDtoN((r >> 0) & 0xff);
 
-  Log("[%d]-[%d] (%d)\n", toc.header.start, toc.header.end, trstart);
+  Log("[%d]-[%d] (%d)\n", toc.header.start, toc.header.end, tr_start_);
   //  printf("[%d]-[%d]\n", toc.header.start, toc.header.end);
 
   // 各トラックの位置を取得
   int start = toc.header.start;
   int end = toc.header.end;
   int tsize = 4 + (end - start + 2) * 8;
-  ntracks = end;
+  ntracks_ = end;
 
   cdb.flags = 0;
   cdb.length = tsize;
-  r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, &toc, tsize);
+  r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, &toc, tsize);
   if (r < 0) {
     Log("failed\n");
     return 0;
   }
 
   // テーブルに登録
-  Track* tr = track + start - 1;
+  Track* tr = track_ + start - 1;
 #ifdef SHIFT
   shift = (toc.entry[1].addr == 13578);
 #endif
@@ -178,9 +178,9 @@ int CDROM::ReadTOC() {
 //  トラックの再生
 //
 bool CDROM::PlayTrack(int t, bool one) {
-  if (t < 1 || ntracks < t)
+  if (t < 1 || ntracks_ < t)
     return false;
-  Track* tr = &track[t - 1];
+  Track* tr = &track_[t - 1];
 
   // 有効なトラックか？
   if (tr->addr == ~0)
@@ -198,12 +198,12 @@ bool CDROM::PlayTrack(int t, bool one) {
   if (shift && tr->addr >= 13550)
     cdb.start = tr->addr + 228;
 #endif
-  cdb.length = (one ? tr[1] : track[ntracks]).addr - tr[0].addr;
+  cdb.length = (one ? tr[1] : track_[ntracks_]).addr - tr[0].addr;
   cdb.rsvd = 0;
   cdb.control = 0;
 
   //  printf("playcd %d (%d)\n", tr->addr, tr[1].addr - tr[0].addr);
-  int r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb));
+  int r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb));
   //  printf("r = %d\n", r);
   if (r < 0)
     return false;
@@ -229,7 +229,7 @@ bool CDROM::PlayAudio(uint32_t begin, uint32_t stop) {
   cdb.rsvd = 0;
   cdb.control = 0;
 
-  int r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb));
+  int r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb));
   if (r < 0)
     return false;
   return true;
@@ -248,7 +248,7 @@ bool CDROM::ReadSubCh(uint8_t* dest, bool msf) {
   cdb.format = 1;
   cdb.length = 16;
 
-  int r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, dest, 16);
+  int r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, dest, 16);
   if (r < 0)
     return false;
   return true;
@@ -264,7 +264,7 @@ bool CDROM::Pause(bool pause) {
   cdb.id = CD_PAUSE_RESUME;
   cdb.flag = pause ? 0 : 1;
 
-  int r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb));
+  int r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb));
   if (r < 0)
     return false;
   return true;
@@ -280,7 +280,7 @@ bool CDROM::Stop() {
   cdb.id = SCSI_StartStopUnit;
   cdb.flag2 = 0;
 
-  int r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb));
+  int r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb));
   if (r < 0)
     return false;
   return true;
@@ -303,7 +303,7 @@ bool CDROM::Read(uint32_t sector, uint8_t* dest, int length) {
   cdb.blocks = 1;
   cdb.control = 0;
 
-  int r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, dest, length);
+  int r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, dest, length);
   //  printf("r = %.4x", r);
   if (r < 0)
     return false;
@@ -328,7 +328,7 @@ bool CDROM::Read2(uint32_t sector, uint8_t* dest, int length) {
   cdb.flag2 = 0x78;
   cdb.subch = 0;
 
-  int r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, dest, length);
+  int r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, dest, length);
   if (r < 0)
     return false;
   return true;
@@ -352,7 +352,7 @@ bool CDROM::ReadCDDA(uint32_t sector, uint8_t* dest, int length) {
   cdb.flag2 = 0x10;
   cdb.subch = 0;
 
-  int r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, dest, length);
+  int r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb), SCSI_IOCTL_DATA_IN, dest, length);
   if (r < 0)
     return false;
   return true;
@@ -367,7 +367,7 @@ bool CDROM::CheckMedia() {
 
   cdb.id = SCSI_TestUnitReady;
 
-  int r = ExecuteSCSICommand(hdev, &cdb, sizeof(cdb));
+  int r = ExecuteSCSICommand(hdev_, &cdb, sizeof(cdb));
   if (r != 0)
     return false;
   return true;
