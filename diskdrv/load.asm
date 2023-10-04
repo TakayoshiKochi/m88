@@ -227,7 +227,7 @@ load_newvectors:
 
 
 loadsub_blk equ $
-        org block1end
+        .phase block1end
 loadsub_ptr
 load_errhook:
         exx
@@ -250,8 +250,9 @@ loadsetvector:
 
 loadsub_len equ $-loadsub_ptr
 load_oldvectors equ 0e000h
-        org loadsub_blk + loadsub_len
-        
+        ; org loadsub_blk + loadsub_len
+        .dephase
+
 ; ----------------------------------------------------------------------------
 ;   LOAD 共通処理
 ;

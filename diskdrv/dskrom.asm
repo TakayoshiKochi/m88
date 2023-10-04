@@ -99,7 +99,7 @@ init_err:
 
 InstallFailMsg  db  "CMD extention is alredy in use. Installation aborted.",13,10,0
 
-    incl "stub.asm"
+    include "stub.asm"
 
 ; ----------------------------------------------------------------------------
 ;   拡張コマンドエントリ
@@ -174,9 +174,9 @@ getfilename_e:
         call    ROMCALL
         dw  FCERR
 
- incl "load.asm"
- incl "save.asm"
- incl "misc.asm"
+ include "load.asm"
+ include "save.asm"
+ include "misc.asm"
 
 
 codeend     equ $
