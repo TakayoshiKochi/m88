@@ -23,18 +23,18 @@
 #define RegE (reg.r.b.e)
 #define RegH (reg.r.b.h)
 #define RegL (reg.r.b.l)
-#define RegXH (*ref_h[index_mode])
-#define RegXL (*ref_l[index_mode])
+#define RegXH (*ref_h_[index_mode_])
+#define RegXL (*ref_l_[index_mode_])
 #define RegF (reg.r.b.flags)
 
-#define RegXHL (*ref_hl[index_mode])
+#define RegXHL (*ref_hl_[index_mode_])
 #define RegHL (reg.r.w.hl)
 #define RegDE (reg.r.w.de)
 #define RegBC (reg.r.w.bc)
 #define RegAF (reg.r.w.af)
 #define RegSP (reg.r.w.sp)
 
-#define CLK(count) (clockcount += (count))
+#define CLK(count) (clock_count_ += (count))
 
 #if defined(LOGNAME) && defined(_DEBUG)
 static int testcount[24];
@@ -48,25 +48,25 @@ static int testcount[24];
 //
 Z80C::Z80C(const ID& id) : Device(id) {
   /* テーブル初期化 */
-  ref_h[USEHL] = &RegH;
-  ref_l[USEHL] = &RegL;
-  ref_h[USEIX] = &reg.r.b.xh;
-  ref_l[USEIX] = &reg.r.b.xl;
-  ref_h[USEIY] = &reg.r.b.yh;
-  ref_l[USEIY] = &reg.r.b.yl;
-  ref_hl[USEHL] = &RegHL;
-  ref_hl[USEIX] = &reg.r.w.ix;
-  ref_hl[USEIY] = &reg.r.w.iy;
-  ref_byte[0] = &RegB;
-  ref_byte[1] = &RegC;
-  ref_byte[2] = &RegD;
-  ref_byte[3] = &RegE;
-  ref_byte[4] = &RegH;
-  ref_byte[5] = &RegL;
-  ref_byte[6] = 0;
-  ref_byte[7] = &RegA;
+  ref_h_[USEHL] = &RegH;
+  ref_l_[USEHL] = &RegL;
+  ref_h_[USEIX] = &reg.r.b.xh;
+  ref_l_[USEIX] = &reg.r.b.xl;
+  ref_h_[USEIY] = &reg.r.b.yh;
+  ref_l_[USEIY] = &reg.r.b.yl;
+  ref_hl_[USEHL] = &RegHL;
+  ref_hl_[USEIX] = &reg.r.w.ix;
+  ref_hl_[USEIY] = &reg.r.w.iy;
+  ref_byte_[0] = &RegB;
+  ref_byte_[1] = &RegC;
+  ref_byte_[2] = &RegD;
+  ref_byte_[3] = &RegE;
+  ref_byte_[4] = &RegH;
+  ref_byte_[5] = &RegL;
+  ref_byte_[6] = nullptr;
+  ref_byte_[7] = &RegA;
 
-  dumplog = 0;
+  dump_log_ = nullptr;
 }
 
 Z80C::~Z80C() {
@@ -93,8 +93,8 @@ Z80C::~Z80C() {
   Log("JumpRelative(out) = %10d\n", testcount[18]);
   Log("\n");
 #endif
-  if (dumplog)
-    fclose(dumplog);
+  if (dump_log_)
+    fclose(dump_log_);
 }
 
 #define PAGESMASK ((1 << (16 - pagebits)) - 1)
@@ -103,7 +103,7 @@ Z80C::~Z80C() {
 //  PC 読み書き
 //
 void Z80C::SetPC(uint32_t newpc) {
-  MemoryPage& page = rdpages[(newpc >> pagebits) & PAGESMASK];
+  MemoryPage& page = rdpages_[(newpc >> pagebits) & PAGESMASK];
 
   if (!page.func) {
     DEBUGCOUNT(4);
@@ -142,7 +142,6 @@ inline void Z80C::PCDec(uint32_t dec) {
   }
   DEBUGCOUNT(19);
   SetPC(inst - instbase);
-  return;
 }
 
 inline void Z80C::Jump(uint32_t dest) {
@@ -153,7 +152,6 @@ inline void Z80C::Jump(uint32_t dest) {
   }
   DEBUGCOUNT(10);
   SetPC(dest);  // inst-instbase
-  return;
 }
 
 // ninst = inst + rel
@@ -166,7 +164,6 @@ inline void Z80C::JumpR() {
   }
   DEBUGCOUNT(18);
   SetPC(inst - instbase);
-  return;
 }
 
 // ---------------------------------------------------------------------------
@@ -213,23 +210,24 @@ uint32_t Z80C::Fetch16B() {
 //
 void Z80C::Wait(bool wait) {
   if (wait)
-    waitstate |= 2;
+    wait_state_ |= 2;
   else
-    waitstate &= ~2;
+    wait_state_ &= ~2;
 }
 
 // ---------------------------------------------------------------------------
 //  CPU 初期化
 //
-bool Z80C::Init(MemoryManager* mem, IOBus* _bus, int iack) {
-  bus_ = _bus, intack = iack;
+bool Z80C::Init(MemoryManager* mem, IOBus* bus, int iack) {
+  bus_ = bus;
+  int_ack_ = iack;
 
-  index_mode = USEHL;
-  clockcount = 0;
-  execcount = 0;
-  eshift = 0;
+  index_mode_ = USEHL;
+  clock_count_ = 0;
+  exec_count_ = 0;
+  eshift_ = 0;
 
-  diag.Init(mem);
+  diag_.Init(mem);
   Reset();
   return true;
 }
@@ -238,11 +236,11 @@ bool Z80C::Init(MemoryManager* mem, IOBus* _bus, int iack) {
 //  １命令実行
 //
 int Z80C::ExecOne() {
-  execcount += clockcount;
-  clockcount = 0;
+  exec_count_ += clock_count_;
+  clock_count_ = 0;
   SingleStep();
   GetAF();
-  return clockcount;
+  return clock_count_;
 }
 
 // ---------------------------------------------------------------------------
@@ -253,10 +251,10 @@ int Z80C::Exec(int clocks) {
   TestIntr();
   currentcpu = this;
   cbase = GetCount();
-  stopcount = execcount += clockcount + clocks;
-  delaycount = clocks;
+  stop_count_ = exec_count_ += clock_count_ + clocks;
+  delay_count_ = clocks;
 
-  for (clockcount = -clocks; clockcount < 0;) {
+  for (clock_count_ = -clocks; clock_count_ < 0;) {
     SingleStep();
     SingleStep();
     SingleStep();
@@ -273,7 +271,7 @@ int Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
   int c = first->GetCount();
 
   currentcpu = first;
-  first->startcount = first->delaycount = c;
+  first->start_count_ = first->delay_count_ = c;
   first->SingleStep();
   first->TestIntr();
 
@@ -281,8 +279,8 @@ int Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
   first->Exec0(c + clocks, c);
 
   c = first->GetCount();
-  second->execcount = c;
-  second->clockcount = 0;
+  second->exec_count_ = c;
+  second->clock_count_ = 0;
 
   return c - cbase;
 }
@@ -293,11 +291,11 @@ int Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
 // static
 int Z80C::ExecDual(Z80C* first, Z80C* second, int count) {
   currentcpu = second;
-  second->startcount = second->delaycount = first->GetCount();
+  second->start_count_ = second->delay_count_ = first->GetCount();
   second->SingleStep();
   second->TestIntr();
   currentcpu = first;
-  first->startcount = first->delaycount = second->GetCount();
+  first->start_count_ = first->delay_count_ = second->GetCount();
   first->SingleStep();
   first->TestIntr();
 
@@ -319,11 +317,11 @@ int Z80C::ExecDual(Z80C* first, Z80C* second, int count) {
 // static
 int Z80C::ExecDual2(Z80C* first, Z80C* second, int count) {
   currentcpu = second;
-  second->startcount = second->delaycount = first->GetCount();
+  second->start_count_ = second->delay_count_ = first->GetCount();
   second->SingleStep();
   second->TestIntr();
   currentcpu = first;
-  first->startcount = first->delaycount = second->GetCount();
+  first->start_count_ = first->delay_count_ = second->GetCount();
   first->SingleStep();
   first->TestIntr();
 
@@ -345,23 +343,23 @@ int Z80C::ExecDual2(Z80C* first, Z80C* second, int count) {
 int Z80C::Exec0(int stop, int other) {
   int clocks = stop - GetCount();
   if (clocks > 0) {
-    eshift = 0;
+    eshift_ = 0;
     currentcpu = this;
-    stopcount = stop;
-    delaycount = other;
-    execcount += clockcount + clocks;
+    stop_count_ = stop;
+    delay_count_ = other;
+    exec_count_ += clock_count_ + clocks;
 
-    if (dumplog) {
-      for (clockcount = -clocks; clockcount < 0;) {
+    if (dump_log_) {
+      for (clock_count_ = -clocks; clock_count_ < 0;) {
         DumpLog();
         SingleStep();
       }
     } else {
-      for (clockcount = -clocks; clockcount < 0;)
+      for (clock_count_ = -clocks; clock_count_ < 0;)
         SingleStep();
     }
     currentcpu = 0;
-    return stopcount;
+    return stop_count_;
   } else {
     return stop;
   }
@@ -373,23 +371,23 @@ int Z80C::Exec0(int stop, int other) {
 int Z80C::Exec1(int stop, int other) {
   int clocks = stop - GetCount();
   if (clocks > 0) {
-    eshift = 1;
+    eshift_ = 1;
     currentcpu = this;
-    stopcount = stop;
-    delaycount = other;
-    execcount += clockcount * 2 + clocks;
-    if (dumplog) {
-      for (clockcount = -clocks / 2; clockcount < 0;) {
+    stop_count_ = stop;
+    delay_count_ = other;
+    exec_count_ += clock_count_ * 2 + clocks;
+    if (dump_log_) {
+      for (clock_count_ = -clocks / 2; clock_count_ < 0;) {
         DumpLog();
         SingleStep();
       }
     } else {
-      for (clockcount = -clocks / 2; clockcount < 0;) {
+      for (clock_count_ = -clocks / 2; clock_count_ < 0;) {
         SingleStep();
       }
     }
     currentcpu = 0;
-    return stopcount;
+    return stop_count_;
   } else {
     return stop;
   }
@@ -400,11 +398,11 @@ int Z80C::Exec1(int stop, int other) {
 //
 bool Z80C::Sync() {
   // もう片方のCPUよりも遅れているか？
-  if (GetCount() - delaycount <= 1)
+  if (GetCount() - delay_count_ <= 1)
     return true;
   // 進んでいた場合 Exec0 を抜ける
-  execcount += clockcount << eshift;
-  clockcount = 0;
+  exec_count_ += clock_count_ << eshift_;
+  clock_count_ = 0;
   return false;
 }
 
@@ -412,8 +410,8 @@ bool Z80C::Sync() {
 //  Exec を途中で中断
 //
 void Z80C::Stop(int count) {
-  execcount = stopcount = GetCount() + count;
-  clockcount = -count >> eshift;
+  exec_count_ = stop_count_ = GetCount() + count;
+  clock_count_ = -count >> eshift_;
 }
 
 Z80C* Z80C::currentcpu;
@@ -431,7 +429,7 @@ inline void Z80C::SingleStep() {
 
 inline uint32_t Z80C::Read8(uint32_t addr) {
   addr &= 0xffff;
-  MemoryPage& page = rdpages[addr >> pagebits];
+  MemoryPage& page = rdpages_[addr >> pagebits];
   if (!page.func) {
     DEBUGCOUNT(12);
     return ((uint8_t*)page.ptr)[addr & pagemask];
@@ -443,7 +441,7 @@ inline uint32_t Z80C::Read8(uint32_t addr) {
 
 inline void Z80C::Write8(uint32_t addr, uint32_t data) {
   addr &= 0xffff;
-  MemoryPage& page = wrpages[addr >> pagebits];
+  MemoryPage& page = wrpages_[addr >> pagebits];
   if (!page.func) {
     DEBUGCOUNT(14);
     ((uint8_t*)page.ptr)[addr & pagemask] = data;
@@ -509,28 +507,28 @@ inline void Z80C::Outp(uint32_t port, uint32_t data) {
 // ---------------------------------------------------------------------------
 //  マクロ群 -----------------------------------------------------------------
 
-#define RegA (reg.r.b.a)
-#define RegB (reg.r.b.b)
-#define RegC (reg.r.b.c)
-#define RegD (reg.r.b.d)
-#define RegE (reg.r.b.e)
-#define RegH (reg.r.b.h)
-#define RegL (reg.r.b.l)
-#define RegXH (*ref_h[index_mode])
-#define RegXL (*ref_l[index_mode])
-#define RegF (reg.r.b.flags)
+//#define RegA (reg.r.b.a)
+//#define RegB (reg.r.b.b)
+//#define RegC (reg.r.b.c)
+//#define RegD (reg.r.b.d)
+//#define RegE (reg.r.b.e)
+//#define RegH (reg.r.b.h)
+//#define RegL (reg.r.b.l)
+//#define RegXH (*ref_h[index_mode])
+//#define RegXL (*ref_l[index_mode])
+//#define RegF (reg.r.b.flags)
 
-#define RegXHL (*ref_hl[index_mode])
-#define RegHL (reg.r.w.hl)
-#define RegDE (reg.r.w.de)
-#define RegBC (reg.r.w.bc)
-#define RegAF (reg.r.w.af)
-#define RegSP (reg.r.w.sp)
+//#define RegXHL (*ref_hl[index_mode])
+//#define RegHL (reg.r.w.hl)
+//#define RegDE (reg.r.w.de)
+//#define RegBC (reg.r.w.bc)
+//#define RegAF (reg.r.w.af)
+//#define RegSP (reg.r.w.sp)
 
 #define GetNF() (RegF & NF)
 #define SetXF(n) (xf = n)
 
-#define SetFlags(m, f) (void)((RegF = (RegF & ~(m)) | (f)), (uf &= ~(m)))
+#define SetFlags(m, f) (void)((RegF = (RegF & ~(m)) | (f)), (uf_ &= ~(m)))
 
 #define Ret() Jump(Pop())
 
@@ -552,7 +550,7 @@ void IOCALL Z80C::Reset(uint32_t, uint32_t) {
   reg.rreg = 0;
 
   RegF = 0;
-  uf = 0;
+  uf_ = 0;
   instlim = 0;
   instbase = 0;
 
@@ -560,9 +558,9 @@ void IOCALL Z80C::Reset(uint32_t, uint32_t) {
   reg.intmode = 0; /* IM0 */
   SetPC(0);        /* pc, sp = 0 */
   RegSP = 0;
-  waitstate = 0;
-  intr = false;  // 割り込みクリア
-  execcount = 0;
+  wait_state_ = 0;
+  intr_ = false;  // 割り込みクリア
+  exec_count_ = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -580,15 +578,15 @@ void IOCALL Z80C::NMI(uint32_t, uint32_t) {
 //  割り込む
 //
 void Z80C::TestIntr() {
-  if (reg.iff1 && intr) {
+  if (reg.iff1 && intr_) {
     reg.iff1 = false;
     reg.iff2 = false;
 
-    if (waitstate & 1) {
-      waitstate = 0;
+    if (wait_state_ & 1) {
+      wait_state_ = 0;
       PCInc(1);
     }
-    int intno = bus_->In(intack);
+    int intno = bus_->In(int_ack_);
 
     switch (reg.intmode) {
       case 0:
@@ -625,7 +623,7 @@ inline void Z80C::Call() {
 //  アクセス補助関数 ---------------------------------------------------------
 
 void Z80C::SetM(uint32_t n) {
-  if (index_mode == USEHL)
+  if (index_mode_ == USEHL)
     Write8(RegHL, n);
   else {
     Write8(RegXHL + int8_t(Fetch8()), n);
@@ -634,7 +632,7 @@ void Z80C::SetM(uint32_t n) {
 }
 
 uint8_t Z80C::GetM() {
-  if (index_mode == USEHL)
+  if (index_mode_ == USEHL)
     return Read8(RegHL);
   else {
     int r = Read8(RegXHL + int8_t(Fetch8()));
@@ -645,14 +643,14 @@ uint8_t Z80C::GetM() {
 
 uint32_t Z80C::GetAF() {
   RegF = (RegF & 0xd7) | (xf & 0x28);
-  if (uf & (CF | ZF | SF | HF | PF))
+  if (uf_ & (CF | ZF | SF | HF | PF))
     GetCF(), GetZF(), GetSF(), GetHF(), GetPF();
   return RegAF;
 }
 
 inline void Z80C::SetAF(uint32_t n) {
   RegAF = n;
-  uf = 0;
+  uf_ = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -673,10 +671,10 @@ inline uint32_t Z80C::Pop() {
 //  算術演算関数 -------------------------------------------------------------
 
 void Z80C::ADDA(uint8_t n) {
-  fx = uint32_t(RegA) * 2;
-  fy = uint32_t(n) * 2;
-  uf = SF | ZF | HF | PF | CF;
-  nfa = 0;
+  fx_ = uint32_t(RegA) * 2;
+  fy_ = uint32_t(n) * 2;
+  uf_ = SF | ZF | HF | PF | CF;
+  nfa_ = 0;
   RegF &= ~NF;
   RegA += n;
   SetXF(RegA);
@@ -689,29 +687,29 @@ void Z80C::ADCA(uint8_t n) {
   RegA = a + n + cy;
   SetXF(RegA);
 
-  fx = uint32_t(a) * 2 + 1;
-  fy = uint32_t(n) * 2 + cy;
-  uf = SF | ZF | HF | PF | CF;
-  nfa = 0;
+  fx_ = uint32_t(a) * 2 + 1;
+  fy_ = uint32_t(n) * 2 + cy;
+  uf_ = SF | ZF | HF | PF | CF;
+  nfa_ = 0;
   RegF &= ~NF;
 }
 
 void Z80C::SUBA(uint8_t n) {
-  fx = RegA * 2;
-  fy = n * 2;
-  uf = SF | ZF | HF | PF | CF;
-  nfa = 1;
+  fx_ = RegA * 2;
+  fy_ = n * 2;
+  uf_ = SF | ZF | HF | PF | CF;
+  nfa_ = 1;
   RegF |= NF;
   RegA -= n;
   SetXF(RegA);
 }
 
 void Z80C::CPA(uint8_t n) {
-  fx = RegA * 2;
-  fy = n * 2;
+  fx_ = RegA * 2;
+  fy_ = n * 2;
   SetXF(n);
-  uf = SF | ZF | HF | PF | CF;
-  nfa = 1;
+  uf_ = SF | ZF | HF | PF | CF;
+  nfa_ = 1;
   RegF |= NF;
 }
 
@@ -720,10 +718,10 @@ void Z80C::SBCA(uint8_t n) {
   uint8_t cy = GetCF();
   RegA = (a - n - cy);
 
-  fx = a * 2;
-  fy = n * 2 + cy;
-  uf = SF | ZF | HF | PF | CF;
-  nfa = 1;
+  fx_ = a * 2;
+  fy_ = n * 2 + cy;
+  uf_ = SF | ZF | HF | PF | CF;
+  nfa_ = 1;
   RegF |= NF;
   SetXF(RegA);
 }
@@ -770,11 +768,11 @@ uint8_t Z80C::Dec8(uint8_t y) {
 }
 
 uint32_t Z80C::ADD16(uint32_t x, uint32_t y) {
-  fx32 = (x & 0xffff) * 2;
-  fy32 = (y & 0xffff) * 2;
-  uf = CF | HF | WF;
+  fx32_ = (x & 0xffff) * 2;
+  fy32_ = (y & 0xffff) * 2;
+  uf_ = CF | HF | WF;
   SetFlags(NF, 0);
-  nfa = 0;
+  nfa_ = 0;
   return x + y;
 }
 
@@ -782,11 +780,11 @@ void Z80C::ADCHL(uint32_t y) {
   uint32_t cy = GetCF();
   uint32_t x = RegHL;
 
-  fx32 = (uint32_t)(x & 0xffff) * 2 + 1;
-  fy32 = (uint32_t)(y & 0xffff) * 2 + cy;
+  fx32_ = (uint32_t)(x & 0xffff) * 2 + 1;
+  fy32_ = (uint32_t)(y & 0xffff) * 2 + cy;
   RegHL = x + y + cy;
-  uf = SF | ZF | HF | PF | CF | WF;
-  nfa = 0;
+  uf_ = SF | ZF | HF | PF | CF | WF;
+  nfa_ = 0;
   RegF &= ~NF;
   SetXF(RegH);
 }
@@ -794,11 +792,11 @@ void Z80C::ADCHL(uint32_t y) {
 void Z80C::SBCHL(uint32_t y) {
   uint32_t cy = GetCF();
 
-  fx32 = (uint32_t)(RegHL & 0xffff) * 2;
-  fy32 = (uint32_t)(y & 0xffff) * 2 + cy;
+  fx32_ = (uint32_t)(RegHL & 0xffff) * 2;
+  fy32_ = (uint32_t)(y & 0xffff) * 2 + cy;
   RegHL = RegHL - y - cy;
-  uf = SF | ZF | HF | PF | CF | WF;
-  nfa = 1;
+  uf_ = SF | ZF | HF | PF | CF | WF;
+  nfa_ = 1;
   RegF |= NF;
   SetXF(RegH);
 }
@@ -1393,12 +1391,12 @@ void Z80C::SingleStep(uint32_t m) {
 
     case 0x76:  // HALT
       PCDec(1);
-      waitstate = 1;
-      if (intr) {
+      wait_state_ = 1;
+      if (intr_) {
         TestIntr();
         CLK(64);
       } else
-        clockcount = 0;
+        clock_count_ = 0;
       break;
 
       // 8 bit arithmatic
@@ -1739,7 +1737,7 @@ void Z80C::SingleStep(uint32_t m) {
 
     case 0x34: /*M*/
       w = RegXHL;
-      if (index_mode != USEHL) {
+      if (index_mode_ != USEHL) {
         w += int8_t(Fetch8());
         CLK(23 - 11);
       }
@@ -1779,7 +1777,7 @@ void Z80C::SingleStep(uint32_t m) {
 
     case 0x35: /*M*/
       w = RegXHL;
-      if (index_mode != USEHL) {
+      if (index_mode_ != USEHL) {
         w += (int8_t)(Fetch8());
         CLK(23 - 11);
       }
@@ -2122,7 +2120,7 @@ void Z80C::SingleStep(uint32_t m) {
       break;
     case 0x36: /*n*/
       w = RegXHL;
-      if (index_mode != USEHL) {
+      if (index_mode_ != USEHL) {
         w += int8_t(Fetch8());
         CLK(19 - 10);
       }
@@ -2200,9 +2198,9 @@ void Z80C::SingleStep(uint32_t m) {
       w = Fetch8();
       if ((w & 0xdf) != 0xdd)  // not DD nor FD
       {
-        index_mode = USEIX;
+        index_mode_ = USEIX;
         SingleStep(w);
-        index_mode = USEHL;
+        index_mode_ = USEHL;
         CLK(4);
         break;
       }
@@ -2213,9 +2211,9 @@ void Z80C::SingleStep(uint32_t m) {
     case 0xfd:
       w = Fetch8();
       if ((w & 0xdf) != 0xdd) {
-        index_mode = USEIY;
+        index_mode_ = USEIY;
         SingleStep(w);
-        index_mode = USEHL;
+        index_mode_ = USEHL;
         CLK(4);
         break;
       }
@@ -2225,7 +2223,7 @@ void Z80C::SingleStep(uint32_t m) {
 
       // CB
     case 0xcb:
-      if (index_mode == USEHL)
+      if (index_mode_ == USEHL)
         reg.rreg++;
       CodeCB();
       break;
@@ -2742,13 +2740,13 @@ void Z80C::CodeCB() {
   static const RotFuncPtr func[8] = {&Z80C::RLC, &Z80C::RRC, &Z80C::RL,  &Z80C::RR,
                                      &Z80C::SLA, &Z80C::SRA, &Z80C::SLL, &Z80C::SRL};
 
-  int8_t ref = (index_mode == USEHL) ? 0 : int8_t(Fetch8());
+  int8_t ref = (index_mode_ == USEHL) ? 0 : int8_t(Fetch8());
   uint8_t fn = Fetch8();
   uint32_t rg = fn & 7;
   uint32_t bit = (fn >> 3) & 7;
 
   if (rg != 6) {
-    uint8_t* p = ref_byte[rg]; /* 操作対象へのポインタ */
+    uint8_t* p = ref_byte_[rg]; /* 操作対象へのポインタ */
     switch ((fn >> 6) & 3) {
       case 0:
         *p = (this->*func[bit])(*p);
@@ -2765,7 +2763,7 @@ void Z80C::CodeCB() {
     }
     CLK(8);
   } else {
-    uint32_t b = *ref_hl[index_mode] + ref;
+    uint32_t b = *ref_hl_[index_mode_] + ref;
     uint8_t d = Read8(b);
     switch ((fn >> 6) & 3) {
       case 0:
@@ -2816,85 +2814,85 @@ void Z80C::CPD() {
 //  フラグ関数 ---------------------------------------------------------------
 
 uint8_t Z80C::GetCF() {
-  if (uf & CF) {
-    if (uf & WF) {
-      if (nfa)
-        SetFlags(CF, (fx32 < fy32) ? CF : 0);
+  if (uf_ & CF) {
+    if (uf_ & WF) {
+      if (nfa_)
+        SetFlags(CF, (fx32_ < fy32_) ? CF : 0);
       else
-        SetFlags(CF, ((fx32 + fy32) & 0x20000ul) ? CF : 0);
+        SetFlags(CF, ((fx32_ + fy32_) & 0x20000ul) ? CF : 0);
     } else {
-      if (nfa)
-        SetFlags(CF, (fx < fy) ? CF : 0);
+      if (nfa_)
+        SetFlags(CF, (fx_ < fy_) ? CF : 0);
       else
-        SetFlags(CF, ((fx + fy) & 0x200) ? CF : 0);
+        SetFlags(CF, ((fx_ + fy_) & 0x200) ? CF : 0);
     }
   }
   return RegF & CF;
 }
 
 uint8_t Z80C::GetZF() {
-  if (uf & ZF) {
-    if (uf & WF) {
-      if (nfa)
-        SetFlags(ZF, ((fx32 - fy32) & 0x1fffeul) ? 0 : ZF);
+  if (uf_ & ZF) {
+    if (uf_ & WF) {
+      if (nfa_)
+        SetFlags(ZF, ((fx32_ - fy32_) & 0x1fffeul) ? 0 : ZF);
       else
-        SetFlags(ZF, ((fx32 + fy32) & 0x1fffeul) ? 0 : ZF);
+        SetFlags(ZF, ((fx32_ + fy32_) & 0x1fffeul) ? 0 : ZF);
     } else {
-      if (nfa)
-        SetFlags(ZF, ((fx - fy) & 0x1fe) ? 0 : ZF);
+      if (nfa_)
+        SetFlags(ZF, ((fx_ - fy_) & 0x1fe) ? 0 : ZF);
       else
-        SetFlags(ZF, ((fx + fy) & 0x1fe) ? 0 : ZF);
+        SetFlags(ZF, ((fx_ + fy_) & 0x1fe) ? 0 : ZF);
     }
   }
   return RegF & ZF;
 }
 
 uint8_t Z80C::GetSF() {
-  if (uf & SF) {
-    if (uf & WF) {
-      if (nfa)
-        SetFlags(SF, ((fx32 - fy32) & 0x10000ul) ? SF : 0);
+  if (uf_ & SF) {
+    if (uf_ & WF) {
+      if (nfa_)
+        SetFlags(SF, ((fx32_ - fy32_) & 0x10000ul) ? SF : 0);
       else
-        SetFlags(SF, ((fx32 + fy32) & 0x10000ul) ? SF : 0);
+        SetFlags(SF, ((fx32_ + fy32_) & 0x10000ul) ? SF : 0);
     } else {
-      if (nfa)
-        SetFlags(SF, ((fx - fy) & 0x100) ? SF : 0);
+      if (nfa_)
+        SetFlags(SF, ((fx_ - fy_) & 0x100) ? SF : 0);
       else
-        SetFlags(SF, ((fx + fy) & 0x100) ? SF : 0);
+        SetFlags(SF, ((fx_ + fy_) & 0x100) ? SF : 0);
     }
   }
   return RegF & SF;
 }
 
 uint8_t Z80C::GetHF() {
-  if (uf & HF) {
-    if (uf & WF) {
-      if (nfa)
-        SetFlags(HF, ((fx32 & 0x1ffful) < (fy32 & 0x1ffful)) ? HF : 0);
+  if (uf_ & HF) {
+    if (uf_ & WF) {
+      if (nfa_)
+        SetFlags(HF, ((fx32_ & 0x1ffful) < (fy32_ & 0x1ffful)) ? HF : 0);
       else
-        SetFlags(HF, (((fx32 & 0x1ffful) + (fy32 & 0x1ffful)) & 0x2000ul) ? HF : 0);
+        SetFlags(HF, (((fx32_ & 0x1ffful) + (fy32_ & 0x1ffful)) & 0x2000ul) ? HF : 0);
     } else {
-      if (nfa)
-        SetFlags(HF, ((fx & 0x1f) < (fy & 0x1f)) ? HF : 0);
+      if (nfa_)
+        SetFlags(HF, ((fx_ & 0x1f) < (fy_ & 0x1f)) ? HF : 0);
       else
-        SetFlags(HF, (((fx & 0x1f) + (fy & 0x1f)) & 0x20) ? HF : 0);
+        SetFlags(HF, (((fx_ & 0x1f) + (fy_ & 0x1f)) & 0x20) ? HF : 0);
     }
   }
   return RegF & HF;
 }
 
 uint8_t Z80C::GetPF() {
-  if (uf & PF) {
-    if (uf & WF) {
-      if (nfa)
-        SetFlags(PF, ((fx32 ^ fy32) & (fx32 ^ (fx32 - fy32)) & 0x10000ul) ? PF : 0);
+  if (uf_ & PF) {
+    if (uf_ & WF) {
+      if (nfa_)
+        SetFlags(PF, ((fx32_ ^ fy32_) & (fx32_ ^ (fx32_ - fy32_)) & 0x10000ul) ? PF : 0);
       else
-        SetFlags(PF, (~(fx32 ^ fy32) & (fx32 ^ (fx32 + fy32)) & 0x10000ul) ? PF : 0);
+        SetFlags(PF, (~(fx32_ ^ fy32_) & (fx32_ ^ (fx32_ + fy32_)) & 0x10000ul) ? PF : 0);
     } else {
-      if (nfa)
-        SetFlags(PF, ((fx ^ fy) & (fx ^ (fx - fy)) & 0x100) ? PF : 0);
+      if (nfa_)
+        SetFlags(PF, ((fx_ ^ fy_) & (fx_ ^ (fx_ - fy_)) & 0x100) ? PF : 0);
       else
-        SetFlags(PF, (~(fx ^ fy) & (fx ^ (fx + fy)) & 0x100) ? PF : 0);
+        SetFlags(PF, (~(fx_ ^ fy_) & (fx_ ^ (fx_ + fy_)) & 0x100) ? PF : 0);
     }
   }
   return RegF & PF;
@@ -2911,7 +2909,7 @@ void Z80C::SetZSP(uint8_t a) {
 }
 
 void Z80C::OutTestIntr() {
-  if (reg.iff1 && intr) {
+  if (reg.iff1 && intr_) {
     uint32_t w = Fetch8();
     if (w == 0xed) {
       w = Fetch8();
@@ -2957,7 +2955,7 @@ void Z80C::DumpLog() {
   buf[4] = ':';
 
   // inst
-  diag.DisassembleS(pc, buf + 6);
+  diag_.DisassembleS(pc, buf + 6);
 
   // regs
   ptr = buf + 27;
@@ -2983,8 +2981,8 @@ void Z80C::DumpLog() {
   ptr++;
   *ptr++ = 10;
 
-  if (dumplog) {
-    fwrite(buf, 1, ptr - buf, dumplog);
+  if (dump_log_) {
+    fwrite(buf, 1, ptr - buf, dump_log_);
   }
 }
 
@@ -2993,16 +2991,16 @@ void Z80C::DumpLog() {
 //
 bool Z80C::EnableDump(bool dump) {
   if (dump) {
-    if (!dumplog) {
+    if (!dump_log_) {
       char buf[12];
       *(uint32_t*)buf = GetID();
       strcpy(buf + 4, ".dmp");
-      dumplog = fopen(buf, "w");
+      dump_log_ = fopen(buf, "w");
     }
   } else {
-    if (dumplog) {
-      fclose(dumplog);
-      dumplog = 0;
+    if (dump_log_) {
+      fclose(dump_log_);
+      dump_log_ = 0;
     }
   }
   return true;
@@ -3016,21 +3014,21 @@ uint32_t IFCALL Z80C::GetStatusSize() {
 }
 
 bool IFCALL Z80C::SaveStatus(uint8_t* s) {
-  Status* st = (Status*)s;
+  auto* st = (Status*)s;
   GetAF();
   st->rev = ssrev;
   st->reg = reg;
   st->reg.pc = GetPC();
-  st->intr = intr;
-  st->wait = waitstate;
+  st->intr = intr_;
+  st->wait = wait_state_;
   st->xf = xf;
-  st->execcount = execcount;
+  st->execcount = exec_count_;
 
   return true;
 }
 
 bool IFCALL Z80C::LoadStatus(const uint8_t* s) {
-  const Status* st = (const Status*)s;
+  const auto* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;
   reg = st->reg;
@@ -3038,20 +3036,20 @@ bool IFCALL Z80C::LoadStatus(const uint8_t* s) {
   instpage = (uint8_t*)~0;
   inst = (uint8_t*)reg.pc;
 
-  intr = st->intr;
-  waitstate = st->wait;
+  intr_ = st->intr;
+  wait_state_ = st->wait;
   xf = st->xf;
-  execcount = st->execcount;
+  exec_count_ = st->execcount;
   return true;
 }
 
 // ---------------------------------------------------------------------------
 //  Device descriptor
 //
-const Device::Descriptor Z80C::descriptor = {0, outdef};
+const Device::Descriptor Z80C::descriptor = {nullptr, outdef};
 
 const Device::OutFuncPtr Z80C::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&Reset),
-    static_cast<Device::OutFuncPtr>(&IRQ),
-    static_cast<Device::OutFuncPtr>(&NMI),
+    static_cast<Device::OutFuncPtr>(&Z80C::Reset),
+    static_cast<Device::OutFuncPtr>(&Z80C::IRQ),
+    static_cast<Device::OutFuncPtr>(&Z80C::NMI),
 };

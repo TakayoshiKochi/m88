@@ -95,16 +95,18 @@ class Z80C : public Device {
       currentcpu->Stop(count);
   }
   // クロックカウンタ取得
-  int GetCount() const { return execcount + (clockcount << eshift); }
+  [[nodiscard]] int GetCount() const { return exec_count_ + (clock_count_ << eshift_); }
   static int GetCCount() {
-    return currentcpu ? currentcpu->GetCount() - currentcpu->startcount : 0;
+    return currentcpu ? currentcpu->GetCount() - currentcpu->start_count_ : 0;
   }
 
+  // External CPU interface
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
-  void IOCALL IRQ(uint32_t, uint32_t d) { intr = d; }
+  void IOCALL IRQ(uint32_t, uint32_t d) { intr_ = d; }
   void IOCALL NMI(uint32_t = 0, uint32_t = 0);
   void Wait(bool flag);
 
+  // State save/load
   uint32_t IFCALL GetStatusSize() override;
   bool IFCALL SaveStatus(uint8_t* status) override;
   bool IFCALL LoadStatus(const uint8_t* status) override;
@@ -115,15 +117,15 @@ class Z80C : public Device {
   const Z80Reg& GetReg() { return reg; }
 
   bool GetPages(MemoryPage** rd, MemoryPage** wr) {
-    *rd = rdpages, *wr = wrpages;
+    *rd = rdpages_, *wr = wrpages_;
     return true;
   }
   int* GetWaits() { return nullptr; }
 
   void TestIntr();
-  bool IsIntr() { return !!intr; }
+  bool IsIntr() { return !!intr_; }
   bool EnableDump(bool dump);
-  int GetDumpState() { return !!dumplog; }
+  int GetDumpState() { return dump_log_ != nullptr; }
 
   Statistics* GetStatistics();
 
@@ -149,7 +151,7 @@ class Z80C : public Device {
   uint8_t* instbase = nullptr;  // inst - PC        (PC = inst - instbase)
   uint8_t* instpage = nullptr;
 
-  Z80Reg reg;
+  Z80Reg reg{};
   IOBus* bus_ = nullptr;
 
   static const Descriptor descriptor;
@@ -158,36 +160,44 @@ class Z80C : public Device {
   static Z80C* currentcpu;
   static int cbase;
 
-  int execcount;
-  int clockcount;
-  int stopcount;
-  int delaycount;
-  int intack;
-  int intr;
-  int waitstate;  // b0:HALT b1:WAIT
-  int eshift;
-  int startcount;
+  // Emulation state
+  int exec_count_ = 0;
+  int clock_count_ = 0;
+  int stop_count_ = 0;
+  int delay_count_ = 0;
 
+  // CPU external state
+  int int_ack_ = 0;
+  int intr_ = 0;
+  int wait_state_ = 0;  // b0:HALT b1:WAIT
+  int eshift_ = 0;
+  int start_count_ = 0;
+
+  // CPU emulation internal state
   enum index { USEHL, USEIX, USEIY };
-  index index_mode;    /* HL/IX/IY どれを参照するか */
-  uint8_t uf;          /* 未計算フラグ */
-  uint8_t nfa;         /* 最後の加減算の種類 */
-  uint8_t xf;          /* 未定義フラグ(第3,5ビット) */
-  uint32_t fx32, fy32; /* フラグ計算用のデータ */
-  uint32_t fx, fy;
+  index index_mode_ = USEHL;  // HL/IX/IY どれを参照するか
+  uint8_t uf_ = 0;            // 未計算フラグ
+  uint8_t nfa_ = 0;           // 最後の加減算の種類
+  uint8_t xf = 0;             // 未定義フラグ(第3,5ビット)
+  uint32_t fx32_ = 0;
+  uint32_t fy32_ = 0;  // フラグ計算用のデータ
+  uint32_t fx_ = 0;
+  uint32_t fy_ = 0;
 
-  uint8_t* ref_h[3];          /* H / XH / YH のテーブル */
-  uint8_t* ref_l[3];          /* L / YH / YL のテーブル */
-  Z80Reg::wordreg* ref_hl[3]; /* HL/ IX / IY のテーブル */
-  uint8_t* ref_byte[8];       /* BCDEHL A のテーブル */
-  FILE* dumplog;
-  Z80Diag diag;
+  uint8_t* ref_h_[3]{};           // H / XH / YH のテーブル
+  uint8_t* ref_l_[3]{};           // L / YH / YL のテーブル
+  Z80Reg::wordreg* ref_hl_[3]{};  // HL/ IX / IY のテーブル
+  uint8_t* ref_byte_[8]{};        // BCDEHL A のテーブル
 
-  MemoryPage rdpages[0x10000 >> MemoryManager::pagebits];
-  MemoryPage wrpages[0x10000 >> MemoryManager::pagebits];
+  MemoryPage rdpages_[0x10000 >> MemoryManager::pagebits]{};
+  MemoryPage wrpages_[0x10000 >> MemoryManager::pagebits]{};
+
+  // Debug
+  FILE* dump_log_;
+  Z80Diag diag_;
 
 #ifdef Z80C_STATISTICS
-  Statistics statistics;
+  Statistics statistics{};
 #endif
 
   // 内部インターフェース
