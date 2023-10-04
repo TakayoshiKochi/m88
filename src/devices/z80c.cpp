@@ -21,10 +21,10 @@ static int testcount[24];
 #endif
 
 // ---------------------------------------------------------------------------
-//  コンストラクタ・デストラクタ
+// コンストラクタ・デストラクタ
 //
 Z80C::Z80C(const ID& id) : Device(id) {
-  /* テーブル初期化 */
+  // テーブル初期化
   ref_h_[USEHL] = &reg.r.b.h;
   ref_l_[USEHL] = &reg.r.b.l;
   ref_h_[USEIX] = &reg.r.b.xh;
@@ -75,7 +75,7 @@ Z80C::~Z80C() {
 }
 
 // ---------------------------------------------------------------------------
-//  PC 読み書き
+// PC 読み書き
 //
 void Z80C::SetPC(uint32_t newpc) {
   MemoryPage& page = rdpages_[(newpc >> pagebits) & PAGESMASK];
@@ -142,7 +142,7 @@ inline void Z80C::JumpR() {
 }
 
 // ---------------------------------------------------------------------------
-//  インストラクション読み込み
+// インストラクション読み込み
 //
 inline uint32_t Z80C::Fetch8() {
   DEBUGCOUNT(0);
@@ -181,7 +181,7 @@ uint32_t Z80C::Fetch16B() {
 }
 
 // ---------------------------------------------------------------------------
-//  WAIT モード設定
+// WAIT モード設定
 //
 void Z80C::Wait(bool wait) {
   if (wait)
@@ -191,7 +191,7 @@ void Z80C::Wait(bool wait) {
 }
 
 // ---------------------------------------------------------------------------
-//  CPU 初期化
+// CPU 初期化
 //
 bool Z80C::Init(MemoryManager* mem, IOBus* bus, int iack) {
   bus_ = bus;
@@ -208,7 +208,7 @@ bool Z80C::Init(MemoryManager* mem, IOBus* bus, int iack) {
 }
 
 // ---------------------------------------------------------------------------
-//  １命令実行
+// １命令実行
 //
 int Z80C::ExecOne() {
   exec_count_ += clock_count_;
@@ -219,7 +219,7 @@ int Z80C::ExecOne() {
 }
 
 // ---------------------------------------------------------------------------
-//  命令遂行
+// 命令遂行
 //
 int Z80C::Exec(int clocks) {
   SingleStep();
@@ -239,7 +239,7 @@ int Z80C::Exec(int clocks) {
 }
 
 // ---------------------------------------------------------------------------
-//  命令遂行
+// 命令遂行
 //
 // static
 int Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
@@ -261,7 +261,7 @@ int Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
 }
 
 // ---------------------------------------------------------------------------
-//  2CPU 実行
+// 2CPU 実行
 //
 // static
 int Z80C::ExecDual(Z80C* first, Z80C* second, int count) {
@@ -287,7 +287,7 @@ int Z80C::ExecDual(Z80C* first, Z80C* second, int count) {
 }
 
 // ---------------------------------------------------------------------------
-//  2CPU 実行
+// 2CPU 実行
 //
 // static
 int Z80C::ExecDual2(Z80C* first, Z80C* second, int count) {
@@ -313,7 +313,7 @@ int Z80C::ExecDual2(Z80C* first, Z80C* second, int count) {
 }
 
 // ---------------------------------------------------------------------------
-//  片方実行
+// 片方実行
 //
 int Z80C::Exec0(int stop, int other) {
   int clocks = stop - GetCount();
@@ -341,7 +341,7 @@ int Z80C::Exec0(int stop, int other) {
 }
 
 // ---------------------------------------------------------------------------
-//  片方実行
+// 片方実行
 //
 int Z80C::Exec1(int stop, int other) {
   int clocks = stop - GetCount();
@@ -369,7 +369,7 @@ int Z80C::Exec1(int stop, int other) {
 }
 
 // ---------------------------------------------------------------------------
-//  同期チェック
+// 同期チェック
 //
 bool Z80C::Sync() {
   // もう片方のCPUよりも遅れているか？
@@ -382,7 +382,7 @@ bool Z80C::Sync() {
 }
 
 // ---------------------------------------------------------------------------
-//  Exec を途中で中断
+// Exec を途中で中断
 //
 void Z80C::Stop(int count) {
   exec_count_ = stop_count_ = GetCount() + count;
@@ -393,14 +393,14 @@ Z80C* Z80C::currentcpu;
 int Z80C::cbase;
 
 // ---------------------------------------------------------------------------
-//  1 命令実行
+// 1 命令実行
 //
 inline void Z80C::SingleStep() {
   SingleStep(Fetch8());
 }
 
 // ---------------------------------------------------------------------------
-//  I/O 処理の定義 -----------------------------------------------------------
+// I/O 処理の定義 -----------------------------------------------------------
 
 inline uint32_t Z80C::Read8(uint32_t addr) {
   addr &= 0xffff;
@@ -468,14 +468,14 @@ inline void Z80C::Outp(uint32_t port, uint32_t data) {
 }
 
 // ---------------------------------------------------------------------------
-//  リセット
+// リセット
 //
 void IOCALL Z80C::Reset(uint32_t, uint32_t) {
   memset(&reg, 0, sizeof(reg));
 
   reg.iff1 = false;
   reg.iff2 = false;
-  reg.ireg = 0; /* I, R = 0 */
+  reg.ireg = 0;  // I, R = 0
   reg.rreg = 0;
 
   SetRegF(0);
@@ -483,9 +483,9 @@ void IOCALL Z80C::Reset(uint32_t, uint32_t) {
   instlim = nullptr;
   instbase = nullptr;
 
-  //  SetFlags(0xff, 0);      /* フラグリセット */
-  reg.intmode = 0; /* IM0 */
-  SetPC(0);        /* pc, sp = 0 */
+  // SetFlags(0xff, 0);      // フラグリセット
+  reg.intmode = 0;  // IM0
+  SetPC(0);         // pc, sp = 0
   SetRegSP(0);
   wait_state_ = 0;
   intr_ = false;  // 割り込みクリア
@@ -493,7 +493,7 @@ void IOCALL Z80C::Reset(uint32_t, uint32_t) {
 }
 
 // ---------------------------------------------------------------------------
-//  強制割り込み
+// 強制割り込み
 //
 void IOCALL Z80C::NMI(uint32_t, uint32_t) {
   reg.iff2 = reg.iff1;
@@ -504,7 +504,7 @@ void IOCALL Z80C::NMI(uint32_t, uint32_t) {
 }
 
 // ---------------------------------------------------------------------------
-//  割り込む
+// 割り込む
 //
 void Z80C::TestIntr() {
   if (reg.iff1 && intr_) {
@@ -539,7 +539,7 @@ void Z80C::TestIntr() {
 }
 
 // ---------------------------------------------------------------------------
-//  分岐関数 -----------------------------------------------------------------
+// 分岐関数 -----------------------------------------------------------------
 
 inline void Z80C::Call() {
   uint32_t d = Fetch16();
@@ -549,7 +549,7 @@ inline void Z80C::Call() {
 }
 
 // ---------------------------------------------------------------------------
-//  アクセス補助関数 ---------------------------------------------------------
+// アクセス補助関数 ---------------------------------------------------------
 
 void Z80C::SetM(uint32_t n) {
   if (index_mode_ == USEHL)
@@ -583,7 +583,7 @@ inline void Z80C::SetAF(uint32_t n) {
 }
 
 // ---------------------------------------------------------------------------
-//  スタック関数 -------------------------------------------------------------
+// スタック関数 -------------------------------------------------------------
 
 inline void Z80C::Push(uint32_t n) {
   SetRegSP(RegSP() - 2);
@@ -597,7 +597,7 @@ inline uint32_t Z80C::Pop() {
 }
 
 // ---------------------------------------------------------------------------
-//  算術演算関数 -------------------------------------------------------------
+// 算術演算関数 -------------------------------------------------------------
 
 void Z80C::ADDA(uint8_t n) {
   fx_ = uint32_t(RegA()) * 2;
@@ -731,11 +731,11 @@ void Z80C::SBCHL(uint32_t y) {
 }
 
 // ---------------------------------------------------------------------------
-//  ローテート・シフト命令 ---------------------------------------------------
+// ローテート・シフト命令 ---------------------------------------------------
 
 uint8_t Z80C::RLC(uint8_t d) {
   uint8_t f = (d & 0x80) ? CF : 0;
-  d = (d << 1) + f; /* CF == 1 */
+  d = (d << 1) + f;  // CF == 1
 
   SetZSP(d);
   SetFlags(CF | NF | HF, f);
@@ -798,7 +798,7 @@ uint8_t Z80C::SRL(uint8_t d) {
 }
 
 // ---------------------------------------------------------------------------
-//  １命令実行
+// １命令実行
 //
 void Z80C::SingleStep(uint32_t m) {
   reg.rreg++;
@@ -812,7 +812,7 @@ void Z80C::SingleStep(uint32_t m) {
     case 0x07:  // RLCA
       b = (0 != (RegA() & 0x80));
       SetRegA(RegA() * 2 + b);
-      SetFlags(NF | HF | CF, b); /* Cn = 1 */
+      SetFlags(NF | HF | CF, b);  // Cn = 1
       CLK(4);
       SetXF(RegA());
       break;
@@ -888,10 +888,10 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(4);
       break;
 
-      //  I/O access
+      // I/O access
 
     case 0xdb:  // IN A,(n)
-      w = /*(uint32_t(RegA()) << 8) +*/ Fetch8();
+      w = /*(uint32_t(RegA()) << 8) + */ Fetch8();
       if (bus_->IsSyncPort(w) && !Sync()) {
         PCDec(2);
         break;
@@ -911,63 +911,63 @@ void Z80C::SingleStep(uint32_t m) {
       OutTestIntr();
       break;
 
-      //  branch op.
+      // branch op.
 
     case 0xc3:  // JP
       Jump(Fetch16());
       CLK(10);
       break;
 
-    case 0xc2: /*NZ*/
+    case 0xc2:  // NZ
       if (!GetZF())
         Jump(Fetch16());
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xca: /* Z*/
+    case 0xca:  // Z
       if (GetZF())
         Jump(Fetch16());
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xd2: /*NC*/
+    case 0xd2:  // NC
       if (!GetCF())
         Jump(Fetch16());
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xda: /* C*/
+    case 0xda:  // C
       if (GetCF())
         Jump(Fetch16());
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xe2: /*PO*/
+    case 0xe2:  // PO
       if (!GetPF())
         Jump(Fetch16());
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xea: /*PE*/
+    case 0xea:  // PE
       if (GetPF())
         Jump(Fetch16());
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xf2: /* P*/
+    case 0xf2:  // P
       if (!GetSF())
         Jump(Fetch16());
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xfa: /* M*/
+    case 0xfa:  // M
       if (GetSF())
         Jump(Fetch16());
       else
@@ -980,56 +980,56 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(10);
       break;
 
-    case 0xc4: /*NZ*/
+    case 0xc4:  // NZ
       if (!GetZF())
         Call();
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xcc: /* Z*/
+    case 0xcc:  // Z
       if (GetZF())
         Call();
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xd4: /*NC*/
+    case 0xd4:  // NC
       if (!GetCF())
         Call();
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xdc: /* C*/
+    case 0xdc:  // C
       if (GetCF())
         Call();
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xe4: /*PO*/
+    case 0xe4:  // PO
       if (!GetPF())
         Call();
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xec: /*PE*/
+    case 0xec:  // PE
       if (GetPF())
         Call();
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xf4: /* P*/
+    case 0xf4:  // P
       if (!GetSF())
         Call();
       else
         PCInc(2);
       CLK(10);
       break;
-    case 0xfc: /* M*/
+    case 0xfc:  // M
       if (GetSF())
         Call();
       else
@@ -1042,42 +1042,42 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(4);
       break;
 
-    case 0xc0: /*NZ*/
+    case 0xc0:  // NZ
       if (!GetZF())
         Ret();
       CLK(4);
       break;
-    case 0xc8: /* Z*/
+    case 0xc8:  // Z
       if (GetZF())
         Ret();
       CLK(4);
       break;
-    case 0xd0: /*NC*/
+    case 0xd0:  // NC
       if (!GetCF())
         Ret();
       CLK(4);
       break;
-    case 0xd8: /* C*/
+    case 0xd8:  // C
       if (GetCF())
         Ret();
       CLK(4);
       break;
-    case 0xe0: /*PO*/
+    case 0xe0:  // PO
       if (!GetPF())
         Ret();
       CLK(4);
       break;
-    case 0xe8: /*PE*/
+    case 0xe8:  // PE
       if (GetPF())
         Ret();
       CLK(4);
       break;
-    case 0xf0: /* P*/
+    case 0xf0:  // P
       if (!GetSF())
         Ret();
       CLK(4);
       break;
-    case 0xf8: /* M*/
+    case 0xf8:  // M
       if (GetSF())
         Ret();
       CLK(4);
@@ -1088,28 +1088,28 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(7);
       break;
 
-    case 0x20: /*NZ*/
+    case 0x20:  // NZ
       if (!GetZF())
         JumpR();
       else
         PCInc(1);
       CLK(7);
       break;
-    case 0x28: /* Z*/
+    case 0x28:  // Z
       if (GetZF())
         JumpR();
       else
         PCInc(1);
       CLK(7);
       break;
-    case 0x30: /*NC*/
+    case 0x30:  // NC
       if (!GetCF())
         JumpR();
       else
         PCInc(1);
       CLK(7);
       break;
-    case 0x38: /* C*/
+    case 0x38:  // C
       if (GetCF())
         JumpR();
       else
@@ -1131,42 +1131,42 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(5);
       break;
 
-    case 0xc7: /* RST 00H */
+    case 0xc7:  // RST 00H
       Push(GetPC());
       Jump(0x00);
       CLK(4);
       break;
-    case 0xcf: /* RST 08H */
+    case 0xcf:  // RST 08H
       Push(GetPC());
       Jump(0x08);
       CLK(4);
       break;
-    case 0xd7: /* RST 10H */
+    case 0xd7:  // RST 10H
       Push(GetPC());
       Jump(0x10);
       CLK(4);
       break;
-    case 0xdf: /* RST 18H */
+    case 0xdf:  // RST 18H
       Push(GetPC());
       Jump(0x18);
       CLK(4);
       break;
-    case 0xe7: /* RST 20H */
+    case 0xe7:  // RST 20H
       Push(GetPC());
       Jump(0x20);
       CLK(4);
       break;
-    case 0xef: /* RST 28H */
+    case 0xef:  // RST 28H
       Push(GetPC());
       Jump(0x28);
       CLK(4);
       break;
-    case 0xf7: /* RST 30H */
+    case 0xf7:  // RST 30H
       Push(GetPC());
       Jump(0x30);
       CLK(4);
       break;
-    case 0xff: /* RST 38H */
+    case 0xff:  // RST 38H
       Push(GetPC());
       Jump(0x38);
       CLK(4);
@@ -1175,56 +1175,56 @@ void Z80C::SingleStep(uint32_t m) {
       // 16 bit arithmatic operations
 
     // ADD XHL,dd
-    case 0x09: /*BC*/
+    case 0x09:  // BC
       SetRegXHL(ADD16(RegXHL(), RegBC()));
       CLK(11);
       break;
-    case 0x19: /*DE*/
+    case 0x19:  // DE
       SetRegXHL(ADD16(RegXHL(), RegDE()));
       CLK(11);
       break;
-    case 0x29: /*xHL*/
+    case 0x29:  // xHL
       w = RegXHL();
       SetRegXHL(ADD16(w, w));
       CLK(11);
       break;
-    case 0x39: /*SP*/
+    case 0x39:  // SP
       SetRegXHL(ADD16(RegXHL(), RegSP()));
       CLK(11);
       break;
 
     // INC dd
-    case 0x03: /*BC*/
+    case 0x03:  // BC
       SetRegBC(RegBC() + 1);
       CLK(6);
       break;
-    case 0x13: /*DE*/
+    case 0x13:  // DE
       SetRegDE(RegDE() + 1);
       CLK(6);
       break;
-    case 0x23: /*xHL*/
+    case 0x23:  // xHL
       SetRegXHL(RegXHL() + 1);
       CLK(6);
       break;
-    case 0x33: /*SP*/
+    case 0x33:  // SP
       SetRegSP(RegSP() + 1);
       CLK(6);
       break;
 
     // DEC dd
-    case 0x0B: /*BC*/
+    case 0x0B:  // BC
       SetRegBC(RegBC() - 1);
       CLK(6);
       break;
-    case 0x1B: /*DE*/
+    case 0x1B:  // DE
       SetRegDE(RegDE() - 1);
       CLK(6);
       break;
-    case 0x2B: /*xHL*/
+    case 0x2B:  // xHL
       SetRegXHL(RegXHL() - 1);
       CLK(6);
       break;
-    case 0x3B: /*SP*/
+    case 0x3B:  // SP
       SetRegSP(RegSP() - 1);
       CLK(6);
       break;
@@ -1300,340 +1300,340 @@ void Z80C::SingleStep(uint32_t m) {
       // 8 bit arithmatic
 
     // ADD A,-
-    case 0x80: /*B*/
+    case 0x80:  // B
       ADDA(RegB());
       CLK(4);
       break;
-    case 0x81: /*C*/
+    case 0x81:  // C
       ADDA(RegC());
       CLK(4);
       break;
-    case 0x82: /*D*/
+    case 0x82:  // D
       ADDA(RegD());
       CLK(4);
       break;
-    case 0x83: /*E*/
+    case 0x83:  // E
       ADDA(RegE());
       CLK(4);
       break;
-    case 0x84: /*H*/
+    case 0x84:  // H
       ADDA(RegXH());
       CLK(4);
       break;
-    case 0x85: /*L*/
+    case 0x85:  // L
       ADDA(RegXL());
       CLK(4);
       break;
-    case 0x86: /*M*/
+    case 0x86:  // M
       ADDA(GetM());
       CLK(7);
       break;
-    case 0x87: /*A*/
+    case 0x87:  // A
       ADDA(RegA());
       CLK(4);
       break;
-    case 0xc6: /*n*/
+    case 0xc6:  // n
       ADDA(Fetch8());
       CLK(7);
       break;
 
     // ADC A,-
-    case 0x88: /*B*/
+    case 0x88:  // B
       ADCA(RegB());
       CLK(4);
       break;
-    case 0x89: /*C*/
+    case 0x89:  // C
       ADCA(RegC());
       CLK(4);
       break;
-    case 0x8a: /*D*/
+    case 0x8a:  // D
       ADCA(RegD());
       CLK(4);
       break;
-    case 0x8b: /*E*/
+    case 0x8b:  // E
       ADCA(RegE());
       CLK(4);
       break;
-    case 0x8c: /*H*/
+    case 0x8c:  // H
       ADCA(RegXH());
       CLK(4);
       break;
-    case 0x8d: /*L*/
+    case 0x8d:  // L
       ADCA(RegXL());
       CLK(4);
       break;
-    case 0x8e: /*M*/
+    case 0x8e:  // M
       ADCA(GetM());
       CLK(7);
       break;
-    case 0x8f: /*A*/
+    case 0x8f:  // A
       ADCA(RegA());
       CLK(4);
       break;
-    case 0xce: /*n*/
+    case 0xce:  // n
       ADCA(Fetch8());
       CLK(7);
       break;
 
     // SUB -
-    case 0x90: /*B*/
+    case 0x90:  // B
       SUBA(RegB());
       CLK(4);
       break;
-    case 0x91: /*C*/
+    case 0x91:  // C
       SUBA(RegC());
       CLK(4);
       break;
-    case 0x92: /*D*/
+    case 0x92:  // D
       SUBA(RegD());
       CLK(4);
       break;
-    case 0x93: /*E*/
+    case 0x93:  // E
       SUBA(RegE());
       CLK(4);
       break;
-    case 0x94: /*H*/
+    case 0x94:  // H
       SUBA(RegXH());
       CLK(4);
       break;
-    case 0x95: /*L*/
+    case 0x95:  // L
       SUBA(RegXL());
       CLK(4);
       break;
-    case 0x96: /*M*/
+    case 0x96:  // M
       SUBA(GetM());
       CLK(7);
       break;
-    case 0x97: /*A*/
+    case 0x97:  // A
       SUBA(RegA());
       CLK(4);
       break;
-    case 0xd6: /*n*/
+    case 0xd6:  // n
       SUBA(Fetch8());
       CLK(7);
       break;
 
     // SBC A,-
-    case 0x98: /*B*/
+    case 0x98:  // B
       SBCA(RegB());
       CLK(4);
       break;
-    case 0x99: /*C*/
+    case 0x99:  // C
       SBCA(RegC());
       CLK(4);
       break;
-    case 0x9a: /*D*/
+    case 0x9a:  // D
       SBCA(RegD());
       CLK(4);
       break;
-    case 0x9b: /*E*/
+    case 0x9b:  // E
       SBCA(RegE());
       CLK(4);
       break;
-    case 0x9c: /*H*/
+    case 0x9c:  // H
       SBCA(RegXH());
       CLK(4);
       break;
-    case 0x9d: /*L*/
+    case 0x9d:  // L
       SBCA(RegXL());
       CLK(4);
       break;
-    case 0x9e: /*M*/
+    case 0x9e:  // M
       SBCA(GetM());
       CLK(7);
       break;
-    case 0x9f: /*A*/
+    case 0x9f:  // A
       SBCA(RegA());
       CLK(4);
       break;
-    case 0xde: /*n*/
+    case 0xde:  // n
       SBCA(Fetch8());
       CLK(7);
       break;
 
     // AND -
-    case 0xa0: /*B*/
+    case 0xa0:  // B
       ANDA(RegB());
       CLK(4);
       break;
-    case 0xa1: /*C*/
+    case 0xa1:  // C
       ANDA(RegC());
       CLK(4);
       break;
-    case 0xa2: /*D*/
+    case 0xa2:  // D
       ANDA(RegD());
       CLK(4);
       break;
-    case 0xa3: /*E*/
+    case 0xa3:  // E
       ANDA(RegE());
       CLK(4);
       break;
-    case 0xa4: /*H*/
+    case 0xa4:  // H
       ANDA(RegXH());
       CLK(4);
       break;
-    case 0xa5: /*L*/
+    case 0xa5:  // L
       ANDA(RegXL());
       CLK(4);
       break;
-    case 0xa6: /*M*/
+    case 0xa6:  // M
       ANDA(GetM());
       CLK(7);
       break;
-    case 0xa7: /*A*/
+    case 0xa7:  // A
       ANDA(RegA());
       CLK(4);
       break;
-    case 0xe6: /*n*/
+    case 0xe6:  // n
       ANDA(Fetch8());
       CLK(7);
       break;
 
     // XOR -
-    case 0xa8: /*B*/
+    case 0xa8:  // B
       XORA(RegB());
       CLK(4);
       break;
-    case 0xa9: /*C*/
+    case 0xa9:  // C
       XORA(RegC());
       CLK(4);
       break;
-    case 0xaa: /*D*/
+    case 0xaa:  // D
       XORA(RegD());
       CLK(4);
       break;
-    case 0xab: /*E*/
+    case 0xab:  // E
       XORA(RegE());
       CLK(4);
       break;
-    case 0xac: /*H*/
+    case 0xac:  // H
       XORA(RegXH());
       CLK(4);
       break;
-    case 0xad: /*L*/
+    case 0xad:  // L
       XORA(RegXL());
       CLK(4);
       break;
-    case 0xae: /*M*/
+    case 0xae:  // M
       XORA(GetM());
       CLK(7);
       break;
-    case 0xaf: /*A*/
+    case 0xaf:  // A
       XORA(RegA());
       CLK(4);
       break;
-    case 0xee: /*n*/
+    case 0xee:  // n
       XORA(Fetch8());
       CLK(7);
       break;
 
     // OR -
-    case 0xb0: /*B*/
+    case 0xb0:  // B
       ORA(RegB());
       CLK(4);
       break;
-    case 0xb1: /*C*/
+    case 0xb1:  // C
       ORA(RegC());
       CLK(4);
       break;
-    case 0xb2: /*D*/
+    case 0xb2:  // D
       ORA(RegD());
       CLK(4);
       break;
-    case 0xb3: /*E*/
+    case 0xb3:  // E
       ORA(RegE());
       CLK(4);
       break;
-    case 0xb4: /*H*/
+    case 0xb4:  // H
       ORA(RegXH());
       CLK(4);
       break;
-    case 0xb5: /*L*/
+    case 0xb5:  // L
       ORA(RegXL());
       CLK(4);
       break;
-    case 0xb6: /*M*/
+    case 0xb6:  // M
       ORA(GetM());
       CLK(7);
       break;
-    case 0xb7: /*A*/
+    case 0xb7:  // A
       ORA(RegA());
       CLK(4);
       break;
-    case 0xf6: /*n*/
+    case 0xf6:  // n
       ORA(Fetch8());
       CLK(7);
       break;
 
     // CP -
-    case 0xb8: /*B*/
+    case 0xb8:  // B
       CPA(RegB());
       CLK(4);
       break;
-    case 0xb9: /*C*/
+    case 0xb9:  // C
       CPA(RegC());
       CLK(4);
       break;
-    case 0xba: /*D*/
+    case 0xba:  // D
       CPA(RegD());
       CLK(4);
       break;
-    case 0xbb: /*E*/
+    case 0xbb:  // E
       CPA(RegE());
       CLK(4);
       break;
-    case 0xbc: /*H*/
+    case 0xbc:  // H
       CPA(RegXH());
       CLK(4);
       break;
-    case 0xbd: /*L*/
+    case 0xbd:  // L
       CPA(RegXL());
       CLK(4);
       break;
-    case 0xbe: /*M*/
+    case 0xbe:  // M
       CPA(GetM());
       CLK(7);
       break;
-    case 0xbf: /*A*/
+    case 0xbf:  // A
       CPA(RegA());
       CLK(4);
       break;
-    case 0xfe: /*n*/
+    case 0xfe:  // n
       CPA(Fetch8());
       CLK(7);
       break;
 
     // INC r
-    case 0x04: /*B*/
+    case 0x04:  // B
       SetRegB((Inc8(RegB())));
       CLK(4);
       break;
-    case 0x0c: /*C*/
+    case 0x0c:  // C
       SetRegC((Inc8(RegC())));
       CLK(4);
       break;
-    case 0x14: /*D*/
+    case 0x14:  // D
       SetRegD((Inc8(RegD())));
       CLK(4);
       break;
-    case 0x1c: /*E*/
+    case 0x1c:  // E
       SetRegE((Inc8(RegE())));
       CLK(4);
       break;
-    case 0x24: /*H*/
+    case 0x24:  // H
       SetRegXH(Inc8(RegXH()));
       CLK(4);
       break;
-    case 0x2c: /*L*/
+    case 0x2c:  // L
       SetRegXL(Inc8(RegXL()));
       CLK(4);
       break;
-    case 0x3c: /*A*/
+    case 0x3c:  // A
       SetRegA((Inc8(RegA())));
       CLK(4);
       break;
 
-    case 0x34: /*M*/
+    case 0x34:  // M
       w = RegXHL();
       if (index_mode_ != USEHL) {
         w += int8_t(Fetch8());
@@ -1644,36 +1644,36 @@ void Z80C::SingleStep(uint32_t m) {
       break;
 
     // DEC r
-    case 0x05: /*B*/
+    case 0x05:  // B
       SetRegB(Dec8(RegB()));
       CLK(4);
       break;
-    case 0x0d: /*C*/
+    case 0x0d:  // C
       SetRegC(Dec8(RegC()));
       CLK(4);
       break;
-    case 0x15: /*D*/
+    case 0x15:  // D
       SetRegD(Dec8(RegD()));
       CLK(4);
       break;
-    case 0x1d: /*E*/
+    case 0x1d:  // E
       SetRegE(Dec8(RegE()));
       CLK(4);
       break;
-    case 0x25: /*H*/
+    case 0x25:  // H
       SetRegXH(Dec8(RegXH()));
       CLK(4);
       break;
-    case 0x2d: /*L*/
+    case 0x2d:  // L
       SetRegXL(Dec8(RegXL()));
       CLK(4);
       break;
-    case 0x3d: /*A*/
+    case 0x3d:  // A
       SetRegA(Dec8(RegA()));
       CLK(4);
       break;
 
-    case 0x35: /*M*/
+    case 0x35:  // M
       w = RegXHL();
       if (index_mode_ != USEHL) {
         w += (int8_t)(Fetch8());
@@ -1686,44 +1686,44 @@ void Z80C::SingleStep(uint32_t m) {
       // stack op.
 
     // PUSH
-    case 0xc5: /*BC*/
+    case 0xc5:  // BC
       Push(RegBC());
       CLK(11);
       break;
-    case 0xd5: /*DE*/
+    case 0xd5:  // DE
       Push(RegDE());
       CLK(11);
       break;
-    case 0xe5: /*xHL*/
+    case 0xe5:  // xHL
       Push(RegXHL());
       CLK(11);
       break;
 #ifndef NO_UNOFFICIALFLAGS
-    case 0xf5: /*AF*/
+    case 0xf5:  // AF
       Push(GetAF());
       CLK(11);
       break;
 #else
-    case 0xf5: /*AF*/
+    case 0xf5:  // AF
       Push(GetAF() & 0xffd7);
       CLK(11);
       break;
 #endif
 
     // POP
-    case 0xc1: /*BC*/
+    case 0xc1:  // BC
       SetRegBC(Pop());
       CLK(10);
       break;
-    case 0xd1: /*DE*/
+    case 0xd1:  // DE
       SetRegDE(Pop());
       CLK(10);
       break;
-    case 0xe1: /*xHL*/
+    case 0xe1:  // xHL
       SetRegXHL(Pop());
       CLK(10);
       break;
-    case 0xf1: /*AF*/
+    case 0xf1:  // AF
       SetAF(Pop());
       CLK(10);
       break;
@@ -1731,19 +1731,19 @@ void Z80C::SingleStep(uint32_t m) {
       // 16 bit load
 
     // LD dd,nn
-    case 0x01: /*BC*/
+    case 0x01:  // BC
       SetRegBC(Fetch16());
       CLK(10);
       break;
-    case 0x11: /*DE*/
+    case 0x11:  // DE
       SetRegDE(Fetch16());
       CLK(10);
       break;
-    case 0x21: /*xHL*/
+    case 0x21:  // xHL
       SetRegXHL(Fetch16());
       CLK(10);
       break;
-    case 0x31: /*SP*/
+    case 0x31:  // SP
       SetRegSP(Fetch16());
       CLK(10);
       break;
@@ -1766,257 +1766,257 @@ void Z80C::SingleStep(uint32_t m) {
       // 8 bit LDs
 
     // LD B,-
-    case 0x40: /*B*/
+    case 0x40:  // B
       CLK(4);
       break;
-    case 0x41: /*C*/
+    case 0x41:  // C
       SetRegB(RegC());
       CLK(4);
       break;
-    case 0x42: /*D*/
+    case 0x42:  // D
       SetRegB(RegD());
       CLK(4);
       break;
-    case 0x43: /*E*/
+    case 0x43:  // E
       SetRegB(RegE());
       CLK(4);
       break;
-    case 0x44: /*H*/
+    case 0x44:  // H
       SetRegB(RegXH());
       CLK(4);
       break;
-    case 0x45: /*L*/
+    case 0x45:  // L
       SetRegB(RegXL());
       CLK(4);
       break;
-    case 0x46: /*M*/
+    case 0x46:  // M
       SetRegB(GetM());
       CLK(7);
       break;
-    case 0x47: /*A*/
+    case 0x47:  // A
       SetRegB(RegA());
       CLK(4);
       break;
-    case 0x06: /*n*/
+    case 0x06:  // n
       SetRegB(Fetch8());
       CLK(7);
       break;
 
     // LD C,-
-    case 0x48: /*B*/
+    case 0x48:  // B
       SetRegC(RegB());
       CLK(4);
       break;
-    case 0x49: /*C*/
+    case 0x49:  // C
       CLK(4);
       break;
-    case 0x4a: /*D*/
+    case 0x4a:  // D
       SetRegC(RegD());
       CLK(4);
       break;
-    case 0x4b: /*E*/
+    case 0x4b:  // E
       SetRegC(RegE());
       CLK(4);
       break;
-    case 0x4c: /*H*/
+    case 0x4c:  // H
       SetRegC(RegXH());
       CLK(4);
       break;
-    case 0x4d: /*L*/
+    case 0x4d:  // L
       SetRegC(RegXL());
       CLK(4);
       break;
-    case 0x4e: /*M*/
+    case 0x4e:  // M
       SetRegC(GetM());
       CLK(7);
       break;
-    case 0x4f: /*A*/
+    case 0x4f:  // A
       SetRegC(RegA());
       CLK(4);
       break;
-    case 0x0e: /*n*/
+    case 0x0e:  // n
       SetRegC(Fetch8());
       CLK(7);
       break;
 
     // LD D,-
-    case 0x50: /*B*/
+    case 0x50:  // B
       SetRegD(RegB());
       CLK(4);
       break;
-    case 0x51: /*C*/
+    case 0x51:  // C
       SetRegD(RegC());
       CLK(4);
       break;
-    case 0x52: /*D*/
+    case 0x52:  // D
       CLK(4);
       break;
-    case 0x53: /*E*/
+    case 0x53:  // E
       SetRegD(RegE());
       CLK(4);
       break;
-    case 0x54: /*H*/
+    case 0x54:  // H
       SetRegD(RegXH());
       CLK(4);
       break;
-    case 0x55: /*L*/
+    case 0x55:  // L
       SetRegD(RegXL());
       CLK(4);
       break;
-    case 0x56: /*M*/
+    case 0x56:  // M
       SetRegD(GetM());
       CLK(7);
       break;
-    case 0x57: /*A*/
+    case 0x57:  // A
       SetRegD(RegA());
       CLK(4);
       break;
-    case 0x16: /*n*/
+    case 0x16:  // n
       SetRegD(Fetch8());
       CLK(7);
       break;
 
     // LD E,-
-    case 0x58: /*B*/
+    case 0x58:  // B
       SetRegE(RegB());
       CLK(4);
       break;
-    case 0x59: /*C*/
+    case 0x59:  // C
       SetRegE(RegC());
       CLK(4);
       break;
-    case 0x5a: /*D*/
+    case 0x5a:  // D
       SetRegE(RegD());
       CLK(4);
       break;
-    case 0x5b: /*E*/
+    case 0x5b:  // E
       CLK(4);
       break;
-    case 0x5c: /*H*/
+    case 0x5c:  // H
       SetRegE(RegXH());
       CLK(4);
       break;
-    case 0x5d: /*L*/
+    case 0x5d:  // L
       SetRegE(RegXL());
       CLK(4);
       break;
-    case 0x5e: /*M*/
+    case 0x5e:  // M
       SetRegE(GetM());
       CLK(7);
       break;
-    case 0x5f: /*A*/
+    case 0x5f:  // A
       SetRegE(RegA());
       CLK(4);
       break;
-    case 0x1e: /*n*/
+    case 0x1e:  // n
       SetRegE(Fetch8());
       CLK(7);
       break;
 
     // LD H,-
-    case 0x60: /*B*/
+    case 0x60:  // B
       SetRegXH(RegB());
       CLK(4);
       break;
-    case 0x61: /*C*/
+    case 0x61:  // C
       SetRegXH(RegC());
       CLK(4);
       break;
-    case 0x62: /*D*/
+    case 0x62:  // D
       SetRegXH(RegD());
       CLK(4);
       break;
-    case 0x63: /*E*/
+    case 0x63:  // E
       SetRegXH(RegE());
       CLK(4);
       break;
-    case 0x64: /*H*/
+    case 0x64:  // H
       CLK(4);
       break;
-    case 0x65: /*L*/
+    case 0x65:  // L
       SetRegXH(RegXL());
       CLK(4);
       break;
-    case 0x66: /*M*/
+    case 0x66:  // M
       SetRegH(GetM());
       CLK(7);
       break;
-    case 0x67: /*A*/
+    case 0x67:  // A
       SetRegXH(RegA());
       CLK(4);
       break;
-    case 0x26: /*n*/
+    case 0x26:  // n
       SetRegXH(Fetch8());
       CLK(7);
       break;
 
     // LD L,-
-    case 0x68: /*B*/
+    case 0x68:  // B
       SetRegXL(RegB());
       CLK(4);
       break;
-    case 0x69: /*C*/
+    case 0x69:  // C
       SetRegXL(RegC());
       CLK(4);
       break;
-    case 0x6a: /*D*/
+    case 0x6a:  // D
       SetRegXL(RegD());
       CLK(4);
       break;
-    case 0x6b: /*E*/
+    case 0x6b:  // E
       SetRegXL(RegE());
       CLK(4);
       break;
-    case 0x6c: /*H*/
+    case 0x6c:  // H
       SetRegXL(RegXH());
       CLK(4);
       break;
-    case 0x6d: /*L*/
+    case 0x6d:  // L
       CLK(4);
       break;
-    case 0x6e: /*M*/
+    case 0x6e:  // M
       SetRegL(GetM());
       CLK(7);
       break;
-    case 0x6f: /*A*/
+    case 0x6f:  // A
       SetRegXL(RegA());
       CLK(4);
       break;
-    case 0x2e: /*n*/
+    case 0x2e:  // n
       SetRegXL(Fetch8());
       CLK(7);
       break;
 
     // LD M,-
-    case 0x70: /*B*/
+    case 0x70:  // B
       SetM(RegB());
       CLK(7);
       break;
-    case 0x71: /*C*/
+    case 0x71:  // C
       SetM(RegC());
       CLK(7);
       break;
-    case 0x72: /*D*/
+    case 0x72:  // D
       SetM(RegD());
       CLK(7);
       break;
-    case 0x73: /*E*/
+    case 0x73:  // E
       SetM(RegE());
       CLK(7);
       break;
-    case 0x74: /*H*/
+    case 0x74:  // H
       SetM(RegH());
       CLK(7);
       break;
-    case 0x75: /*L*/
+    case 0x75:  // L
       SetM(RegL());
       CLK(7);
       break;
-    case 0x77: /*A*/
+    case 0x77:  // A
       SetM(RegA());
       CLK(7);
       break;
-    case 0x36: /*n*/
+    case 0x36:  // n
       w = RegXHL();
       if (index_mode_ != USEHL) {
         w += int8_t(Fetch8());
@@ -2027,66 +2027,66 @@ void Z80C::SingleStep(uint32_t m) {
       break;
 
     // LD A,-
-    case 0x78: /*B*/
+    case 0x78:  // B
       SetRegA(RegB());
       CLK(4);
       break;
-    case 0x79: /*C*/
+    case 0x79:  // C
       SetRegA(RegC());
       CLK(4);
       break;
-    case 0x7a: /*D*/
+    case 0x7a:  // D
       SetRegA(RegD());
       CLK(4);
       break;
-    case 0x7b: /*E*/
+    case 0x7b:  // E
       SetRegA(RegE());
       CLK(4);
       break;
-    case 0x7c: /*H*/
+    case 0x7c:  // H
       SetRegA(RegXH());
       CLK(4);
       break;
-    case 0x7d: /*L*/
+    case 0x7d:  // L
       SetRegA(RegXL());
       CLK(4);
       break;
-    case 0x7e: /*M*/
+    case 0x7e:  // M
       SetRegA(GetM());
       CLK(7);
       break;
-    case 0x7f: /*A*/
+    case 0x7f:  // A
       CLK(4);
       break;
-    case 0x3e: /*n*/
+    case 0x3e:  // n
       SetRegA(Fetch8());
       CLK(7);
       break;
 
     // LD (--), A
-    case 0x02: /*BC*/
+    case 0x02:  // BC
       Write8(RegBC(), RegA());
       CLK(7);
       break;
-    case 0x12: /*DE*/
+    case 0x12:  // DE
       Write8(RegDE(), RegA());
       CLK(7);
       break;
-    case 0x32: /*nn*/
+    case 0x32:  // nn
       Write8(Fetch16(), RegA());
       CLK(13);
       break;
 
     // LD A, (--)
-    case 0x0a: /*BC*/
+    case 0x0a:  // BC
       SetRegA(Read8(RegBC()));
       CLK(7);
       break;
-    case 0x1a: /*DE*/
+    case 0x1a:  // DE
       SetRegA(Read8(RegDE()));
       CLK(7);
       break;
-    case 0x3a: /*nn*/
+    case 0x3a:  // nn
       SetRegA(Read8(Fetch16()));
       CLK(13);
       break;
@@ -2526,12 +2526,12 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x56:
-        case 0x76: /* IM 1 */
+        case 0x76:  // IM 1
           reg.intmode = 1;
           CLK(8);
           break;
         case 0x5e:
-        case 0x7e: /* IM 2 */
+        case 0x7e:  // IM 2
           reg.intmode = 2;
           CLK(8);
           break;
@@ -2608,37 +2608,37 @@ void Z80C::SingleStep(uint32_t m) {
           // ED系 16 ビットロード
 
         // LD (nn),dd
-        case 0x43: /*BC*/
+        case 0x43:  // BC
           Write16(Fetch16(), RegBC());
           CLK(20);
           break;
-        case 0x53: /*DE*/
+        case 0x53:  // DE
           Write16(Fetch16(), RegDE());
           CLK(20);
           break;
-        case 0x63: /*HL*/
+        case 0x63:  // HL
           Write16(Fetch16(), RegHL());
           CLK(20);
           break;
-        case 0x73: /*SP*/
+        case 0x73:  // SP
           Write16(Fetch16(), RegSP());
           CLK(20);
           break;
 
         // LD dd,(nn)
-        case 0x4b: /*BC*/
+        case 0x4b:  // BC
           SetRegBC(Read16(Fetch16()));
           CLK(20);
           break;
-        case 0x5b: /*DE*/
+        case 0x5b:  // DE
           SetRegDE(Read16(Fetch16()));
           CLK(20);
           break;
-        case 0x6b: /*HL*/
+        case 0x6b:  // HL
           SetRegHL(Read16(Fetch16()));
           CLK(20);
           break;
-        case 0x7b: /*SP*/
+        case 0x7b:  // SP
           SetRegSP(Read16(Fetch16()));
           CLK(20);
           break;
@@ -2646,37 +2646,37 @@ void Z80C::SingleStep(uint32_t m) {
           // ED系 16 ビット演算
 
         // ADC HL,dd
-        case 0x4a: /*BC*/
+        case 0x4a:  // BC
           ADCHL(RegBC());
           CLK(15);
           break;
-        case 0x5a: /*DE*/
+        case 0x5a:  // DE
           ADCHL(RegDE());
           CLK(15);
           break;
-        case 0x6a: /*HL*/
+        case 0x6a:  // HL
           ADCHL(RegHL());
           CLK(15);
           break;
-        case 0x7a: /*SP*/
+        case 0x7a:  // SP
           ADCHL(RegSP());
           CLK(15);
           break;
 
         // SBC HL,dd
-        case 0x42: /*BC*/
+        case 0x42:  // BC
           SBCHL(RegBC());
           CLK(15);
           break;
-        case 0x52: /*DE*/
+        case 0x52:  // DE
           SBCHL(RegDE());
           CLK(15);
           break;
-        case 0x62: /*HL*/
+        case 0x62:  // HL
           SBCHL(RegHL());
           CLK(15);
           break;
-        case 0x72: /*SP*/
+        case 0x72:  // SP
           SBCHL(RegSP());
           CLK(15);
           break;
@@ -2686,7 +2686,7 @@ void Z80C::SingleStep(uint32_t m) {
 }
 
 // ---------------------------------------------------------------------------
-//  CB 系
+// CB 系
 //
 void Z80C::CodeCB() {
   typedef uint8_t (Z80C::*RotFuncPtr)(uint8_t);
@@ -2700,7 +2700,7 @@ void Z80C::CodeCB() {
   uint32_t bit = (fn >> 3) & 7;
 
   if (rg != 6) {
-    uint8_t* p = ref_byte_[rg]; /* 操作対象へのポインタ */
+    uint8_t* p = ref_byte_[rg];  // 操作対象へのポインタ
     switch ((fn >> 6) & 3) {
       case 0:
         *p = (this->*func[bit])(*p);
@@ -2741,7 +2741,7 @@ void Z80C::CodeCB() {
 }
 
 // ---------------------------------------------------------------------------
-//  ブロック比較 -------------------------------------------------------------
+// ブロック比較 -------------------------------------------------------------
 //
 void Z80C::CPI() {
   uint8_t n, f;
@@ -2767,7 +2767,7 @@ void Z80C::CPD() {
 }
 
 // ---------------------------------------------------------------------------
-//  フラグ関数 ---------------------------------------------------------------
+// フラグ関数 ---------------------------------------------------------------
 
 uint8_t Z80C::GetCF() {
   if (uf_ & CF) {
@@ -2894,11 +2894,11 @@ static inline void ToHex(char** p, uint32_t d) {
 }
 
 // ---------------------------------------------------------------------------
-//  Dump Log
-//  format
-//  0         1         2         3         4         5         6
-//  0123456789012345678901234567890123456789012345678901234567890
-//  0000: 01234567890123456789 @:%%%% h:%%%% d:@@@@ b:@@@@ s:@@@@
+// Dump Log
+// format
+// 0         1         2         3         4         5         6
+// 0123456789012345678901234567890123456789012345678901234567890
+// 0000: 01234567890123456789 @:%%%% h:%%%% d:@@@@ b:@@@@ s:@@@@
 //
 void Z80C::DumpLog() {
   char buf[64];
@@ -2963,7 +2963,7 @@ bool Z80C::EnableDump(bool dump) {
 }
 
 // ---------------------------------------------------------------------------
-//  状態保存
+// 状態保存
 //
 uint32_t IFCALL Z80C::GetStatusSize() {
   return sizeof(Status);
@@ -3000,7 +3000,7 @@ bool IFCALL Z80C::LoadStatus(const uint8_t* s) {
 }
 
 // ---------------------------------------------------------------------------
-//  Device descriptor
+// Device descriptor
 //
 const Device::Descriptor Z80C::descriptor = {nullptr, outdef};
 
