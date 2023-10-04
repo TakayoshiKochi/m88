@@ -67,7 +67,7 @@ class CDROM {
   int drive_letters_[26]{};
   int max_cd_ = 0;
   HANDLE hdev_ = nullptr;
-  int ntracks_ = 0;  // トラック数
+  int ntracks_ = 0;   // トラック数
   int tr_start_ = 0;  // トラックの開始位置
 
   Track track_[100]{};

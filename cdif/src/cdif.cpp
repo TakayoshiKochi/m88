@@ -238,7 +238,8 @@ void CDIF::ReadSector() {
       if (!rslt_) {
         if (length_-- > 0) {
           Log("(%2d) Read#%d\n", rslt_, retry_count_ - length_ + 1);
-          SendCommand(read_mode_ ? CDControl::kRead2 : CDControl::kRead1, sector_, (uint32_t)tmpbuf_);
+          SendCommand(read_mode_ ? CDControl::kRead2 : CDControl::kRead1, sector_,
+                      (uint32_t)tmpbuf_);
           break;
         }
         ResultPhase(0, 0);

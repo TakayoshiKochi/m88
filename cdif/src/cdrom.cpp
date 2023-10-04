@@ -71,7 +71,7 @@ bool CDROM::Init() {
   char devname[8] = {0};
   sprintf_s(devname, sizeof(devname), "\\\\.\\%c:", drive_letters_[0]);
   hdev_ = ::CreateFile(devname, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-                      0, NULL);
+                       0, NULL);
 
   if (hdev_ == INVALID_HANDLE_VALUE) {
     return false;

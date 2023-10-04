@@ -141,8 +141,8 @@ class CDIF : public Device {
 
   uint32_t addrs_;  // 再生開始アドレス
 
-  uint32_t status_ = 0;    // in 90
-  uint32_t data_ = 0;      // port 91
+  uint32_t status_ = 0;     // in 90
+  uint32_t data_ = 0;       // port 91
   uint32_t play_mode_ = 0;  // port 98
   uint32_t retry_count_ = 0;
   uint32_t read_mode_ = 0;
