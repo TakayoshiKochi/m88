@@ -309,10 +309,63 @@ class Z80C : public Device {
   uint32_t RegSP() const { return reg.r.w.sp; }
   void SetRegSP(uint32_t n) { reg.r.w.sp = n; }
 
+  // Flags
+  static constexpr uint8_t CF = 1 << 0;
+  static constexpr uint8_t NF = 1 << 1;
+  static constexpr uint8_t PF = 1 << 2;
+  static constexpr uint8_t HF = 1 << 4;
+  static constexpr uint8_t ZF = 1 << 6;
+  static constexpr uint8_t SF = 1 << 7;
+
+  static constexpr uint8_t WF = 1 << 3;
+
+  // Flag table
+  static constexpr uint8_t ZSPTable[256] = {
+      ZF | PF, 0,       0,       PF,      0,       PF,      PF,      0,       0,       PF,
+      PF,      0,       PF,      0,       0,       PF,      0,       PF,      PF,      0,
+      PF,      0,       0,       PF,      PF,      0,       0,       PF,      0,       PF,
+      PF,      0,       0,       PF,      PF,      0,       PF,      0,       0,       PF,
+      PF,      0,       0,       PF,      0,       PF,      PF,      0,       PF,      0,
+      0,       PF,      0,       PF,      PF,      0,       0,       PF,      PF,      0,
+      PF,      0,       0,       PF,      0,       PF,      PF,      0,       PF,      0,
+      0,       PF,      PF,      0,       0,       PF,      0,       PF,      PF,      0,
+      PF,      0,       0,       PF,      0,       PF,      PF,      0,       0,       PF,
+      PF,      0,       PF,      0,       0,       PF,      PF,      0,       0,       PF,
+      0,       PF,      PF,      0,       0,       PF,      PF,      0,       PF,      0,
+      0,       PF,      0,       PF,      PF,      0,       PF,      0,       0,       PF,
+      PF,      0,       0,       PF,      0,       PF,      PF,      0,       SF,      PF | SF,
+      PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
+      SF,      PF | SF, PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF,
+      PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      PF | SF, SF,      SF,      PF | SF,
+      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
+      PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,
+      PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF, SF,      PF | SF,
+      PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,
+      SF,      PF | SF, PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF,
+      PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
+      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      PF | SF, SF,
+      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,
+      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
+      PF | SF, SF,      PF | SF, SF,      SF,      PF | SF,
+  };
+
+  uint8_t GetNF() const { return RegF() & NF; }
+  void SetXF(uint8_t n) { xf = n; }
+  void Ret() { Jump(Pop()); }
+
+  static uint8_t RES(uint8_t n, uint32_t bit) { return n & ~(1 << (bit)); }
+  static uint8_t SET(uint8_t n, uint32_t bit) { return n | (1 << (bit)); }
+  void BIT(uint8_t n, uint32_t bit) {
+    (void)SetFlags(ZF | HF | NF | SF, HF | (((n) & (1 << (bit))) ? n & SF & (1 << (bit)) : ZF));
+    SetXF(n);
+  }
   void SetFlags(uint8_t clr, uint8_t set) {
     SetRegF((RegF() & ~clr) | set);
     uf_ &= ~clr;
   }
+
+  void CLK(int count) { clock_count_ += count; }
+  static constexpr uint32_t PAGESMASK = (1 << (16 - pagebits)) - 1;
 };
 
 inline Z80C::Statistics* Z80C::GetStatistics() {

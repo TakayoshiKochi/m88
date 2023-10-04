@@ -13,13 +13,6 @@
 // #define LOGNAME "Z80C"
 #include "common/diag.h"
 
-// ---------------------------------------------------------------------------
-//  マクロ 1
-//
-
-
-#define CLK(count) (clock_count_ += (count))
-
 #if defined(LOGNAME) && defined(_DEBUG)
 static int testcount[24];
 #define DEBUGCOUNT(i) testcount[i]++
@@ -80,8 +73,6 @@ Z80C::~Z80C() {
   if (dump_log_)
     fclose(dump_log_);
 }
-
-#define PAGESMASK ((1 << (16 - pagebits)) - 1)
 
 // ---------------------------------------------------------------------------
 //  PC 読み書き
@@ -477,32 +468,6 @@ inline void Z80C::Outp(uint32_t port, uint32_t data) {
 }
 
 // ---------------------------------------------------------------------------
-//  フラグ定義 ---------------------------------------------------------------
-
-constexpr uint8_t CF = 1 << 0;
-constexpr uint8_t NF = 1 << 1;
-constexpr uint8_t PF = 1 << 2;
-constexpr uint8_t HF = 1 << 4;
-constexpr uint8_t ZF = 1 << 6;
-constexpr uint8_t SF = 1 << 7;
-
-constexpr uint8_t WF = 1 << 3;
-
-// ---------------------------------------------------------------------------
-//  マクロ群 -----------------------------------------------------------------
-
-#define GetNF() (RegF() & NF)
-#define SetXF(n) (xf = n)
-
-#define Ret() Jump(Pop())
-
-#define RES(n, bit) ((n) & ~(1 << (bit)))
-#define SET(n, bit) ((n) | (1 << (bit)))
-#define BIT(n, bit)                                                                            \
-  (void)SetFlags(ZF | HF | NF | SF, HF | (((n) & (1 << (bit))) ? n & SF & (1 << (bit)) : ZF)), \
-      SetXF(n)
-
-// ---------------------------------------------------------------------------
 //  リセット
 //
 void IOCALL Z80C::Reset(uint32_t, uint32_t) {
@@ -831,38 +796,6 @@ uint8_t Z80C::SRL(uint8_t d) {
   SetZSP(d);
   return d;
 }
-
-// ---------------------------------------------------------------------------
-//   フラグテーブル
-//
-static const uint8_t ZSPTable[256] = {
-    ZF | PF, 0,       0,       PF,      0,       PF,      PF,      0,       0,       PF,
-    PF,      0,       PF,      0,       0,       PF,      0,       PF,      PF,      0,
-    PF,      0,       0,       PF,      PF,      0,       0,       PF,      0,       PF,
-    PF,      0,       0,       PF,      PF,      0,       PF,      0,       0,       PF,
-    PF,      0,       0,       PF,      0,       PF,      PF,      0,       PF,      0,
-    0,       PF,      0,       PF,      PF,      0,       0,       PF,      PF,      0,
-    PF,      0,       0,       PF,      0,       PF,      PF,      0,       PF,      0,
-    0,       PF,      PF,      0,       0,       PF,      0,       PF,      PF,      0,
-    PF,      0,       0,       PF,      0,       PF,      PF,      0,       0,       PF,
-    PF,      0,       PF,      0,       0,       PF,      PF,      0,       0,       PF,
-    0,       PF,      PF,      0,       0,       PF,      PF,      0,       PF,      0,
-    0,       PF,      0,       PF,      PF,      0,       PF,      0,       0,       PF,
-    PF,      0,       0,       PF,      0,       PF,      PF,      0,       SF,      PF | SF,
-    PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
-    SF,      PF | SF, PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF,
-    PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      PF | SF, SF,      SF,      PF | SF,
-    PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
-    PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,
-    PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF, SF,      PF | SF,
-    PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,
-    SF,      PF | SF, PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF,
-    PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
-    SF,      PF | SF, PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      PF | SF, SF,
-    SF,      PF | SF, PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,
-    PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
-    PF | SF, SF,      PF | SF, SF,      SF,      PF | SF,
-};
 
 // ---------------------------------------------------------------------------
 //  １命令実行
