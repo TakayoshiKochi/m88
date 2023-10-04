@@ -16,7 +16,7 @@ SetupRAMRoutine:
 ;   常駐スタブ
 ;
 block0start equ $
-        org 0f310h
+        .phase 0f310h
 block0      equ $
 
 CMDStub:
@@ -28,13 +28,15 @@ CMDStub:
         ret
 
 block0len   equ $-block0
-        org block0start + block0len
+        ; org block0start + block0len
+        .dephase
 
 ; ----------------------------------------------------------------------------
 ;   非常駐 RAM ルーチン
 ;
 block1start equ $
-        org tempramworkarea
+        .phase tempramworkarea
+
 block1      equ $
         
 ROMCALL:
@@ -60,5 +62,6 @@ ROMBank     equ $-1
 
 block1end   equ $
 block1len   equ $-block1
-        org block1start + block1len
+        ; org block1start + block1len
+        .dephase
 

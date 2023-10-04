@@ -154,7 +154,7 @@ savedata_init:
         ret
 
 savedatasub_blk equ $
-        org RAMCodeArea
+        .phase RAMCodeArea
         
 savedatasub:
         di
@@ -211,6 +211,7 @@ bsavesub:
         jp  EROMRET
         
 savedatasub_len equ $-RAMCodeArea
-        org savedatasub_blk + savedatasub_len
+        .dephase
+        ; org savedatasub_blk + savedatasub_len
 
 
