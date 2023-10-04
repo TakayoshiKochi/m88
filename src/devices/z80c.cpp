@@ -16,23 +16,7 @@
 // ---------------------------------------------------------------------------
 //  マクロ 1
 //
-#define RegA (reg.r.b.a)
-#define RegB (reg.r.b.b)
-#define RegC (reg.r.b.c)
-#define RegD (reg.r.b.d)
-#define RegE (reg.r.b.e)
-#define RegH (reg.r.b.h)
-#define RegL (reg.r.b.l)
-#define RegXH (*ref_h_[index_mode_])
-#define RegXL (*ref_l_[index_mode_])
-#define RegF (reg.r.b.flags)
 
-#define RegXHL (*ref_hl_[index_mode_])
-#define RegHL (reg.r.w.hl)
-#define RegDE (reg.r.w.de)
-#define RegBC (reg.r.w.bc)
-#define RegAF (reg.r.w.af)
-#define RegSP (reg.r.w.sp)
 
 #define CLK(count) (clock_count_ += (count))
 
@@ -48,23 +32,23 @@ static int testcount[24];
 //
 Z80C::Z80C(const ID& id) : Device(id) {
   /* テーブル初期化 */
-  ref_h_[USEHL] = &RegH;
-  ref_l_[USEHL] = &RegL;
+  ref_h_[USEHL] = &reg.r.b.h;
+  ref_l_[USEHL] = &reg.r.b.l;
   ref_h_[USEIX] = &reg.r.b.xh;
   ref_l_[USEIX] = &reg.r.b.xl;
   ref_h_[USEIY] = &reg.r.b.yh;
   ref_l_[USEIY] = &reg.r.b.yl;
-  ref_hl_[USEHL] = &RegHL;
+  ref_hl_[USEHL] = &reg.r.w.hl;
   ref_hl_[USEIX] = &reg.r.w.ix;
   ref_hl_[USEIY] = &reg.r.w.iy;
-  ref_byte_[0] = &RegB;
-  ref_byte_[1] = &RegC;
-  ref_byte_[2] = &RegD;
-  ref_byte_[3] = &RegE;
-  ref_byte_[4] = &RegH;
-  ref_byte_[5] = &RegL;
+  ref_byte_[0] = &reg.r.b.b;
+  ref_byte_[1] = &reg.r.b.c;
+  ref_byte_[2] = &reg.r.b.d;
+  ref_byte_[3] = &reg.r.b.e;
+  ref_byte_[4] = &reg.r.b.h;
+  ref_byte_[5] = &reg.r.b.l;
   ref_byte_[6] = nullptr;
-  ref_byte_[7] = &RegA;
+  ref_byte_[7] = &reg.r.b.a;
 
   dump_log_ = nullptr;
 }
@@ -495,40 +479,20 @@ inline void Z80C::Outp(uint32_t port, uint32_t data) {
 // ---------------------------------------------------------------------------
 //  フラグ定義 ---------------------------------------------------------------
 
-#define CF (uint8_t(1 << 0))
-#define NF (uint8_t(1 << 1))
-#define PF (uint8_t(1 << 2))
-#define HF (uint8_t(1 << 4))
-#define ZF (uint8_t(1 << 6))
-#define SF (uint8_t(1 << 7))
+constexpr uint8_t CF = 1 << 0;
+constexpr uint8_t NF = 1 << 1;
+constexpr uint8_t PF = 1 << 2;
+constexpr uint8_t HF = 1 << 4;
+constexpr uint8_t ZF = 1 << 6;
+constexpr uint8_t SF = 1 << 7;
 
-#define WF (uint8_t(1 << 3))
+constexpr uint8_t WF = 1 << 3;
 
 // ---------------------------------------------------------------------------
 //  マクロ群 -----------------------------------------------------------------
 
-//#define RegA (reg.r.b.a)
-//#define RegB (reg.r.b.b)
-//#define RegC (reg.r.b.c)
-//#define RegD (reg.r.b.d)
-//#define RegE (reg.r.b.e)
-//#define RegH (reg.r.b.h)
-//#define RegL (reg.r.b.l)
-//#define RegXH (*ref_h[index_mode])
-//#define RegXL (*ref_l[index_mode])
-//#define RegF (reg.r.b.flags)
-
-//#define RegXHL (*ref_hl[index_mode])
-//#define RegHL (reg.r.w.hl)
-//#define RegDE (reg.r.w.de)
-//#define RegBC (reg.r.w.bc)
-//#define RegAF (reg.r.w.af)
-//#define RegSP (reg.r.w.sp)
-
-#define GetNF() (RegF & NF)
+#define GetNF() (RegF() & NF)
 #define SetXF(n) (xf = n)
-
-#define SetFlags(m, f) (void)((RegF = (RegF & ~(m)) | (f)), (uf_ &= ~(m)))
 
 #define Ret() Jump(Pop())
 
@@ -549,15 +513,15 @@ void IOCALL Z80C::Reset(uint32_t, uint32_t) {
   reg.ireg = 0; /* I, R = 0 */
   reg.rreg = 0;
 
-  RegF = 0;
+  SetRegF(0);
   uf_ = 0;
-  instlim = 0;
-  instbase = 0;
+  instlim = nullptr;
+  instbase = nullptr;
 
   //  SetFlags(0xff, 0);      /* フラグリセット */
   reg.intmode = 0; /* IM0 */
   SetPC(0);        /* pc, sp = 0 */
-  RegSP = 0;
+  SetRegSP(0);
   wait_state_ = 0;
   intr_ = false;  // 割り込みクリア
   exec_count_ = 0;
@@ -624,32 +588,32 @@ inline void Z80C::Call() {
 
 void Z80C::SetM(uint32_t n) {
   if (index_mode_ == USEHL)
-    Write8(RegHL, n);
+    Write8(RegHL(), n);
   else {
-    Write8(RegXHL + int8_t(Fetch8()), n);
+    Write8(RegXHL() + int8_t(Fetch8()), n);
     CLK(12);
   }
 }
 
 uint8_t Z80C::GetM() {
   if (index_mode_ == USEHL)
-    return Read8(RegHL);
+    return Read8(RegHL());
   else {
-    int r = Read8(RegXHL + int8_t(Fetch8()));
+    int r = Read8(RegXHL() + int8_t(Fetch8()));
     CLK(12);
     return r;
   }
 }
 
 uint32_t Z80C::GetAF() {
-  RegF = (RegF & 0xd7) | (xf & 0x28);
+  SetRegF((RegF() & 0xd7) | (xf & 0x28));
   if (uf_ & (CF | ZF | SF | HF | PF))
     GetCF(), GetZF(), GetSF(), GetHF(), GetPF();
-  return RegAF;
+  return RegAF();
 }
 
 inline void Z80C::SetAF(uint32_t n) {
-  RegAF = n;
+  SetRegAF(n);
   uf_ = 0;
 }
 
@@ -657,13 +621,13 @@ inline void Z80C::SetAF(uint32_t n) {
 //  スタック関数 -------------------------------------------------------------
 
 inline void Z80C::Push(uint32_t n) {
-  RegSP -= 2;
-  Write16(RegSP, n);
+  SetRegSP(RegSP() - 2);
+  Write16(RegSP(), n);
 }
 
 inline uint32_t Z80C::Pop() {
-  uint32_t a = Read16(RegSP);
-  RegSP += 2;
+  uint32_t a = Read16(RegSP());
+  SetRegSP(RegSP() + 2);
   return a;
 }
 
@@ -671,83 +635,83 @@ inline uint32_t Z80C::Pop() {
 //  算術演算関数 -------------------------------------------------------------
 
 void Z80C::ADDA(uint8_t n) {
-  fx_ = uint32_t(RegA) * 2;
+  fx_ = uint32_t(RegA()) * 2;
   fy_ = uint32_t(n) * 2;
   uf_ = SF | ZF | HF | PF | CF;
   nfa_ = 0;
-  RegF &= ~NF;
-  RegA += n;
-  SetXF(RegA);
+  SetRegF(RegF() & ~NF);
+  SetRegA(RegA() + n);
+  SetXF(RegA());
 }
 
 void Z80C::ADCA(uint8_t n) {
-  uint8_t a = RegA;
+  uint8_t a = RegA();
   uint8_t cy = GetCF();
 
-  RegA = a + n + cy;
-  SetXF(RegA);
+  SetRegA(a + n + cy);
+  SetXF(RegA());
 
   fx_ = uint32_t(a) * 2 + 1;
   fy_ = uint32_t(n) * 2 + cy;
   uf_ = SF | ZF | HF | PF | CF;
   nfa_ = 0;
-  RegF &= ~NF;
+  SetRegF(RegF() & ~NF);
 }
 
 void Z80C::SUBA(uint8_t n) {
-  fx_ = RegA * 2;
+  fx_ = RegA() * 2;
   fy_ = n * 2;
   uf_ = SF | ZF | HF | PF | CF;
   nfa_ = 1;
-  RegF |= NF;
-  RegA -= n;
-  SetXF(RegA);
+  SetRegF(RegF() | NF);
+  SetRegA(RegA() - n);
+  SetXF(RegA());
 }
 
 void Z80C::CPA(uint8_t n) {
-  fx_ = RegA * 2;
+  fx_ = RegA() * 2;
   fy_ = n * 2;
   SetXF(n);
   uf_ = SF | ZF | HF | PF | CF;
   nfa_ = 1;
-  RegF |= NF;
+  SetRegF(RegF() | NF);
 }
 
 void Z80C::SBCA(uint8_t n) {
-  uint8_t a = RegA;
+  uint8_t a = RegA();
   uint8_t cy = GetCF();
-  RegA = (a - n - cy);
+  SetRegA(a - n - cy);
 
   fx_ = a * 2;
   fy_ = n * 2 + cy;
   uf_ = SF | ZF | HF | PF | CF;
   nfa_ = 1;
-  RegF |= NF;
-  SetXF(RegA);
+  SetRegF(RegF() | NF);
+  SetXF(RegA());
 }
 
 void Z80C::ANDA(uint8_t n) {
-  uint8_t b = RegA & n;
+  uint8_t b = RegA() & n;
   SetZSP(b);
   SetFlags(HF | NF | CF, HF);
-  RegA = (b);
-  SetXF(RegA);
+  SetRegA(b);
+  SetXF(RegA());
 }
 
 void Z80C::ORA(uint8_t n) {
-  uint8_t b = RegA | n;
+  uint8_t b = RegA() | n;
   SetZSP(b);
   SetFlags(HF | NF | CF, 0);
-  RegA = (b);
-  SetXF(RegA);
+  SetRegA(b);
+  SetXF(RegA());
 }
 
 void Z80C::XORA(uint8_t n) {
-  uint8_t b = RegA ^ n;
+  uint8_t b = RegA() ^ n;
   SetZSP(b);
   SetFlags(HF | NF | CF, 0);
-  RegA = (b);
-  SetXF(RegA);
+  SetRegA(b);
+  SetXF(RegA());
 }
 
 uint8_t Z80C::Inc8(uint8_t y) {
@@ -778,27 +742,27 @@ uint32_t Z80C::ADD16(uint32_t x, uint32_t y) {
 
 void Z80C::ADCHL(uint32_t y) {
   uint32_t cy = GetCF();
-  uint32_t x = RegHL;
+  uint32_t x = RegHL();
 
   fx32_ = (uint32_t)(x & 0xffff) * 2 + 1;
   fy32_ = (uint32_t)(y & 0xffff) * 2 + cy;
-  RegHL = x + y + cy;
+  SetRegHL(x + y + cy);
   uf_ = SF | ZF | HF | PF | CF | WF;
   nfa_ = 0;
-  RegF &= ~NF;
-  SetXF(RegH);
+  SetRegF(RegF() & ~NF);
+  SetXF(RegH());
 }
 
 void Z80C::SBCHL(uint32_t y) {
   uint32_t cy = GetCF();
 
-  fx32_ = (uint32_t)(RegHL & 0xffff) * 2;
+  fx32_ = (uint32_t)(RegHL() & 0xffff) * 2;
   fy32_ = (uint32_t)(y & 0xffff) * 2 + cy;
-  RegHL = RegHL - y - cy;
+  SetRegHL(RegHL() - y - cy);
   uf_ = SF | ZF | HF | PF | CF | WF;
   nfa_ = 1;
-  RegF |= NF;
-  SetXF(RegH);
+  SetRegF(RegF() | NF);
+  SetXF(RegH());
 }
 
 // ---------------------------------------------------------------------------
@@ -913,35 +877,35 @@ void Z80C::SingleStep(uint32_t m) {
       // ローテートシフト系
 
     case 0x07:  // RLCA
-      b = (0 != (RegA & 0x80));
-      RegA = RegA * 2 + b;
+      b = (0 != (RegA() & 0x80));
+      SetRegA(RegA() * 2 + b);
       SetFlags(NF | HF | CF, b); /* Cn = 1 */
       CLK(4);
-      SetXF(RegA);
+      SetXF(RegA());
       break;
 
     case 0x0f:  // RRCA
-      b = RegA & 1;
-      RegA = (RegA >> 1) + (b ? 0x80 : 0);
+      b = RegA() & 1;
+      SetRegA((RegA() >> 1) + (b ? 0x80 : 0));
       SetFlags(NF | HF | CF, b);
       CLK(4);
-      SetXF(RegA);
+      SetXF(RegA());
       break;
 
     case 0x17:  // RLA
-      b = RegA;
-      RegA = (b << 1) + GetCF();
+      b = RegA();
+      SetRegA((b << 1) + GetCF());
       SetFlags(NF | HF | CF, (b & 0x80) ? CF : 0);
       CLK(4);
-      SetXF(RegA);
+      SetXF(RegA());
       break;
 
     case 0x1f:  // RRA
-      b = RegA;
-      RegA = (GetCF() ? 0x80 : 0) + (b >> 1);
+      b = RegA();
+      SetRegA((GetCF() ? 0x80 : 0) + (b >> 1));
       SetFlags(NF | HF | CF, b & 1);
       CLK(4);
-      SetXF(RegA);
+      SetXF(RegA());
       break;
 
       // arthimatic operation
@@ -949,33 +913,33 @@ void Z80C::SingleStep(uint32_t m) {
     case 0x27:  // DAA
       b = 0;
       if (!GetNF()) {
-        if ((RegA & 0x0f) > 9 || GetHF()) {
-          if ((RegA & 0x0f) > 9)
+        if ((RegA() & 0x0f) > 9 || GetHF()) {
+          if ((RegA() & 0x0f) > 9)
             b = HF;
-          RegA += 6;
+          SetRegA(RegA() + 6);
         }
-        if (RegA > 0x9f || GetCF()) {
-          RegA += 0x60;
+        if (RegA() > 0x9f || GetCF()) {
+          SetRegA(RegA() + 0x60);
           b |= CF;
         }
       } else {
-        if ((RegA & 0x0f) > 9 || GetHF()) {
-          if ((RegA & 0x0f) < 6)
+        if ((RegA() & 0x0f) > 9 || GetHF()) {
+          if ((RegA() & 0x0f) < 6)
             b = HF;
-          RegA -= 6;
+          SetRegA(RegA() - 6);
         }
-        if (RegA > 0x9f || GetCF()) {
-          RegA -= 0x60;
+        if (RegA() > 0x9f || GetCF()) {
+          SetRegA(RegA() - 0x60);
           b |= CF;
         }
       }
-      SetZSP(RegA);
+      SetZSP(RegA());
       SetFlags(HF | CF, b);
       CLK(4);
       break;
 
     case 0x2f:  // CPL
-      RegA = ~RegA;
+      SetRegA(~RegA());
       SetFlags(NF | HF, NF | HF);
       CLK(4);
       break;
@@ -994,22 +958,22 @@ void Z80C::SingleStep(uint32_t m) {
       //  I/O access
 
     case 0xdb:  // IN A,(n)
-      w = /*(uint32_t(RegA) << 8) +*/ Fetch8();
+      w = /*(uint32_t(RegA()) << 8) +*/ Fetch8();
       if (bus_->IsSyncPort(w) && !Sync()) {
         PCDec(2);
         break;
       }
-      RegA = Inp(w);
+      SetRegA(Inp(w));
       CLK(11);
       break;
 
     case 0xd3:  // OUT (n),A
-      w = /*(uint32_t(RegA) << 8) + */ Fetch8();
+      w = /*(uint32_t(RegA()) << 8) + */ Fetch8();
       if (bus_->IsSyncPort(w) && !Sync()) {
         PCDec(2);
         break;
       }
-      Outp(w, RegA);
+      Outp(w, RegA());
       CLK(11);
       OutTestIntr();
       break;
@@ -1221,12 +1185,13 @@ void Z80C::SingleStep(uint32_t m) {
       break;
 
     case 0xe9:  // JP (HL)
-      SetPC(RegXHL);
+      SetPC(RegXHL());
       CLK(4);
       break;
 
     case 0x10:  // DJNZ
-      if (0 != --RegB)
+      SetRegB(RegB() - 1);
+      if (0 != RegB())
         JumpR();
       else
         PCInc(1);
@@ -1278,56 +1243,56 @@ void Z80C::SingleStep(uint32_t m) {
 
     // ADD XHL,dd
     case 0x09: /*BC*/
-      RegXHL = ADD16(RegXHL, RegBC);
+      SetRegXHL(ADD16(RegXHL(), RegBC()));
       CLK(11);
       break;
     case 0x19: /*DE*/
-      RegXHL = ADD16(RegXHL, RegDE);
+      SetRegXHL(ADD16(RegXHL(), RegDE()));
       CLK(11);
       break;
     case 0x29: /*xHL*/
-      w = RegXHL;
-      RegXHL = ADD16(w, w);
+      w = RegXHL();
+      SetRegXHL(ADD16(w, w));
       CLK(11);
       break;
     case 0x39: /*SP*/
-      RegXHL = ADD16(RegXHL, RegSP);
+      SetRegXHL(ADD16(RegXHL(), RegSP()));
       CLK(11);
       break;
 
     // INC dd
     case 0x03: /*BC*/
-      RegBC++;
+      SetRegBC(RegBC() + 1);
       CLK(6);
       break;
     case 0x13: /*DE*/
-      RegDE++;
+      SetRegDE(RegDE() + 1);
       CLK(6);
       break;
     case 0x23: /*xHL*/
-      RegXHL++;
+      SetRegXHL(RegXHL() + 1);
       CLK(6);
       break;
     case 0x33: /*SP*/
-      RegSP++;
+      SetRegSP(RegSP() + 1);
       CLK(6);
       break;
 
     // DEC dd
     case 0x0B: /*BC*/
-      RegBC--;
+      SetRegBC(RegBC() - 1);
       CLK(6);
       break;
     case 0x1B: /*DE*/
-      RegDE--;
+      SetRegDE(RegDE() - 1);
       CLK(6);
       break;
     case 0x2B: /*xHL*/
-      RegXHL--;
+      SetRegXHL(RegXHL() - 1);
       CLK(6);
       break;
     case 0x3B: /*SP*/
-      RegSP--;
+      SetRegSP(RegSP() - 1);
       CLK(6);
       break;
 
@@ -1341,28 +1306,28 @@ void Z80C::SingleStep(uint32_t m) {
       break;
 
     case 0xe3:  // EX (SP),xHL
-      w = Read16(RegSP);
-      Write16(RegSP, RegXHL);
-      RegXHL = w;
+      w = Read16(RegSP());
+      Write16(RegSP(), RegXHL());
+      SetRegXHL(w);
       CLK(19);
       break;
 
     case 0xeb:  // EX DE,HL
-      w = RegDE;
-      RegDE = RegHL;
-      RegHL = w;
+      w = RegDE();
+      SetRegDE(RegHL());
+      SetRegHL(w);
       CLK(4);
       break;
 
     case 0xd9:  // EXX
-      w = RegHL;
-      RegHL = reg.r_hl;
+      w = RegHL();
+      SetRegHL(reg.r_hl);
       reg.r_hl = w;
-      w = RegDE;
-      RegDE = reg.r_de;
+      w = RegDE();
+      SetRegDE(reg.r_de);
       reg.r_de = w;
-      w = RegBC;
-      RegBC = reg.r_bc;
+      w = RegBC();
+      SetRegBC(reg.r_bc);
       reg.r_bc = w;
       CLK(4);
       break;
@@ -1403,27 +1368,27 @@ void Z80C::SingleStep(uint32_t m) {
 
     // ADD A,-
     case 0x80: /*B*/
-      ADDA(RegB);
+      ADDA(RegB());
       CLK(4);
       break;
     case 0x81: /*C*/
-      ADDA(RegC);
+      ADDA(RegC());
       CLK(4);
       break;
     case 0x82: /*D*/
-      ADDA(RegD);
+      ADDA(RegD());
       CLK(4);
       break;
     case 0x83: /*E*/
-      ADDA(RegE);
+      ADDA(RegE());
       CLK(4);
       break;
     case 0x84: /*H*/
-      ADDA(RegXH);
+      ADDA(RegXH());
       CLK(4);
       break;
     case 0x85: /*L*/
-      ADDA(RegXL);
+      ADDA(RegXL());
       CLK(4);
       break;
     case 0x86: /*M*/
@@ -1431,7 +1396,7 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(7);
       break;
     case 0x87: /*A*/
-      ADDA(RegA);
+      ADDA(RegA());
       CLK(4);
       break;
     case 0xc6: /*n*/
@@ -1441,27 +1406,27 @@ void Z80C::SingleStep(uint32_t m) {
 
     // ADC A,-
     case 0x88: /*B*/
-      ADCA(RegB);
+      ADCA(RegB());
       CLK(4);
       break;
     case 0x89: /*C*/
-      ADCA(RegC);
+      ADCA(RegC());
       CLK(4);
       break;
     case 0x8a: /*D*/
-      ADCA(RegD);
+      ADCA(RegD());
       CLK(4);
       break;
     case 0x8b: /*E*/
-      ADCA(RegE);
+      ADCA(RegE());
       CLK(4);
       break;
     case 0x8c: /*H*/
-      ADCA(RegXH);
+      ADCA(RegXH());
       CLK(4);
       break;
     case 0x8d: /*L*/
-      ADCA(RegXL);
+      ADCA(RegXL());
       CLK(4);
       break;
     case 0x8e: /*M*/
@@ -1469,7 +1434,7 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(7);
       break;
     case 0x8f: /*A*/
-      ADCA(RegA);
+      ADCA(RegA());
       CLK(4);
       break;
     case 0xce: /*n*/
@@ -1479,27 +1444,27 @@ void Z80C::SingleStep(uint32_t m) {
 
     // SUB -
     case 0x90: /*B*/
-      SUBA(RegB);
+      SUBA(RegB());
       CLK(4);
       break;
     case 0x91: /*C*/
-      SUBA(RegC);
+      SUBA(RegC());
       CLK(4);
       break;
     case 0x92: /*D*/
-      SUBA(RegD);
+      SUBA(RegD());
       CLK(4);
       break;
     case 0x93: /*E*/
-      SUBA(RegE);
+      SUBA(RegE());
       CLK(4);
       break;
     case 0x94: /*H*/
-      SUBA(RegXH);
+      SUBA(RegXH());
       CLK(4);
       break;
     case 0x95: /*L*/
-      SUBA(RegXL);
+      SUBA(RegXL());
       CLK(4);
       break;
     case 0x96: /*M*/
@@ -1507,7 +1472,7 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(7);
       break;
     case 0x97: /*A*/
-      SUBA(RegA);
+      SUBA(RegA());
       CLK(4);
       break;
     case 0xd6: /*n*/
@@ -1517,27 +1482,27 @@ void Z80C::SingleStep(uint32_t m) {
 
     // SBC A,-
     case 0x98: /*B*/
-      SBCA(RegB);
+      SBCA(RegB());
       CLK(4);
       break;
     case 0x99: /*C*/
-      SBCA(RegC);
+      SBCA(RegC());
       CLK(4);
       break;
     case 0x9a: /*D*/
-      SBCA(RegD);
+      SBCA(RegD());
       CLK(4);
       break;
     case 0x9b: /*E*/
-      SBCA(RegE);
+      SBCA(RegE());
       CLK(4);
       break;
     case 0x9c: /*H*/
-      SBCA(RegXH);
+      SBCA(RegXH());
       CLK(4);
       break;
     case 0x9d: /*L*/
-      SBCA(RegXL);
+      SBCA(RegXL());
       CLK(4);
       break;
     case 0x9e: /*M*/
@@ -1545,7 +1510,7 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(7);
       break;
     case 0x9f: /*A*/
-      SBCA(RegA);
+      SBCA(RegA());
       CLK(4);
       break;
     case 0xde: /*n*/
@@ -1555,27 +1520,27 @@ void Z80C::SingleStep(uint32_t m) {
 
     // AND -
     case 0xa0: /*B*/
-      ANDA(RegB);
+      ANDA(RegB());
       CLK(4);
       break;
     case 0xa1: /*C*/
-      ANDA(RegC);
+      ANDA(RegC());
       CLK(4);
       break;
     case 0xa2: /*D*/
-      ANDA(RegD);
+      ANDA(RegD());
       CLK(4);
       break;
     case 0xa3: /*E*/
-      ANDA(RegE);
+      ANDA(RegE());
       CLK(4);
       break;
     case 0xa4: /*H*/
-      ANDA(RegXH);
+      ANDA(RegXH());
       CLK(4);
       break;
     case 0xa5: /*L*/
-      ANDA(RegXL);
+      ANDA(RegXL());
       CLK(4);
       break;
     case 0xa6: /*M*/
@@ -1583,7 +1548,7 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(7);
       break;
     case 0xa7: /*A*/
-      ANDA(RegA);
+      ANDA(RegA());
       CLK(4);
       break;
     case 0xe6: /*n*/
@@ -1593,27 +1558,27 @@ void Z80C::SingleStep(uint32_t m) {
 
     // XOR -
     case 0xa8: /*B*/
-      XORA(RegB);
+      XORA(RegB());
       CLK(4);
       break;
     case 0xa9: /*C*/
-      XORA(RegC);
+      XORA(RegC());
       CLK(4);
       break;
     case 0xaa: /*D*/
-      XORA(RegD);
+      XORA(RegD());
       CLK(4);
       break;
     case 0xab: /*E*/
-      XORA(RegE);
+      XORA(RegE());
       CLK(4);
       break;
     case 0xac: /*H*/
-      XORA(RegXH);
+      XORA(RegXH());
       CLK(4);
       break;
     case 0xad: /*L*/
-      XORA(RegXL);
+      XORA(RegXL());
       CLK(4);
       break;
     case 0xae: /*M*/
@@ -1621,7 +1586,7 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(7);
       break;
     case 0xaf: /*A*/
-      XORA(RegA);
+      XORA(RegA());
       CLK(4);
       break;
     case 0xee: /*n*/
@@ -1631,27 +1596,27 @@ void Z80C::SingleStep(uint32_t m) {
 
     // OR -
     case 0xb0: /*B*/
-      ORA(RegB);
+      ORA(RegB());
       CLK(4);
       break;
     case 0xb1: /*C*/
-      ORA(RegC);
+      ORA(RegC());
       CLK(4);
       break;
     case 0xb2: /*D*/
-      ORA(RegD);
+      ORA(RegD());
       CLK(4);
       break;
     case 0xb3: /*E*/
-      ORA(RegE);
+      ORA(RegE());
       CLK(4);
       break;
     case 0xb4: /*H*/
-      ORA(RegXH);
+      ORA(RegXH());
       CLK(4);
       break;
     case 0xb5: /*L*/
-      ORA(RegXL);
+      ORA(RegXL());
       CLK(4);
       break;
     case 0xb6: /*M*/
@@ -1659,7 +1624,7 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(7);
       break;
     case 0xb7: /*A*/
-      ORA(RegA);
+      ORA(RegA());
       CLK(4);
       break;
     case 0xf6: /*n*/
@@ -1669,27 +1634,27 @@ void Z80C::SingleStep(uint32_t m) {
 
     // CP -
     case 0xb8: /*B*/
-      CPA(RegB);
+      CPA(RegB());
       CLK(4);
       break;
     case 0xb9: /*C*/
-      CPA(RegC);
+      CPA(RegC());
       CLK(4);
       break;
     case 0xba: /*D*/
-      CPA(RegD);
+      CPA(RegD());
       CLK(4);
       break;
     case 0xbb: /*E*/
-      CPA(RegE);
+      CPA(RegE());
       CLK(4);
       break;
     case 0xbc: /*H*/
-      CPA(RegXH);
+      CPA(RegXH());
       CLK(4);
       break;
     case 0xbd: /*L*/
-      CPA(RegXL);
+      CPA(RegXL());
       CLK(4);
       break;
     case 0xbe: /*M*/
@@ -1697,7 +1662,7 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(7);
       break;
     case 0xbf: /*A*/
-      CPA(RegA);
+      CPA(RegA());
       CLK(4);
       break;
     case 0xfe: /*n*/
@@ -1707,36 +1672,36 @@ void Z80C::SingleStep(uint32_t m) {
 
     // INC r
     case 0x04: /*B*/
-      RegB = (Inc8(RegB));
+      SetRegB((Inc8(RegB())));
       CLK(4);
       break;
     case 0x0c: /*C*/
-      RegC = (Inc8(RegC));
+      SetRegC((Inc8(RegC())));
       CLK(4);
       break;
     case 0x14: /*D*/
-      RegD = (Inc8(RegD));
+      SetRegD((Inc8(RegD())));
       CLK(4);
       break;
     case 0x1c: /*E*/
-      RegE = (Inc8(RegE));
+      SetRegE((Inc8(RegE())));
       CLK(4);
       break;
     case 0x24: /*H*/
-      RegXH = (Inc8(RegXH));
+      SetRegXH(Inc8(RegXH()));
       CLK(4);
       break;
     case 0x2c: /*L*/
-      RegXL = (Inc8(RegXL));
+      SetRegXL(Inc8(RegXL()));
       CLK(4);
       break;
     case 0x3c: /*A*/
-      RegA = (Inc8(RegA));
+      SetRegA((Inc8(RegA())));
       CLK(4);
       break;
 
     case 0x34: /*M*/
-      w = RegXHL;
+      w = RegXHL();
       if (index_mode_ != USEHL) {
         w += int8_t(Fetch8());
         CLK(23 - 11);
@@ -1747,36 +1712,36 @@ void Z80C::SingleStep(uint32_t m) {
 
     // DEC r
     case 0x05: /*B*/
-      RegB = Dec8(RegB);
+      SetRegB(Dec8(RegB()));
       CLK(4);
       break;
     case 0x0d: /*C*/
-      RegC = Dec8(RegC);
+      SetRegC(Dec8(RegC()));
       CLK(4);
       break;
     case 0x15: /*D*/
-      RegD = Dec8(RegD);
+      SetRegD(Dec8(RegD()));
       CLK(4);
       break;
     case 0x1d: /*E*/
-      RegE = Dec8(RegE);
+      SetRegE(Dec8(RegE()));
       CLK(4);
       break;
     case 0x25: /*H*/
-      RegXH = Dec8(RegXH);
+      SetRegXH(Dec8(RegXH()));
       CLK(4);
       break;
     case 0x2d: /*L*/
-      RegXL = Dec8(RegXL);
+      SetRegXL(Dec8(RegXL()));
       CLK(4);
       break;
     case 0x3d: /*A*/
-      RegA = Dec8(RegA);
+      SetRegA(Dec8(RegA()));
       CLK(4);
       break;
 
     case 0x35: /*M*/
-      w = RegXHL;
+      w = RegXHL();
       if (index_mode_ != USEHL) {
         w += (int8_t)(Fetch8());
         CLK(23 - 11);
@@ -1789,15 +1754,15 @@ void Z80C::SingleStep(uint32_t m) {
 
     // PUSH
     case 0xc5: /*BC*/
-      Push(RegBC);
+      Push(RegBC());
       CLK(11);
       break;
     case 0xd5: /*DE*/
-      Push(RegDE);
+      Push(RegDE());
       CLK(11);
       break;
     case 0xe5: /*xHL*/
-      Push(RegXHL);
+      Push(RegXHL());
       CLK(11);
       break;
 #ifndef NO_UNOFFICIALFLAGS
@@ -1814,15 +1779,15 @@ void Z80C::SingleStep(uint32_t m) {
 
     // POP
     case 0xc1: /*BC*/
-      RegBC = Pop();
+      SetRegBC(Pop());
       CLK(10);
       break;
     case 0xd1: /*DE*/
-      RegDE = Pop();
+      SetRegDE(Pop());
       CLK(10);
       break;
     case 0xe1: /*xHL*/
-      RegXHL = Pop();
+      SetRegXHL(Pop());
       CLK(10);
       break;
     case 0xf1: /*AF*/
@@ -1834,34 +1799,34 @@ void Z80C::SingleStep(uint32_t m) {
 
     // LD dd,nn
     case 0x01: /*BC*/
-      RegBC = Fetch16();
+      SetRegBC(Fetch16());
       CLK(10);
       break;
     case 0x11: /*DE*/
-      RegDE = Fetch16();
+      SetRegDE(Fetch16());
       CLK(10);
       break;
     case 0x21: /*xHL*/
-      RegXHL = Fetch16();
+      SetRegXHL(Fetch16());
       CLK(10);
       break;
     case 0x31: /*SP*/
-      RegSP = Fetch16();
+      SetRegSP(Fetch16());
       CLK(10);
       break;
 
     case 0x22:  // LD (nn),xHL
-      Write16(Fetch16(), RegXHL);
+      Write16(Fetch16(), RegXHL());
       CLK(22);
       break;
 
     case 0x2a:  // LD xHL,(nn)
-      RegXHL = Read16(Fetch16());
+      SetRegXHL(Read16(Fetch16()));
       CLK(22);
       break;
 
     case 0xf9:  // LD SP,HL
-      RegSP = RegXHL;
+      SetRegSP(RegXHL());
       CLK(6);
       break;
 
@@ -1872,254 +1837,254 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(4);
       break;
     case 0x41: /*C*/
-      RegB = RegC;
+      SetRegB(RegC());
       CLK(4);
       break;
     case 0x42: /*D*/
-      RegB = RegD;
+      SetRegB(RegD());
       CLK(4);
       break;
     case 0x43: /*E*/
-      RegB = RegE;
+      SetRegB(RegE());
       CLK(4);
       break;
     case 0x44: /*H*/
-      RegB = RegXH;
+      SetRegB(RegXH());
       CLK(4);
       break;
     case 0x45: /*L*/
-      RegB = RegXL;
+      SetRegB(RegXL());
       CLK(4);
       break;
     case 0x46: /*M*/
-      RegB = GetM();
+      SetRegB(GetM());
       CLK(7);
       break;
     case 0x47: /*A*/
-      RegB = RegA;
+      SetRegB(RegA());
       CLK(4);
       break;
     case 0x06: /*n*/
-      RegB = Fetch8();
+      SetRegB(Fetch8());
       CLK(7);
       break;
 
     // LD C,-
     case 0x48: /*B*/
-      RegC = RegB;
+      SetRegC(RegB());
       CLK(4);
       break;
     case 0x49: /*C*/
       CLK(4);
       break;
     case 0x4a: /*D*/
-      RegC = RegD;
+      SetRegC(RegD());
       CLK(4);
       break;
     case 0x4b: /*E*/
-      RegC = RegE;
+      SetRegC(RegE());
       CLK(4);
       break;
     case 0x4c: /*H*/
-      RegC = RegXH;
+      SetRegC(RegXH());
       CLK(4);
       break;
     case 0x4d: /*L*/
-      RegC = RegXL;
+      SetRegC(RegXL());
       CLK(4);
       break;
     case 0x4e: /*M*/
-      RegC = GetM();
+      SetRegC(GetM());
       CLK(7);
       break;
     case 0x4f: /*A*/
-      RegC = RegA;
+      SetRegC(RegA());
       CLK(4);
       break;
     case 0x0e: /*n*/
-      RegC = Fetch8();
+      SetRegC(Fetch8());
       CLK(7);
       break;
 
     // LD D,-
     case 0x50: /*B*/
-      RegD = RegB;
+      SetRegD(RegB());
       CLK(4);
       break;
     case 0x51: /*C*/
-      RegD = RegC;
+      SetRegD(RegC());
       CLK(4);
       break;
     case 0x52: /*D*/
       CLK(4);
       break;
     case 0x53: /*E*/
-      RegD = RegE;
+      SetRegD(RegE());
       CLK(4);
       break;
     case 0x54: /*H*/
-      RegD = RegXH;
+      SetRegD(RegXH());
       CLK(4);
       break;
     case 0x55: /*L*/
-      RegD = RegXL;
+      SetRegD(RegXL());
       CLK(4);
       break;
     case 0x56: /*M*/
-      RegD = GetM();
+      SetRegD(GetM());
       CLK(7);
       break;
     case 0x57: /*A*/
-      RegD = RegA;
+      SetRegD(RegA());
       CLK(4);
       break;
     case 0x16: /*n*/
-      RegD = Fetch8();
+      SetRegD(Fetch8());
       CLK(7);
       break;
 
     // LD E,-
     case 0x58: /*B*/
-      RegE = RegB;
+      SetRegE(RegB());
       CLK(4);
       break;
     case 0x59: /*C*/
-      RegE = RegC;
+      SetRegE(RegC());
       CLK(4);
       break;
     case 0x5a: /*D*/
-      RegE = RegD;
+      SetRegE(RegD());
       CLK(4);
       break;
     case 0x5b: /*E*/
       CLK(4);
       break;
     case 0x5c: /*H*/
-      RegE = RegXH;
+      SetRegE(RegXH());
       CLK(4);
       break;
     case 0x5d: /*L*/
-      RegE = RegXL;
+      SetRegE(RegXL());
       CLK(4);
       break;
     case 0x5e: /*M*/
-      RegE = GetM();
+      SetRegE(GetM());
       CLK(7);
       break;
     case 0x5f: /*A*/
-      RegE = RegA;
+      SetRegE(RegA());
       CLK(4);
       break;
     case 0x1e: /*n*/
-      RegE = Fetch8();
+      SetRegE(Fetch8());
       CLK(7);
       break;
 
     // LD H,-
     case 0x60: /*B*/
-      RegXH = RegB;
+      SetRegXH(RegB());
       CLK(4);
       break;
     case 0x61: /*C*/
-      RegXH = RegC;
+      SetRegXH(RegC());
       CLK(4);
       break;
     case 0x62: /*D*/
-      RegXH = RegD;
+      SetRegXH(RegD());
       CLK(4);
       break;
     case 0x63: /*E*/
-      RegXH = RegE;
+      SetRegXH(RegE());
       CLK(4);
       break;
     case 0x64: /*H*/
       CLK(4);
       break;
     case 0x65: /*L*/
-      RegXH = RegXL;
+      SetRegXH(RegXL());
       CLK(4);
       break;
     case 0x66: /*M*/
-      RegH = GetM();
+      SetRegH(GetM());
       CLK(7);
       break;
     case 0x67: /*A*/
-      RegXH = RegA;
+      SetRegXH(RegA());
       CLK(4);
       break;
     case 0x26: /*n*/
-      RegXH = Fetch8();
+      SetRegXH(Fetch8());
       CLK(7);
       break;
 
     // LD L,-
     case 0x68: /*B*/
-      RegXL = RegB;
+      SetRegXL(RegB());
       CLK(4);
       break;
     case 0x69: /*C*/
-      RegXL = RegC;
+      SetRegXL(RegC());
       CLK(4);
       break;
     case 0x6a: /*D*/
-      RegXL = RegD;
+      SetRegXL(RegD());
       CLK(4);
       break;
     case 0x6b: /*E*/
-      RegXL = RegE;
+      SetRegXL(RegE());
       CLK(4);
       break;
     case 0x6c: /*H*/
-      RegXL = RegXH;
+      SetRegXL(RegXH());
       CLK(4);
       break;
     case 0x6d: /*L*/
       CLK(4);
       break;
     case 0x6e: /*M*/
-      RegL = GetM();
+      SetRegL(GetM());
       CLK(7);
       break;
     case 0x6f: /*A*/
-      RegXL = RegA;
+      SetRegXL(RegA());
       CLK(4);
       break;
     case 0x2e: /*n*/
-      RegXL = Fetch8();
+      SetRegXL(Fetch8());
       CLK(7);
       break;
 
     // LD M,-
     case 0x70: /*B*/
-      SetM(RegB);
+      SetM(RegB());
       CLK(7);
       break;
     case 0x71: /*C*/
-      SetM(RegC);
+      SetM(RegC());
       CLK(7);
       break;
     case 0x72: /*D*/
-      SetM(RegD);
+      SetM(RegD());
       CLK(7);
       break;
     case 0x73: /*E*/
-      SetM(RegE);
+      SetM(RegE());
       CLK(7);
       break;
     case 0x74: /*H*/
-      SetM(RegH);
+      SetM(RegH());
       CLK(7);
       break;
     case 0x75: /*L*/
-      SetM(RegL);
+      SetM(RegL());
       CLK(7);
       break;
     case 0x77: /*A*/
-      SetM(RegA);
+      SetM(RegA());
       CLK(7);
       break;
     case 0x36: /*n*/
-      w = RegXHL;
+      w = RegXHL();
       if (index_mode_ != USEHL) {
         w += int8_t(Fetch8());
         CLK(19 - 10);
@@ -2130,66 +2095,66 @@ void Z80C::SingleStep(uint32_t m) {
 
     // LD A,-
     case 0x78: /*B*/
-      RegA = RegB;
+      SetRegA(RegB());
       CLK(4);
       break;
     case 0x79: /*C*/
-      RegA = RegC;
+      SetRegA(RegC());
       CLK(4);
       break;
     case 0x7a: /*D*/
-      RegA = RegD;
+      SetRegA(RegD());
       CLK(4);
       break;
     case 0x7b: /*E*/
-      RegA = RegE;
+      SetRegA(RegE());
       CLK(4);
       break;
     case 0x7c: /*H*/
-      RegA = RegXH;
+      SetRegA(RegXH());
       CLK(4);
       break;
     case 0x7d: /*L*/
-      RegA = RegXL;
+      SetRegA(RegXL());
       CLK(4);
       break;
     case 0x7e: /*M*/
-      RegA = GetM();
+      SetRegA(GetM());
       CLK(7);
       break;
     case 0x7f: /*A*/
       CLK(4);
       break;
     case 0x3e: /*n*/
-      RegA = Fetch8();
+      SetRegA(Fetch8());
       CLK(7);
       break;
 
     // LD (--), A
     case 0x02: /*BC*/
-      Write8(RegBC, RegA);
+      Write8(RegBC(), RegA());
       CLK(7);
       break;
     case 0x12: /*DE*/
-      Write8(RegDE, RegA);
+      Write8(RegDE(), RegA());
       CLK(7);
       break;
     case 0x32: /*nn*/
-      Write8(Fetch16(), RegA);
+      Write8(Fetch16(), RegA());
       CLK(13);
       break;
 
     // LD A, (--)
     case 0x0a: /*BC*/
-      RegA = Read8(RegBC);
+      SetRegA(Read8(RegBC()));
       CLK(7);
       break;
     case 0x1a: /*DE*/
-      RegA = Read8(RegDE);
+      SetRegA(Read8(RegDE()));
       CLK(7);
       break;
     case 0x3a: /*nn*/
-      RegA = Read8(Fetch16());
+      SetRegA(Read8(Fetch16()));
       CLK(13);
       break;
 
@@ -2237,254 +2202,298 @@ void Z80C::SingleStep(uint32_t m) {
 
         // IN r,(c)
         case 0x40:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          SetZSP(RegB = Inp(RegBC));
+          {
+            uint8_t tmp = Inp(RegBC());
+            SetRegB(tmp);
+            SetZSP(tmp);
+          }
           SetFlags(NF | HF, 0);
           CLK(12);
           break;
 
         case 0x48:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          SetZSP(RegC = Inp(RegBC));
+          {
+            uint8_t tmp = Inp(RegBC());
+            SetRegC(tmp);
+            SetZSP(tmp);
+          }
           SetFlags(NF | HF, 0);
           CLK(12);
           break;
 
         case 0x50:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          SetZSP(RegD = Inp(RegBC));
+          {
+            uint8_t tmp = Inp(RegBC());
+            SetRegD(tmp);
+            SetZSP(tmp);
+          }
           SetFlags(NF | HF, 0);
           CLK(12);
           break;
 
         case 0x58:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          SetZSP(RegE = Inp(RegBC));
+          {
+            uint8_t tmp = Inp(RegBC());
+            SetRegE(tmp);
+            SetZSP(tmp);
+          }
           SetFlags(NF | HF, 0);
           CLK(12);
           break;
 
         case 0x60:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          SetZSP(RegH = Inp(RegBC));
+          {
+            uint8_t tmp = Inp(RegBC());
+            SetRegH(tmp);
+            SetZSP(tmp);
+          }
           SetFlags(NF | HF, 0);
           CLK(12);
           break;
 
         case 0x68:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          SetZSP(RegL = Inp(RegBC));
+          {
+            uint8_t tmp = Inp(RegBC());
+            SetRegL(tmp);
+            SetZSP(tmp);
+          }
           SetFlags(NF | HF, 0);
           CLK(12);
           break;
 
         case 0x70:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          SetZSP(Inp(RegBC));
+          SetZSP(Inp(RegBC()));
           SetFlags(NF | HF, 0);
           CLK(12);
           break;
 
         case 0x78:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          SetZSP(RegA = Inp(RegBC));
+          {
+            uint8_t tmp = Inp(RegBC());
+            SetRegA(tmp);
+            SetZSP(tmp);
+          }
           SetFlags(NF | HF, 0);
           CLK(12);
           break;
 
         // OUT (C),r
         case 0x41:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, RegB);
+          Outp(RegBC(), RegB());
           CLK(12);
           OutTestIntr();
           break;
 
         case 0x49:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, RegC);
+          Outp(RegBC(), RegC());
           CLK(12);
           OutTestIntr();
           break;
 
         case 0x51:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, RegD);
+          Outp(RegBC(), RegD());
           CLK(12);
           OutTestIntr();
           break;
 
         case 0x59:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, RegE);
+          Outp(RegBC(), RegE());
           CLK(12);
           OutTestIntr();
           break;
 
         case 0x61:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, RegH);
+          Outp(RegBC(), RegH());
           CLK(12);
           OutTestIntr();
           break;
 
         case 0x69:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, RegL);
+          Outp(RegBC(), RegL());
           CLK(12);
           OutTestIntr();
           break;
 
         case 0x71:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, 0);
+          Outp(RegBC(), 0);
           CLK(12);
           OutTestIntr();
           break;
 
         case 0x79:
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, RegA);
+          Outp(RegBC(), RegA());
           CLK(12);
           OutTestIntr();
           break;
 
         case 0xa2:  // INI
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Write8(RegHL++, Inp(RegBC));
-          SetFlags(ZF | NF, --RegB ? NF : NF | ZF);
+          Write8(RegHL(), Inp(RegBC()));
+          SetRegHL(RegHL() + 1);
+          SetRegB(RegB() - 1);
+          SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
           CLK(16);
           break;
 
         case 0xaa:  // IND
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Write8(RegHL--, Inp(RegBC));
-          SetFlags(ZF | NF, --RegB ? NF : NF | ZF);
+          Write8(RegHL(), Inp(RegBC()));
+          SetRegHL(RegHL() - 1);
+          SetRegB(RegB() - 1);
+          SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
           CLK(16);
           break;
 
         case 0xa3:  // OUTI
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, Read8(RegHL++));
-          SetFlags(ZF | NF, --RegB ? NF : NF | ZF);
+          Outp(RegBC(), Read8(RegHL()));
+          SetRegHL(RegHL() + 1);
+          SetRegB(RegB() - 1);
+          SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
           CLK(16);
           OutTestIntr();
           break;
 
         case 0xab:  // OUTD
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, Read8(RegHL--));
-          SetFlags(ZF | NF, --RegB ? NF : NF | ZF);
+          Outp(RegBC(), Read8(RegHL()));
+          SetRegHL(RegHL() - 1);
+          SetRegB(RegB() - 1);
+          SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
           CLK(16);
           OutTestIntr();
           break;
 
         case 0xb2:  // INIR
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Write8(RegHL++, Inp(RegBC));
-          SetFlags(ZF | NF, --RegB ? NF : NF | ZF);
+          Write8(RegHL(), Inp(RegBC()));
+          SetRegHL(RegHL() + 1);
+          SetRegB(RegB() - 1);
+          SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
           CLK(16);
-          if (RegB)
+          if (RegB())
             PCDec(2);
           break;
 
         case 0xba:  // INDR
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Write8(RegHL--, Inp(RegBC));
-          SetFlags(ZF | NF, --RegB ? NF : NF | ZF);
+          Write8(RegHL(), Inp(RegBC()));
+          SetRegHL(RegHL() - 1);
+          SetRegB(RegB() - 1);
+          SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
           CLK(16);
-          if (RegB)
+          if (RegB())
             PCDec(2);
           break;
 
         case 0xb3:  // OTIR
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, Read8(RegHL++));
-          SetFlags(ZF | NF, --RegB ? NF : NF | ZF);
+          Outp(RegBC(), Read8(RegHL()));
+          SetRegHL(RegHL() + 1);
+          SetRegB(RegB() - 1);
+          SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
           CLK(16);
-          if (RegB)
+          if (RegB())
             PCDec(2);
           OutTestIntr();
           break;
 
         case 0xbb:  // OTDR
-          if (bus_->IsSyncPort(RegBC & 0xff) && !Sync()) {
+          if (bus_->IsSyncPort(RegBC() & 0xff) && !Sync()) {
             PCDec(2);
             break;
           }
-          Outp(RegBC, Read8(RegHL--));
-          SetFlags(ZF | NF, --RegB ? NF : NF | ZF);
+          Outp(RegBC(), Read8(RegHL()));
+          SetRegHL(RegHL() - 1);
+          SetRegB(RegB() - 1);
+          SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
           CLK(16);
-          if (RegB)
+          if (RegB())
             PCDec(2);
           OutTestIntr();
           break;
@@ -2492,20 +2501,29 @@ void Z80C::SingleStep(uint32_t m) {
           // ブロック転送系
 
         case 0xa0:  // LDI
-          Write8(RegDE++, Read8(RegHL++));
-          SetFlags(PF | NF | HF, --RegBC & 0xffff ? PF : 0);
+          Write8(RegDE(), Read8(RegHL()));
+          SetRegDE(RegDE() + 1);
+          SetRegHL(RegHL() + 1);
+          SetRegBC(RegBC() - 1);
+          SetFlags(PF | NF | HF, RegBC() & 0xffff ? PF : 0);
           CLK(16);
           break;
 
         case 0xa8:  // LDD
-          Write8(RegDE--, Read8(RegHL--));
-          SetFlags(PF | NF | HF, --RegBC & 0xffff ? PF : 0);
+          Write8(RegDE(), Read8(RegHL()));
+          SetRegDE(RegDE() - 1);
+          SetRegHL(RegHL() - 1);
+          SetRegBC(RegBC() - 1);
+          SetFlags(PF | NF | HF, RegBC() & 0xffff ? PF : 0);
           CLK(16);
           break;
 
         case 0xb0:  // LDIR
-          Write8(RegDE++, Read8(RegHL++));
-          if (--RegBC & 0xffff) {
+          Write8(RegDE(), Read8(RegHL()));
+          SetRegDE(RegDE() + 1);
+          SetRegHL(RegHL() + 1);
+          SetRegBC(RegBC() - 1);
+          if (RegBC() & 0xffff) {
             SetFlags(PF | NF | HF, PF);
             PCDec(2), CLK(21);
           } else {
@@ -2515,8 +2533,11 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0xb8:  // LDDR
-          Write8(RegDE--, Read8(RegHL--));
-          if (--RegBC & 0xffff) {
+          Write8(RegDE(), Read8(RegHL()));
+          SetRegDE(RegDE() + 1);
+          SetRegHL(RegHL() - 1);
+          SetRegBC(RegBC() - 1);
+          if (RegBC() & 0xffff) {
             SetFlags(PF | NF | HF, PF);
             PCDec(2), CLK(21);
           } else {
@@ -2537,13 +2558,13 @@ void Z80C::SingleStep(uint32_t m) {
 
         case 0xb1:  // CPIR
           CPI();
-          if (!GetZF() && RegBC)
+          if (!GetZF() && RegBC())
             PCDec(2);
           break;
 
         case 0xb9:  // CPDR
           CPD();
-          if (!GetZF() && RegBC)
+          if (!GetZF() && RegBC())
             PCDec(2);
           break;
 
@@ -2557,8 +2578,8 @@ void Z80C::SingleStep(uint32_t m) {
         case 0x6c:
         case 0x74:
         case 0x7c:  // NEG
-          b = RegA;
-          RegA = 0;
+          b = RegA();
+          SetRegA(0);
           SUBA(b);
           CLK(8);
           break;
@@ -2583,26 +2604,26 @@ void Z80C::SingleStep(uint32_t m) {
           break;
 
         case 0x57:  // LD A,I
-          RegA = (reg.ireg);
+          SetRegA((reg.ireg));
           SetZS(reg.ireg);
           SetFlags(NF | HF | PF, reg.iff1 ? PF : 0);
           CLK(9);
           break;
 
         case 0x5F:  // LD A,R
-          RegA = (reg.rreg & 0x7f) + (reg.rreg7 & 0x80);
-          SetZS(RegA);
+          SetRegA((reg.rreg & 0x7f) + (reg.rreg7 & 0x80));
+          SetZS(RegA());
           SetFlags(NF | HF | PF, (reg.iff1 ? PF : 0));
           CLK(9);
           break;
 
         case 0x47:  // LD I,A
-          reg.ireg = RegA;
+          reg.ireg = RegA();
           CLK(9);
           break;
 
         case 0x4f:  // LD R,A
-          reg.rreg7 = reg.rreg = RegA;
+          reg.rreg7 = reg.rreg = RegA();
           CLK(9);
           break;
 
@@ -2625,13 +2646,13 @@ void Z80C::SingleStep(uint32_t m) {
         {
           uint8_t d, e;
 
-          d = Read8(RegHL);
-          e = RegA & 0x0f;
-          RegA = (RegA & 0xf0) + (d >> 4);
+          d = Read8(RegHL());
+          e = RegA() & 0x0f;
+          SetRegA((RegA() & 0xf0) + (d >> 4));
           d = ((d << 4) & 0xf0) + e;
-          Write8(RegHL, d);
+          Write8(RegHL(), d);
 
-          SetZSP(RegA);
+          SetZSP(RegA());
           SetFlags(NF | HF, 0);
           CLK(18);
         } break;
@@ -2640,13 +2661,13 @@ void Z80C::SingleStep(uint32_t m) {
         {
           uint8_t d, e;
 
-          d = Read8(RegHL);
-          e = RegA & 0x0f;
-          RegA = (RegA & 0xf0) + (d & 0x0f);
+          d = Read8(RegHL());
+          e = RegA() & 0x0f;
+          SetRegA((RegA() & 0xf0) + (d & 0x0f));
           d = (d >> 4) + (e << 4);
-          Write8(RegHL, d);
+          Write8(RegHL(), d);
 
-          SetZSP(RegA);
+          SetZSP(RegA());
           SetFlags(NF | HF, 0);
           CLK(18);
         } break;
@@ -2655,37 +2676,37 @@ void Z80C::SingleStep(uint32_t m) {
 
         // LD (nn),dd
         case 0x43: /*BC*/
-          Write16(Fetch16(), RegBC);
+          Write16(Fetch16(), RegBC());
           CLK(20);
           break;
         case 0x53: /*DE*/
-          Write16(Fetch16(), RegDE);
+          Write16(Fetch16(), RegDE());
           CLK(20);
           break;
         case 0x63: /*HL*/
-          Write16(Fetch16(), RegHL);
+          Write16(Fetch16(), RegHL());
           CLK(20);
           break;
         case 0x73: /*SP*/
-          Write16(Fetch16(), RegSP);
+          Write16(Fetch16(), RegSP());
           CLK(20);
           break;
 
         // LD dd,(nn)
         case 0x4b: /*BC*/
-          RegBC = Read16(Fetch16());
+          SetRegBC(Read16(Fetch16()));
           CLK(20);
           break;
         case 0x5b: /*DE*/
-          RegDE = Read16(Fetch16());
+          SetRegDE(Read16(Fetch16()));
           CLK(20);
           break;
         case 0x6b: /*HL*/
-          RegHL = Read16(Fetch16());
+          SetRegHL(Read16(Fetch16()));
           CLK(20);
           break;
         case 0x7b: /*SP*/
-          RegSP = Read16(Fetch16());
+          SetRegSP(Read16(Fetch16()));
           CLK(20);
           break;
 
@@ -2693,37 +2714,37 @@ void Z80C::SingleStep(uint32_t m) {
 
         // ADC HL,dd
         case 0x4a: /*BC*/
-          ADCHL(RegBC);
+          ADCHL(RegBC());
           CLK(15);
           break;
         case 0x5a: /*DE*/
-          ADCHL(RegDE);
+          ADCHL(RegDE());
           CLK(15);
           break;
         case 0x6a: /*HL*/
-          ADCHL(RegHL);
+          ADCHL(RegHL());
           CLK(15);
           break;
         case 0x7a: /*SP*/
-          ADCHL(RegSP);
+          ADCHL(RegSP());
           CLK(15);
           break;
 
         // SBC HL,dd
         case 0x42: /*BC*/
-          SBCHL(RegBC);
+          SBCHL(RegBC());
           CLK(15);
           break;
         case 0x52: /*DE*/
-          SBCHL(RegDE);
+          SBCHL(RegDE());
           CLK(15);
           break;
         case 0x62: /*HL*/
-          SBCHL(RegHL);
+          SBCHL(RegHL());
           CLK(15);
           break;
         case 0x72: /*SP*/
-          SBCHL(RegSP);
+          SBCHL(RegSP());
           CLK(15);
           break;
       }
@@ -2791,22 +2812,24 @@ void Z80C::CodeCB() {
 //
 void Z80C::CPI() {
   uint8_t n, f;
-  n = Read8(RegHL++);
-  RegBC = (RegBC - 1) & 0xffff;
-  f = (((RegA & 0x0f) < (n & 0x0f)) ? HF : 0) | (RegBC ? PF : 0) | NF;
+  n = Read8(RegHL());
+  SetRegHL(RegHL() + 1);
+  SetRegBC((RegBC() - 1) & 0xffff);
+  f = (((RegA() & 0x0f) < (n & 0x0f)) ? HF : 0) | (RegBC() ? PF : 0) | NF;
 
   SetFlags(HF | PF | NF, f);
-  SetZS(RegA - n);
+  SetZS(RegA() - n);
   CLK(16);
 }
 
 void Z80C::CPD() {
   uint8_t n, f;
-  n = Read8(RegHL--);
-  RegBC = (RegBC - 1) & 0xffff;
-  f = (((RegA & 0x0f) < (n & 0x0f)) ? HF : 0) | (RegBC ? PF : 0) | NF;
+  n = Read8(RegHL());
+  SetRegHL(RegHL() - 1);
+  SetRegBC((RegBC() - 1) & 0xffff);
+  f = (((RegA() & 0x0f) < (n & 0x0f)) ? HF : 0) | (RegBC() ? PF : 0) | NF;
   SetFlags(HF | PF | NF, f);
-  SetZS(RegA - n);
+  SetZS(RegA() - n);
   CLK(16);
 }
 
@@ -2827,7 +2850,7 @@ uint8_t Z80C::GetCF() {
         SetFlags(CF, ((fx_ + fy_) & 0x200) ? CF : 0);
     }
   }
-  return RegF & CF;
+  return RegF() & CF;
 }
 
 uint8_t Z80C::GetZF() {
@@ -2844,7 +2867,7 @@ uint8_t Z80C::GetZF() {
         SetFlags(ZF, ((fx_ + fy_) & 0x1fe) ? 0 : ZF);
     }
   }
-  return RegF & ZF;
+  return RegF() & ZF;
 }
 
 uint8_t Z80C::GetSF() {
@@ -2861,7 +2884,7 @@ uint8_t Z80C::GetSF() {
         SetFlags(SF, ((fx_ + fy_) & 0x100) ? SF : 0);
     }
   }
-  return RegF & SF;
+  return RegF() & SF;
 }
 
 uint8_t Z80C::GetHF() {
@@ -2878,7 +2901,7 @@ uint8_t Z80C::GetHF() {
         SetFlags(HF, (((fx_ & 0x1f) + (fy_ & 0x1f)) & 0x20) ? HF : 0);
     }
   }
-  return RegF & HF;
+  return RegF() & HF;
 }
 
 uint8_t Z80C::GetPF() {
@@ -2895,7 +2918,7 @@ uint8_t Z80C::GetPF() {
         SetFlags(PF, (~(fx_ ^ fy_) & (fx_ ^ (fx_ + fy_)) & 0x100) ? PF : 0);
     }
   }
-  return RegF & PF;
+  return RegF() & PF;
 }
 
 void Z80C::SetZS(uint8_t a) {
@@ -2965,19 +2988,19 @@ void Z80C::DumpLog() {
   ptr++;
   *ptr++ = 'h';
   *ptr++ = ':';
-  ToHex(&ptr, RegHL);
+  ToHex(&ptr, RegHL());
   ptr++;
   *ptr++ = 'd';
   *ptr++ = ':';
-  ToHex(&ptr, RegDE);
+  ToHex(&ptr, RegDE());
   ptr++;
   *ptr++ = 'b';
   *ptr++ = ':';
-  ToHex(&ptr, RegBC);
+  ToHex(&ptr, RegBC());
   ptr++;
   *ptr++ = 's';
   *ptr++ = ':';
-  ToHex(&ptr, RegSP);
+  ToHex(&ptr, RegSP());
   ptr++;
   *ptr++ = 10;
 

@@ -225,28 +225,94 @@ class Z80C : public Device {
   void PCInc(uint32_t inc);
   void PCDec(uint32_t dec);
 
-  void Call(), Jump(uint32_t dest), JumpR();
-  uint8_t GetCF(), GetZF(), GetSF();
-  uint8_t GetHF(), GetPF();
+  void Call();
+  void Jump(uint32_t dest);
+  void JumpR();
+
+  uint8_t GetCF();
+  uint8_t GetZF();
+  uint8_t GetSF();
+  uint8_t GetHF();
+  uint8_t GetPF();
+
   void SetM(uint32_t n);
   uint8_t GetM();
+
   void Push(uint32_t n);
   uint32_t Pop();
-  void ADDA(uint8_t), ADCA(uint8_t), SUBA(uint8_t);
-  void SBCA(uint8_t), ANDA(uint8_t), ORA(uint8_t);
-  void XORA(uint8_t), CPA(uint8_t);
-  uint8_t Inc8(uint8_t), Dec8(uint8_t);
+
+  void ADDA(uint8_t);
+  void ADCA(uint8_t);
+  void SUBA(uint8_t);
+  void SBCA(uint8_t);
+  void ANDA(uint8_t);
+  void ORA(uint8_t);
+  void XORA(uint8_t);
+  void CPA(uint8_t);
+
+  uint8_t Inc8(uint8_t);
+  uint8_t Dec8(uint8_t);
   uint32_t ADD16(uint32_t x, uint32_t y);
-  void ADCHL(uint32_t y), SBCHL(uint32_t y);
+  void ADCHL(uint32_t y);
+  void SBCHL(uint32_t y);
+
   uint32_t GetAF();
   void SetAF(uint32_t n);
-  void SetZS(uint8_t a), SetZSP(uint8_t a);
-  void CPI(), CPD();
+  void SetZS(uint8_t a);
+  void SetZSP(uint8_t a);
+
+  void CPI();
+  void CPD();
   void CodeCB();
 
-  uint8_t RLC(uint8_t), RRC(uint8_t), RL(uint8_t);
-  uint8_t RR(uint8_t), SLA(uint8_t), SRA(uint8_t);
-  uint8_t SLL(uint8_t), SRL(uint8_t);
+  uint8_t RLC(uint8_t);
+  uint8_t RRC(uint8_t);
+  uint8_t RL(uint8_t);
+  uint8_t RR(uint8_t);
+  uint8_t SLA(uint8_t);
+  uint8_t SRA(uint8_t);
+  uint8_t SLL(uint8_t);
+  uint8_t SRL(uint8_t);
+
+  // Converted from macros.
+  uint8_t RegA() const { return reg.r.b.a; }
+  void SetRegA(uint8_t n) { reg.r.b.a = n; }
+  uint8_t RegB() const { return reg.r.b.b; }
+  void SetRegB(uint8_t n) { reg.r.b.b = n; }
+  uint8_t RegC() const { return reg.r.b.c; }
+  void SetRegC(uint8_t n) { reg.r.b.c = n; }
+  uint8_t RegD() const { return reg.r.b.d; }
+  void SetRegD(uint8_t n) { reg.r.b.d = n; }
+  uint8_t RegE() const { return reg.r.b.e; }
+  void SetRegE(uint8_t n) { reg.r.b.e = n; }
+  uint8_t RegH() const { return reg.r.b.h; }
+  void SetRegH(uint8_t n) { reg.r.b.h = n; }
+  uint8_t RegL() const { return reg.r.b.l; }
+  void SetRegL(uint8_t n) { reg.r.b.l = n; }
+  uint8_t RegXH() const { return *ref_h_[index_mode_]; }
+  void SetRegXH(uint8_t n) { *ref_h_[index_mode_] = n; }
+  uint8_t RegXL() const { return *ref_l_[index_mode_]; }
+  void SetRegXL(uint8_t n) { *ref_l_[index_mode_] = n; }
+  uint8_t RegF() const { return reg.r.b.flags; }
+  void SetRegF(uint8_t n) { reg.r.b.flags = n; }
+
+  uint32_t RegXHL() const { return *ref_hl_[index_mode_]; }
+  void SetRegXHL(uint32_t n) { *ref_hl_[index_mode_] = n; }
+  uint32_t RegHL() const { return reg.r.w.hl; }
+  void SetRegHL(uint32_t n) { reg.r.w.hl = n; }
+  uint32_t RegDE() const { return reg.r.w.de; }
+  void SetRegDE(uint32_t n) { reg.r.w.de = n; }
+  uint32_t RegBC() const { return reg.r.w.bc; }
+  void SetRegBC(uint32_t n) { reg.r.w.bc = n; }
+  uint32_t RegAF() const { return reg.r.w.af; }
+  void SetRegAF(uint32_t n) { reg.r.w.af = n; }
+  uint32_t RegSP() const { return reg.r.w.sp; }
+  void SetRegSP(uint32_t n) { reg.r.w.sp = n; }
+
+  void SetFlags(uint8_t clr, uint8_t set) {
+    SetRegF((RegF() & ~clr) | set);
+    uf_ &= ~clr;
+  }
 };
 
 inline Z80C::Statistics* Z80C::GetStatistics() {
