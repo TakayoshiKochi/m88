@@ -111,10 +111,10 @@ class Z80C : public Device {
   bool IFCALL SaveStatus(uint8_t* status) override;
   bool IFCALL LoadStatus(const uint8_t* status) override;
 
-  [[nodiscard]] uint32_t GetPC() const { return static_cast<uint32_t>(inst - instbase); }
+  [[nodiscard]] uint32_t GetPC() const { return static_cast<uint32_t>(inst_ - instbase_); }
 
   void SetPC(uint32_t newpc);
-  const Z80Reg& GetReg() { return reg; }
+  const Z80Reg& GetReg() { return reg_; }
 
   bool GetPages(MemoryPage** rd, MemoryPage** wr) {
     *rd = rdpages_, *wr = wrpages_;
@@ -146,21 +146,21 @@ class Z80C : public Device {
 
   void DumpLog();
 
-  uint8_t* inst = nullptr;      // PC の指すメモリのポインタ，または PC そのもの
-  uint8_t* instlim = nullptr;   // inst の有効上限
-  uint8_t* instbase = nullptr;  // inst - PC        (PC = inst - instbase)
-  uint8_t* instpage = nullptr;
+  uint8_t* inst_ = nullptr;      // PC の指すメモリのポインタ，または PC そのもの
+  uint8_t* instlim_ = nullptr;   // inst の有効上限
+  uint8_t* instbase_ = nullptr;  // inst - PC        (PC = inst - instbase)
+  uint8_t* instpage_ = nullptr;
 
-  Z80Reg reg{};
+  Z80Reg reg_{};
   IOBus* bus_ = nullptr;
 
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];
 
+  // Emulation state
   static Z80C* currentcpu;
   static int cbase;
 
-  // Emulation state
   int exec_count_ = 0;
   int clock_count_ = 0;
   int stop_count_ = 0;
@@ -275,39 +275,39 @@ class Z80C : public Device {
   uint8_t SRL(uint8_t);
 
   // Converted from macros.
-  uint8_t RegA() const { return reg.r.b.a; }
-  void SetRegA(uint8_t n) { reg.r.b.a = n; }
-  uint8_t RegB() const { return reg.r.b.b; }
-  void SetRegB(uint8_t n) { reg.r.b.b = n; }
-  uint8_t RegC() const { return reg.r.b.c; }
-  void SetRegC(uint8_t n) { reg.r.b.c = n; }
-  uint8_t RegD() const { return reg.r.b.d; }
-  void SetRegD(uint8_t n) { reg.r.b.d = n; }
-  uint8_t RegE() const { return reg.r.b.e; }
-  void SetRegE(uint8_t n) { reg.r.b.e = n; }
-  uint8_t RegH() const { return reg.r.b.h; }
-  void SetRegH(uint8_t n) { reg.r.b.h = n; }
-  uint8_t RegL() const { return reg.r.b.l; }
-  void SetRegL(uint8_t n) { reg.r.b.l = n; }
+  uint8_t RegA() const { return reg_.r.b.a; }
+  void SetRegA(uint8_t n) { reg_.r.b.a = n; }
+  uint8_t RegB() const { return reg_.r.b.b; }
+  void SetRegB(uint8_t n) { reg_.r.b.b = n; }
+  uint8_t RegC() const { return reg_.r.b.c; }
+  void SetRegC(uint8_t n) { reg_.r.b.c = n; }
+  uint8_t RegD() const { return reg_.r.b.d; }
+  void SetRegD(uint8_t n) { reg_.r.b.d = n; }
+  uint8_t RegE() const { return reg_.r.b.e; }
+  void SetRegE(uint8_t n) { reg_.r.b.e = n; }
+  uint8_t RegH() const { return reg_.r.b.h; }
+  void SetRegH(uint8_t n) { reg_.r.b.h = n; }
+  uint8_t RegL() const { return reg_.r.b.l; }
+  void SetRegL(uint8_t n) { reg_.r.b.l = n; }
   uint8_t RegXH() const { return *ref_h_[index_mode_]; }
   void SetRegXH(uint8_t n) { *ref_h_[index_mode_] = n; }
   uint8_t RegXL() const { return *ref_l_[index_mode_]; }
   void SetRegXL(uint8_t n) { *ref_l_[index_mode_] = n; }
-  uint8_t RegF() const { return reg.r.b.flags; }
-  void SetRegF(uint8_t n) { reg.r.b.flags = n; }
+  uint8_t RegF() const { return reg_.r.b.flags; }
+  void SetRegF(uint8_t n) { reg_.r.b.flags = n; }
 
   uint32_t RegXHL() const { return *ref_hl_[index_mode_]; }
   void SetRegXHL(uint32_t n) { *ref_hl_[index_mode_] = n; }
-  uint32_t RegHL() const { return reg.r.w.hl; }
-  void SetRegHL(uint32_t n) { reg.r.w.hl = n; }
-  uint32_t RegDE() const { return reg.r.w.de; }
-  void SetRegDE(uint32_t n) { reg.r.w.de = n; }
-  uint32_t RegBC() const { return reg.r.w.bc; }
-  void SetRegBC(uint32_t n) { reg.r.w.bc = n; }
-  uint32_t RegAF() const { return reg.r.w.af; }
-  void SetRegAF(uint32_t n) { reg.r.w.af = n; }
-  uint32_t RegSP() const { return reg.r.w.sp; }
-  void SetRegSP(uint32_t n) { reg.r.w.sp = n; }
+  uint32_t RegHL() const { return reg_.r.w.hl; }
+  void SetRegHL(uint32_t n) { reg_.r.w.hl = n; }
+  uint32_t RegDE() const { return reg_.r.w.de; }
+  void SetRegDE(uint32_t n) { reg_.r.w.de = n; }
+  uint32_t RegBC() const { return reg_.r.w.bc; }
+  void SetRegBC(uint32_t n) { reg_.r.w.bc = n; }
+  uint32_t RegAF() const { return reg_.r.w.af; }
+  void SetRegAF(uint32_t n) { reg_.r.w.af = n; }
+  uint32_t RegSP() const { return reg_.r.w.sp; }
+  void SetRegSP(uint32_t n) { reg_.r.w.sp = n; }
 
   // Flags
   static constexpr uint8_t CF = 1 << 0;

@@ -25,23 +25,23 @@ static int testcount[24];
 //
 Z80C::Z80C(const ID& id) : Device(id) {
   // テーブル初期化
-  ref_h_[USEHL] = &reg.r.b.h;
-  ref_l_[USEHL] = &reg.r.b.l;
-  ref_h_[USEIX] = &reg.r.b.xh;
-  ref_l_[USEIX] = &reg.r.b.xl;
-  ref_h_[USEIY] = &reg.r.b.yh;
-  ref_l_[USEIY] = &reg.r.b.yl;
-  ref_hl_[USEHL] = &reg.r.w.hl;
-  ref_hl_[USEIX] = &reg.r.w.ix;
-  ref_hl_[USEIY] = &reg.r.w.iy;
-  ref_byte_[0] = &reg.r.b.b;
-  ref_byte_[1] = &reg.r.b.c;
-  ref_byte_[2] = &reg.r.b.d;
-  ref_byte_[3] = &reg.r.b.e;
-  ref_byte_[4] = &reg.r.b.h;
-  ref_byte_[5] = &reg.r.b.l;
+  ref_h_[USEHL] = &reg_.r.b.h;
+  ref_l_[USEHL] = &reg_.r.b.l;
+  ref_h_[USEIX] = &reg_.r.b.xh;
+  ref_l_[USEIX] = &reg_.r.b.xl;
+  ref_h_[USEIY] = &reg_.r.b.yh;
+  ref_l_[USEIY] = &reg_.r.b.yl;
+  ref_hl_[USEHL] = &reg_.r.w.hl;
+  ref_hl_[USEIX] = &reg_.r.w.ix;
+  ref_hl_[USEIY] = &reg_.r.w.iy;
+  ref_byte_[0] = &reg_.r.b.b;
+  ref_byte_[1] = &reg_.r.b.c;
+  ref_byte_[2] = &reg_.r.b.d;
+  ref_byte_[3] = &reg_.r.b.e;
+  ref_byte_[4] = &reg_.r.b.h;
+  ref_byte_[5] = &reg_.r.b.l;
   ref_byte_[6] = nullptr;
-  ref_byte_[7] = &reg.r.b.a;
+  ref_byte_[7] = &reg_.r.b.a;
 
   dump_log_ = nullptr;
 }
@@ -83,16 +83,16 @@ void Z80C::SetPC(uint32_t newpc) {
   if (!page.func) {
     DEBUGCOUNT(4);
     // instruction is on memory
-    instpage = ((uint8_t*)page.ptr);
-    instbase = ((uint8_t*)page.ptr) - (newpc & ~pagemask & 0xffff);
-    instlim = ((uint8_t*)page.ptr) + (1 << pagebits);
-    inst = ((uint8_t*)page.ptr) + (newpc & pagemask);
+    instpage_ = ((uint8_t*)page.ptr);
+    instbase_ = ((uint8_t*)page.ptr) - (newpc & ~pagemask & 0xffff);
+    instlim_ = ((uint8_t*)page.ptr) + (1 << pagebits);
+    inst_ = ((uint8_t*)page.ptr) + (newpc & pagemask);
     return;
   } else {
     DEBUGCOUNT(5);
-    instbase = instlim = 0;
-    instpage = (uint8_t*)~0;
-    inst = (uint8_t*)newpc;
+    instbase_ = instlim_ = nullptr;
+    instpage_ = (uint8_t*)~0;
+    inst_ = (uint8_t*)newpc;
     return;
   }
 }
@@ -106,22 +106,22 @@ inline uint32_t Z80C::GetPC()
 */
 
 inline void Z80C::PCInc(uint32_t inc) {
-  inst += inc;
+  inst_ += inc;
 }
 
 inline void Z80C::PCDec(uint32_t dec) {
-  inst -= dec;
-  if (inst >= instpage) {
+  inst_ -= dec;
+  if (inst_ >= instpage_) {
     DEBUGCOUNT(7);
     return;
   }
   DEBUGCOUNT(19);
-  SetPC(inst - instbase);
+  SetPC(inst_ - instbase_);
 }
 
 inline void Z80C::Jump(uint32_t dest) {
-  inst = instbase + dest;
-  if (inst >= instpage) {
+  inst_ = instbase_ + dest;
+  if (inst_ >= instpage_) {
     DEBUGCOUNT(9);
     return;
   }
@@ -131,14 +131,14 @@ inline void Z80C::Jump(uint32_t dest) {
 
 // ninst = inst + rel
 inline void Z80C::JumpR() {
-  inst += int8_t(Fetch8());
+  inst_ += int8_t(Fetch8());
   CLK(5);
-  if (inst >= instpage) {
+  if (inst_ >= instpage_) {
     DEBUGCOUNT(17);
     return;
   }
   DEBUGCOUNT(18);
-  SetPC(inst - instbase);
+  SetPC(inst_ - instbase_);
 }
 
 // ---------------------------------------------------------------------------
@@ -146,8 +146,8 @@ inline void Z80C::JumpR() {
 //
 inline uint32_t Z80C::Fetch8() {
   DEBUGCOUNT(0);
-  if (inst < instlim)
-    return *inst++;
+  if (inst_ < instlim_)
+    return *inst_++;
   else
     return Fetch8B();
 }
@@ -166,13 +166,13 @@ inline uint32_t Z80C::Fetch16() {
 
 uint32_t Z80C::Fetch8B() {
   DEBUGCOUNT(1);
-  if (instlim) {
+  if (instlim_) {
     SetPC(GetPC());
-    if (instlim)
-      return *inst++;
+    if (instlim_)
+      return *inst_++;
   }
   DEBUGCOUNT(2);
-  return Read8(inst++ - instbase);
+  return Read8(inst_++ - instbase_);
 }
 
 uint32_t Z80C::Fetch16B() {
@@ -333,7 +333,7 @@ int Z80C::Exec0(int stop, int other) {
       for (clock_count_ = -clocks; clock_count_ < 0;)
         SingleStep();
     }
-    currentcpu = 0;
+    currentcpu = nullptr;
     return stop_count_;
   } else {
     return stop;
@@ -361,7 +361,7 @@ int Z80C::Exec1(int stop, int other) {
         SingleStep();
       }
     }
-    currentcpu = 0;
+    currentcpu = nullptr;
     return stop_count_;
   } else {
     return stop;
@@ -471,21 +471,21 @@ inline void Z80C::Outp(uint32_t port, uint32_t data) {
 // リセット
 //
 void IOCALL Z80C::Reset(uint32_t, uint32_t) {
-  memset(&reg, 0, sizeof(reg));
+  memset(&reg_, 0, sizeof(reg_));
 
-  reg.iff1 = false;
-  reg.iff2 = false;
-  reg.ireg = 0;  // I, R = 0
-  reg.rreg = 0;
+  reg_.iff1 = false;
+  reg_.iff2 = false;
+  reg_.ireg = 0;  // I, R = 0
+  reg_.rreg = 0;
 
   SetRegF(0);
   uf_ = 0;
-  instlim = nullptr;
-  instbase = nullptr;
+  instlim_ = nullptr;
+  instbase_ = nullptr;
 
   // SetFlags(0xff, 0);      // フラグリセット
-  reg.intmode = 0;  // IM0
-  SetPC(0);         // pc, sp = 0
+  reg_.intmode = 0;  // IM0
+  SetPC(0);          // pc, sp = 0
   SetRegSP(0);
   wait_state_ = 0;
   intr_ = false;  // 割り込みクリア
@@ -496,8 +496,8 @@ void IOCALL Z80C::Reset(uint32_t, uint32_t) {
 // 強制割り込み
 //
 void IOCALL Z80C::NMI(uint32_t, uint32_t) {
-  reg.iff2 = reg.iff1;
-  reg.iff1 = false;
+  reg_.iff2 = reg_.iff1;
+  reg_.iff1 = false;
   Push(GetPC());
   CLK(11);
   SetPC(0x66);
@@ -507,19 +507,19 @@ void IOCALL Z80C::NMI(uint32_t, uint32_t) {
 // 割り込む
 //
 void Z80C::TestIntr() {
-  if (reg.iff1 && intr_) {
-    reg.iff1 = false;
-    reg.iff2 = false;
+  if (reg_.iff1 && intr_) {
+    reg_.iff1 = false;
+    reg_.iff2 = false;
 
     if (wait_state_ & 1) {
       wait_state_ = 0;
       PCInc(1);
     }
-    int intno = bus_->In(int_ack_);
+    uint32_t int_no = bus_->In(int_ack_);
 
-    switch (reg.intmode) {
+    switch (reg_.intmode) {
       case 0:
-        SingleStep(intno);
+        SingleStep(int_no);
         CLK(13);
         break;
 
@@ -531,7 +531,7 @@ void Z80C::TestIntr() {
 
       case 2:
         Push(GetPC());
-        SetPC(Read16(reg.ireg * 256 + intno));
+        SetPC(Read16(reg_.ireg * 256 + int_no));
         CLK(19);
         break;
     }
@@ -801,7 +801,7 @@ uint8_t Z80C::SRL(uint8_t d) {
 // １命令実行
 //
 void Z80C::SingleStep(uint32_t m) {
-  reg.rreg++;
+  reg_.rreg++;
 
   switch (m) {
     uint8_t b;
@@ -1233,8 +1233,8 @@ void Z80C::SingleStep(uint32_t m) {
 
     case 0x08:  // EX AF,AF'
       w = GetAF();
-      SetAF(reg.r_af);
-      reg.r_af = w;
+      SetAF(reg_.r_af);
+      reg_.r_af = w;
       CLK(4);
       break;
 
@@ -1254,21 +1254,21 @@ void Z80C::SingleStep(uint32_t m) {
 
     case 0xd9:  // EXX
       w = RegHL();
-      SetRegHL(reg.r_hl);
-      reg.r_hl = w;
+      SetRegHL(reg_.r_hl);
+      reg_.r_hl = w;
       w = RegDE();
-      SetRegDE(reg.r_de);
-      reg.r_de = w;
+      SetRegDE(reg_.r_de);
+      reg_.r_de = w;
       w = RegBC();
-      SetRegBC(reg.r_bc);
-      reg.r_bc = w;
+      SetRegBC(reg_.r_bc);
+      reg_.r_bc = w;
       CLK(4);
       break;
 
       // CPU control
 
     case 0xf3:  // DI
-      reg.iff1 = reg.iff2 = false;
+      reg_.iff1 = reg_.iff2 = false;
       CLK(4);
       break;
 
@@ -1277,7 +1277,7 @@ void Z80C::SingleStep(uint32_t m) {
       CLK(4);
       if ((w & 0xf7) != 0xf3) {
         SingleStep(w);
-        reg.iff1 = reg.iff2 = true;
+        reg_.iff1 = reg_.iff2 = true;
         TestIntr();
       } else
         PCDec(1);
@@ -2122,14 +2122,14 @@ void Z80C::SingleStep(uint32_t m) {
       // CB
     case 0xcb:
       if (index_mode_ == USEHL)
-        reg.rreg++;
+        reg_.rreg++;
       CodeCB();
       break;
 
       // ED
     case 0xed:
       w = Fetch8();
-      reg.rreg++;
+      reg_.rreg++;
       switch (w) {
           // 入出力 ED 系
 
@@ -2521,42 +2521,42 @@ void Z80C::SingleStep(uint32_t m) {
         case 0x4e:
         case 0x66:
         case 0x6e:  // IM 0
-          reg.intmode = 0;
+          reg_.intmode = 0;
           CLK(8);
           break;
 
         case 0x56:
         case 0x76:  // IM 1
-          reg.intmode = 1;
+          reg_.intmode = 1;
           CLK(8);
           break;
         case 0x5e:
         case 0x7e:  // IM 2
-          reg.intmode = 2;
+          reg_.intmode = 2;
           CLK(8);
           break;
 
         case 0x57:  // LD A,I
-          SetRegA((reg.ireg));
-          SetZS(reg.ireg);
-          SetFlags(NF | HF | PF, reg.iff1 ? PF : 0);
+          SetRegA((reg_.ireg));
+          SetZS(reg_.ireg);
+          SetFlags(NF | HF | PF, reg_.iff1 ? PF : 0);
           CLK(9);
           break;
 
         case 0x5F:  // LD A,R
-          SetRegA((reg.rreg & 0x7f) + (reg.rreg7 & 0x80));
+          SetRegA((reg_.rreg & 0x7f) + (reg_.rreg7 & 0x80));
           SetZS(RegA());
-          SetFlags(NF | HF | PF, (reg.iff1 ? PF : 0));
+          SetFlags(NF | HF | PF, (reg_.iff1 ? PF : 0));
           CLK(9);
           break;
 
         case 0x47:  // LD I,A
-          reg.ireg = RegA();
+          reg_.ireg = RegA();
           CLK(9);
           break;
 
         case 0x4f:  // LD R,A
-          reg.rreg7 = reg.rreg = RegA();
+          reg_.rreg7 = reg_.rreg = RegA();
           CLK(9);
           break;
 
@@ -2568,7 +2568,7 @@ void Z80C::SingleStep(uint32_t m) {
         case 0x6d:
         case 0x75:
         case 0x7d:
-          reg.iff1 = reg.iff2;
+          reg_.iff1 = reg_.iff2;
           Ret();
           CLK(14);
           break;
@@ -2680,8 +2680,16 @@ void Z80C::SingleStep(uint32_t m) {
           SBCHL(RegSP());
           CLK(15);
           break;
+        default:
+          // notreached
+          assert(false);
+          break;
       }
       break;  // 0xed
+    default:
+      // notreached
+      assert(false);
+      break;
   }
 }
 
@@ -2865,7 +2873,7 @@ void Z80C::SetZSP(uint8_t a) {
 }
 
 void Z80C::OutTestIntr() {
-  if (reg.iff1 && intr_) {
+  if (reg_.iff1 && intr_) {
     uint32_t w = Fetch8();
     if (w == 0xed) {
       w = Fetch8();
@@ -2973,7 +2981,7 @@ bool IFCALL Z80C::SaveStatus(uint8_t* s) {
   auto* st = (Status*)s;
   GetAF();
   st->rev = ssrev;
-  st->reg = reg;
+  st->reg = reg_;
   st->reg.pc = GetPC();
   st->intr = intr_;
   st->wait = wait_state_;
@@ -2987,10 +2995,10 @@ bool IFCALL Z80C::LoadStatus(const uint8_t* s) {
   const auto* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;
-  reg = st->reg;
-  instbase = instlim = 0;
-  instpage = (uint8_t*)~0;
-  inst = (uint8_t*)reg.pc;
+  reg_ = st->reg;
+  instbase_ = instlim_ = 0;
+  instpage_ = (uint8_t*)~0;
+  inst_ = (uint8_t*)reg_.pc;
 
   intr_ = st->intr;
   wait_state_ = st->wait;
