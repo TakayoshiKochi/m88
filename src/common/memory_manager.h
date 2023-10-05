@@ -24,7 +24,9 @@ struct MemoryPage {
 class MemoryManagerBase {
  public:
   using Page = MemoryPage;
-  enum { ndevices = 8, pagebits = 10, pagemask = (1 << pagebits) - 1 };
+  static constexpr uint32_t ndevices = 8;
+  static constexpr uint32_t pagebits = 10;
+  static constexpr uint32_t pagemask = (1 << pagebits) - 1;
 
   MemoryManagerBase();
   ~MemoryManagerBase();
@@ -103,7 +105,8 @@ class MemoryManager : public IMemoryManager,
                       private ReadMemManager,
                       private WriteMemManager {
  public:
-  enum { pagebits = ::MemoryManagerBase::pagebits, pagemask = ::MemoryManagerBase::pagemask };
+  static constexpr uint32_t pagebits = ::MemoryManagerBase::pagebits;
+  static constexpr uint32_t pagemask = ::MemoryManagerBase::pagemask;
   using RdFunc = ReadMemManager::RdFunc;
   using WrFunc = WriteMemManager::WrFunc;
 
