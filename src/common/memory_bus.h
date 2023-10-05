@@ -39,12 +39,9 @@ class MemoryBus : public IMemoryAccess {
     void* write;
   };
 
-  enum {
-    pagebits = 10,
-    pagemask = (1 << pagebits) - 1,
-  };
+  static constexpr uint32_t pagebits = 10;
+  static constexpr uint32_t pagemask = (1 << pagebits) - 1;
 
- public:
   MemoryBus();
   ~MemoryBus();
 
@@ -82,9 +79,9 @@ class MemoryBus : public IMemoryAccess {
   static void wrdummy(void*, uint32_t, uint32_t);
   static uint32_t rddummy(void*, uint32_t);
 
-  Page* pages;
-  Owner* owners;
-  bool ownpages;
+  Page* pages_ = nullptr;
+  Owner* owners_ = nullptr;
+  bool ownpages = false;
 };
 
 // ---------------------------------------------------------------------------
@@ -95,7 +92,7 @@ class MemoryBus : public IMemoryAccess {
 //
 inline void MemoryBus::SetWriteMemory(uint32_t addr, void* ptr) {
   assert((addr & pagemask) == 0);
-  pages[addr >> pagebits].write = ptr;
+  pages_[addr >> pagebits].write = ptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -103,7 +100,7 @@ inline void MemoryBus::SetWriteMemory(uint32_t addr, void* ptr) {
 //
 inline void MemoryBus::SetReadMemory(uint32_t addr, void* ptr) {
   assert((addr & pagemask) == 0);
-  pages[addr >> pagebits].read = ptr;
+  pages_[addr >> pagebits].read = ptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -111,7 +108,7 @@ inline void MemoryBus::SetReadMemory(uint32_t addr, void* ptr) {
 //
 inline void MemoryBus::SetMemory(uint32_t addr, void* ptr) {
   assert((addr & pagemask) == 0);
-  Page* page = &pages[addr >> pagebits];
+  Page* page = &pages_[addr >> pagebits];
   page->read = ptr;
   page->write = ptr;
 }
@@ -121,7 +118,7 @@ inline void MemoryBus::SetMemory(uint32_t addr, void* ptr) {
 //
 inline void MemoryBus::SetFunc(uint32_t addr, void* inst, ReadFuncPtr rd, WriteFuncPtr wr) {
   assert((addr & pagemask) == 0);
-  Page* page = &pages[addr >> pagebits];
+  Page* page = &pages_[addr >> pagebits];
   page->read = (void*)(intptr_t(rd));
   page->write = (void*)(intptr_t(wr));
   page->inst = inst;
@@ -134,7 +131,7 @@ inline void MemoryBus::SetFunc(uint32_t addr, void* inst, ReadFuncPtr rd, WriteF
 inline void MemoryBus::SetWriteMemorys(uint32_t addr, uint32_t length, uint8_t* ptr) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
 
-  Page* page = pages + (addr >> pagebits);
+  Page* page = pages_ + (addr >> pagebits);
   int npages = length >> pagebits;
 
   if (!(npages & 3) || npages >= 16) {
@@ -165,8 +162,8 @@ inline void MemoryBus::SetWriteMemorys(uint32_t addr, uint32_t length, uint8_t* 
 inline void MemoryBus::SetWriteMemorys2(uint32_t addr, uint32_t length, uint8_t* ptr, void* inst) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
 
-  Page* page = pages + (addr >> pagebits);
-  Owner* owner = owners + (addr >> pagebits);
+  Page* page = pages_ + (addr >> pagebits);
+  Owner* owner = owners_ + (addr >> pagebits);
   int npages = length >> pagebits;
 
   for (; npages > 0; npages--) {
@@ -184,7 +181,7 @@ inline void MemoryBus::SetWriteMemorys2(uint32_t addr, uint32_t length, uint8_t*
 inline void MemoryBus::SetReadMemorys(uint32_t addr, uint32_t length, uint8_t* ptr) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
 
-  Page* page = pages + (addr >> pagebits);
+  Page* page = pages_ + (addr >> pagebits);
   uint32_t npages = length >> pagebits;
 
   if (!(npages & 3) || npages >= 16) {
@@ -215,8 +212,8 @@ inline void MemoryBus::SetReadMemorys(uint32_t addr, uint32_t length, uint8_t* p
 inline void MemoryBus::SetReadMemorys2(uint32_t addr, uint32_t length, uint8_t* ptr, void* inst) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
 
-  Page* page = pages + (addr >> pagebits);
-  Owner* owner = owners + (addr >> pagebits);
+  Page* page = pages_ + (addr >> pagebits);
+  Owner* owner = owners_ + (addr >> pagebits);
   uint32_t npages = length >> pagebits;
 
   for (; npages > 0; npages--) {
@@ -234,7 +231,7 @@ inline void MemoryBus::SetReadMemorys2(uint32_t addr, uint32_t length, uint8_t* 
 inline void MemoryBus::SetMemorys(uint32_t addr, uint32_t length, uint8_t* ptr) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
 
-  Page* page = pages + (addr >> pagebits);
+  Page* page = pages_ + (addr >> pagebits);
   uint32_t npages = length >> pagebits;
 
   if (!(npages & 3) || npages >= 16) {
@@ -269,8 +266,8 @@ inline void MemoryBus::SetMemorys(uint32_t addr, uint32_t length, uint8_t* ptr) 
 inline void MemoryBus::SetMemorys2(uint32_t addr, uint32_t length, uint8_t* ptr, void* inst) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
 
-  Page* page = pages + (addr >> pagebits);
-  Owner* owner = owners + (addr >> pagebits);
+  Page* page = pages_ + (addr >> pagebits);
+  Owner* owner = owners_ + (addr >> pagebits);
   uint32_t npages = length >> pagebits;
 
   for (; npages > 0; npages--) {
@@ -298,7 +295,7 @@ inline void MemoryBus::SetFuncs(uint32_t addr,
   void* r = (void*)(intptr_t(rd));
   void* w = (void*)(intptr_t(wr));
 
-  Page* page = pages + (addr >> pagebits);
+  Page* page = pages_ + (addr >> pagebits);
   uint32_t npages = length >> pagebits;
 
   if (!(npages & 3) || npages >= 16) {
@@ -346,8 +343,8 @@ inline void MemoryBus::SetFuncs2(uint32_t addr,
   void* r = (void*)(intptr_t(rd));
   void* w = (void*)(intptr_t(wr));
 
-  Page* page = pages + (addr >> pagebits);
-  Owner* owner = owners + (addr >> pagebits);
+  Page* page = pages_ + (addr >> pagebits);
+  Owner* owner = owners_ + (addr >> pagebits);
   uint32_t npages = length >> pagebits;
 
   for (; npages > 0; npages--) {
@@ -369,7 +366,7 @@ inline void MemoryBus::SetFuncs2(uint32_t addr,
 //  バンクアクセスのウェイトを設定する
 //
 inline void MemoryBus::SetWait(uint32_t addr, uint32_t wait) {
-  pages[addr >> pagebits].wait = wait;
+  pages_[addr >> pagebits].wait = wait;
 }
 
 // ---------------------------------------------------------------------------
@@ -379,7 +376,7 @@ inline void MemoryBus::SetWait(uint32_t addr, uint32_t wait) {
 inline void MemoryBus::SetWaits(uint32_t addr, uint32_t length, uint32_t wait) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
 
-  Page* page = pages + (addr >> pagebits);
+  Page* page = pages_ + (addr >> pagebits);
   int npages = length >> pagebits;
 
   if (!(npages & 3) || npages >= 16) {
@@ -405,7 +402,7 @@ inline void MemoryBus::SetWaits(uint32_t addr, uint32_t length, uint32_t wait) {
 inline void MemoryBus::SetReadOwner(uint32_t addr, uint32_t length, void* inst) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
 
-  Owner* owner = owners + (addr >> pagebits);
+  Owner* owner = owners_ + (addr >> pagebits);
   int npages = length >> pagebits;
 
   for (; npages > 0; npages--)
@@ -418,7 +415,7 @@ inline void MemoryBus::SetReadOwner(uint32_t addr, uint32_t length, void* inst) 
 inline void MemoryBus::SetWriteOwner(uint32_t addr, uint32_t length, void* inst) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
 
-  Owner* owner = owners + (addr >> pagebits);
+  Owner* owner = owners_ + (addr >> pagebits);
   int npages = length >> pagebits;
 
   for (; npages > 0; npages--)
@@ -431,7 +428,7 @@ inline void MemoryBus::SetWriteOwner(uint32_t addr, uint32_t length, void* inst)
 inline void MemoryBus::SetOwner(uint32_t addr, uint32_t length, void* inst) {
   assert((addr & pagemask) == 0 && (length & pagemask) == 0);
 
-  Owner* owner = owners + (addr >> pagebits);
+  Owner* owner = owners_ + (addr >> pagebits);
   int npages = length >> pagebits;
 
   for (; npages > 0; npages--) {
@@ -444,7 +441,7 @@ inline void MemoryBus::SetOwner(uint32_t addr, uint32_t length, void* inst) {
 //  メモリに対する書き込み
 //
 inline void MemoryBus::Write8(uint32_t addr, uint32_t data) {
-  Page* page = &pages[addr >> pagebits];
+  Page* page = &pages_[addr >> pagebits];
   ((uint8_t*)page->write)[addr & pagemask] = data;
   // (*WriteFuncPtr(intptr_t(page->write)))(page->inst, addr, data);
 }
@@ -453,7 +450,7 @@ inline void MemoryBus::Write8(uint32_t addr, uint32_t data) {
 //  メモリからの読み込み
 //
 inline uint32_t MemoryBus::Read8(uint32_t addr) {
-  Page* page = &pages[addr >> pagebits];
+  Page* page = &pages_[addr >> pagebits];
   return ((uint8_t*)page->read)[addr & pagemask];
   // return (*ReadFuncPtr(intptr_t(page->read)))(page->inst, addr);
 }
@@ -462,5 +459,5 @@ inline uint32_t MemoryBus::Read8(uint32_t addr) {
 //  ページテーブルの取得
 //
 inline const MemoryBus::Page* MemoryBus::GetPageTable() {
-  return pages;
+  return pages_;
 }

@@ -130,7 +130,8 @@ class Z80C : public Device {
   Statistics* GetStatistics();
 
  private:
-  enum { pagebits = MemoryManagerBase::pagebits, pagemask = MemoryManagerBase::pagemask };
+  static constexpr uint32_t pagebits = MemoryManagerBase::pagebits;
+  static constexpr uint32_t pagemask = MemoryManagerBase::pagemask;
 
   enum {
     ssrev = 1,
@@ -189,8 +190,8 @@ class Z80C : public Device {
   Z80Reg::wordreg* ref_hl_[3]{};  // HL/ IX / IY のテーブル
   uint8_t* ref_byte_[8]{};        // BCDEHL A のテーブル
 
-  MemoryPage rdpages_[0x10000 >> MemoryManager::pagebits]{};
-  MemoryPage wrpages_[0x10000 >> MemoryManager::pagebits]{};
+  MemoryPage rdpages_[0x10000 >> pagebits]{};
+  MemoryPage wrpages_[0x10000 >> pagebits]{};
 
   // Debug
   FILE* dump_log_;
