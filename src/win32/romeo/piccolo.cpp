@@ -54,11 +54,7 @@ void Piccolo::DeleteInstance() {
 
 int Piccolo::Init() {
   // thread 作成
-  should_terminate_ = false;
-  if (!hthread_) {
-    hthread_ = (HANDLE)_beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0,
-                                      &thread_id_);
-  }
+  StartThread();
   if (!hthread_)
     return PICCOLOE_THREAD_ERROR;
 
@@ -72,46 +68,41 @@ int Piccolo::Init() {
 //  後始末
 //
 void Piccolo::CleanUp() {
-  if (hthread_) {
-    should_terminate_ = true;
-    if (WAIT_TIMEOUT == WaitForSingleObject(hthread_, 3000)) {
-      TerminateThread(hthread_, 0);
-    }
-    CloseHandle(hthread_);
-    hthread_ = nullptr;
-  }
+  if (hthread_)
+    RequestThreadStop();
 }
 
 // ---------------------------------------------------------------------------
 //  Core Thread
 //
-uint32_t Piccolo::ThreadMain() {
-  // ::SetThreadPriority(hthread_, THREAD_PRIORITY_ABOVE_NORMAL);
-  while (!should_terminate_) {
-    Event* ev;
-    constexpr int wait_default_ms = 1;
-    int wait_ms = wait_default_ms;
-    {
-      std::lock_guard<std::mutex> lock(mtx_);
-      uint32_t time_us = GetCurrentTimeUS();
-      while ((ev = Top()) && !should_terminate_) {
-        int32_t d_us = ev->at - time_us;
+void Piccolo::ThreadInit() {}
 
-        if (d_us >= 1000) {
-          if (d_us > max_latency_us_)
-            d_us = max_latency_us_;
-          wait_ms = d_us / 1000;
-          break;
-        }
-        SetReg(ev->addr, ev->data);
-        Pop();
+bool Piccolo::ThreadLoop() {
+  // ::SetThreadPriority(hthread_, THREAD_PRIORITY_ABOVE_NORMAL);
+  Event* ev;
+  constexpr int wait_default_ms = 1;
+  int wait_ms = wait_default_ms;
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+    uint32_t time_us = GetCurrentTimeUS();
+    while ((ev = Top()) && !StopRequested()) {
+      int32_t d_us = ev->at - time_us;
+
+      if (d_us >= 1000) {
+        if (d_us > max_latency_us_)
+          d_us = max_latency_us_;
+        wait_ms = d_us / 1000;
+        break;
       }
+      SetReg(ev->addr, ev->data);
+      Pop();
     }
-    if (wait_ms > wait_default_ms)
-      wait_ms = wait_default_ms;
-    Sleep(wait_ms);
   }
-  return 0;
+  if (wait_ms > wait_default_ms)
+    wait_ms = wait_default_ms;
+  Sleep(wait_ms);
+
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -141,13 +132,6 @@ Piccolo::Event* Piccolo::Top() {
 void Piccolo::Pop() {
   // Note: mtx_ should have been already acquired
   ev_read_ = (ev_read_ + 1) % ev_entries_;
-}
-
-// ---------------------------------------------------------------------------
-//  サブスレッド開始点
-//
-uint32_t CALLBACK Piccolo::ThreadEntry(void* arg) {
-  return reinterpret_cast<Piccolo*>(arg)->ThreadMain();
 }
 
 // ---------------------------------------------------------------------------
