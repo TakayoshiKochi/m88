@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include "common/device.h"
+#include "common/io_bus.h"
 #include "common/memory_manager.h"
 #include "devices/z80.h"
 #include "devices/z80diag.h"
@@ -61,7 +62,27 @@ class IOBus;
 //  in:     wait    止める場合 true
 //                  wait 状態の場合 Exec が命令を実行しないようになる
 //
-class Z80C : public Device {
+
+class Z80C;
+
+class IOStrategy {
+ public:
+  explicit IOStrategy(Z80C* cpu) : cpu_(cpu) {}
+  ~IOStrategy() = default;
+
+ protected:
+  void SetIOBus(IOBus* bus) { bus_ = bus; }
+
+  uint32_t Inp(uint32_t port);
+  void Outp(uint32_t port, uint32_t data);
+  [[nodiscard]] bool IsSyncPort(uint32_t port) const { return bus_->IsSyncPort(port); }
+
+ private:
+  Z80C* cpu_;
+  IOBus* bus_ = nullptr;
+};
+
+class Z80C : public Device, private IOStrategy {
  public:
   enum {
     reset = 0,
@@ -153,7 +174,6 @@ class Z80C : public Device {
   uint8_t* instpage_ = nullptr;
 
   Z80Reg reg_{};
-  IOBus* bus_ = nullptr;
 
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];
@@ -168,6 +188,7 @@ class Z80C : public Device {
   int delay_count_ = 0;
 
   // CPU external state
+  IOBus* bus_ = nullptr;
   int int_ack_ = 0;
   int intr_ = 0;
   int wait_state_ = 0;  // b0:HALT b1:WAIT
@@ -209,8 +230,6 @@ class Z80C : public Device {
   uint32_t Fetch16();
   void Write8(uint32_t addr, uint32_t data);
   void Write16(uint32_t a, uint32_t d);
-  uint32_t Inp(uint32_t port);
-  void Outp(uint32_t port, uint32_t data);
   uint32_t Fetch8B();
   uint32_t Fetch16B();
 
