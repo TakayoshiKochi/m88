@@ -13,13 +13,14 @@
 #include <mmsystem.h>
 #include <dsound.h>
 
+#include "common/threadable.h"
 #include "win32/sound/sounddrv.h"
 
 // ---------------------------------------------------------------------------
 
 namespace WinSoundDriver {
 
-class DriverDS2 : public Driver {
+class DriverDS2 : public Driver, public Threadable<DriverDS2> {
  private:
   enum {
     nblocks = 4,  // 2 以上
@@ -27,25 +28,25 @@ class DriverDS2 : public Driver {
 
  public:
   DriverDS2();
-  ~DriverDS2();
+  ~DriverDS2() override;
 
-  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen);
-  bool CleanUp();
+  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) override;
+  bool CleanUp() override;
+
+  void ThreadInit();
+  bool ThreadLoop();
 
  private:
-  static uint32_t WINAPI ThreadEntry(LPVOID arg);
   void Send();
 
-  LPDIRECTSOUND lpds;
-  LPDIRECTSOUNDBUFFER lpdsb_primary;
-  LPDIRECTSOUNDBUFFER lpdsb;
-  LPDIRECTSOUNDNOTIFY lpnotify;
+  LPDIRECTSOUND lpds_ = nullptr;
+  LPDIRECTSOUNDBUFFER lpdsb_primary_ = nullptr;
+  LPDIRECTSOUNDBUFFER lpdsb_ = nullptr;
+  LPDIRECTSOUNDNOTIFY lpnotify_ = nullptr;
 
-  uint32_t buffer_length;
-  HANDLE hthread;
-  uint32_t idthread;
-  HANDLE hevent;
-  uint32_t nextwrite;
+  uint32_t buffer_length_ = 0;
+  HANDLE hevent_ = nullptr;
+  uint32_t nextwrite_ = 0;
 };
 
 }  // namespace WinSoundDriver
