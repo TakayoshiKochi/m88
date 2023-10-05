@@ -95,35 +95,37 @@ class Z80C : public Device {
       currentcpu->Stop(count);
   }
   // クロックカウンタ取得
-  int GetCount() const { return execcount + (clockcount << eshift); }
+  [[nodiscard]] int GetCount() const { return exec_count_ + (clock_count_ << eshift_); }
   static int GetCCount() {
-    return currentcpu ? currentcpu->GetCount() - currentcpu->startcount : 0;
+    return currentcpu ? currentcpu->GetCount() - currentcpu->start_count_ : 0;
   }
 
+  // External CPU interface
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
-  void IOCALL IRQ(uint32_t, uint32_t d) { intr = d; }
+  void IOCALL IRQ(uint32_t, uint32_t d) { intr_ = d; }
   void IOCALL NMI(uint32_t = 0, uint32_t = 0);
   void Wait(bool flag);
 
+  // State save/load
   uint32_t IFCALL GetStatusSize() override;
   bool IFCALL SaveStatus(uint8_t* status) override;
   bool IFCALL LoadStatus(const uint8_t* status) override;
 
-  [[nodiscard]] uint32_t GetPC() const { return static_cast<uint32_t>(inst - instbase); }
+  [[nodiscard]] uint32_t GetPC() const { return static_cast<uint32_t>(inst_ - instbase_); }
 
   void SetPC(uint32_t newpc);
-  const Z80Reg& GetReg() { return reg; }
+  const Z80Reg& GetReg() { return reg_; }
 
   bool GetPages(MemoryPage** rd, MemoryPage** wr) {
-    *rd = rdpages, *wr = wrpages;
+    *rd = rdpages_, *wr = wrpages_;
     return true;
   }
   int* GetWaits() { return nullptr; }
 
   void TestIntr();
-  bool IsIntr() { return !!intr; }
+  bool IsIntr() { return !!intr_; }
   bool EnableDump(bool dump);
-  int GetDumpState() { return !!dumplog; }
+  int GetDumpState() { return dump_log_ != nullptr; }
 
   Statistics* GetStatistics();
 
@@ -144,50 +146,58 @@ class Z80C : public Device {
 
   void DumpLog();
 
-  uint8_t* inst = nullptr;      // PC の指すメモリのポインタ，または PC そのもの
-  uint8_t* instlim = nullptr;   // inst の有効上限
-  uint8_t* instbase = nullptr;  // inst - PC        (PC = inst - instbase)
-  uint8_t* instpage = nullptr;
+  uint8_t* inst_ = nullptr;      // PC の指すメモリのポインタ，または PC そのもの
+  uint8_t* instlim_ = nullptr;   // inst の有効上限
+  uint8_t* instbase_ = nullptr;  // inst - PC        (PC = inst - instbase)
+  uint8_t* instpage_ = nullptr;
 
-  Z80Reg reg;
+  Z80Reg reg_{};
   IOBus* bus_ = nullptr;
 
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];
 
+  // Emulation state
   static Z80C* currentcpu;
   static int cbase;
 
-  int execcount;
-  int clockcount;
-  int stopcount;
-  int delaycount;
-  int intack;
-  int intr;
-  int waitstate;  // b0:HALT b1:WAIT
-  int eshift;
-  int startcount;
+  int exec_count_ = 0;
+  int clock_count_ = 0;
+  int stop_count_ = 0;
+  int delay_count_ = 0;
 
+  // CPU external state
+  int int_ack_ = 0;
+  int intr_ = 0;
+  int wait_state_ = 0;  // b0:HALT b1:WAIT
+  int eshift_ = 0;
+  int start_count_ = 0;
+
+  // CPU emulation internal state
   enum index { USEHL, USEIX, USEIY };
-  index index_mode;    /* HL/IX/IY どれを参照するか */
-  uint8_t uf;          /* 未計算フラグ */
-  uint8_t nfa;         /* 最後の加減算の種類 */
-  uint8_t xf;          /* 未定義フラグ(第3,5ビット) */
-  uint32_t fx32, fy32; /* フラグ計算用のデータ */
-  uint32_t fx, fy;
+  index index_mode_ = USEHL;  // HL/IX/IY どれを参照するか
+  uint8_t uf_ = 0;            // 未計算フラグ
+  uint8_t nfa_ = 0;           // 最後の加減算の種類
+  uint8_t xf = 0;             // 未定義フラグ(第3,5ビット)
+  uint32_t fx32_ = 0;
+  uint32_t fy32_ = 0;  // フラグ計算用のデータ
+  uint32_t fx_ = 0;
+  uint32_t fy_ = 0;
 
-  uint8_t* ref_h[3];          /* H / XH / YH のテーブル */
-  uint8_t* ref_l[3];          /* L / YH / YL のテーブル */
-  Z80Reg::wordreg* ref_hl[3]; /* HL/ IX / IY のテーブル */
-  uint8_t* ref_byte[8];       /* BCDEHL A のテーブル */
-  FILE* dumplog;
-  Z80Diag diag;
+  uint8_t* ref_h_[3]{};           // H / XH / YH のテーブル
+  uint8_t* ref_l_[3]{};           // L / YH / YL のテーブル
+  Z80Reg::wordreg* ref_hl_[3]{};  // HL/ IX / IY のテーブル
+  uint8_t* ref_byte_[8]{};        // BCDEHL A のテーブル
 
-  MemoryPage rdpages[0x10000 >> MemoryManager::pagebits];
-  MemoryPage wrpages[0x10000 >> MemoryManager::pagebits];
+  MemoryPage rdpages_[0x10000 >> MemoryManager::pagebits]{};
+  MemoryPage wrpages_[0x10000 >> MemoryManager::pagebits]{};
+
+  // Debug
+  FILE* dump_log_;
+  Z80Diag diag_;
 
 #ifdef Z80C_STATISTICS
-  Statistics statistics;
+  Statistics statistics{};
 #endif
 
   // 内部インターフェース
@@ -215,28 +225,147 @@ class Z80C : public Device {
   void PCInc(uint32_t inc);
   void PCDec(uint32_t dec);
 
-  void Call(), Jump(uint32_t dest), JumpR();
-  uint8_t GetCF(), GetZF(), GetSF();
-  uint8_t GetHF(), GetPF();
+  void Call();
+  void Jump(uint32_t dest);
+  void JumpR();
+
+  uint8_t GetCF();
+  uint8_t GetZF();
+  uint8_t GetSF();
+  uint8_t GetHF();
+  uint8_t GetPF();
+
   void SetM(uint32_t n);
   uint8_t GetM();
+
   void Push(uint32_t n);
   uint32_t Pop();
-  void ADDA(uint8_t), ADCA(uint8_t), SUBA(uint8_t);
-  void SBCA(uint8_t), ANDA(uint8_t), ORA(uint8_t);
-  void XORA(uint8_t), CPA(uint8_t);
-  uint8_t Inc8(uint8_t), Dec8(uint8_t);
+
+  void ADDA(uint8_t);
+  void ADCA(uint8_t);
+  void SUBA(uint8_t);
+  void SBCA(uint8_t);
+  void ANDA(uint8_t);
+  void ORA(uint8_t);
+  void XORA(uint8_t);
+  void CPA(uint8_t);
+
+  uint8_t Inc8(uint8_t);
+  uint8_t Dec8(uint8_t);
   uint32_t ADD16(uint32_t x, uint32_t y);
-  void ADCHL(uint32_t y), SBCHL(uint32_t y);
+  void ADCHL(uint32_t y);
+  void SBCHL(uint32_t y);
+
   uint32_t GetAF();
   void SetAF(uint32_t n);
-  void SetZS(uint8_t a), SetZSP(uint8_t a);
-  void CPI(), CPD();
+  void SetZS(uint8_t a);
+  void SetZSP(uint8_t a);
+
+  void CPI();
+  void CPD();
   void CodeCB();
 
-  uint8_t RLC(uint8_t), RRC(uint8_t), RL(uint8_t);
-  uint8_t RR(uint8_t), SLA(uint8_t), SRA(uint8_t);
-  uint8_t SLL(uint8_t), SRL(uint8_t);
+  uint8_t RLC(uint8_t);
+  uint8_t RRC(uint8_t);
+  uint8_t RL(uint8_t);
+  uint8_t RR(uint8_t);
+  uint8_t SLA(uint8_t);
+  uint8_t SRA(uint8_t);
+  uint8_t SLL(uint8_t);
+  uint8_t SRL(uint8_t);
+
+  // Converted from macros.
+  uint8_t RegA() const { return reg_.r.b.a; }
+  void SetRegA(uint8_t n) { reg_.r.b.a = n; }
+  uint8_t RegB() const { return reg_.r.b.b; }
+  void SetRegB(uint8_t n) { reg_.r.b.b = n; }
+  uint8_t RegC() const { return reg_.r.b.c; }
+  void SetRegC(uint8_t n) { reg_.r.b.c = n; }
+  uint8_t RegD() const { return reg_.r.b.d; }
+  void SetRegD(uint8_t n) { reg_.r.b.d = n; }
+  uint8_t RegE() const { return reg_.r.b.e; }
+  void SetRegE(uint8_t n) { reg_.r.b.e = n; }
+  uint8_t RegH() const { return reg_.r.b.h; }
+  void SetRegH(uint8_t n) { reg_.r.b.h = n; }
+  uint8_t RegL() const { return reg_.r.b.l; }
+  void SetRegL(uint8_t n) { reg_.r.b.l = n; }
+  uint8_t RegXH() const { return *ref_h_[index_mode_]; }
+  void SetRegXH(uint8_t n) { *ref_h_[index_mode_] = n; }
+  uint8_t RegXL() const { return *ref_l_[index_mode_]; }
+  void SetRegXL(uint8_t n) { *ref_l_[index_mode_] = n; }
+  uint8_t RegF() const { return reg_.r.b.flags; }
+  void SetRegF(uint8_t n) { reg_.r.b.flags = n; }
+
+  uint32_t RegXHL() const { return *ref_hl_[index_mode_]; }
+  void SetRegXHL(uint32_t n) { *ref_hl_[index_mode_] = n; }
+  uint32_t RegHL() const { return reg_.r.w.hl; }
+  void SetRegHL(uint32_t n) { reg_.r.w.hl = n; }
+  uint32_t RegDE() const { return reg_.r.w.de; }
+  void SetRegDE(uint32_t n) { reg_.r.w.de = n; }
+  uint32_t RegBC() const { return reg_.r.w.bc; }
+  void SetRegBC(uint32_t n) { reg_.r.w.bc = n; }
+  uint32_t RegAF() const { return reg_.r.w.af; }
+  void SetRegAF(uint32_t n) { reg_.r.w.af = n; }
+  uint32_t RegSP() const { return reg_.r.w.sp; }
+  void SetRegSP(uint32_t n) { reg_.r.w.sp = n; }
+
+  // Flags
+  static constexpr uint8_t CF = 1 << 0;
+  static constexpr uint8_t NF = 1 << 1;
+  static constexpr uint8_t PF = 1 << 2;
+  static constexpr uint8_t HF = 1 << 4;
+  static constexpr uint8_t ZF = 1 << 6;
+  static constexpr uint8_t SF = 1 << 7;
+
+  static constexpr uint8_t WF = 1 << 3;
+
+  // Flag table
+  static constexpr uint8_t ZSPTable[256] = {
+      ZF | PF, 0,       0,       PF,      0,       PF,      PF,      0,       0,       PF,
+      PF,      0,       PF,      0,       0,       PF,      0,       PF,      PF,      0,
+      PF,      0,       0,       PF,      PF,      0,       0,       PF,      0,       PF,
+      PF,      0,       0,       PF,      PF,      0,       PF,      0,       0,       PF,
+      PF,      0,       0,       PF,      0,       PF,      PF,      0,       PF,      0,
+      0,       PF,      0,       PF,      PF,      0,       0,       PF,      PF,      0,
+      PF,      0,       0,       PF,      0,       PF,      PF,      0,       PF,      0,
+      0,       PF,      PF,      0,       0,       PF,      0,       PF,      PF,      0,
+      PF,      0,       0,       PF,      0,       PF,      PF,      0,       0,       PF,
+      PF,      0,       PF,      0,       0,       PF,      PF,      0,       0,       PF,
+      0,       PF,      PF,      0,       0,       PF,      PF,      0,       PF,      0,
+      0,       PF,      0,       PF,      PF,      0,       PF,      0,       0,       PF,
+      PF,      0,       0,       PF,      0,       PF,      PF,      0,       SF,      PF | SF,
+      PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
+      SF,      PF | SF, PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF,
+      PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      PF | SF, SF,      SF,      PF | SF,
+      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
+      PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,
+      PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF, SF,      PF | SF,
+      PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,
+      SF,      PF | SF, PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF,
+      PF | SF, SF,      PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
+      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF, PF | SF, SF,      PF | SF, SF,
+      SF,      PF | SF, PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,
+      PF | SF, SF,      SF,      PF | SF, SF,      PF | SF, PF | SF, SF,      SF,      PF | SF,
+      PF | SF, SF,      PF | SF, SF,      SF,      PF | SF,
+  };
+
+  uint8_t GetNF() const { return RegF() & NF; }
+  void SetXF(uint8_t n) { xf = n; }
+  void Ret() { Jump(Pop()); }
+
+  static uint8_t RES(uint8_t n, uint32_t bit) { return n & ~(1 << (bit)); }
+  static uint8_t SET(uint8_t n, uint32_t bit) { return n | (1 << (bit)); }
+  void BIT(uint8_t n, uint32_t bit) {
+    (void)SetFlags(ZF | HF | NF | SF, HF | (((n) & (1 << (bit))) ? n & SF & (1 << (bit)) : ZF));
+    SetXF(n);
+  }
+  void SetFlags(uint8_t clr, uint8_t set) {
+    SetRegF((RegF() & ~clr) | set);
+    uf_ &= ~clr;
+  }
+
+  void CLK(int count) { clock_count_ += count; }
+  static constexpr uint32_t PAGESMASK = (1 << (16 - pagebits)) - 1;
 };
 
 inline Z80C::Statistics* Z80C::GetStatistics() {
