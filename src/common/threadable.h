@@ -20,7 +20,7 @@ class Threadable {
   }
 
   void StartThread() {
-    if (hthread_)
+    if (!stopped_)
       return;
     hthread_ = (HANDLE)_beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0,
                                       &thread_id_);
@@ -38,14 +38,14 @@ class Threadable {
   }
 
  protected:
-  bool StopRequested() { return stop_request_; }
-
-  bool Stopped() { return stopped_; }
+  bool StopRequested() const { return stop_request_; }
+  bool Stopped() const { return stopped_; }
 
   HANDLE hthread_ = nullptr;
 
  private:
   uint32_t ThreadMain() {
+    stopped_ = false;
     auto& derived = static_cast<T&>(*this);
     derived.ThreadInit();
     while (!StopRequested()) {
@@ -60,7 +60,7 @@ class Threadable {
   static uint32_t CALLBACK ThreadEntry(LPVOID arg);
 
   std::atomic<bool> stop_request_ = false;
-  std::atomic<bool> stopped_ = false;
+  std::atomic<bool> stopped_ = true;
   uint32_t thread_id_ = 0;
 };
 
