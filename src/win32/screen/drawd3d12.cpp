@@ -46,12 +46,12 @@ bool WinDrawD3D12::Init(HWND hwnd, uint32_t width, uint32_t height, GUID*) {
   return true;
 }
 
-bool WinDrawD3D12::Resize(uint32_t width, uint32_t height) {
-  width_ = width;
-  height_ = height;
+bool WinDrawD3D12::Resize(uint32_t screen_width, uint32_t screen_height) {
+  width_ = screen_width;
+  height_ = screen_height;
 
   status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
-  ::SetWindowPos(hcwnd_, nullptr, 0, 0, width, height, SWP_SHOWWINDOW);
+  ::SetWindowPos(hcwnd_, nullptr, 0, 0, screen_width, screen_height, SWP_SHOWWINDOW);
   return true;
 }
 

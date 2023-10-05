@@ -22,8 +22,8 @@ class Threadable {
   void StartThread() {
     if (!stopped_)
       return;
-    hthread_ = (HANDLE)_beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0,
-                                      &thread_id_);
+    hthread_ = (HANDLE)_beginthreadex(
+        nullptr, 0, ThreadEntry, reinterpret_cast<void*>(static_cast<T*>(this)), 0, &thread_id_);
   }
 
   // Should be called from the parent thread.
