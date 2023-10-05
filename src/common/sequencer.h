@@ -14,6 +14,7 @@
 
 #include <mutex>
 
+#include "common/threadable.h"
 #include "common/time_keeper.h"
 
 class PC88;
@@ -24,7 +25,7 @@ class PC88;
 //  VM 進行と画面更新のタイミングを調整し
 //  VM 時間と実時間の同期をとるクラス
 //
-class Sequencer {
+class Sequencer : public Threadable<Sequencer> {
  public:
   Sequencer();
   ~Sequencer();
@@ -43,21 +44,20 @@ class Sequencer {
   void SetSpeed(int speed) { speed_ = speed; }
   void SetRefreshTiming(uint32_t refresh_timing) { refresh_timing_ = refresh_timing; }
 
+  // thread loop
+  void ThreadInit();
+  bool ThreadLoop();
+
  private:
   void Execute(int32_t clock, int32_t length, int32_t ec);
   void ExecuteNS(int32_t clock, int64_t length_ns, int32_t ec);
   void ExecuteAsynchronus();
-
-  uint32_t ThreadMain();
-  static uint32_t CALLBACK ThreadEntry(LPVOID arg);
 
   PC88* vm_ = nullptr;
 
   TimeKeeper keeper_;
 
   std::mutex mtx_;
-  HANDLE hthread_ = nullptr;
-  uint32_t idthread_ = 0;
 
   // 1Tick (=10us) あたりのクロック数 (e.g. 4MHz のとき 40)
   int clocks_per_tick_ = 1;
@@ -72,6 +72,5 @@ class Sequencer {
   uint32_t refresh_timing_ = 1;
   bool draw_next_frame_ = false;
 
-  std::atomic<bool> should_terminate_ = false;
-  std::atomic<bool> active_ = false;
+  bool active_ = false;
 };

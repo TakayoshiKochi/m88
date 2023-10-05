@@ -22,7 +22,6 @@ bool Sequencer::Init(PC88* vm) {
   vm_ = vm;
 
   active_ = false;
-  should_terminate_ = false;
   exec_count_ = 0;
   clocks_per_tick_ = 1;
   speed_ = 100;
@@ -32,10 +31,7 @@ bool Sequencer::Init(PC88* vm) {
   refresh_timing_ = 1;
   refresh_count_ = 0;
 
-  if (!hthread_) {
-    hthread_ = (HANDLE)_beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0,
-                                      &idthread_);
-  }
+  StartThread();
   return hthread_ != nullptr;
 }
 
@@ -43,41 +39,28 @@ bool Sequencer::Init(PC88* vm) {
 //  後始末
 //
 bool Sequencer::CleanUp() {
-  if (hthread_) {
-    should_terminate_ = true;
-    if (WAIT_TIMEOUT == WaitForSingleObject(hthread_, 3000)) {
-      TerminateThread(hthread_, 0);
-    }
-    CloseHandle(hthread_);
-    hthread_ = nullptr;
-  }
+  if (hthread_)
+    RequestThreadStop();
   return true;
 }
 
 // ---------------------------------------------------------------------------
-//  Core Thread
+//  Core Thread Implementation
 //
-uint32_t Sequencer::ThreadMain() {
+void Sequencer::ThreadInit() {
   time_ = keeper_.GetTime();
   time_ns_ = keeper_.GetTimeNS();
   eff_clock_ = 100;
-
-  while (!should_terminate_) {
-    if (active_) {
-      ExecuteAsynchronus();
-    } else {
-      Sleep(20);
-      time_ = keeper_.GetTime();
-    }
-  }
-  return 0;
 }
 
-// ---------------------------------------------------------------------------
-//  サブスレッド開始点
-//
-uint32_t CALLBACK Sequencer::ThreadEntry(void* arg) {
-  return reinterpret_cast<Sequencer*>(arg)->ThreadMain();
+bool Sequencer::ThreadLoop() {
+  if (active_) {
+    ExecuteAsynchronus();
+  } else {
+    Sleep(20);
+    time_ = keeper_.GetTime();
+  }
+  return true;
 }
 
 // ---------------------------------------------------------------------------
