@@ -64,6 +64,7 @@ add_library(common ${LIB_TYPE}
         src/common/srcbuf.h
         src/common/srcbuf.cpp
         src/common/status.h
+        src/common/threadable.h
         src/common/time_keeper.h
         src/common/time_keeper.cpp)
 
