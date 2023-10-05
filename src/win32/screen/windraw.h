@@ -14,6 +14,7 @@
 
 #include "common/draw.h"
 #include "common/scoped_handle.h"
+#include "common/threadable.h"
 
 #include <atomic>
 #include <memory>
@@ -27,7 +28,7 @@ class WinDrawSub {
   virtual ~WinDrawSub() = default;
 
   virtual bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID* display) = 0;
-  virtual bool Resize(uint32_t width, uint32_t height) { return false; }
+  virtual bool Resize(uint32_t screen_width, uint32_t screen_height) { return false; }
   virtual bool CleanUp() = 0;
   virtual void SetPalette(PALETTEENTRY* pal, int index, int nentries) {}
   virtual void QueryNewPalette() {}
@@ -49,7 +50,7 @@ class WinDrawSub {
 
 // ---------------------------------------------------------------------------
 
-class WinDraw : public Draw {
+class WinDraw : public Draw, public Threadable<WinDraw> {
  public:
   WinDraw();
   ~WinDraw() override;
@@ -91,19 +92,15 @@ class WinDraw : public Draw {
 
   void CaptureScreen(uint8_t* buf);
 
+  void ThreadInit();
+  bool ThreadLoop();
+
  private:
   enum DisplayType { None, D3D };
   void PaintWindow();
 
   static BOOL WINAPI
   DDEnumCallback(GUID FAR* guid, LPSTR desc, LPSTR name, LPVOID context, HMONITOR hm);
-
-  uint32_t ThreadMain();
-  static uint32_t __stdcall ThreadEntry(LPVOID arg);
-
-  uint32_t draw_thread_id_ = 0;
-  HANDLE hthread_ = nullptr;
-  std::atomic<bool> should_terminate_;  // スレッド終了要求
 
   DisplayType display_type_ = None;
 
@@ -118,9 +115,12 @@ class WinDraw : public Draw {
 
   // TODO: use bool
   int refresh_ = 0;
-  RECT draw_area_;  // 書き換える領域
+  RECT draw_area_{};  // 書き換える領域
   int draw_count_ = 0;
   int gui_count_ = 0;
+
+  int screen_width_ = 640;
+  int screen_height_ = 400;
 
   int width_ = 640;
   int height_ = 400;

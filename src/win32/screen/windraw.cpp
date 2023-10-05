@@ -28,7 +28,6 @@
 // 構築/消滅
 //
 WinDraw::WinDraw() {
-  should_terminate_ = false;
   drawing_ = false;
 }
 
@@ -52,9 +51,7 @@ bool WinDraw::Init0(HWND hwindow) {
   ReleaseDC(hwnd_, hdc);
 
 #ifdef DRAW_THREAD
-  if (!hthread_)
-    hthread_ = HANDLE(_beginthreadex(nullptr, 0, ThreadEntry, reinterpret_cast<void*>(this), 0,
-                                     &draw_thread_id_));
+  StartThread();
   if (!hthread_) {
     Error::SetError(Error::ThreadInitFailed);
     return false;
@@ -70,7 +67,6 @@ bool WinDraw::Init0(HWND hwindow) {
 bool WinDraw::Init(uint32_t width, uint32_t height, uint32_t /*bpp*/) {
   width_ = width;
   height_ = height;
-  should_terminate_ = false;
   active_ = true;
   return true;
 }
@@ -81,17 +77,8 @@ bool WinDraw::Init(uint32_t width, uint32_t height, uint32_t /*bpp*/) {
 bool WinDraw::CleanUp() {
   if (hthread_) {
     SetThreadPriority(hthread_, THREAD_PRIORITY_NORMAL);
-
-    int i = 300;
-    do {
-      should_terminate_ = true;
-      ::SetEvent(hevredraw_.get());
-    } while (--i > 0 && WAIT_TIMEOUT == WaitForSingleObject(hthread_, 10));
-
-    if (!i)
-      TerminateThread(hthread_, 0);
-
-    CloseHandle(hthread_), hthread_ = 0;
+    ::SetEvent(hevredraw_.get());
+    RequestThreadStop();
   }
   hevredraw_.reset();
   drawsub_.reset();
@@ -101,20 +88,15 @@ bool WinDraw::CleanUp() {
 // ---------------------------------------------------------------------------
 //  画面描画用スレッド
 //
-uint32_t WinDraw::ThreadMain() {
+void WinDraw::ThreadInit() {
+  WaitForSingleObject(hevredraw_.get(), 1000);
   drawing_ = false;
-  while (!should_terminate_) {
-    PaintWindow();
-    WaitForSingleObject(hevredraw_.get(), 1000);
-  }
-  return 0;
 }
 
-uint32_t __stdcall WinDraw::ThreadEntry(LPVOID arg) {
-  if (arg)
-    return reinterpret_cast<WinDraw*>(arg)->ThreadMain();
-  else
-    return 0;
+bool WinDraw::ThreadLoop() {
+  PaintWindow();
+  WaitForSingleObject(hevredraw_.get(), 1000);
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -254,11 +236,11 @@ bool WinDraw::Unlock() {
 //
 void WinDraw::Resize(uint32_t width, uint32_t height) {
   //  statusdisplay.Show(50, 2500, "Resize (%d, %d)", width, height);
-  width_ = width;
-  height_ = height;
+  screen_width_ = width;
+  screen_height_ = height;
   if (drawsub_) {
     std::lock_guard<std::mutex> lock(mtx_);
-    drawsub_->Resize(width_, height_);
+    drawsub_->Resize(screen_width_, screen_height_);
   }
 }
 

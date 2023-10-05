@@ -4,6 +4,7 @@
 
 #include <windows.h>
 
+#include "common/threadable.h"
 #include "common/time_keeper.h"
 
 #include <stdint.h>
@@ -24,7 +25,7 @@ class PiccoloChip {
 
 enum PICCOLO_CHIPTYPE { PICCOLO_INVALID = 0, PICCOLO_YMF288, PICCOLO_YM2608 };
 
-class Piccolo {
+class Piccolo : public Threadable<Piccolo> {
  public:
   // constructor is protected
   virtual ~Piccolo() = default;
@@ -64,6 +65,9 @@ class Piccolo {
   void DrvReset();
   void DrvRelease();
 
+  void ThreadInit();
+  bool ThreadLoop();
+
  protected:
   Piccolo() = default;
 
@@ -77,8 +81,6 @@ class Piccolo {
 
   virtual int Init();
   void CleanUp();
-  static uint32_t CALLBACK ThreadEntry(void* arg);
-  uint32_t ThreadMain();
 
   TimeKeeper keeper_;
   std::mutex mtx_;
@@ -97,10 +99,7 @@ class Piccolo {
   uint32_t addr_ = 0;
   uint32_t irq_ = 0;
 
-  std::atomic<bool> should_terminate_ = false;
   std::atomic<bool> active_ = false;
-  HANDLE hthread_ = nullptr;
-  uint32_t thread_id_ = 0;
 
   int avail_ = 0;
 };
