@@ -2467,7 +2467,7 @@ void Z80C::SingleStep(uint32_t m) {
 
         case 0xb8:  // LDDR
           Write8(RegDE(), Read8(RegHL()));
-          SetRegDE(RegDE() + 1);
+          SetRegDE(RegDE() - 1);
           SetRegHL(RegHL() - 1);
           SetRegBC(RegBC() - 1);
           if (RegBC() & 0xffff) {
