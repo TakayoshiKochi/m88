@@ -18,63 +18,17 @@ static int testcount[24];
 #define DEBUGCOUNT(i) 0
 #endif
 
-// ---------------------------------------------------------------------------
-// コンストラクタ・デストラクタ
-//
-Z80C::Z80C(const ID& id) : Device(id), IOStrategy(this), MemStrategy(this) {
-  // テーブル初期化
-  ref_h_[USEHL] = &reg_.r.b.h;
-  ref_l_[USEHL] = &reg_.r.b.l;
-  ref_h_[USEIX] = &reg_.r.b.xh;
-  ref_l_[USEIX] = &reg_.r.b.xl;
-  ref_h_[USEIY] = &reg_.r.b.yh;
-  ref_l_[USEIY] = &reg_.r.b.yl;
-  ref_hl_[USEHL] = &reg_.r.w.hl;
-  ref_hl_[USEIX] = &reg_.r.w.ix;
-  ref_hl_[USEIY] = &reg_.r.w.iy;
-  ref_byte_[0] = &reg_.r.b.b;
-  ref_byte_[1] = &reg_.r.b.c;
-  ref_byte_[2] = &reg_.r.b.d;
-  ref_byte_[3] = &reg_.r.b.e;
-  ref_byte_[4] = &reg_.r.b.h;
-  ref_byte_[5] = &reg_.r.b.l;
-  ref_byte_[6] = nullptr;
-  ref_byte_[7] = &reg_.r.b.a;
-
-  dump_log_ = nullptr;
+// I/O
+inline uint32_t IOStrategy::Inp(uint32_t port) {
+  return bus_->In(port & 0xff);
 }
 
-Z80C::~Z80C() {
-#if defined(LOGNAME) && defined(_DEBUG)
-  Log("Fetch8            = %10d\n", testcount[0]);
-  Log("Fetch8B           = %10d\n", testcount[1]);
-  Log("Fetch8B(special)  = %10d\n", testcount[2]);
-  Log("Fetch16           = %10d\n", testcount[3]);
-  Log("SetPC(memory)     = %10d\n", testcount[4]);
-  Log("SetPC(special)    = %10d\n", testcount[5]);
-  Log("GetPC             = %10d\n", testcount[6]);
-  Log("PCDec(in)         = %10d\n", testcount[7]);
-  Log("PCDec(out)        = %10d\n", testcount[19]);
-  Log("Jump(in)          = %10d\n", testcount[9]);
-  Log("Jump(out)         = %10d\n", testcount[10]);
-  Log("ReinitPage(Out)   = %10d\n", testcount[11]);
-  Log("Read8(direct)     = %10d\n", testcount[12]);
-  Log("Read8(special)    = %10d\n", testcount[8]);
-  Log("Read16(direct)    = %10d\n", testcount[13]);
-  Log("Write8(direct)    = %10d\n", testcount[14]);
-  Log("Write8(special)   = %10d\n", testcount[16]);
-  Log("Write16           = %10d\n", testcount[15]);
-  Log("JumpRelative(in)  = %10d\n", testcount[17]);
-  Log("JumpRelative(out) = %10d\n", testcount[18]);
-  Log("\n");
-#endif
-  if (dump_log_)
-    fclose(dump_log_);
+inline void IOStrategy::Outp(uint32_t port, uint32_t data) {
+  bus_->Out(port & 0xff, data);
+  DEBUGCOUNT(11);
 }
 
-// ---------------------------------------------------------------------------
-// PC 読み書き
-//
+// Memory access
 void MemStrategy::SetPC(uint32_t newpc) {
   MemoryPage& page = rdpages_[(newpc >> pagebits) & PAGESMASK];
 
@@ -128,9 +82,8 @@ inline void MemStrategy::Jump(uint32_t dest) {
 }
 
 // ninst = inst + rel
-inline void MemStrategy::JumpR() {
-  inst_ += int8_t(Fetch8());
-  cpu_->CLK(5);
+inline void MemStrategy::JumpR(uint32_t rel) {
+  inst_ += int8_t(rel);
   if (inst_ >= instpage_) {
     DEBUGCOUNT(17);
     return;
@@ -152,14 +105,7 @@ inline uint32_t MemStrategy::Fetch8() {
 
 inline uint32_t MemStrategy::Fetch16() {
   DEBUGCOUNT(3);
-#ifdef ALLOWBOUNDARYACCESS
-  if (inst + 1 < instlim) {
-    uint32_t r = *(uint16_t*)inst;
-    inst += 2;
-    return r;
-  } else
-#endif
-    return Fetch16B();
+  return Fetch16B();
 }
 
 uint32_t MemStrategy::Fetch8B() {
@@ -176,6 +122,94 @@ uint32_t MemStrategy::Fetch8B() {
 uint32_t MemStrategy::Fetch16B() {
   uint32_t r = Fetch8();
   return r | (Fetch8() << 8);
+}
+
+inline uint32_t MemStrategy::Read8(uint32_t addr) {
+  addr &= 0xffff;
+  MemoryPage& page = rdpages_[addr >> pagebits];
+  if (!page.func) {
+    DEBUGCOUNT(12);
+    return ((uint8_t*)page.ptr)[addr & pagemask];
+  } else {
+    DEBUGCOUNT(8);
+    return (*MemoryManager::RdFunc(intptr_t(page.ptr)))(page.inst, addr);
+  }
+}
+
+inline void MemStrategy::Write8(uint32_t addr, uint32_t data) {
+  addr &= 0xffff;
+  MemoryPage& page = wrpages_[addr >> pagebits];
+  if (!page.func) {
+    DEBUGCOUNT(14);
+    ((uint8_t*)page.ptr)[addr & pagemask] = data;
+  } else {
+    DEBUGCOUNT(16);
+    (*MemoryManager::WrFunc(intptr_t(page.ptr)))(page.inst, addr, data);
+  }
+}
+
+inline uint32_t MemStrategy::Read16(uint32_t addr) {
+  return Read8(addr) + Read8(addr + 1) * 256;
+}
+
+inline void MemStrategy::Write16(uint32_t addr, uint32_t data) {
+  DEBUGCOUNT(15);
+  Write8(addr, data & 0xff);
+  Write8(addr + 1, data >> 8);
+}
+
+// ---------------------------------------------------------------------------
+// コンストラクタ・デストラクタ
+//
+Z80C::Z80C(const ID& id) : Device(id), IOStrategy(), MemStrategy() {
+  // テーブル初期化
+  ref_h_[USEHL] = &reg_.r.b.h;
+  ref_l_[USEHL] = &reg_.r.b.l;
+  ref_h_[USEIX] = &reg_.r.b.xh;
+  ref_l_[USEIX] = &reg_.r.b.xl;
+  ref_h_[USEIY] = &reg_.r.b.yh;
+  ref_l_[USEIY] = &reg_.r.b.yl;
+  ref_hl_[USEHL] = &reg_.r.w.hl;
+  ref_hl_[USEIX] = &reg_.r.w.ix;
+  ref_hl_[USEIY] = &reg_.r.w.iy;
+  ref_byte_[0] = &reg_.r.b.b;
+  ref_byte_[1] = &reg_.r.b.c;
+  ref_byte_[2] = &reg_.r.b.d;
+  ref_byte_[3] = &reg_.r.b.e;
+  ref_byte_[4] = &reg_.r.b.h;
+  ref_byte_[5] = &reg_.r.b.l;
+  ref_byte_[6] = nullptr;
+  ref_byte_[7] = &reg_.r.b.a;
+
+  dump_log_ = nullptr;
+}
+
+Z80C::~Z80C() {
+#if defined(LOGNAME) && defined(_DEBUG)
+  Log("Fetch8            = %10d\n", testcount[0]);
+  Log("Fetch8B           = %10d\n", testcount[1]);
+  Log("Fetch8B(special)  = %10d\n", testcount[2]);
+  Log("Fetch16           = %10d\n", testcount[3]);
+  Log("SetPC(memory)     = %10d\n", testcount[4]);
+  Log("SetPC(special)    = %10d\n", testcount[5]);
+  Log("GetPC             = %10d\n", testcount[6]);
+  Log("PCDec(in)         = %10d\n", testcount[7]);
+  Log("PCDec(out)        = %10d\n", testcount[19]);
+  Log("Jump(in)          = %10d\n", testcount[9]);
+  Log("Jump(out)         = %10d\n", testcount[10]);
+  Log("ReinitPage(Out)   = %10d\n", testcount[11]);
+  Log("Read8(direct)     = %10d\n", testcount[12]);
+  Log("Read8(special)    = %10d\n", testcount[8]);
+  Log("Read16(direct)    = %10d\n", testcount[13]);
+  Log("Write8(direct)    = %10d\n", testcount[14]);
+  Log("Write8(special)   = %10d\n", testcount[16]);
+  Log("Write16           = %10d\n", testcount[15]);
+  Log("JumpRelative(in)  = %10d\n", testcount[17]);
+  Log("JumpRelative(out) = %10d\n", testcount[18]);
+  Log("\n");
+#endif
+  if (dump_log_)
+    fclose(dump_log_);
 }
 
 // ---------------------------------------------------------------------------
@@ -396,73 +430,6 @@ int Z80C::cbase;
 //
 inline void Z80C::SingleStep() {
   SingleStep(Fetch8());
-}
-
-// ---------------------------------------------------------------------------
-// I/O 処理の定義 -----------------------------------------------------------
-
-inline uint32_t MemStrategy::Read8(uint32_t addr) {
-  addr &= 0xffff;
-  MemoryPage& page = rdpages_[addr >> pagebits];
-  if (!page.func) {
-    DEBUGCOUNT(12);
-    return ((uint8_t*)page.ptr)[addr & pagemask];
-  } else {
-    DEBUGCOUNT(8);
-    return (*MemoryManager::RdFunc(intptr_t(page.ptr)))(page.inst, addr);
-  }
-}
-
-inline void MemStrategy::Write8(uint32_t addr, uint32_t data) {
-  addr &= 0xffff;
-  MemoryPage& page = wrpages_[addr >> pagebits];
-  if (!page.func) {
-    DEBUGCOUNT(14);
-    ((uint8_t*)page.ptr)[addr & pagemask] = data;
-  } else {
-    DEBUGCOUNT(16);
-    (*MemoryManager::WrFunc(intptr_t(page.ptr)))(page.inst, addr, data);
-  }
-}
-
-inline uint32_t MemStrategy::Read16(uint32_t addr) {
-#ifdef ALLOWBOUNDARYACCESS  // ワード境界を越えるアクセスを許す場合
-  addr &= 0xffff;
-  MemoryPage& page = rdpages[addr >> pagebits];
-  if (!page.func) {
-    DEBUGCOUNT(13);
-    uint32_t a = addr & pagemask;
-    if (a < pagemask)
-      return *(uint16_t*)((uint8_t*)page.ptr + a);
-  }
-#endif
-  return Read8(addr) + Read8(addr + 1) * 256;
-}
-
-inline void MemStrategy::Write16(uint32_t addr, uint32_t data) {
-  DEBUGCOUNT(15);
-#ifdef ALLOWBOUNDARYACCESS  // ワード境界を越えるアクセスを許す場合
-  addr &= 0xffff;
-  MemoryPage& page = wrpages[addr >> pagebits];
-  if (!page.func) {
-    uint32_t a = addr & pagemask;
-    if (a < pagemask) {
-      *(uint16_t*)((uint8_t*)page.ptr + a) = data;
-      return;
-    }
-  }
-#endif
-  Write8(addr, data & 0xff);
-  Write8(addr + 1, data >> 8);
-}
-
-inline uint32_t IOStrategy::Inp(uint32_t port) {
-  return bus_->In(port & 0xff);
-}
-
-inline void IOStrategy::Outp(uint32_t port, uint32_t data) {
-  bus_->Out(port & 0xff, data);
-  DEBUGCOUNT(11);
 }
 
 // ---------------------------------------------------------------------------
@@ -1083,36 +1050,44 @@ void Z80C::SingleStep(uint32_t m) {
       break;
 
     case 0x18:  // JR
-      JumpR();
-      CLK(7);
+      JumpR(Fetch8());
+      CLK(12);
       break;
 
     case 0x20:  // NZ
-      if (!GetZF())
-        JumpR();
-      else
+      if (!GetZF()) {
+        JumpR(Fetch8());
+        CLK(5);
+      } else {
         PCInc(1);
+      }
       CLK(7);
       break;
     case 0x28:  // Z
-      if (GetZF())
-        JumpR();
-      else
+      if (GetZF()) {
+        JumpR(Fetch8());
+        CLK(5);
+      } else {
         PCInc(1);
+      }
       CLK(7);
       break;
     case 0x30:  // NC
-      if (!GetCF())
-        JumpR();
-      else
+      if (!GetCF()) {
+        JumpR(Fetch8());
+        CLK(5);
+      } else {
         PCInc(1);
+      }
       CLK(7);
       break;
     case 0x38:  // C
-      if (GetCF())
-        JumpR();
-      else
+      if (GetCF()) {
+        JumpR(Fetch8());
+        CLK(5);
+      } else {
         PCInc(1);
+      }
       CLK(7);
       break;
 
@@ -1123,10 +1098,12 @@ void Z80C::SingleStep(uint32_t m) {
 
     case 0x10:  // DJNZ
       SetRegB(RegB() - 1);
-      if (0 != RegB())
-        JumpR();
-      else
+      if (0 != RegB()) {
+        JumpR(Fetch8());
+        CLK(5);
+      } else {
         PCInc(1);
+      }
       CLK(5);
       break;
 

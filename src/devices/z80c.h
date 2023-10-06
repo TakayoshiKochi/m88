@@ -67,7 +67,7 @@ class Z80C;
 
 class IOStrategy {
  public:
-  explicit IOStrategy(Z80C* cpu) : cpu_(cpu) {}
+  IOStrategy() = default;
   ~IOStrategy() = default;
 
  protected:
@@ -78,13 +78,12 @@ class IOStrategy {
   [[nodiscard]] bool IsSyncPort(uint32_t port) const { return bus_->IsSyncPort(port); }
 
  private:
-  Z80C* cpu_;
   IOBus* bus_ = nullptr;
 };
 
 class MemStrategy {
  public:
-  explicit MemStrategy(Z80C* cpu) : cpu_(cpu) {}
+  explicit MemStrategy() = default;
   ~MemStrategy() = default;
 
   // TODO: clean this up
@@ -101,29 +100,28 @@ class MemStrategy {
     instbase_ = nullptr;
   }
 
-  // For generic memory
+  // For generic memory access
   uint32_t Read8(uint32_t addr);
   uint32_t Read16(uint32_t a);
   void Write8(uint32_t addr, uint32_t data);
   void Write16(uint32_t a, uint32_t d);
 
-  // For instruction
+  // For memory read (from PC) (fast path)
   uint32_t Fetch8();
   uint32_t Fetch16();
-  uint32_t Fetch8B();
-  uint32_t Fetch16B();
 
   void SetPC(uint32_t newpc);
 
-  // void SetPCi(uint32_t newpc);
   void PCInc(uint32_t inc);
   void PCDec(uint32_t dec);
 
   void Jump(uint32_t dest);
-  void JumpR();
+  void JumpR(uint32_t rel);
 
  private:
-  Z80C* cpu_;
+  // Memory read from PC - slow path
+  uint32_t Fetch8B();
+  uint32_t Fetch16B();
 
   static constexpr uint32_t pagebits = MemoryManagerBase::pagebits;
   static constexpr uint32_t pagemask = MemoryManagerBase::pagemask;
