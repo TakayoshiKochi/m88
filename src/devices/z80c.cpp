@@ -21,7 +21,7 @@ static int testcount[24];
 // ---------------------------------------------------------------------------
 // コンストラクタ・デストラクタ
 //
-Z80C::Z80C(const ID& id) : Device(id), IOStrategy(this) {
+Z80C::Z80C(const ID& id) : Device(id), IOStrategy(this), MemStrategy(this) {
   // テーブル初期化
   ref_h_[USEHL] = &reg_.r.b.h;
   ref_l_[USEHL] = &reg_.r.b.l;
@@ -75,7 +75,7 @@ Z80C::~Z80C() {
 // ---------------------------------------------------------------------------
 // PC 読み書き
 //
-void Z80C::SetPC(uint32_t newpc) {
+void MemStrategy::SetPC(uint32_t newpc) {
   MemoryPage& page = rdpages_[(newpc >> pagebits) & PAGESMASK];
 
   if (!page.func) {
@@ -96,18 +96,18 @@ void Z80C::SetPC(uint32_t newpc) {
 }
 
 /*
-inline uint32_t Z80C::GetPC()
+inline uint32_t MemStrategy::GetPC()
 {
     DEBUGCOUNT(6);
     return inst - instbase;
 }
 */
 
-inline void Z80C::PCInc(uint32_t inc) {
+inline void MemStrategy::PCInc(uint32_t inc) {
   inst_ += inc;
 }
 
-inline void Z80C::PCDec(uint32_t dec) {
+inline void MemStrategy::PCDec(uint32_t dec) {
   inst_ -= dec;
   if (inst_ >= instpage_) {
     DEBUGCOUNT(7);
@@ -117,7 +117,7 @@ inline void Z80C::PCDec(uint32_t dec) {
   SetPC(inst_ - instbase_);
 }
 
-inline void Z80C::Jump(uint32_t dest) {
+inline void MemStrategy::Jump(uint32_t dest) {
   inst_ = instbase_ + dest;
   if (inst_ >= instpage_) {
     DEBUGCOUNT(9);
@@ -128,9 +128,9 @@ inline void Z80C::Jump(uint32_t dest) {
 }
 
 // ninst = inst + rel
-inline void Z80C::JumpR() {
+inline void MemStrategy::JumpR() {
   inst_ += int8_t(Fetch8());
-  CLK(5);
+  cpu_->CLK(5);
   if (inst_ >= instpage_) {
     DEBUGCOUNT(17);
     return;
@@ -142,7 +142,7 @@ inline void Z80C::JumpR() {
 // ---------------------------------------------------------------------------
 // インストラクション読み込み
 //
-inline uint32_t Z80C::Fetch8() {
+inline uint32_t MemStrategy::Fetch8() {
   DEBUGCOUNT(0);
   if (inst_ < instlim_)
     return *inst_++;
@@ -150,7 +150,7 @@ inline uint32_t Z80C::Fetch8() {
     return Fetch8B();
 }
 
-inline uint32_t Z80C::Fetch16() {
+inline uint32_t MemStrategy::Fetch16() {
   DEBUGCOUNT(3);
 #ifdef ALLOWBOUNDARYACCESS
   if (inst + 1 < instlim) {
@@ -162,7 +162,7 @@ inline uint32_t Z80C::Fetch16() {
     return Fetch16B();
 }
 
-uint32_t Z80C::Fetch8B() {
+uint32_t MemStrategy::Fetch8B() {
   DEBUGCOUNT(1);
   if (instlim_) {
     SetPC(GetPC());
@@ -173,7 +173,7 @@ uint32_t Z80C::Fetch8B() {
   return Read8(inst_++ - instbase_);
 }
 
-uint32_t Z80C::Fetch16B() {
+uint32_t MemStrategy::Fetch16B() {
   uint32_t r = Fetch8();
   return r | (Fetch8() << 8);
 }
@@ -401,7 +401,7 @@ inline void Z80C::SingleStep() {
 // ---------------------------------------------------------------------------
 // I/O 処理の定義 -----------------------------------------------------------
 
-inline uint32_t Z80C::Read8(uint32_t addr) {
+inline uint32_t MemStrategy::Read8(uint32_t addr) {
   addr &= 0xffff;
   MemoryPage& page = rdpages_[addr >> pagebits];
   if (!page.func) {
@@ -413,7 +413,7 @@ inline uint32_t Z80C::Read8(uint32_t addr) {
   }
 }
 
-inline void Z80C::Write8(uint32_t addr, uint32_t data) {
+inline void MemStrategy::Write8(uint32_t addr, uint32_t data) {
   addr &= 0xffff;
   MemoryPage& page = wrpages_[addr >> pagebits];
   if (!page.func) {
@@ -425,7 +425,7 @@ inline void Z80C::Write8(uint32_t addr, uint32_t data) {
   }
 }
 
-inline uint32_t Z80C::Read16(uint32_t addr) {
+inline uint32_t MemStrategy::Read16(uint32_t addr) {
 #ifdef ALLOWBOUNDARYACCESS  // ワード境界を越えるアクセスを許す場合
   addr &= 0xffff;
   MemoryPage& page = rdpages[addr >> pagebits];
@@ -439,7 +439,7 @@ inline uint32_t Z80C::Read16(uint32_t addr) {
   return Read8(addr) + Read8(addr + 1) * 256;
 }
 
-inline void Z80C::Write16(uint32_t addr, uint32_t data) {
+inline void MemStrategy::Write16(uint32_t addr, uint32_t data) {
   DEBUGCOUNT(15);
 #ifdef ALLOWBOUNDARYACCESS  // ワード境界を越えるアクセスを許す場合
   addr &= 0xffff;
@@ -462,8 +462,6 @@ inline uint32_t IOStrategy::Inp(uint32_t port) {
 
 inline void IOStrategy::Outp(uint32_t port, uint32_t data) {
   bus_->Out(port & 0xff, data);
-  // TODO: figure out what is this?
-  cpu_->SetPC(cpu_->GetPC());
   DEBUGCOUNT(11);
 }
 
@@ -480,8 +478,8 @@ void IOCALL Z80C::Reset(uint32_t, uint32_t) {
 
   SetRegF(0);
   uf_ = 0;
-  instlim_ = nullptr;
-  instbase_ = nullptr;
+
+  ResetMemory();
 
   // SetFlags(0xff, 0);      // フラグリセット
   reg_.intmode = 0;  // IM0
@@ -907,6 +905,7 @@ void Z80C::SingleStep(uint32_t m) {
         break;
       }
       Outp(w, RegA());
+      SetPC(GetPC());
       CLK(11);
       OutTestIntr();
       break;
@@ -2249,6 +2248,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), RegB());
+          SetPC(GetPC());
           CLK(12);
           OutTestIntr();
           break;
@@ -2259,6 +2259,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), RegC());
+          SetPC(GetPC());
           CLK(12);
           OutTestIntr();
           break;
@@ -2269,6 +2270,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), RegD());
+          SetPC(GetPC());
           CLK(12);
           OutTestIntr();
           break;
@@ -2279,6 +2281,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), RegE());
+          SetPC(GetPC());
           CLK(12);
           OutTestIntr();
           break;
@@ -2289,6 +2292,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), RegH());
+          SetPC(GetPC());
           CLK(12);
           OutTestIntr();
           break;
@@ -2299,6 +2303,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), RegL());
+          SetPC(GetPC());
           CLK(12);
           OutTestIntr();
           break;
@@ -2309,6 +2314,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), 0);
+          SetPC(GetPC());
           CLK(12);
           OutTestIntr();
           break;
@@ -2319,6 +2325,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), RegA());
+          SetPC(GetPC());
           CLK(12);
           OutTestIntr();
           break;
@@ -2353,6 +2360,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), Read8(RegHL()));
+          SetPC(GetPC());
           SetRegHL(RegHL() + 1);
           SetRegB(RegB() - 1);
           SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
@@ -2366,6 +2374,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), Read8(RegHL()));
+          SetPC(GetPC());
           SetRegHL(RegHL() - 1);
           SetRegB(RegB() - 1);
           SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
@@ -2407,6 +2416,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), Read8(RegHL()));
+          SetPC(GetPC());
           SetRegHL(RegHL() + 1);
           SetRegB(RegB() - 1);
           SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
@@ -2422,6 +2432,7 @@ void Z80C::SingleStep(uint32_t m) {
             break;
           }
           Outp(RegBC(), Read8(RegHL()));
+          SetPC(GetPC());
           SetRegHL(RegHL() - 1);
           SetRegB(RegB() - 1);
           SetFlags(ZF | NF, RegB() ? NF : NF | ZF);
@@ -2996,9 +3007,8 @@ bool IFCALL Z80C::LoadStatus(const uint8_t* s) {
   if (st->rev != ssrev)
     return false;
   reg_ = st->reg;
-  instbase_ = instlim_ = 0;
-  instpage_ = (uint8_t*)~0;
-  inst_ = (uint8_t*)reg_.pc;
+
+  SetPC(reg_.pc);
 
   intr_ = st->intr;
   wait_state_ = st->wait;
