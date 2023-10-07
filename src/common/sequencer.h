@@ -49,7 +49,6 @@ class Sequencer : public Threadable<Sequencer> {
   bool ThreadLoop();
 
  private:
-  void Execute(int32_t clock, int32_t length, int32_t ec);
   void ExecuteNS(int32_t clock, int64_t length_ns, int32_t ec);
   void ExecuteAsynchronus();
 
@@ -62,7 +61,7 @@ class Sequencer : public Threadable<Sequencer> {
   // 1Tick (=10us) あたりのクロック数 (e.g. 4MHz のとき 40)
   int clocks_per_tick_ = 40;
   int speed_ = 100;  // percent, 10%~10000%
-  int exec_count_ = 0;
+  int64_t exec_count_ = 0;
   int eff_clock_ = 100;
   int64_t time_ns_ = 0;
 

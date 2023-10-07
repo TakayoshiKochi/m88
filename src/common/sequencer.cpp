@@ -66,18 +66,12 @@ bool Sequencer::ThreadLoop() {
 // ---------------------------------------------------------------------------
 //  ＣＰＵメインループ
 //  clock   ＣＰＵのクロック(0.1MHz)
-//  length  実行する時間 (0.01ms)
+//  length_ns  実行する時間 (nanoseconds)
 //  eff     実効クロック
-//
-inline void Sequencer::Execute(int32_t clock, int32_t length, int32_t eff) {
-  std::lock_guard<std::mutex> lock(mtx_);
-  exec_count_ += clock * vm_->Proceed(length, clock, eff);
-}
-
 inline void Sequencer::ExecuteNS(int32_t clock, int64_t length_ns, int32_t ec) {
   // Execute(clock, int32_t(length_ns / 10000), eff);
   std::lock_guard<std::mutex> lock(mtx_);
-  exec_count_ += clock * (vm_->ProceedNS(length_ns, clock, ec) / 10000);
+  exec_count_ += clock * vm_->ProceedNS(length_ns, clock, ec) / 10000;
 }
 
 // ---------------------------------------------------------------------------
@@ -90,10 +84,10 @@ void Sequencer::ExecuteAsynchronus() {
     int64_t ns = 0;
     int eclk = 0;
     do {
-      if (clocks_per_tick_)
-        Execute(-clocks_per_tick_, 500, eff_clock_);
+      if (clocks_per_tick_ == 0)
+        ExecuteNS(eff_clock_, 50000 * speed_, eff_clock_);
       else
-        Execute(eff_clock_, 500 * speed_ / 100, eff_clock_);
+        ExecuteNS(-clocks_per_tick_, 5000000, eff_clock_);
       eclk += 5;
       ns = keeper_.GetTimeNS() - time_ns_;
     } while (ns < 1000000);
