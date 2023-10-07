@@ -10,10 +10,11 @@
 #include <atomic>
 
 #include "common/device.h"
+#include "common/threadable.h"
 
 class CDROM;
 
-class CDControl {
+class CDControl : public Threadable<CDControl> {
  public:
   enum {
     kDummy = 0,
@@ -47,17 +48,16 @@ class CDControl {
   bool SendCommand(uint32_t cmd, uint32_t arg1 = 0, uint32_t arg2 = 0);
   uint32_t GetTime();
 
+  // For Threadable
+  void ThreadInit();
+  bool ThreadLoop();
+
  private:
   void ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2);
   void CleanUp();
-  uint32_t ThreadMain();
-  static uint32_t __stdcall ThreadEntry(LPVOID arg);
 
-  HANDLE hthread_ = nullptr;
-  uint32_t thread_id_ = 0;
   int vel_ = 0;
   bool disc_present_ = false;
-  std::atomic<bool> should_terminate_ = false;
 
   Device* device_ = nullptr;
   DONEFUNC done_func_ = nullptr;

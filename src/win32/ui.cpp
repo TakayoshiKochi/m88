@@ -131,6 +131,8 @@ bool WinUI::InitWindow(int) {
 //  メッセージループ
 //
 int WinUI::Main(const char* cmdline) {
+  SetThreadDescription(GetCurrentThread(), L"M88 UI thread");
+
   hmenudbg_ = nullptr;
   if (InitM88(cmdline)) {
     timerid_ = ::SetTimer(hwnd_, 1, 1000, nullptr);

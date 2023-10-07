@@ -75,7 +75,9 @@ void Piccolo::CleanUp() {
 // ---------------------------------------------------------------------------
 //  Core Thread
 //
-void Piccolo::ThreadInit() {}
+void Piccolo::ThreadInit() {
+  SetName(L"M88 Piccolo thread");
+}
 
 bool Piccolo::ThreadLoop() {
   // ::SetThreadPriority(hthread_, THREAD_PRIORITY_ABOVE_NORMAL);
