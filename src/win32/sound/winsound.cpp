@@ -13,7 +13,7 @@
 #include "win32/sound/soundds.h"
 #include "win32/sound/soundds2.h"
 #include "win32/sound/soundwo.h"
-#include "win32/status.h"
+#include "win32/status_win.h"
 
 // #define LOGNAME "winsound"
 #include "common/diag.h"

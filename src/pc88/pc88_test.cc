@@ -4,7 +4,13 @@
 #include "gtest/gtest.h"
 #include "win32/romeo/piccolo.h"
 
-StatusDisplay* g_status_display = new StatusDisplay(new DummyStatusDisplay);
+class DummyStatusDisplay : public StatusDisplay {
+ public:
+  void UpdateDisplay() override {}
+  void Update() override {}
+};
+
+StatusDisplay* g_status_display = new DummyStatusDisplay();
 
 // For tests
 Piccolo* Piccolo::GetInstance() {

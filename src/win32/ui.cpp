@@ -25,7 +25,7 @@
 #include "win32/file.h"
 #include "win32/filetest.h"
 #include "win32/messages.h"
-#include "win32/status.h"
+#include "win32/status_win.h"
 #include "win32/resource.h"
 #include "win32/winexapi.h"
 

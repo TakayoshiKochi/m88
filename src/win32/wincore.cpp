@@ -18,7 +18,7 @@
 #include "win32/extdev.h"
 #include "win32/file.h"
 #include "win32/module.h"
-#include "win32/status.h"
+#include "win32/status_win.h"
 #include "win32/ui.h"
 #include "win32/version.h"
 #include "win32/winkeyif.h"

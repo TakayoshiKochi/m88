@@ -94,7 +94,8 @@ void Sequencer::ExecuteAsynchronus() {
     vm_->UpdateScreen();
 
     // eff_clock_ = std::min((std::min(1000, eclk) * eff_clock_ * 100 / ms) + 1, 10000UL);
-    eff_clock_ = (int)std::min((std::min(1000, eclk) * eff_clock_ * 100000 / ns) + 1, (int64_t)10000);
+    eff_clock_ =
+        (int)std::min((std::min(1000, eclk) * eff_clock_ * 100000 / ns) + 1, (int64_t)10000);
   } else {
     // time to execute in nanoseconds
     int64_t texec_ns = vm_->GetFramePeriodNS();
