@@ -14,29 +14,24 @@
 // #define LOGNAME "status"
 #include "common/diag.h"
 
-StatusDisplayImpl statusdisplay;
+StatusDisplayWin statusdisplay;
 StatusDisplay* g_status_display = new StatusDisplay(&statusdisplay);
 
 // ---------------------------------------------------------------------------
 //  Constructor/Destructor
 //
-StatusDisplayImpl::StatusDisplayImpl() = default;
+StatusDisplayWin::StatusDisplayWin() = default;
 
-StatusDisplayImpl::~StatusDisplayImpl() {
+StatusDisplayWin::~StatusDisplayWin() {
   CleanUp();
-  while (list_) {
-    List* next = list_->next;
-    delete list_;
-    list_ = next;
-  }
 }
 
-bool StatusDisplayImpl::Init(HWND parent) {
+bool StatusDisplayWin::Init(HWND parent) {
   parent_hwnd_ = parent;
   return true;
 }
 
-bool StatusDisplayImpl::Enable(bool showfd) {
+bool StatusDisplayWin::Enable(bool showfd) {
   if (!chwnd_) {
     chwnd_ = CreateStatusWindow(WS_CHILD | WS_VISIBLE, nullptr, parent_hwnd_, 1);
 
@@ -48,7 +43,7 @@ bool StatusDisplayImpl::Enable(bool showfd) {
   return true;
 }
 
-void StatusDisplayImpl::ResetSize() {
+void StatusDisplayWin::ResetSize() {
   if (chwnd_ == nullptr)
     return;
   SendMessage(chwnd_, SB_GETBORDERS, 0, (LPARAM)&border_);
@@ -65,7 +60,7 @@ void StatusDisplayImpl::ResetSize() {
   PostMessage(chwnd_, SB_SETTEXT, SBT_OWNERDRAW | 1, 0);
 }
 
-bool StatusDisplayImpl::Disable() {
+bool StatusDisplayWin::Disable() {
   if (chwnd_) {
     DestroyWindow(chwnd_);
     chwnd_ = nullptr;
@@ -74,7 +69,7 @@ bool StatusDisplayImpl::Disable() {
   return true;
 }
 
-void StatusDisplayImpl::CleanUp() {
+void StatusDisplayWin::CleanUp() {
   Disable();
   if (timer_id_) {
     KillTimer(parent_hwnd_, timer_id_);
@@ -85,7 +80,7 @@ void StatusDisplayImpl::CleanUp() {
 // ---------------------------------------------------------------------------
 //  DrawItem
 //
-void StatusDisplayImpl::DrawItem(DRAWITEMSTRUCT* dis) {
+void StatusDisplayWin::DrawItem(DRAWITEMSTRUCT* dis) {
   switch (dis->itemID) {
     case 0: {
       SetBkColor(dis->hDC, GetSysColor(COLOR_3DFACE));
@@ -127,7 +122,7 @@ void StatusDisplayImpl::DrawItem(DRAWITEMSTRUCT* dis) {
 // ---------------------------------------------------------------------------
 //  メッセージ追加
 //
-bool StatusDisplayImpl::Show(int priority, int duration, const char* msg, ...) {
+bool StatusDisplayWin::Show(int priority, int duration, const char* msg, ...) {
   va_list args;
   va_start(args, msg);
   bool r = ShowV(priority, duration, msg, args);
@@ -135,17 +130,14 @@ bool StatusDisplayImpl::Show(int priority, int duration, const char* msg, ...) {
   return r;
 }
 
-bool StatusDisplayImpl::ShowV(int priority, int duration, const char* msg, va_list args) {
+bool StatusDisplayWin::ShowV(int priority, int duration, const char* msg, va_list args) {
   std::lock_guard<std::mutex> lock(mtx_);
 
   if (current_priority_ < priority)
     if (!duration || (GetTickCount() + duration - current_duration_) < 0)
       return true;
 
-  List* entry = new List;
-  if (!entry)
-    return false;
-  memset(entry, 0, sizeof(List));
+  Entry entry{};
 
   char u8msg[1024];
   int tl = vsprintf(u8msg, msg, args);
@@ -154,18 +146,19 @@ bool StatusDisplayImpl::ShowV(int priority, int duration, const char* msg, va_li
   // TODO: Remove this UTF-8 to Shift_JIS conversion
   {
     wchar_t msgutf16[MAX_PATH];
+    char charbuf[MAX_PATH];
     int len_utf16 = MultiByteToWideChar(CP_UTF8, 0, u8msg, strlen(u8msg) + 1, nullptr, 0);
     if (len_utf16 <= sizeof(msgutf16) / sizeof(msgutf16[0])) {
       MultiByteToWideChar(CP_UTF8, 0, u8msg, strlen(u8msg) + 1, msgutf16, MAX_PATH);
-      WideCharToMultiByte(932, 0, msgutf16, len_utf16, entry->msg, 128, nullptr, nullptr);
+      ::WideCharToMultiByte(932, 0, msgutf16, len_utf16, charbuf, 128, nullptr, nullptr);
     }
+    entry.msg = charbuf;
   }
 
-  entry->duration = GetTickCount() + duration;
-  entry->priority = priority;
-  entry->next = list_;
-  entry->clear = duration != 0;
-  list_ = entry;
+  entry.duration = GetTickCount() + duration;
+  entry.priority = priority;
+  entry.clear = duration != 0;
+  entries_.emplace_back(std::move(entry));
 
   Log("reg : [%s] p:%5d d:%8d\n", entry->msg, entry->priority, entry->duration);
   update_message_ = true;
@@ -175,28 +168,35 @@ bool StatusDisplayImpl::ShowV(int priority, int duration, const char* msg, va_li
 // ---------------------------------------------------------------------------
 //  更新
 //
-void StatusDisplayImpl::Update() {
+void StatusDisplayWin::Update() {
   update_message_ = false;
   if (chwnd_) {
     std::lock_guard<std::mutex> lock(mtx_);
+
     // find highest priority (0 == highest)
+    bool found = false;
     int pc = 10000;
-    List* entry = nullptr;
+    Entry entry;
     int c = GetTickCount();
-    for (List* l = list_; l; l = l->next) {
-      //          Log("\t\t[%s] p:%5d d:%8d\n", l->msg, l->priority, l->duration);
-      if ((l->priority < pc) && ((!l->clear) || (l->duration - c) > 0))
-        entry = l, pc = l->priority;
+    // Find the highest priority entry that is not expired
+    for (auto& l: entries_) {
+      // Log("\t\t[%s] p:%5d d:%8d\n", l.msg.data(), l.priority, l.duration);
+      if ((l.priority < pc) && ((!l.clear) || (l.duration - c) > 0)) {
+        found = true;
+        entry = l;
+        pc = l.priority;
+      }
     }
-    if (entry) {
-      Log("show: [%s] p:%5d d:%8d\n", entry->msg, entry->priority, entry->duration);
-      memcpy(buf_, entry->msg, 128);
+
+    if (found) {
+      Log("show: [%s] p:%5d d:%8d\n", entry.msg, entry.priority, entry.duration);
+      memcpy(buf_, entry.msg.data(), 128);
       PostMessage(chwnd_, SB_SETTEXT, SBT_OWNERDRAW | 0, (LPARAM)buf_);
 
-      if (entry->clear) {
-        timer_id_ = ::SetTimer(parent_hwnd_, 8, entry->duration - c, 0);
-        current_priority_ = entry->priority;
-        current_duration_ = entry->duration;
+      if (entry.clear) {
+        timer_id_ = ::SetTimer(parent_hwnd_, 8, entry.duration - c, 0);
+        current_priority_ = entry.priority;
+        current_duration_ = entry.duration;
       } else {
         current_priority_ = 10000;
         if (timer_id_) {
@@ -220,23 +220,20 @@ void StatusDisplayImpl::Update() {
 // ---------------------------------------------------------------------------
 //  必要ないエントリの削除
 //
-void StatusDisplayImpl::Clean() {
-  List** prev = &list_;
+void StatusDisplayWin::Clean() {
   int c = GetTickCount();
-  while (*prev) {
-    if ((((*prev)->duration - c) < 0) || !(*prev)->clear) {
-      List* de = *prev;
-      *prev = de->next;
-      delete de;
-    } else
-      prev = &(*prev)->next;
+  for (auto it = entries_.begin(); it < entries_.end(); ++it) {
+    if (((it->duration - c) < 0) || !it->clear) {
+      it = entries_.erase(it);
+      continue;
+    }
   }
 }
 
 // ---------------------------------------------------------------------------
 //
 //
-void StatusDisplayImpl::FDAccess(uint32_t dr, bool hd, bool active) {
+void StatusDisplayWin::FDAccess(uint32_t dr, bool hd, bool active) {
   dr &= 1;
   if (!(litstat_[dr] & 4)) {
     litstat_[dr] = (hd ? 0x22 : 0) | (active ? 0x11 : 0) | 4;
@@ -245,7 +242,7 @@ void StatusDisplayImpl::FDAccess(uint32_t dr, bool hd, bool active) {
   }
 }
 
-void StatusDisplayImpl::UpdateDisplay() {
+void StatusDisplayWin::UpdateDisplay() {
   bool update = false;
   for (int d = 0; d < 3; d++) {
     if ((litstat_[d] ^ litcurrent_[d]) & 3) {

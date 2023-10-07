@@ -12,12 +12,14 @@
 
 #include <stdint.h>
 
+#include <string>
 #include <mutex>
+#include <vector>
 
-class StatusDisplayImpl : public StatusDisplayInterface {
+class StatusDisplayWin : public StatusDisplayInterface {
  public:
-  StatusDisplayImpl();
-  ~StatusDisplayImpl() override;
+  StatusDisplayWin();
+  ~StatusDisplayWin() override;
 
   bool Init(HWND parent);
   void CleanUp();
@@ -32,7 +34,6 @@ class StatusDisplayImpl : public StatusDisplayInterface {
   void UpdateDisplay() override;
   void WaitSubSys() override { litstat_[2] = 9; }
 
-  // Implements StatusDisplayInterface
   bool Show(int priority, int duration, const char* msg, ...) override;
   bool ShowV(int priority, int duration, const char* msg, va_list args) override;
   void Update() override;
@@ -44,11 +45,10 @@ class StatusDisplayImpl : public StatusDisplayInterface {
   [[nodiscard]] HWND GetHWnd() const { return chwnd_; }
 
  private:
-  struct List {
-    List* next;
+  struct Entry {
     int priority;
     int duration;
-    char msg[127];
+    std::string msg;
     bool clear;
   };
   struct Border {
@@ -61,7 +61,7 @@ class StatusDisplayImpl : public StatusDisplayInterface {
 
   HWND chwnd_ = nullptr;
   HWND parent_hwnd_ = nullptr;
-  List* list_ = nullptr;
+  std::vector<Entry> entries_;
   UINT_PTR timer_id_ = 0;
   std::mutex mtx_;
   Border border_{};
@@ -77,4 +77,4 @@ class StatusDisplayImpl : public StatusDisplayInterface {
   char buf_[128]{};
 };
 
-extern StatusDisplayImpl statusdisplay;
+extern StatusDisplayWin statusdisplay;
