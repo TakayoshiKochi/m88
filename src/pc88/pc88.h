@@ -77,7 +77,7 @@ class SchedulerImpl : public Scheduler {
  private:
   SchedulerExecutable* ex_;
   // 1Tick (=10us) あたりのクロック数 (e.g. 4MHz のとき 40)
-  int clocks_per_tick_ = 100;
+  int clocks_per_tick_ = 40;
 };
 
 // ---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
   void Reset();
   int Proceed(uint32_t us, uint32_t clock, uint32_t eff);
-  int64_t ProceedNS(uint64_t ns, uint32_t clock, uint32_t eff);
+  int64_t ProceedNS(int64_t ns, uint32_t clock, uint32_t ecl);
   void ApplyConfig(PC8801::Config*);
   void SetVolume(PC8801::Config*);
 
@@ -133,7 +133,6 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   // bool SaveShapshot(const char* filename);
   // bool LoadShapshot(const char* filename);
 
-  int GetFramePeriod();
   uint64_t GetFramePeriodNS();
 
  public:

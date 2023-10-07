@@ -23,7 +23,7 @@ bool Sequencer::Init(PC88* vm) {
 
   active_ = false;
   exec_count_ = 0;
-  clocks_per_tick_ = 1;
+  clocks_per_tick_ = 40;
   speed_ = 100;
 
   draw_next_frame_ = false;
@@ -49,7 +49,6 @@ bool Sequencer::CleanUp() {
 //
 void Sequencer::ThreadInit() {
   SetName(L"M88 Sequencer thread");
-  time_ = keeper_.GetTime();
   time_ns_ = keeper_.GetTimeNS();
   eff_clock_ = 100;
 }
@@ -59,7 +58,7 @@ bool Sequencer::ThreadLoop() {
     ExecuteAsynchronus();
   } else {
     Sleep(20);
-    time_ = keeper_.GetTime();
+    time_ns_ = keeper_.GetTimeNS();
   }
   return true;
 }
@@ -86,10 +85,9 @@ inline void Sequencer::ExecuteNS(int32_t clock, int64_t length_ns, int32_t ec) {
 //
 void Sequencer::ExecuteAsynchronus() {
   if (clocks_per_tick_ <= 0) {
-    time_ = keeper_.GetTime();
     time_ns_ = keeper_.GetTimeNS();
     vm_->TimeSync();
-    DWORD ms = 0;
+    int64_t ns = 0;
     int eclk = 0;
     do {
       if (clocks_per_tick_)
@@ -97,33 +95,32 @@ void Sequencer::ExecuteAsynchronus() {
       else
         Execute(eff_clock_, 500 * speed_ / 100, eff_clock_);
       eclk += 5;
-      ms = keeper_.GetTime() - time_;
-    } while (ms < 1000);
+      ns = keeper_.GetTimeNS() - time_ns_;
+    } while (ns < 1000000);
     vm_->UpdateScreen();
 
-    eff_clock_ = std::min((std::min(1000, eclk) * eff_clock_ * 100 / ms) + 1, 10000UL);
+    // eff_clock_ = std::min((std::min(1000, eclk) * eff_clock_ * 100 / ms) + 1, 10000UL);
+    eff_clock_ = (int)std::min((std::min(1000, eclk) * eff_clock_ * 100000 / ns) + 1, (int64_t)10000);
   } else {
-    // time to execute in ticks
-    // int texec = vm_->GetFramePeriod();
-    int texec = int(vm_->GetFramePeriodNS() / 10000);
+    // time to execute in nanoseconds
     int64_t texec_ns = vm_->GetFramePeriodNS();
-    // actual work to do??
-    int twork = texec * 100 / speed_;
+
+    // actual time expected to spend for this amount of work
     int64_t twork_ns = texec_ns * 100 / speed_;
     vm_->TimeSync();
-    // Execute(clock_, texec, clock_ * speed_ / 100);
     ExecuteNS(clocks_per_tick_, texec_ns, clocks_per_tick_ * speed_ / 100);
 
-    int32_t tcpu = keeper_.GetTime() - time_;
+    // Time used for CPU execution
     int64_t tcpu_ns = keeper_.GetTimeNS() - time_ns_;
+
     if (tcpu_ns < twork_ns) {
+      // Emulation is faster than real time
       if (draw_next_frame_ && ++refresh_count_ >= refresh_timing_) {
         vm_->UpdateScreen();
         skipped_frames_ = 0;
         refresh_count_ = 0;
       }
 
-      int32_t tdraw = keeper_.GetTime() - time_;
       int64_t tdraw_ns = keeper_.GetTimeNS() - time_ns_;
 
       if (tdraw_ns > twork_ns) {
@@ -131,19 +128,18 @@ void Sequencer::ExecuteAsynchronus() {
       } else {
         // TODO: sleep for nanoseconds-resolution?
         int64_t it_ns = twork_ns - tdraw_ns;
-        if (it_ns > 1000000)
-          Sleep(it_ns / 1000000);
+        int sleep_ms = (int)(it_ns / 1000000);
+        if (sleep_ms > 0)
+          Sleep(sleep_ms);
         draw_next_frame_ = true;
       }
-      time_ += twork;
       time_ns_ += twork_ns;
     } else {
-      time_ += twork;
+      // Emulation is slower than real time
       time_ns_ += twork_ns;
       if (++skipped_frames_ >= 20) {
         vm_->UpdateScreen();
         skipped_frames_ = 0;
-        time_ = keeper_.GetTime();
         time_ns_ = keeper_.GetTimeNS();
       }
     }
