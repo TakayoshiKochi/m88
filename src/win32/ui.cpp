@@ -1541,6 +1541,33 @@ LRESULT WinUI::WmDropFiles(HWND, WPARAM wparam, LPARAM) {
 // ---------------------------------------------------------------------------
 //  マウス状態の取得
 //
+LRESULT WinUI::WmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp) {
+  /*  if (fullscreen)
+      {
+          POINTS p;
+          p = MAKEPOINTS(lp);
+          uint32_t menu = p.y < 8;
+          if (!guimodebymouse)
+          {
+              if (menu)
+              {
+                  guimodebymouse = true;
+                  SetGUIFlag(true);
+              }
+          }
+          else
+          {
+              if (!menu)
+              {
+                  guimodebymouse = false;
+                  SetGUIFlag(false);
+              }
+          }
+      }
+  */
+  return 0;
+}
+
 LRESULT WinUI::WmLButtonDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   if (capture_mouse_) {
     mouse_button_ |= 1;
@@ -1587,6 +1614,19 @@ LRESULT WinUI::WmExitSizeMove(HWND, WPARAM, LPARAM) {
 }
 
 // ---------------------------------------------------------------------------
+//  WinUI::WmSize
+//  WM_SIZE
+//
+LRESULT WinUI::WmSize(HWND hwnd, WPARAM wp, LPARAM lp) {
+  HWND hwndstatus = statusdisplay.GetHWnd();
+  if (hwndstatus)
+    PostMessage(hwndstatus, WM_SIZE, wp, lp);
+  active_ = wp != SIZE_MINIMIZED;
+  draw.Activate(active_);
+  return DefWindowProc(hwnd, WM_SIZE, wp, lp);
+}
+
+// ---------------------------------------------------------------------------
 //  WM_MOVE
 //
 LRESULT WinUI::WmMove(HWND hwnd, WPARAM, LPARAM) {
@@ -1595,33 +1635,6 @@ LRESULT WinUI::WmMove(HWND hwnd, WPARAM, LPARAM) {
   ClientToScreen(hwnd, &srcpoint);
 
   draw.WindowMoved(srcpoint.x, srcpoint.y);
-  return 0;
-}
-
-LRESULT WinUI::WmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp) {
-  /*  if (fullscreen)
-      {
-          POINTS p;
-          p = MAKEPOINTS(lp);
-          uint32_t menu = p.y < 8;
-          if (!guimodebymouse)
-          {
-              if (menu)
-              {
-                  guimodebymouse = true;
-                  SetGUIFlag(true);
-              }
-          }
-          else
-          {
-              if (!menu)
-              {
-                  guimodebymouse = false;
-                  SetGUIFlag(false);
-              }
-          }
-      }
-  */
   return 0;
 }
 
@@ -1928,19 +1941,6 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM) {
     return 0;
   }
   return 0;
-}
-
-// ---------------------------------------------------------------------------
-//  WinUI::WmSize
-//  WM_SIZE
-//
-LRESULT WinUI::WmSize(HWND hwnd, WPARAM wp, LPARAM lp) {
-  HWND hwndstatus = statusdisplay.GetHWnd();
-  if (hwndstatus)
-    PostMessage(hwndstatus, WM_SIZE, wp, lp);
-  active_ = wp != SIZE_MINIMIZED;
-  draw.Activate(active_);
-  return DefWindowProc(hwnd, WM_SIZE, wp, lp);
 }
 
 // ---------------------------------------------------------------------------
