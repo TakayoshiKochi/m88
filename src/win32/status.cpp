@@ -225,7 +225,9 @@ void StatusDisplayWin::Clean() {
   for (auto it = entries_.begin(); it < entries_.end(); ++it) {
     if (((it->duration - c) < 0) || !it->clear) {
       it = entries_.erase(it);
-      continue;
+      if (it != entries_.end())
+        continue;
+      break;
     }
   }
 }
