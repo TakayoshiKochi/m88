@@ -48,6 +48,7 @@ bool Sequencer::CleanUp() {
 //  Core Thread Implementation
 //
 void Sequencer::ThreadInit() {
+  SetName(L"M88 Sequencer thread");
   time_ = keeper_.GetTime();
   time_ns_ = keeper_.GetTimeNS();
   eff_clock_ = 100;

@@ -20,9 +20,7 @@
 // ---------------------------------------------------------------------------
 //  構築・破棄
 //
-CDControl::CDControl() {
-  hthread_ = nullptr;
-}
+CDControl::CDControl() = default;
 
 CDControl::~CDControl() {
   CleanUp();
@@ -36,13 +34,8 @@ bool CDControl::Init(CDROM* cd, Device* dev, DONEFUNC func) {
   device_ = dev;
   done_func_ = func;
   disc_present_ = false;
-  should_terminate_ = false;
 
-  if (!hthread_)
-    hthread_ =
-        HANDLE(_beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &thread_id_));
-  if (!hthread_)
-    return false;
+  StartThread();
 
   while (!PostThreadMessage(thread_id_, 0, 0, 0))
     Sleep(10);
@@ -55,19 +48,8 @@ bool CDControl::Init(CDROM* cd, Device* dev, DONEFUNC func) {
 //  後片づけ
 //
 void CDControl::CleanUp() {
-  if (hthread_) {
-    int i = 100;
-    should_terminate_ = true;
-    do {
-      PostThreadMessage(thread_id_, WM_QUIT, 0, 0);
-    } while (WAIT_TIMEOUT == WaitForSingleObject(hthread_, 50) && --i);
-
-    if (i)
-      TerminateThread(hthread_, 0);
-
-    CloseHandle(hthread_);
-    hthread_ = 0;
-  }
+  SendCommand(kStop, 0, 0);
+  RequestThreadStop();
 }
 
 // ---------------------------------------------------------------------------
@@ -136,9 +118,8 @@ void CDControl::ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
     default:
       return;
   }
-  if (done_func_ && !should_terminate_)
+  if (done_func_ && !StopRequested())
     (device_->*done_func_)(ret);
-  return;
 }
 
 // ---------------------------------------------------------------------------
@@ -164,18 +145,15 @@ bool CDControl::SendCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
 // ---------------------------------------------------------------------------
 //  スレッド
 //
-uint32_t CDControl::ThreadMain() {
-  MSG msg;
-  while (GetMessage(&msg, 0, 0, 0) && !should_terminate_) {
+void CDControl::ThreadInit() {
+  SetName(L"M88 CDControl thread");
+}
+
+bool CDControl::ThreadLoop() {
+  MSG msg{};
+  if (GetMessage(&msg, nullptr, 0, 0)) {
     if (UM_CDCONTROL <= msg.message && msg.message < UM_CDCONTROL + kNumCommands)
       ExecCommand(msg.message - UM_CDCONTROL, msg.wParam, msg.lParam);
   }
-  return 0;
-}
-
-uint32_t __stdcall CDControl::ThreadEntry(LPVOID arg) {
-  if (arg)
-    return reinterpret_cast<CDControl*>(arg)->ThreadMain();
-  else
-    return 0;
+  return true;
 }

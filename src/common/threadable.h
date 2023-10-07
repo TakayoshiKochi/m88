@@ -28,6 +28,8 @@ class Threadable {
 
   // Should be called from the parent thread.
   void RequestThreadStop() {
+    if (!hthread_)
+      return;
     stop_request_ = true;
     if (WAIT_TIMEOUT == WaitForSingleObject(hthread_, 3000)) {
       TerminateThread(hthread_, 0);
@@ -40,8 +42,13 @@ class Threadable {
  protected:
   bool StopRequested() const { return stop_request_; }
   bool Stopped() const { return stopped_; }
+  void SetName(PCWSTR name) {
+    if (hthread_)
+      SetThreadDescription(hthread_, name);
+  }
 
   HANDLE hthread_ = nullptr;
+  uint32_t thread_id_ = 0;
 
  private:
   uint32_t ThreadMain() {
@@ -61,7 +68,6 @@ class Threadable {
 
   std::atomic<bool> stop_request_ = false;
   std::atomic<bool> stopped_ = true;
-  uint32_t thread_id_ = 0;
 };
 
 // static

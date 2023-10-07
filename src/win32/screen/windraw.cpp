@@ -89,6 +89,7 @@ bool WinDraw::CleanUp() {
 //  画面描画用スレッド
 //
 void WinDraw::ThreadInit() {
+  SetName(L"M88 WinDraw thread");
   WaitForSingleObject(hevredraw_.get(), 1000);
   drawing_ = false;
 }

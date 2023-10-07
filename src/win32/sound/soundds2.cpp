@@ -158,7 +158,9 @@ bool DriverDS2::CleanUp() {
 // ---------------------------------------------------------------------------
 //  Thread -------------------------------------------------------------------
 
-void DriverDS2::ThreadInit() {}
+void DriverDS2::ThreadInit() {
+  SetName(L"M88 SoundDS2 thread");
+}
 
 bool DriverDS2::ThreadLoop() {
   while (playing_ && !StopRequested()) {
