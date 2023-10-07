@@ -121,7 +121,7 @@ void PC88::DeInit() {
 //  執行
 //  1 tick = 10μs
 //
-//int PC88::Proceed(uint32_t ticks, uint32_t clock, uint32_t ecl) {
+// int PC88::Proceed(uint32_t ticks, uint32_t clock, uint32_t ecl) {
 //  return int(ProceedNS(ticks * 10000ULL, clock, ecl) / 10000);
 //}
 

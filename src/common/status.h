@@ -8,49 +8,42 @@
 
 #include <stdarg.h>
 #include <stdint.h>
-
-class StatusDisplayInterface {
- public:
-  virtual ~StatusDisplayInterface() = default;
-
-  virtual void FDAccess(uint32_t dr, bool hd, bool active) = 0;
-  virtual void UpdateDisplay() = 0;
-  virtual bool Show(int priority, int duration, const char* msg, ...) = 0;
-  virtual bool ShowV(int priority, int duration, const char* msg, va_list args) = 0;
-  virtual void Update() = 0;
-  virtual void WaitSubSys() = 0;
-};
+#include <mutex>
+#include <string>
+#include <vector>
 
 class StatusDisplay {
  public:
-  explicit StatusDisplay(StatusDisplayInterface* impl) : impl_(impl) {}
-  ~StatusDisplay() = default;
+  StatusDisplay() = default;
+  virtual ~StatusDisplay() = default;
 
-  void FDAccess(uint32_t dr, bool hd, bool active) { impl_->FDAccess(dr, hd, active); }
-  void UpdateDisplay() { impl_->UpdateDisplay(); }
-  bool Show(int priority, int duration, const char* msg, ...) {
-    va_list args;
-    va_start(args, msg);
-    bool r = impl_->ShowV(priority, duration, msg, args);
-    va_end(args);
-    return r;
-  }
-  void Update() { impl_->Update(); }
-  void WaitSubSys() { impl_->WaitSubSys(); }
+  void FDAccess(uint32_t dr, bool hd, bool active);
+  virtual void UpdateDisplay() = 0;
+  virtual void Update() = 0;
+  virtual void WaitSubSys() { litstat_[2] = 9; }
 
- private:
-  StatusDisplayInterface* impl_ = nullptr;
-};
+  void Show(int priority, int duration, const char* msg, ...);
 
-// For tests
-class DummyStatusDisplay : public StatusDisplayInterface {
- public:
-  void FDAccess(uint32_t dr, bool hd, bool active) override {}
-  void UpdateDisplay() override {}
-  bool Show(int priority, int duration, const char* msg, ...) override { return true; }
-  bool ShowV(int priority, int duration, const char* msg, va_list args) override { return true; }
-  void Update() override {}
-  void WaitSubSys() override {}
+ protected:
+  friend class StatusDisplay;
+  struct Entry {
+    int priority;
+    uint64_t end_time;
+    std::string msg;
+    bool clear;
+  };
+
+  void ShowV(int priority, int duration, const char* msg, va_list args);
+  void Clean();
+
+  std::mutex mtx_;
+  std::vector<Entry> entries_;
+
+  int litstat_[3]{};
+
+  uint64_t current_end_time_ = 0;
+  int current_priority_ = 10000;
+  bool update_message_ = false;
 };
 
 extern StatusDisplay* g_status_display;

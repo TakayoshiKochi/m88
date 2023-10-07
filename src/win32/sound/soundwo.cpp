@@ -11,7 +11,7 @@
 #include <mmsystem.h>
 #include <process.h>
 
-#include "win32/status.h"
+#include "win32/status_win.h"
 
 using namespace WinSoundDriver;
 

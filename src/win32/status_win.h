@@ -16,7 +16,7 @@
 #include <mutex>
 #include <vector>
 
-class StatusDisplayWin : public StatusDisplayInterface {
+class StatusDisplayWin : public StatusDisplay {
  public:
   StatusDisplayWin();
   ~StatusDisplayWin() override;
@@ -24,19 +24,14 @@ class StatusDisplayWin : public StatusDisplayInterface {
   bool Init(HWND parent);
   void CleanUp();
 
-  bool Enable(bool sfs = false);
+  bool Enable(bool show_fdc_status = false);
   bool Disable();
-  int GetHeight() { return height_; }
+  [[nodiscard]] int GetHeight() const { return height_; }
   void DrawItem(DRAWITEMSTRUCT* dis);
 
-  // Implements StatusDisplayInterface
-  void FDAccess(uint32_t dr, bool hd, bool active) override;
-  void UpdateDisplay() override;
-  void WaitSubSys() override { litstat_[2] = 9; }
-
-  bool Show(int priority, int duration, const char* msg, ...) override;
-  bool ShowV(int priority, int duration, const char* msg, va_list args) override;
-  void Update() override;
+  // Implements StatusDisplay
+  void UpdateDisplay();
+  void Update();
 
   // TODO: clean up the code paths.
   void ResetSize();
@@ -45,34 +40,21 @@ class StatusDisplayWin : public StatusDisplayInterface {
   [[nodiscard]] HWND GetHWnd() const { return chwnd_; }
 
  private:
-  struct Entry {
-    int priority;
-    int duration;
-    std::string msg;
-    bool clear;
-  };
   struct Border {
     int horizontal;
     int vertical;
     int split;
   };
 
-  void Clean();
-
   HWND chwnd_ = nullptr;
   HWND parent_hwnd_ = nullptr;
-  std::vector<Entry> entries_;
   UINT_PTR timer_id_ = 0;
-  std::mutex mtx_;
+
   Border border_{};
   int height_ = 0;
-  int litstat_[3]{};
-  int litcurrent_[3]{};
   bool show_fdc_status_ = false;
-  bool update_message_ = false;
 
-  int current_duration_ = 0;
-  int current_priority_ = 10000;
+  int litcurrent_[3]{};
 
   char buf_[128]{};
 };

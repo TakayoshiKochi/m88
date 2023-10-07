@@ -64,6 +64,7 @@ add_library(common ${LIB_TYPE}
         src/common/srcbuf.h
         src/common/srcbuf.cpp
         src/common/status.h
+        src/common/status.cpp
         src/common/threadable.h
         src/common/time_keeper.h
         src/common/time_keeper.cpp)
@@ -223,8 +224,8 @@ add_library(win32 ${LIB_TYPE}
         src/win32/sound/soundwo.cpp
         src/win32/sound/winsound.h
         src/win32/sound/winsound.cpp
-        src/win32/status.h
-        src/win32/status.cpp
+        src/win32/status_win.h
+        src/win32/status_win.cpp
         src/win32/ui.h
         src/win32/ui.cpp
         src/win32/wincfg.h

@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: status.cpp,v 1.8 2002/04/07 05:40:10 cisc Exp $
 
-#include "win32/status.h"
+#include "win32/status_win.h"
 
 #include <assert.h>
 
@@ -15,11 +15,8 @@
 #include "common/diag.h"
 
 StatusDisplayWin statusdisplay;
-StatusDisplay* g_status_display = new StatusDisplay(&statusdisplay);
+StatusDisplay* g_status_display = &statusdisplay;
 
-// ---------------------------------------------------------------------------
-//  Constructor/Destructor
-//
 StatusDisplayWin::StatusDisplayWin() = default;
 
 StatusDisplayWin::~StatusDisplayWin() {
@@ -31,14 +28,14 @@ bool StatusDisplayWin::Init(HWND parent) {
   return true;
 }
 
-bool StatusDisplayWin::Enable(bool showfd) {
+bool StatusDisplayWin::Enable(bool show_fdc_status) {
   if (!chwnd_) {
     chwnd_ = CreateStatusWindow(WS_CHILD | WS_VISIBLE, nullptr, parent_hwnd_, 1);
 
     if (!chwnd_)
       return false;
   }
-  show_fdc_status_ = showfd;
+  show_fdc_status_ = show_fdc_status;
   ResetSize();
   return true;
 }
@@ -120,52 +117,6 @@ void StatusDisplayWin::DrawItem(DRAWITEMSTRUCT* dis) {
 }
 
 // ---------------------------------------------------------------------------
-//  メッセージ追加
-//
-bool StatusDisplayWin::Show(int priority, int duration, const char* msg, ...) {
-  va_list args;
-  va_start(args, msg);
-  bool r = ShowV(priority, duration, msg, args);
-  va_end(args);
-  return r;
-}
-
-bool StatusDisplayWin::ShowV(int priority, int duration, const char* msg, va_list args) {
-  std::lock_guard<std::mutex> lock(mtx_);
-
-  if (current_priority_ < priority)
-    if (!duration || (GetTickCount() + duration - current_duration_) < 0)
-      return true;
-
-  Entry entry{};
-
-  char u8msg[1024];
-  int tl = vsprintf(u8msg, msg, args);
-  assert(tl < 128);
-
-  // TODO: Remove this UTF-8 to Shift_JIS conversion
-  {
-    wchar_t msgutf16[MAX_PATH];
-    char charbuf[MAX_PATH];
-    int len_utf16 = MultiByteToWideChar(CP_UTF8, 0, u8msg, strlen(u8msg) + 1, nullptr, 0);
-    if (len_utf16 <= sizeof(msgutf16) / sizeof(msgutf16[0])) {
-      MultiByteToWideChar(CP_UTF8, 0, u8msg, strlen(u8msg) + 1, msgutf16, MAX_PATH);
-      ::WideCharToMultiByte(932, 0, msgutf16, len_utf16, charbuf, 128, nullptr, nullptr);
-    }
-    entry.msg = charbuf;
-  }
-
-  entry.duration = GetTickCount() + duration;
-  entry.priority = priority;
-  entry.clear = duration != 0;
-  entries_.emplace_back(std::move(entry));
-
-  Log("reg : [%s] p:%5d d:%8d\n", entry->msg, entry->priority, entry->duration);
-  update_message_ = true;
-  return true;
-}
-
-// ---------------------------------------------------------------------------
 //  更新
 //
 void StatusDisplayWin::Update() {
@@ -174,29 +125,43 @@ void StatusDisplayWin::Update() {
     std::lock_guard<std::mutex> lock(mtx_);
 
     // find highest priority (0 == highest)
-    bool found = false;
     int pc = 10000;
-    Entry entry;
-    int c = GetTickCount();
+    Entry* entry = nullptr;
+    uint64_t c = GetTickCount64();
     // Find the highest priority entry that is not expired
-    for (auto& l: entries_) {
+    for (auto it = entries_.rbegin(); it != entries_.rend(); ++it) {
+      auto& l = *it;
       // Log("\t\t[%s] p:%5d d:%8d\n", l.msg.data(), l.priority, l.duration);
-      if ((l.priority < pc) && ((!l.clear) || (l.duration - c) > 0)) {
-        found = true;
-        entry = l;
+      if (l.priority < pc && (!l.clear || l.end_time > c)) {
+        entry = &l;
         pc = l.priority;
       }
     }
 
-    if (found) {
-      Log("show: [%s] p:%5d d:%8d\n", entry.msg, entry.priority, entry.duration);
-      memcpy(buf_, entry.msg.data(), 128);
+    if (entry) {
+      Log("show: [%s] p:%5d d:%8llu\n", entry->msg.data(), entry->priority, entry->end_time);
+
+      // TODO: Remove this UTF-8 to Shift_JIS conversion
+      {
+        wchar_t msgutf16[MAX_PATH];
+        char charbuf[MAX_PATH];
+        int len_utf16 =
+            MultiByteToWideChar(CP_UTF8, 0, entry->msg.data(), entry->msg.size() + 1, nullptr, 0);
+        if (len_utf16 <= sizeof(msgutf16) / sizeof(msgutf16[0])) {
+          MultiByteToWideChar(CP_UTF8, 0, entry->msg.data(), entry->msg.size() + 1, msgutf16,
+                              MAX_PATH);
+          ::WideCharToMultiByte(932, 0, msgutf16, len_utf16, charbuf, 128, nullptr, nullptr);
+        }
+        memcpy(buf_, charbuf, 128);
+      }
       PostMessage(chwnd_, SB_SETTEXT, SBT_OWNERDRAW | 0, (LPARAM)buf_);
 
-      if (entry.clear) {
-        timer_id_ = ::SetTimer(parent_hwnd_, 8, entry.duration - c, 0);
-        current_priority_ = entry.priority;
-        current_duration_ = entry.duration;
+      if (entry->clear) {
+        int duration = (int)(entry->end_time - c);
+        assert(duration > 0);
+        timer_id_ = ::SetTimer(parent_hwnd_, 8, duration, nullptr);
+        current_priority_ = entry->priority;
+        current_end_time_ = entry->end_time;
       } else {
         current_priority_ = 10000;
         if (timer_id_) {
@@ -214,33 +179,6 @@ void StatusDisplayWin::Update() {
         timer_id_ = 0;
       }
     }
-  }
-}
-
-// ---------------------------------------------------------------------------
-//  必要ないエントリの削除
-//
-void StatusDisplayWin::Clean() {
-  int c = GetTickCount();
-  for (auto it = entries_.begin(); it < entries_.end(); ++it) {
-    if (((it->duration - c) < 0) || !it->clear) {
-      it = entries_.erase(it);
-      if (it != entries_.end())
-        continue;
-      break;
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-//
-//
-void StatusDisplayWin::FDAccess(uint32_t dr, bool hd, bool active) {
-  dr &= 1;
-  if (!(litstat_[dr] & 4)) {
-    litstat_[dr] = (hd ? 0x22 : 0) | (active ? 0x11 : 0) | 4;
-  } else {
-    litstat_[dr] = (litstat_[dr] & 0x0f) | (hd ? 0x20 : 0) | (active ? 0x10 : 0) | 9;
   }
 }
 
