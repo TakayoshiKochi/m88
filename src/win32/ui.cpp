@@ -291,41 +291,48 @@ LRESULT WinUI::WinProc(HWND hwnd, UINT umsg, WPARAM wp, LPARAM lp) {
   keyif.Disable(true);
 
   switch (umsg) {
+    PROC_MSG(WM_M88_CHANGEDISPLAY, M88ChangeDisplay);
+    PROC_MSG(WM_M88_CHANGEVOLUME, M88ChangeVolume);
+    PROC_MSG(WM_M88_APPLYCONFIG, M88ApplyConfig);
+    PROC_MSG(WM_M88_SENDKEYSTATE, M88SendKeyState);
+    PROC_MSG(WM_M88_CLIPCURSOR, M88ClipCursor);
+
     PROC_MSG(WM_COMMAND, WmCommand);
-    PROC_MSG(WM_PAINT, WmPaint);
-    PROC_MSG(WM_CREATE, WmCreate);
-    PROC_MSG(WM_DESTROY, WmDestroy);
-    PROC_MSG(WM_CLOSE, WmClose);
-    PROC_MSG(WM_TIMER, WmTimer);
-    PROC_MSG(WM_ACTIVATE, WmActivate);
-    PROC_MSG(WM_PALETTECHANGED, WmPaletteChanged);
-    PROC_MSG(WM_QUERYNEWPALETTE, WmQueryNewPalette);
-    PROC_MSG(WM_INITMENU, WmInitMenu);
-    PROC_MSG(WM_KEYUP, WmKeyUp);
-    PROC_MSG(WM_KEYDOWN, WmKeyDown);
-    PROC_MSG(WM_SYSKEYUP, WmSysKeyUp);
-    PROC_MSG(WM_SYSKEYDOWN, WmSysKeyDown);
-    PROC_MSG(WM_SIZE, WmSize);
-    PROC_MSG(WM_MOVE, WmMove);
-    PROC_MSG(WM_DRAWITEM, WmDrawItem);
     PROC_MSG(WM_ENTERMENULOOP, WmEnterMenuLoop);
     PROC_MSG(WM_EXITMENULOOP, WmExitMenuLoop);
     PROC_MSG(WM_DISPLAYCHANGE, WmDisplayChange);
     PROC_MSG(WM_DPICHANGED, WmDpiChanged);
     PROC_MSG(WM_DROPFILES, WmDropFiles);
+
+    PROC_MSG(WM_MOUSEMOVE, WmMouseMove);
     PROC_MSG(WM_LBUTTONDOWN, WmLButtonDown);
     PROC_MSG(WM_LBUTTONUP, WmLButtonUp);
     PROC_MSG(WM_RBUTTONDOWN, WmRButtonDown);
     PROC_MSG(WM_RBUTTONUP, WmRButtonUp);
+
     PROC_MSG(WM_ENTERSIZEMOVE, WmEnterSizeMove);
     PROC_MSG(WM_EXITSIZEMOVE, WmExitSizeMove);
-    PROC_MSG(WM_M88_SENDKEYSTATE, M88SendKeyState);
-    PROC_MSG(WM_M88_APPLYCONFIG, M88ApplyConfig);
-    PROC_MSG(WM_M88_CHANGEDISPLAY, M88ChangeDisplay);
-    PROC_MSG(WM_M88_CHANGEVOLUME, M88ChangeVolume);
-    PROC_MSG(WM_M88_CLIPCURSOR, M88ClipCursor);
-    PROC_MSG(WM_MOUSEMOVE, WmMouseMove);
+    PROC_MSG(WM_MOVE, WmMove);
     PROC_MSG(WM_SETCURSOR, WmSetCursor);
+
+    PROC_MSG(WM_KEYDOWN, WmKeyDown);
+    PROC_MSG(WM_KEYUP, WmKeyUp);
+    PROC_MSG(WM_SYSKEYDOWN, WmSysKeyDown);
+    PROC_MSG(WM_SYSKEYUP, WmSysKeyUp);
+
+    PROC_MSG(WM_INITMENU, WmInitMenu);
+    PROC_MSG(WM_QUERYNEWPALETTE, WmQueryNewPalette);
+    PROC_MSG(WM_PALETTECHANGED, WmPaletteChanged);
+    PROC_MSG(WM_ACTIVATE, WmActivate);
+
+    PROC_MSG(WM_PAINT, WmPaint);
+    PROC_MSG(WM_CREATE, WmCreate);
+    PROC_MSG(WM_DESTROY, WmDestroy);
+    PROC_MSG(WM_CLOSE, WmClose);
+    PROC_MSG(WM_TIMER, WmTimer);
+    PROC_MSG(WM_SIZE, WmSize);
+    PROC_MSG(WM_DRAWITEM, WmDrawItem);
+    PROC_MSG(WM_POWERBROADCAST, WmPowerBroadcast);
 
     default:
       ret = DefWindowProc(hwnd, umsg, wp, lp);
@@ -1534,6 +1541,33 @@ LRESULT WinUI::WmDropFiles(HWND, WPARAM wparam, LPARAM) {
 // ---------------------------------------------------------------------------
 //  マウス状態の取得
 //
+LRESULT WinUI::WmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp) {
+  /*  if (fullscreen)
+      {
+          POINTS p;
+          p = MAKEPOINTS(lp);
+          uint32_t menu = p.y < 8;
+          if (!guimodebymouse)
+          {
+              if (menu)
+              {
+                  guimodebymouse = true;
+                  SetGUIFlag(true);
+              }
+          }
+          else
+          {
+              if (!menu)
+              {
+                  guimodebymouse = false;
+                  SetGUIFlag(false);
+              }
+          }
+      }
+  */
+  return 0;
+}
+
 LRESULT WinUI::WmLButtonDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   if (capture_mouse_) {
     mouse_button_ |= 1;
@@ -1580,6 +1614,19 @@ LRESULT WinUI::WmExitSizeMove(HWND, WPARAM, LPARAM) {
 }
 
 // ---------------------------------------------------------------------------
+//  WinUI::WmSize
+//  WM_SIZE
+//
+LRESULT WinUI::WmSize(HWND hwnd, WPARAM wp, LPARAM lp) {
+  HWND hwndstatus = statusdisplay.GetHWnd();
+  if (hwndstatus)
+    PostMessage(hwndstatus, WM_SIZE, wp, lp);
+  active_ = wp != SIZE_MINIMIZED;
+  draw.Activate(active_);
+  return DefWindowProc(hwnd, WM_SIZE, wp, lp);
+}
+
+// ---------------------------------------------------------------------------
 //  WM_MOVE
 //
 LRESULT WinUI::WmMove(HWND hwnd, WPARAM, LPARAM) {
@@ -1588,33 +1635,6 @@ LRESULT WinUI::WmMove(HWND hwnd, WPARAM, LPARAM) {
   ClientToScreen(hwnd, &srcpoint);
 
   draw.WindowMoved(srcpoint.x, srcpoint.y);
-  return 0;
-}
-
-LRESULT WinUI::WmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp) {
-  /*  if (fullscreen)
-      {
-          POINTS p;
-          p = MAKEPOINTS(lp);
-          uint32_t menu = p.y < 8;
-          if (!guimodebymouse)
-          {
-              if (menu)
-              {
-                  guimodebymouse = true;
-                  SetGUIFlag(true);
-              }
-          }
-          else
-          {
-              if (!menu)
-              {
-                  guimodebymouse = false;
-                  SetGUIFlag(false);
-              }
-          }
-      }
-  */
   return 0;
 }
 
@@ -1924,24 +1944,29 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM) {
 }
 
 // ---------------------------------------------------------------------------
-//  WinUI::WmSize
-//  WM_SIZE
-//
-LRESULT WinUI::WmSize(HWND hwnd, WPARAM wp, LPARAM lp) {
-  HWND hwndstatus = statusdisplay.GetHWnd();
-  if (hwndstatus)
-    PostMessage(hwndstatus, WM_SIZE, wp, lp);
-  active_ = wp != SIZE_MINIMIZED;
-  draw.Activate(active_);
-  return DefWindowProc(hwnd, WM_SIZE, wp, lp);
-}
-
-// ---------------------------------------------------------------------------
 //  WinUI::WmDrawItem
 //  WM_DRAWITEM ハンドラ
 //
 LRESULT WinUI::WmDrawItem(HWND, WPARAM wparam, LPARAM lparam) {
   if ((UINT)wparam == 1)
     statusdisplay.DrawItem((DRAWITEMSTRUCT*)lparam);
+  return TRUE;
+}
+
+// WM_POWERBROADCAST
+// https://learn.microsoft.com/en-us/windows/win32/power/wm-powerbroadcast
+LRESULT WinUI::WmPowerBroadcast(HWND, WPARAM wparam, LPARAM) {
+  switch (wparam) {
+    case PBT_APMSUSPEND:
+      // Going to sleep
+      Log("%d: PBT_APMSUSPEND\n", timeGetTime());
+      break;
+    case PBT_APMRESUMEAUTOMATIC:
+      // Resume from sleep
+      Log("%d: PBT_APMRESUMEAUTOMATIC\n", timeGetTime());
+    default:
+      Log("%d: PBT_??? (%d)\n", timeGetTime(), wparam);
+      break;
+  }
   return TRUE;
 }

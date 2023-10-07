@@ -92,7 +92,9 @@ class Config {
   int flags;
   int flag2;
   int clock;
+  // 1000 = 100%, 10% ～ 1000% (100-10000)
   int speed;
+  // 1: 60fps, 2: 30fps, 3: 20fps, ...
   int refreshtiming;
   int mainsubratio;
   int opnclock;

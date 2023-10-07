@@ -41,7 +41,7 @@ class Sequencer : public Threadable<Sequencer> {
   void Unlock() { mtx_.unlock(); }
 
   void SetClock(int clock) { clocks_per_tick_ = clock; }
-  void SetSpeed(int speed) { speed_ = speed; }
+  void SetSpeed(int speed) { speed_ = std::min(std::max(speed, 10), 10000); }
   void SetRefreshTiming(uint32_t refresh_timing) { refresh_timing_ = refresh_timing; }
 
   // thread loop
@@ -49,7 +49,6 @@ class Sequencer : public Threadable<Sequencer> {
   bool ThreadLoop();
 
  private:
-  void Execute(int32_t clock, int32_t length, int32_t ec);
   void ExecuteNS(int32_t clock, int64_t length_ns, int32_t ec);
   void ExecuteAsynchronus();
 
@@ -60,15 +59,15 @@ class Sequencer : public Threadable<Sequencer> {
   std::mutex mtx_;
 
   // 1Tick (=10us) あたりのクロック数 (e.g. 4MHz のとき 40)
-  int clocks_per_tick_ = 1;
-  int speed_ = 100;  //
-  int exec_count_ = 0;
+  int clocks_per_tick_ = 40;
+  int speed_ = 100;  // percent, 10%~10000%
+  int64_t exec_count_ = 0;
   int eff_clock_ = 100;
-  int time_ = 0;
   int64_t time_ns_ = 0;
 
   uint32_t skipped_frames_ = 0;
   uint32_t refresh_count_ = 0;
+  // Screen refresh cycle (1: every frame, 2: every other frame, ...)
   uint32_t refresh_timing_ = 1;
   bool draw_next_frame_ = false;
 

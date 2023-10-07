@@ -119,6 +119,7 @@ bool IFCALL Scheduler::DelEvent(Event* ev) {
   return true;
 }
 
+// For testing purpose only
 int Scheduler::Proceed(int ticks) {
   return int(ProceedNS(ticks * 10000LL) / 10000);
 }

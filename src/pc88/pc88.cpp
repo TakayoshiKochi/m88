@@ -121,11 +121,11 @@ void PC88::DeInit() {
 //  執行
 //  1 tick = 10μs
 //
-int PC88::Proceed(uint32_t ticks, uint32_t clock, uint32_t ecl) {
-  return int(ProceedNS(ticks * 10000ULL, clock, ecl) / 10000);
-}
+//int PC88::Proceed(uint32_t ticks, uint32_t clock, uint32_t ecl) {
+//  return int(ProceedNS(ticks * 10000ULL, clock, ecl) / 10000);
+//}
 
-int64_t PC88::ProceedNS(uint64_t ns, uint32_t clock, uint32_t ecl) {
+int64_t PC88::ProceedNS(int64_t ns, uint32_t clock, uint32_t ecl) {
   scheduler_.set_clocks_per_tick(std::max(1U, clock));
   effective_clocks_per_tick_ = std::max(1U, ecl);
   return scheduler_.ProceedNS(ns);
@@ -620,10 +620,6 @@ void PC88::SetVolume(PC8801::Config* cfg) {
 // ---------------------------------------------------------------------------
 //  1 フレーム分の時間を求める．
 //
-int PC88::GetFramePeriod() {
-  return int(GetFramePeriodNS() / 10000);
-}
-
 uint64_t PC88::GetFramePeriodNS() {
   return crtc_ ? crtc_->GetFramePeriodNS() : 1000000000ULL / 60;
 }
