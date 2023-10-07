@@ -83,7 +83,7 @@ bool PC88::Init(Draw* draw, DiskManager* disk, TapeManager* tape) {
   if (!draw_->Init(640, 400, 8))
     return false;
 
-  if (!tapemgr->Init(&scheduler_, 0, 0))
+  if (!tapemgr->Init(&scheduler_, nullptr, 0))
     return false;
 
   MemoryPage *read, *write;
