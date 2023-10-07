@@ -614,7 +614,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
       OpenDiskImage(1, filename, ofn.Flags & OFN_READONLY, 1, false);
     }
   } else
-    OpenDiskImage(drive, nullptr, false, 0, false);
+    OpenDiskImage(drive, "", false, 0, false);
 
   SetGUIFlag(false);
   SetThreadPriority(hthread, prev);
@@ -670,7 +670,7 @@ void WinUI::OpenDiskImage(const std::string_view path) {
     OpenDiskImage(1, path, false, 1, false);
   } else {
     diskmgr_->Unmount(1);
-    OpenDiskImage(1, nullptr, false, 0, false);
+    OpenDiskImage(1, "", false, 0, false);
   }
 }
 
@@ -907,7 +907,7 @@ void WinUI::LoadSnapshot(int n) {
     OpenDiskImage(1, diskinfo[0].filename_, diskinfo[0].readonly, 1, false);
     r = core.LoadShapshot(name, diskinfo[0].filename_);
   } else {
-    r = core.LoadShapshot(name, nullptr);
+    r = core.LoadShapshot(name, "");
   }
 
   if (r)
