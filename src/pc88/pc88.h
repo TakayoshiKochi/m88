@@ -161,13 +161,13 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
     kPOPNio2,  // OPN の入出力ポート 2 (連番)
     kPSIOin,   // SIO 関係
     kPSIOReq,
-    kPTimeSync,
+    kPTimeSync, // time sync between cpu and opn
     kPortEnd
   };
   enum SpecialPort2 {
     kPReset2 = 0x100,
-    kPIRQ2,
-    kPIAck2,
+    kPIRQ2,    // IRQ (for sub CPU)
+    kPIAck2,   // interrupt acknowledgment
     kPFDStat,  // FD の動作状況 (b0-1 = LAMP, b2-3 = MODE, b4=SEEK)
     kPortEnd2
   };
