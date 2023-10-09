@@ -889,7 +889,7 @@ void WinUI::SetGUIFlag(bool gui) {
   }
   //  core.SetGUIFlag(gui);
   draw.SetGUIFlag(gui);
-  //SetCursorVisibility(gui);
+  // SetCursorVisibility(gui);
 }
 
 void WinUI::SetCursorVisibility(bool flag) {

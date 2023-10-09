@@ -64,7 +64,7 @@ void WinMonitor::Show(HINSTANCE hinstance, HWND hwndparent, bool show) {
       RECT rect = wndrect_;
       hinst_ = hinstance;
       hwnd_ = CreateDialogParam(hinst_, lptemplate_, hwndparent, DLGPROC((void*)DlgProcGate),
-                               (LPARAM)this);
+                                (LPARAM)this);
       hwnd_status_ = nullptr;
 
       if (rect.right > 0) {
@@ -91,7 +91,7 @@ bool WinMonitor::SetFont(HWND hwnd, int fh) {
 
   font_height_ = fh;
   hfont_ = CreateFont(font_height_, 0, 0, 0, 0, 0, 0, 0, SHIFTJIS_CHARSET, OUT_DEFAULT_PRECIS,
-                     CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH, "ＭＳゴシック");
+                      CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH, "ＭＳゴシック");
   if (!hfont_)
     return false;
 
@@ -547,9 +547,12 @@ BOOL WinMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
     case WM_INITMENU: {
       auto hmenu = (HMENU)wp;
 
-      CheckMenuItem(hmenu, IDM_MEM_F_1, (font_height_ == font_size_small) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_F_2, (font_height_ == font_size_medium) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_F_3, (font_height_ == font_size_large) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_F_1,
+                    (font_height_ == font_size_small) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_F_2,
+                    (font_height_ == font_size_medium) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_F_3,
+                    (font_height_ == font_size_large) ? MF_CHECKED : MF_UNCHECKED);
     } break;
 
     case WM_COMMAND:
