@@ -49,7 +49,7 @@ class WinCore : public PC88, public ISystem, public ILockCore {
 
   PC8801::WinSound* GetSound() { return &sound; }
 
-  long GetExecCount() { return seq.GetExecCount(); }
+  int64_t GetExecClocks() { return seq.GetExecClocks(); }
   void Wait(bool dowait) { dowait ? seq.Deactivate() : seq.Activate(); }
   void* IFCALL QueryIF(REFIID iid) override;
   void IFCALL Lock() override { seq.Lock(); }
@@ -69,7 +69,7 @@ class WinCore : public PC88, public ISystem, public ILockCore {
     int8_t disk[2];
     int datasize;
     PC8801::BasicMode basicmode;
-    int16_t clock;
+    int16_t legacy_clock;
     uint16_t erambanks;
     uint16_t cpumode;
     uint16_t mainsubratio;

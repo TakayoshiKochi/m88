@@ -91,7 +91,7 @@ class Config {
 
   int flags;
   int flag2;
-  int clock;
+  int legacy_clock;
   // 1000 = 100%, 10% ～ 1000% (100-10000)
   int speed;
   // 1: 60fps, 2: 30fps, 3: 20fps, ...

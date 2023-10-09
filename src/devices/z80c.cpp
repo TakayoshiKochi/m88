@@ -232,7 +232,7 @@ bool Z80C::Init(MemoryManager* mem, IOBus* bus, int iack) {
 
   index_mode_ = USEHL;
   clock_count_ = 0;
-  exec_count_ = 0;
+  exec_clocks_ = 0;
   eshift_ = 0;
 
   diag_.Init(mem);
@@ -243,8 +243,8 @@ bool Z80C::Init(MemoryManager* mem, IOBus* bus, int iack) {
 // ---------------------------------------------------------------------------
 // １命令実行
 //
-int Z80C::ExecOne() {
-  exec_count_ += clock_count_;
+int64_t Z80C::ExecOne() {
+  exec_clocks_ += clock_count_;
   clock_count_ = 0;
   SingleStep();
   GetAF();
@@ -258,8 +258,8 @@ int Z80C::Exec(int clocks) {
   SingleStep();
   TestIntr();
   currentcpu = this;
-  cbase = GetCount();
-  stop_count_ = exec_count_ += clock_count_ + clocks;
+  cbase = GetClocks();
+  stop_count_ = exec_clocks_ += clock_count_ + clocks;
   delay_count_ = clocks;
 
   for (clock_count_ = -clocks; clock_count_ < 0;) {
@@ -268,15 +268,15 @@ int Z80C::Exec(int clocks) {
     SingleStep();
     SingleStep();
   }
-  return GetCount() - cbase;
+  return GetClocks() - cbase;
 }
 
 // ---------------------------------------------------------------------------
 // 命令遂行
 //
 // static
-int Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
-  int c = first->GetCount();
+int64_t Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
+  int64_t c = first->GetClocks();
 
   currentcpu = first;
   first->start_count_ = first->delay_count_ = c;
@@ -286,8 +286,8 @@ int Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
   cbase = c;
   first->Exec0(c + clocks, c);
 
-  c = first->GetCount();
-  second->exec_count_ = c;
+  c = first->GetClocks();
+  second->exec_clocks_ = c;
   second->clock_count_ = 0;
 
   return c - cbase;
@@ -297,24 +297,24 @@ int Z80C::ExecSingle(Z80C* first, Z80C* second, int clocks) {
 // 2CPU 実行
 //
 // static
-int Z80C::ExecDual(Z80C* first, Z80C* second, int count) {
+int64_t Z80C::ExecDual(Z80C* first, Z80C* second, int count) {
   currentcpu = second;
-  second->start_count_ = second->delay_count_ = first->GetCount();
+  second->start_count_ = second->delay_count_ = first->GetClocks();
   second->SingleStep();
   second->TestIntr();
   currentcpu = first;
-  first->start_count_ = first->delay_count_ = second->GetCount();
+  first->start_count_ = first->delay_count_ = second->GetClocks();
   first->SingleStep();
   first->TestIntr();
 
-  int c1 = first->GetCount(), c2 = second->GetCount();
+  int c1 = first->GetClocks(), c2 = second->GetClocks();
   int delay = c2 - c1;
   cbase = delay > 0 ? c1 : c2;
   int stop = cbase + count;
 
-  while ((stop - first->GetCount() > 0) || (stop - second->GetCount() > 0)) {
-    stop = first->Exec0(stop, second->GetCount());
-    stop = second->Exec0(stop, first->GetCount());
+  while ((stop - first->GetClocks() > 0) || (stop - second->GetClocks() > 0)) {
+    stop = first->Exec0(stop, second->GetClocks());
+    stop = second->Exec0(stop, first->GetClocks());
   }
   return stop - cbase;
 }
@@ -323,24 +323,24 @@ int Z80C::ExecDual(Z80C* first, Z80C* second, int count) {
 // 2CPU 実行
 //
 // static
-int Z80C::ExecDual2(Z80C* first, Z80C* second, int count) {
+int64_t Z80C::ExecDual2(Z80C* first, Z80C* second, int count) {
   currentcpu = second;
-  second->start_count_ = second->delay_count_ = first->GetCount();
+  second->start_count_ = second->delay_count_ = first->GetClocks();
   second->SingleStep();
   second->TestIntr();
   currentcpu = first;
-  first->start_count_ = first->delay_count_ = second->GetCount();
+  first->start_count_ = first->delay_count_ = second->GetClocks();
   first->SingleStep();
   first->TestIntr();
 
-  int c1 = first->GetCount(), c2 = second->GetCount();
+  int c1 = first->GetClocks(), c2 = second->GetClocks();
   int delay = c2 - c1;
   cbase = delay > 0 ? c1 : c2;
   int stop = cbase + count;
 
-  while ((stop - first->GetCount() > 0) || (stop - second->GetCount() > 0)) {
-    stop = first->Exec0(stop, second->GetCount());
-    stop = second->Exec1(stop, first->GetCount());
+  while ((stop - first->GetClocks() > 0) || (stop - second->GetClocks() > 0)) {
+    stop = first->Exec0(stop, second->GetClocks());
+    stop = second->Exec1(stop, first->GetClocks());
   }
   return stop - cbase;
 }
@@ -348,14 +348,14 @@ int Z80C::ExecDual2(Z80C* first, Z80C* second, int count) {
 // ---------------------------------------------------------------------------
 // 片方実行
 //
-int Z80C::Exec0(int stop, int other) {
-  int clocks = stop - GetCount();
+int64_t Z80C::Exec0(int64_t stop, int64_t other) {
+  int64_t clocks = stop - GetClocks();
   if (clocks > 0) {
     eshift_ = 0;
     currentcpu = this;
     stop_count_ = stop;
     delay_count_ = other;
-    exec_count_ += clock_count_ + clocks;
+    exec_clocks_ += clock_count_ + clocks;
 
     if (dump_log_) {
       for (clock_count_ = -clocks; clock_count_ < 0;) {
@@ -376,14 +376,14 @@ int Z80C::Exec0(int stop, int other) {
 // ---------------------------------------------------------------------------
 // 片方実行
 //
-int Z80C::Exec1(int stop, int other) {
-  int clocks = stop - GetCount();
+int64_t Z80C::Exec1(int64_t stop, int64_t other) {
+  int64_t clocks = stop - GetClocks();
   if (clocks > 0) {
     eshift_ = 1;
     currentcpu = this;
     stop_count_ = stop;
     delay_count_ = other;
-    exec_count_ += clock_count_ * 2 + clocks;
+    exec_clocks_ += clock_count_ * 2 + clocks;
     if (dump_log_) {
       for (clock_count_ = -clocks / 2; clock_count_ < 0;) {
         DumpLog();
@@ -406,10 +406,10 @@ int Z80C::Exec1(int stop, int other) {
 //
 bool Z80C::Sync() {
   // もう片方のCPUよりも遅れているか？
-  if (GetCount() - delay_count_ <= 1)
+  if (GetClocks() - delay_count_ <= 1)
     return true;
   // 進んでいた場合 Exec0 を抜ける
-  exec_count_ += clock_count_ << eshift_;
+  exec_clocks_ += clock_count_ << eshift_;
   clock_count_ = 0;
   return false;
 }
@@ -418,12 +418,12 @@ bool Z80C::Sync() {
 // Exec を途中で中断
 //
 void Z80C::Stop(int count) {
-  exec_count_ = stop_count_ = GetCount() + count;
+  exec_clocks_ = stop_count_ = GetClocks() + count;
   clock_count_ = -count >> eshift_;
 }
 
 Z80C* Z80C::currentcpu;
-int Z80C::cbase;
+int64_t Z80C::cbase;
 
 // ---------------------------------------------------------------------------
 // 1 命令実行
@@ -454,7 +454,7 @@ void IOCALL Z80C::Reset(uint32_t, uint32_t) {
   SetRegSP(0);
   wait_state_ = 0;
   intr_ = false;  // 割り込みクリア
-  exec_count_ = 0;
+  exec_clocks_ = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -2974,7 +2974,7 @@ bool IFCALL Z80C::SaveStatus(uint8_t* s) {
   st->intr = intr_;
   st->wait = wait_state_;
   st->xf = xf;
-  st->execcount = exec_count_;
+  st->execcount = exec_clocks_;
 
   return true;
 }
@@ -2990,7 +2990,7 @@ bool IFCALL Z80C::LoadStatus(const uint8_t* s) {
   intr_ = st->intr;
   wait_state_ = st->wait;
   xf = st->xf;
-  exec_count_ = st->execcount;
+  exec_clocks_ = st->execcount;
   return true;
 }
 

@@ -68,7 +68,7 @@ void LoadConfig(Config* cfg, const std::string_view inifile, bool applydefault) 
   cfg->flag2 &= ~(Config::kMask0 | Config::kMask1 | Config::kMask2);
 
   if (LoadConfigEntry(inifile, "CPUClock", &n, 40, applydefault))
-    cfg->clock = Limit(n, 1000, 1);
+    cfg->legacy_clock = Limit(n, 1000, 1);
 
   //  if (LoadConfigEntry(inifile, "Speed", &n, 1000, applydefault))
   //      cfg->speed = Limit(n, 2000, 500);
@@ -183,7 +183,7 @@ void SaveConfig(Config* cfg, const std::string_view inifile, bool writedefault) 
 
   SaveEntry(inifile, "Flags", cfg->flags, writedefault);
   SaveEntry(inifile, "Flag2", cfg->flag2, writedefault);
-  SaveEntry(inifile, "CPUClock", cfg->clock, writedefault);
+  SaveEntry(inifile, "CPUClock", cfg->legacy_clock, writedefault);
   //  SaveEntry(inifile, "Speed", cfg->speed, writedefault);
   SaveEntry(inifile, "RefreshTiming", cfg->refreshtiming, writedefault);
   SaveEntry(inifile, "BASICMode", static_cast<int>(cfg->basicmode), writedefault);

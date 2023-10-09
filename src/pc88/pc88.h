@@ -55,7 +55,7 @@ class SchedulerExecutable {
   virtual ~SchedulerExecutable() = default;
 
   // Note: parameter is clocks, not ticks.
-  virtual int Execute(int clocks) = 0;
+  virtual int64_t Execute(int64_t clocks) = 0;
 };
 
 class SchedulerImpl : public Scheduler {
@@ -71,13 +71,13 @@ class SchedulerImpl : public Scheduler {
   int64_t GetNS() override;
 
  public:
-  void set_clocks_per_tick(int clock) { clocks_per_tick_ = clock; }
-  [[nodiscard]] int clocks_per_tick() const { return clocks_per_tick_; }
+  void set_cpu_clock(uint64_t cpu_clock) { cpu_clock_ = cpu_clock; }
+  [[nodiscard]] int64_t cpu_clock() const { return cpu_clock_; }
 
  private:
   SchedulerExecutable* ex_;
-  // 1Tick (=10us) あたりのクロック数 (e.g. 4MHz のとき 40)
-  int clocks_per_tick_ = 40;
+  // CPU clock (Hz)
+  uint64_t cpu_clock_ = 3993600;
 };
 
 // ---------------------------------------------------------------------------
@@ -94,21 +94,22 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   void DeInit();
 
   void Reset();
-  int Proceed(uint32_t us, uint32_t clock, uint32_t eff);
-  int64_t ProceedNS(int64_t ns, uint32_t clock, uint32_t ecl);
+  int64_t ProceedNSX(int64_t ns, uint64_t cpu_clock, int64_t ecl);
   void ApplyConfig(PC8801::Config*);
   void SetVolume(PC8801::Config*);
 
   // Overrides SchedulerExecutor
-  int Execute(int ticks) override;
+  int64_t Execute(int64_t clocks) override;
 
   // Overrides ICPUTime
-  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1.GetCount(); }
+  // Returns CPU clock cycles executed
+  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1.GetClocks(); }
+  // Returns CPU clock cycles per tick
   [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override {
-    return scheduler_.clocks_per_tick();
+    return (scheduler_.cpu_clock() + 50000) / 100000;
   }
 
-  [[nodiscard]] uint32_t GetEffectiveSpeed() const { return effective_clocks_per_tick_; }
+  [[nodiscard]] uint32_t GetEffectiveSpeed() const { return effective_clocks_; }
   void TimeSync();
 
   void UpdateScreen(bool refresh = false);
@@ -190,8 +191,8 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   Draw::Region region;
 
   int cpumode;
-  // 実効速度 (単位はTick)
-  int effective_clocks_per_tick_ = 1;
+  // 実効速度 (単位はclock)
+  int64_t effective_clocks_ = 1;
 
   uint32_t cfgflags;
   uint32_t cfgflag2;

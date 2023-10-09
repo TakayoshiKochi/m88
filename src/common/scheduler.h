@@ -21,8 +21,9 @@ struct SchedulerEvent {
   IDevice::TimeFunc func = nullptr;
   // Callback関数に渡す引数
   int arg = 0;
-  // リピートするイベントの場合の間隔 (単位は Ticks)
+  // リピートするイベントの場合の間隔 (for compatibility, 単位は Ticks)
   int time = 0;
+  // リピートするイベントの場合の間隔 (nanoseconds)
   int64_t time_ns = 0;
 };
 
@@ -58,11 +59,12 @@ class Scheduler : public IScheduler, public ITime {
   bool IFCALL DelEvent(Event* ev) override;
 
   // Overrides ITime
+  // Returns current virtual time.
+  // 1 tick = 10μs (≒ 40clocks at 4MHz)
   int IFCALL GetTime() override { return int(GetTimeNS() / 10000); }
   int64_t GetTimeNS() { return time_ns_ + GetNS(); }
 
  private:
-  // 1 tick = 10μs (≒ 40clocks at 4MHz)
   virtual int64_t ExecuteNS(int64_t ns) = 0;
   virtual void ShortenNS(int64_t ns) = 0;
   virtual int64_t GetNS() = 0;

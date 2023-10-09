@@ -159,7 +159,7 @@ bool ConfigCPU::Clicked(HWND hdlg, HWND hwctl, UINT id) {
 }
 
 void ConfigCPU::InitDialog(HWND hdlg) {
-  config_.clock = org_config_.clock;
+  config_.legacy_clock = org_config_.legacy_clock;
   config_.speed = org_config_.speed;
   SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETLINESIZE, 0, 1);
   SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETPAGESIZE, 0, 2);
@@ -180,9 +180,9 @@ BOOL ConfigCPU::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id) {
     case IDC_CPU_CLOCK:
       if (nc == EN_CHANGE) {
         int clock = Limit(GetDlgItemInt(hdlg, IDC_CPU_CLOCK, 0, false), 100, 1) * 10;
-        if (clock != config_.clock)
+        if (clock != config_.legacy_clock)
           base_->PageChanged(hdlg);
-        config_.clock = clock;
+        config_.legacy_clock = clock;
         return TRUE;
       }
       break;
@@ -200,7 +200,7 @@ BOOL ConfigCPU::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id) {
 }
 
 void ConfigCPU::Update(HWND hdlg) {
-  SetDlgItemInt(hdlg, IDC_CPU_CLOCK, config_.clock / 10, false);
+  SetDlgItemInt(hdlg, IDC_CPU_CLOCK, config_.legacy_clock / 10, false);
   CheckDlgButton(hdlg, IDC_CPU_NOWAIT, BSTATE(config_.flags & Config::kFullSpeed));
 
   EnableWindow(GetDlgItem(hdlg, IDC_CPU_CLOCK), !(config_.flags & Config::kFullSpeed));

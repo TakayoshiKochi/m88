@@ -43,7 +43,7 @@ bool Base::Init(PC88* pc88) {
 //
 void Base::SetSwitch(const Config* cfg) {
   basic_mode_ = cfg->basicmode;
-  clock_ = cfg->clock;
+  clock_ = cfg->legacy_clock;
   dipsw_ = cfg->dipsw;
   //  flags_ = cfg->flags;
   fv15k_ = cfg->IsFV15k();
