@@ -273,8 +273,6 @@ bool WinDraw::ChangeDisplayMode(bool fullscreen, bool) {
     display_type_ = type;
   }
 
-  ShowCursor(!fullscreen);
-
   draw_all_ = true;
   refresh_ = true;
   pal_region_begin_ = std::min(pal_change_begin_, pal_region_begin_);
@@ -324,12 +322,10 @@ void WinDraw::SetGUIFlag(bool usegui) {
   if (usegui) {
     if (!gui_count_++ && drawsub_) {
       drawsub_->SetGUIMode(true);
-      ShowCursor(true);
     }
   } else {
     if (!--gui_count_ && drawsub_) {
       drawsub_->SetGUIMode(false);
-      ShowCursor(false);
     }
   }
 }
