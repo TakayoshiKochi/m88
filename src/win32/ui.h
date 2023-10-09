@@ -146,7 +146,7 @@ class WinUI {
 
   WinCore core;
   WinDraw draw;
-  PC8801::WinKeyIF keyif;
+  PC8801::WinKeyIF keyif_;
   PC8801::Config config;
   PC8801::WinConfig winconfig;
   WinNewDisk newdisk;

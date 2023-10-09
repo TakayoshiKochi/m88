@@ -217,10 +217,10 @@ bool WinUI::InitM88(const char* cmdline) {
     return false;
 
   Log("%d\tkeyboard if\n", timeGetTime());
-  if (!keyif.Init(hwnd_))
+  if (!keyif_.Init(hwnd_))
     return false;
   Log("%d\tcore\n", timeGetTime());
-  if (!core.Init(this, hwnd_, &draw, diskmgr_.get(), &keyif, &winconfig, tapemgr_.get()))
+  if (!core.Init(this, hwnd_, &draw, diskmgr_.get(), &keyif_, &winconfig, tapemgr_.get()))
     return false;
 
   //  debug 用クラス初期化
@@ -288,7 +288,7 @@ void WinUI::CleanUpM88() {
 
 LRESULT WinUI::WinProc(HWND hwnd, UINT umsg, WPARAM wp, LPARAM lp) {
   LRESULT ret;
-  keyif.Disable(true);
+  keyif_.Disable(true);
 
   switch (umsg) {
     PROC_MSG(WM_M88_CHANGEDISPLAY, M88ChangeDisplay);
@@ -337,7 +337,7 @@ LRESULT WinUI::WinProc(HWND hwnd, UINT umsg, WPARAM wp, LPARAM lp) {
     default:
       ret = DefWindowProc(hwnd, umsg, wp, lp);
   }
-  keyif.Disable(false);
+  keyif_.Disable(false);
   return ret;
 }
 
@@ -383,7 +383,7 @@ void WinUI::Reset() {
     if (res != IDOK)
       return;
   }
-  keyif.ApplyConfig(&config);
+  keyif_.ApplyConfig(&config);
   core.ApplyConfig(&config);
   core.Reset();
 }
@@ -399,7 +399,7 @@ void WinUI::ApplyConfig() {
   }
 
   core.ApplyConfig(&config);
-  keyif.ApplyConfig(&config);
+  keyif_.ApplyConfig(&config);
   draw.SetPriorityLow((config.flags & Config::kDrawPriorityLow) != 0);
 
   MENUITEMINFO mii;
@@ -1335,6 +1335,14 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       CaptureScreen();
       break;
 
+    case IDM_KEY_ALT:
+      keyif_.LockAlt(!keyif_.IsAltLocked());
+      break;
+
+    case IDM_KEY_KANA:
+      keyif_.LockKana(!keyif_.IsKanaLocked());
+      break;
+
     case IDM_DEBUG_TEXT:
       config.flags ^= PC8801::Config::kSpecialPalette;
       ApplyConfig();
@@ -1463,7 +1471,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
 //
 LRESULT WinUI::WmEnterMenuLoop(HWND, WPARAM wp, LPARAM) {
   if (!wp) {
-    keyif.Activate(false);
+    keyif_.Activate(false);
     SetGUIFlag(true);
   }
   return 0;
@@ -1475,7 +1483,7 @@ LRESULT WinUI::WmEnterMenuLoop(HWND, WPARAM wp, LPARAM) {
 //
 LRESULT WinUI::WmExitMenuLoop(HWND, WPARAM wp, LPARAM) {
   if (!wp) {
-    keyif.Activate(true);
+    keyif_.Activate(true);
     SetGUIFlag(false);
   }
   return 0;
@@ -1662,7 +1670,7 @@ inline LRESULT WinUI::WmKeyDown(HWND, WPARAM wparam, LPARAM lparam) {
   if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::kDisableF12Reset))
     ;
   else
-    keyif.KeyDown((uint32_t)wparam, (uint32_t)lparam);
+    keyif_.KeyDown((uint32_t)wparam, (uint32_t)lparam);
 
   return 0;
 }
@@ -1671,14 +1679,14 @@ inline LRESULT WinUI::WmKeyUp(HWND, WPARAM wparam, LPARAM lparam) {
   if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::kDisableF12Reset))
     Reset();
   else
-    keyif.KeyUp((uint32_t)wparam, (uint32_t)lparam);
+    keyif_.KeyUp((uint32_t)wparam, (uint32_t)lparam);
 
   return 0;
 }
 
 inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   if (config.flags & Config::kSuppressMenu) {
-    keyif.KeyDown((uint32_t)wparam, (uint32_t)lparam);
+    keyif_.KeyDown((uint32_t)wparam, (uint32_t)lparam);
     return 0;
   }
   return DefWindowProc(hwnd, WM_SYSKEYDOWN, wparam, lparam);
@@ -1686,7 +1694,7 @@ inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 
 inline LRESULT WinUI::WmSysKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
   if (config.flags & Config::kSuppressMenu) {
-    keyif.KeyUp((uint32_t)wparam, (uint32_t)lparam);
+    keyif_.KeyUp((uint32_t)wparam, (uint32_t)lparam);
     return 0;
   }
   return DefWindowProc(hwnd, WM_SYSKEYUP, wparam, lparam);
@@ -1725,6 +1733,9 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
 
   CheckMenuItem(hmenu_, IDM_CPU_BURST,
                 (config.flags & Config::kCPUBurst) ? MF_CHECKED : MF_UNCHECKED);
+
+  CheckMenuItem(hmenu_, IDM_KEY_ALT, keyif_.IsAltLocked() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_KEY_KANA, keyif_.IsKanaLocked() ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu_, IDM_WATCHREGISTER,
                 (config.dipsw != 1 && regmon.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
@@ -1796,7 +1807,7 @@ LRESULT WinUI::WmActivate(HWND hwnd, WPARAM wparam, LPARAM) {
     draw.RequestPaint();
   }
 
-  keyif.Activate(!background_);
+  keyif_.Activate(!background_);
   draw.QueryNewPalette(background_);
   if (prevbg != background_) {
     //      core.ActivateMouse(!background);
