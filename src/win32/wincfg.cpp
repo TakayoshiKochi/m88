@@ -13,14 +13,13 @@
 
 using namespace PC8801;
 
-WinConfig* WinConfig::instance = 0;
+WinConfig* WinConfig::instance = nullptr;
 
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
 WinConfig::WinConfig()
-    : pplist_(nullptr),
-      npages_(0),
+    : npages_(0),
       ccpu_(config_, orgconfig_),
       cscrn_(config_, orgconfig_),
       csound_(config_, orgconfig_),
@@ -44,7 +43,7 @@ WinConfig::WinConfig()
 }
 
 WinConfig::~WinConfig() {
-  propsheets.clear();
+  prop_sheets_.clear();
   instance = nullptr;
 }
 
@@ -58,7 +57,7 @@ bool WinConfig::Show(HINSTANCE hinstance, HWND hwnd, Config* conf) {
     hwndparent_ = hwnd;
 
     PROPSHEETHEADER psh;
-    PROPSHEETPAGE* psp = new PROPSHEETPAGE[propsheets.size()];
+    auto* psp = new PROPSHEETPAGE[prop_sheets_.size()];
     if (!psp)
       return false;
 
@@ -76,7 +75,7 @@ bool WinConfig::Show(HINSTANCE hinstance, HWND hwnd, Config* conf) {
                                // M88 の PROPSHEETPAGE より大きいケースに備えている
 
     int i = 0;
-    for (auto n = propsheets.begin(); n != propsheets.end() && i < MAXPROPPAGES; ++n) {
+    for (auto n = prop_sheets_.begin(); n != prop_sheets_.end() && i < MAXPROPPAGES; ++n) {
       memset(tmppage, 0, sizeof(tmppage));
       tmppage[0].dwSize = sizeof(PROPSHEETPAGE);
 
@@ -134,10 +133,8 @@ bool WinConfig::ProcMsg(MSG& msg) {
 }
 
 int WinConfig::PropProc(HWND hwnd, UINT m, LPARAM) {
-  switch (m) {
-    case PSCB_INITIALIZED:
-      hwndps_ = hwnd;
-      break;
+  if (m == PSCB_INITIALIZED) {
+    hwndps_ = hwnd;
   }
   return 0;
 }
@@ -145,35 +142,33 @@ int WinConfig::PropProc(HWND hwnd, UINT m, LPARAM) {
 int CALLBACK WinConfig::PropProcGate(HWND hwnd, UINT m, LPARAM l) {
   if (instance) {
     return instance->PropProc(hwnd, m, l);
-  } else {
-    return 0;
   }
+  return 0;
 }
 
 // ---------------------------------------------------------------------------
 
 bool IFCALL WinConfig::Add(IConfigPropSheet* sheet) {
-  propsheets.push_back(sheet);
-  //  propsheets.insert(propsheets.begin(), sheet);
+  prop_sheets_.push_back(sheet);
   return true;
 }
 
 bool IFCALL WinConfig::Remove(IConfigPropSheet* sheet) {
-  PropSheets::iterator i = find(propsheets.begin(), propsheets.end(), sheet);
-  if (i != propsheets.end()) {
-    propsheets.erase(i);
+  auto i = find(prop_sheets_.begin(), prop_sheets_.end(), sheet);
+  if (i != prop_sheets_.end()) {
+    prop_sheets_.erase(i);
     return true;
   }
   return false;
 }
 
 bool IFCALL WinConfig::PageSelected(IConfigPropSheet* sheet) {
-  PropSheets::iterator i = find(propsheets.begin(), propsheets.end(), sheet);
-  if (i == propsheets.end()) {
+  auto i = find(prop_sheets_.begin(), prop_sheets_.end(), sheet);
+  if (i == prop_sheets_.end()) {
     page_ = 0;
     return false;
   }
-  page_ = i - propsheets.begin();
+  page_ = i - prop_sheets_.begin();
   return true;
 }
 

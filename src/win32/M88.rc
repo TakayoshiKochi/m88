@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ì˙ñ{åÍ resources
+// ì˙ñ{åÍ (ì˙ñ{) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
-#ifdef _WIN32
 LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 #pragma code_page(932)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -27,18 +25,18 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\r\n"
     "\0"
@@ -52,7 +50,7 @@ END
 // Menu
 //
 
-IDR_MENU_M88 MENU 
+IDR_MENU_M88 MENU
 BEGIN
     POPUP "&Control"
     BEGIN
@@ -94,6 +92,11 @@ BEGIN
         MENUITEM "&Save Snapshot\tAlt+F10",     IDM_SNAPSHOT_SAVE
         MENUITEM "&Load Snapshot\tAlt+F1",      IDM_SNAPSHOT_LOAD
     END
+    POPUP "&Key"
+    BEGIN
+        MENUITEM "Alt",                         IDM_KEY_ALT
+        MENUITEM "Kana",                        IDM_KEY_KANA
+    END
     POPUP "D&ebug"
     BEGIN
         MENUITEM "Show &FDC Status",            IDM_FDC_STATUS
@@ -114,7 +117,7 @@ BEGIN
     END
 END
 
-IDR_MENU_MEMORY MENU 
+IDR_MENU_MEMORY MENU
 BEGIN
     POPUP "&Image"
     BEGIN
@@ -158,7 +161,7 @@ BEGIN
     END
 END
 
-IDR_MENU_DEBUG MENU 
+IDR_MENU_DEBUG MENU
 BEGIN
     MENUITEM "&Text",                       IDM_DEBUG_TEXT
     MENUITEM "GVRAM&0",                     IDM_DEBUG_GVRAM0
@@ -166,7 +169,7 @@ BEGIN
     MENUITEM "GVRAM&2",                     IDM_DEBUG_GVRAM2
 END
 
-IDR_MENU_IOV MENU 
+IDR_MENU_IOV MENU
 BEGIN
     MENUITEM "&Reset",                      IDM_IO_CLEAR
     POPUP "&Bus"
@@ -182,7 +185,7 @@ END
 // Accelerator
 //
 
-IDR_ACC_M88UI ACCELERATORS 
+IDR_ACC_M88UI ACCELERATORS
 BEGIN
     VK_DELETE,      IDM_LOGEND,             VIRTKEY, CONTROL, NOINVERT
     VK_F1,          IDM_SNAPSHOT_LOAD,      VIRTKEY, ALT, NOINVERT
@@ -202,13 +205,14 @@ END
 // remains consistent on all systems.
 IDI_ICON_M88            ICON                    "M88.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // DESIGNINFO
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUT, DIALOG
     BEGIN
@@ -548,7 +552,7 @@ BEGIN
     CONTROL         "âpåÍ 101 ÉLÅ[É{Å[Éh(&E)",IDC_ENV_KEY101,"Button",BS_AUTORADIOBUTTON,10,37,99,10
 END
 
-IDD_NEWDISK DIALOG  30, 50, 187, 81
+IDD_NEWDISK DIALOG 30, 50, 187, 81
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "êVÇµÇ¢ÉfÉBÉXÉNÇÃçÏê¨"
 FONT 9, "ÇlÇr ÇoÉSÉVÉbÉN"
@@ -579,7 +583,7 @@ FONT 9, "ÇlÇr ÇoÉSÉVÉbÉN", 0, 0, 0x0
 BEGIN
 END
 
-IDD_CODEMON DIALOG  0, 0, 187, 92
+IDD_CODEMON DIALOG 0, 0, 187, 92
 STYLE DS_SETFONT | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_VSCROLL | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Code"
 MENU IDR_MENU_MEMORY
@@ -598,21 +602,21 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,65,20,35,12
 END
 
-IDD_BASMON DIALOG  0, 0, 186, 94
+IDD_BASMON DIALOG 0, 0, 186, 94
 STYLE DS_SETFONT | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_VSCROLL | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Basic"
 FONT 9, "ÇlÇr ÇoÉSÉVÉbÉN"
 BEGIN
 END
 
-IDD_REGMON DIALOG  0, 0, 114, 58
+IDD_REGMON DIALOG 0, 0, 114, 58
 STYLE DS_SETFONT | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Z80(main/sub)"
 FONT 9, "ÇlÇr ÇoÉSÉVÉbÉN"
 BEGIN
 END
 
-IDD_IOVMON DIALOG  0, 0, 187, 92
+IDD_IOVMON DIALOG 0, 0, 187, 92
 STYLE DS_SETFONT | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_VSCROLL | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Outport"
 MENU IDR_MENU_IOV
@@ -630,7 +634,7 @@ BEGIN
     RTEXT           "100 ms",IDC_ROMEO_LATENCY_TEXT,155,10,32,8
 END
 
-#endif    // ì˙ñ{åÍ resources
+#endif    // ì˙ñ{åÍ (ì˙ñ{) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -101,7 +101,6 @@ void WinKeyIF::KeyUp(uint32_t vkcode, uint32_t keydata) {
   Log("KeyUp   = %.2x %.3x\n", vkcode, keyindex);
 
   // SHIFT + テンキーによる押しっぱなし現象対策
-
   if (keytable_ == KeyTable106[0] || keytable_ == KeyTable101[0]) {
     switch (keyindex) {
       case VK_NUMPAD0:
@@ -148,6 +147,27 @@ void WinKeyIF::KeyUp(uint32_t vkcode, uint32_t keydata) {
   }
 }
 
+void WinKeyIF::LockAlt(bool lock) {
+  if (alt_locked_ == lock)
+    return;
+  if (lock) {
+    KeyDown(VK_MENU, 1);
+  } else {
+    KeyUp(VK_MENU, 0xc0000001);
+  }
+  alt_locked_ = lock;
+}
+
+void WinKeyIF::LockKana(bool lock) {
+  if (kana_locked_ == lock)
+    return;
+  if (lock) {
+    KeyDown(VK_SCROLL, 1);
+  } else {
+    KeyUp(VK_SCROLL, 0xc0000001);
+  }
+  kana_locked_ = lock;
+}
 // ---------------------------------------------------------------------------
 //  Key
 //  keyboard によるキーチェックは反応が鈍いかも知れず
@@ -441,7 +461,8 @@ const WinKeyIF::Key WinKeyIF::KeyTable106[16 * 8][8] = {
     {KEYF(VK_RIGHT, noarrowtenex), KEYF(VK_LEFT, pc80key), TERM},      // →
     {KEY(VK_BACK), KEYF(VK_INSERT, ext), KEYF(VK_DELETE, ext), TERM},  // BS
     {KEY(VK_MENU), TERM},                                              // GRPH
-    {KEYF(VK_SCROLL, lock), TERM},                                     // カナ
+    // The second VK_SCROLL is for emulating kana lock from menu.
+    {KEYF(VK_SCROLL, lock), KEY(VK_SCROLL), TERM},                     // カナ
     {KEY(VK_SHIFT), KEY(VK_F6), KEY(VK_F7), KEY(VK_F8), KEY(VK_F9), KEY(VK_F10),
      KEYF(VK_INSERT, ext), KEYF(1, pc80sft)},  // SHIFT
     {KEY(VK_CONTROL), TERM},                   // CTRL
@@ -681,7 +702,8 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEYF(VK_RIGHT, noarrowtenex), KEYF(VK_LEFT, pc80key), TERM},      // →
     {KEY(VK_BACK), KEYF(VK_INSERT, ext), KEYF(VK_DELETE, ext), TERM},  // BS
     {KEY(VK_MENU), TERM},                                              // GRPH
-    {KEYF(VK_SCROLL, lock), TERM},                                     // カナ
+    // The second VK_SCROLL is for emulating kana lock from menu.
+    {KEYF(VK_SCROLL, lock), KEY(VK_SCROLL), TERM},                     // カナ
     {KEY(VK_SHIFT), KEY(VK_F6), KEY(VK_F7), KEY(VK_F8), KEY(VK_F9), KEY(VK_F10),
      KEYF(VK_INSERT, ext), KEYF(1, pc80sft)},  // SHIFT
     {KEY(VK_CONTROL), TERM},                   // CTRL
