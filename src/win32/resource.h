@@ -260,7 +260,7 @@
 #define IDM_MEM_0_ERAM3 40228
 #define IDM_4MHZ 40229
 #define IDM_8MHZ 40230
-#define IDM_KEY_ALT 40231
+#define IDM_KEY_GRPH 40231
 #define IDM_KEY_KANA 40232
 
 // Next default values for new objects

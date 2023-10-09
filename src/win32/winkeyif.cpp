@@ -147,15 +147,15 @@ void WinKeyIF::KeyUp(uint32_t vkcode, uint32_t keydata) {
   }
 }
 
-void WinKeyIF::LockAlt(bool lock) {
-  if (alt_locked_ == lock)
+void WinKeyIF::LockGrph(bool lock) {
+  if (grph_locked_ == lock)
     return;
   if (lock) {
     KeyDown(VK_MENU, 1);
   } else {
     KeyUp(VK_MENU, 0xc0000001);
   }
-  alt_locked_ = lock;
+  grph_locked_ = lock;
 }
 
 void WinKeyIF::LockKana(bool lock) {

@@ -40,10 +40,10 @@ class WinKeyIF : public Device {
   void KeyDown(uint32_t vkcode, uint32_t keydata);
   void KeyUp(uint32_t vkcode, uint32_t keydata);
 
-  void LockAlt(bool lock);
+  void LockGrph(bool lock);
   void LockKana(bool lock);
 
-  [[nodiscard]] bool IsAltLocked() const { return alt_locked_ || keystate_[VK_MENU] != 0; }
+  [[nodiscard]] bool IsGrphLocked() const { return grph_locked_ || keystate_[VK_MENU] != 0; }
   [[nodiscard]] bool IsKanaLocked() const {
     return kana_locked_ || (keyboard_[VK_SCROLL] & 0x01) != 0;
   }
@@ -87,7 +87,7 @@ class WinKeyIF : public Device {
   HANDLE hevent_;
   BasicMode basicmode_;
 
-  bool alt_locked_ = false;
+  bool grph_locked_ = false;
   bool kana_locked_ = false;
 
   // I/O port return value cache.
