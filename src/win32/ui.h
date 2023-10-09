@@ -83,6 +83,7 @@ class WinUI {
   void ShowStatusWindow();
   void ResizeWindow(uint32_t width, uint32_t height);
   void SetGUIFlag(bool);
+  void SetCursorVisibility(bool visible);
 
   void SaveSnapshot(int n);
   void LoadSnapshot(int n);
@@ -115,7 +116,7 @@ class WinUI {
   std::atomic<bool> active_;
 
   // ウインドウの状態
-  bool background_ = false;
+  bool foreground_ = false;
   bool fullscreen_ = false;
   uint32_t displaychanged_time_ = 0;
   // When WM_DISPLAYCHANGE/DPICHANGED is received, the window size is adjusted.

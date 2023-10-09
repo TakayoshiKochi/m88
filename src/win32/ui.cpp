@@ -884,12 +884,28 @@ void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
 //  GUI 操作モードに入る
 //
 void WinUI::SetGUIFlag(bool gui) {
-  if (gui && !background_) {
-    if (!background_)
-      ::DrawMenuBar(hwnd_);
+  if (gui && foreground_) {
+    ::DrawMenuBar(hwnd_);
   }
   //  core.SetGUIFlag(gui);
   draw.SetGUIFlag(gui);
+  SetCursorVisibility(gui);
+}
+
+void WinUI::SetCursorVisibility(bool flag) {
+  CURSORINFO pci{};
+  pci.cbSize = sizeof(CURSORINFO);
+  bool r = GetCursorInfo(&pci);
+  if (!r)
+    return;
+
+  if (flag) {
+    if (!(pci.flags & CURSOR_SHOWING))
+      ShowCursor(true);
+  } else {
+    if (pci.flags & CURSOR_SHOWING)
+      ShowCursor(false);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1118,7 +1134,7 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
     fullscreen_ = false;
   }
 
-  if (hpower_ && fullscreen_) {
+  if (fullscreen_) {
     PreventSleep();
   } else {
     AllowSleep();
@@ -1213,8 +1229,8 @@ LRESULT WinUI::M88ClipCursor(HWND hwnd, WPARAM op, LPARAM) {
     clipmode_ &= ~(-(int)op);
 
   if (clipmode_ && !(clipmode_ & CLIPCURSOR_RELEASE)) {
-    RECT rect;
-    POINT center;
+    RECT rect{};
+    POINT center{};
     GetWindowRect(hwnd, &rect);
 
     if (clipmode_ & CLIPCURSOR_MOUSE) {
@@ -1779,7 +1795,7 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
 //  WM_QUERYNEWPALETTE ハンドラ
 //
 LRESULT WinUI::WmQueryNewPalette(HWND, WPARAM, LPARAM) {
-  draw.QueryNewPalette(background_);
+  draw.QueryNewPalette(!foreground_);
   return 1;
 }
 
@@ -1789,7 +1805,7 @@ LRESULT WinUI::WmQueryNewPalette(HWND, WPARAM, LPARAM) {
 //
 LRESULT WinUI::WmPaletteChanged(HWND hwnd, WPARAM wparam, LPARAM) {
   if ((HWND)wparam != hwnd) {
-    draw.QueryNewPalette(background_);
+    draw.QueryNewPalette(!foreground_);
     return 1;
   }
   return 0;
@@ -1800,19 +1816,20 @@ LRESULT WinUI::WmPaletteChanged(HWND hwnd, WPARAM wparam, LPARAM) {
 //  WM_ACTIVATE ハンドラ
 //
 LRESULT WinUI::WmActivate(HWND hwnd, WPARAM wparam, LPARAM) {
-  bool prevbg = background_;
-  background_ = LOWORD(wparam) == WA_INACTIVE;
+  bool prev_fg = foreground_;
+  foreground_ = (LOWORD(wparam) != WA_INACTIVE);
 
   if (!HIWORD(wparam)) {
     draw.RequestPaint();
   }
 
-  keyif_.Activate(!background_);
-  draw.QueryNewPalette(background_);
-  if (prevbg != background_) {
+  keyif_.Activate(foreground_);
+  draw.QueryNewPalette(!foreground_);
+  if (prev_fg != foreground_) {
     //      core.ActivateMouse(!background);
-    M88ClipCursor(hwnd, background_ ? CLIPCURSOR_RELEASE : -CLIPCURSOR_RELEASE, 0);
-    draw.SetGUIFlag(background_);
+    M88ClipCursor(hwnd, foreground_ ? -CLIPCURSOR_RELEASE : CLIPCURSOR_RELEASE, 0);
+    draw.SetGUIFlag(!foreground_);
+    SetCursorVisibility(!foreground_);
   }
   snapshotchanged = true;
   return 0;
