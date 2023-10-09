@@ -159,11 +159,9 @@ int32_t Sequencer::GetExecCount() {
 //  実行する
 //
 void Sequencer::Activate() {
-  std::lock_guard<std::mutex> lock(mtx_);
   active_ = true;
 }
 
 void Sequencer::Deactivate() {
-  std::lock_guard<std::mutex> lock(mtx_);
   active_ = false;
 }
