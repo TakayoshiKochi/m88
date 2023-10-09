@@ -10,43 +10,42 @@
 class ExtendedAPIAccessBase {
  public:
   ExtendedAPIAccessBase(const char* dllname, const char* apiname, void* dummy);
-  bool IsValid() { return valid; }
+  [[nodiscard]] bool IsValid() const { return valid_; }
 
  protected:
-  void* Method() { return method; }
+  void* Method() { return method_; }
 
  private:
-  void* method;
-  bool valid;
+  void* method_ = nullptr;
+  bool valid_ = false;
 };
 
 class ExternalDLLAccessBase {
  public:
-  ExternalDLLAccessBase(const char* _dllname, const char* _apiname, void* _dummy)
-      : method(0), dllname(_dllname), apiname(_apiname), dummy(_dummy) {}
-
+  ExternalDLLAccessBase(const char* dllname, const char* apiname, void* dummy)
+      : method_(nullptr), dllname_(dllname), apiname_(apiname), dummy_(dummy) {}
   ~ExternalDLLAccessBase();
 
   bool IsValid() {
     Method();
-    return !!hmod;
+    return hmod_ != nullptr;
   }
 
  protected:
   void* Method() {
-    if (!method)
+    if (!method_)
       Load();
-    return method;
+    return method_;
   }
 
  private:
   void Load();
-  void* method;
-  const char* dllname;
-  const char* apiname;
+  void* method_;
+  const char* dllname_;
+  const char* apiname_;
   union {
-    void* dummy;
-    HMODULE hmod;
+    void* dummy_;
+    HMODULE hmod_;
   };
 };
 
@@ -56,7 +55,7 @@ class ExtendedAPIAccess : public Base {
   ExtendedAPIAccess(const char* dllname, const char* apiname, T dummy)
       : Base(dllname, apiname, (void*)dummy) {}
 
-  operator T() { return T(Method()); }
+  operator T() { return reinterpret_cast<T>(Base::Method()); }
 };
 
 #ifndef DECLARE_EXAPI
