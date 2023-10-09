@@ -17,7 +17,7 @@ class scoped_handle {
     return *this;
   }
 
-  static const IID& iid() { return *interface_id; }
+  static const IID& iid() { return *T::interface_id; }
 
   T detach() {
     T p = ptr_;
