@@ -87,9 +87,9 @@ class Screen : public Device {
   void UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region);
   void UpdateScreen320b(uint8_t* image, int bpl, Draw::Region& region);
 
-  IOBus* bus;
-  Memory* memory;
-  CRTC* crtc;
+  IOBus* bus_ = nullptr;
+  Memory* memory_ = nullptr;
+  CRTC* crtc_ = nullptr;
 
   Pal pal[8];
   Pal bgpal;
@@ -98,13 +98,13 @@ class Screen : public Device {
 
   static const Draw::Palette palcolor[8];
 
-  const uint8_t* pex;
+  const uint8_t* pex_ = nullptr;
 
-  uint8_t port30;
-  uint8_t port31;
-  uint8_t port32;
-  uint8_t port33;
-  uint8_t port53;
+  uint8_t port30_ = 0;
+  uint8_t port31_ = 0;
+  uint8_t port32_ = 0;
+  uint8_t port33_ = 0;
+  uint8_t port53_ = 0;
 
   bool fullline;
   bool fv15k;

@@ -70,15 +70,15 @@ Screen::~Screen() {}
 //  初期化
 //
 bool Screen::Init(IOBus* _bus, Memory* mem, CRTC* _crtc) {
-  bus = _bus;
-  memory = mem;
-  crtc = _crtc;
+  bus_ = _bus;
+  memory_ = mem;
+  crtc_ = _crtc;
 
   palettechanged = true;
   modechanged = true;
   fv15k = false;
   texttp = false;
-  pex = palextable[0];
+  pex_ = palextable[0];
 
   bgpal.red = 0;
   bgpal.green = 0;
@@ -98,8 +98,8 @@ void IOCALL Screen::Reset(uint32_t, uint32_t) {
   displaygraphics = false;
   textpriority = false;
   grphpriority = false;
-  port31 = ~port31;
-  Out31(0x31, ~port31);
+  port31_ = ~port31_;
+  Out31(0x31, ~port31_);
   modechanged = true;
 }
 
@@ -119,18 +119,18 @@ bool Screen::UpdatePalette(Draw* draw) {
 
   // 53 53 53 V2 32 31 80  CM 53 30 53 53 53 30 dg
   pmode = displaygraphics ? 1 : 0;
-  pmode |= (port53 & 1) << 6;
-  pmode |= port30 & 0x22;
+  pmode |= (port53_ & 1) << 6;
+  pmode |= port30_ & 0x22;
   pmode |= n80mode ? 0x100 : 0;
   pmode |= line320 ? 0x400 : 0;
-  pmode |= (port33 & 0x80) ? 0x800 : 0;
+  pmode |= (port33_ & 0x80) ? 0x800 : 0;
   if (!color) {
-    pmode |= 0x80 | ((port53 & 14) << 1);
-    if (n80mode && (port33 & 0x80) && line320)  // 80SR 320x200x6
-      pmode |= (port53 & 0x70) << 8;
+    pmode |= 0x80 | ((port53_ & 14) << 1);
+    if (n80mode && (port33_ & 0x80) && line320)  // 80SR 320x200x6
+      pmode |= (port53_ & 0x70) << 8;
   } else {
-    if (n80mode && (port33 & 0x80))
-      pmode |= (port53 & (line320 ? 6 : 2)) << 1;
+    if (n80mode && (port33_ & 0x80))
+      pmode |= (port53_ & (line320 ? 6 : 2)) << 1;
   }
   //  g_status_display->Show(10, 0, "SCRN: %.3x", pmode);
 
@@ -153,15 +153,15 @@ bool Screen::UpdatePalette(Draw* draw) {
     Draw::Palette xpal[10];
     if (!texttp) {
       for (int i = 0; i < 8; i++) {
-        xpal[i].red = pex[pal[i].red];
-        xpal[i].green = pex[pal[i].green];
-        xpal[i].blue = pex[pal[i].blue];
+        xpal[i].red = pex_[pal[i].red];
+        xpal[i].green = pex_[pal[i].green];
+        xpal[i].blue = pex_[pal[i].blue];
       }
     } else {
       for (int i = 0; i < 8; i++) {
-        xpal[i].red = (pex[pal[i].red] * 3 + ((i << 7) & 0x100)) / 4;
-        xpal[i].green = (pex[pal[i].green] * 3 + ((i << 6) & 0x100)) / 4;
-        xpal[i].blue = (pex[pal[i].blue] * 3 + ((i << 8) & 0x100)) / 4;
+        xpal[i].red = (pex_[pal[i].red] * 3 + ((i << 7) & 0x100)) / 4;
+        xpal[i].green = (pex_[pal[i].green] * 3 + ((i << 6) & 0x100)) / 4;
+        xpal[i].blue = (pex_[pal[i].blue] * 3 + ((i << 8) & 0x100)) / 4;
       }
     }
     if (gmask) {
@@ -179,19 +179,19 @@ bool Screen::UpdatePalette(Draw* draw) {
     }
 
     xpal[8].red = xpal[8].green = xpal[8].blue = 0;
-    xpal[9].red = pex[bgpal.red];
-    xpal[9].green = pex[bgpal.green];
-    xpal[9].blue = pex[bgpal.blue];
+    xpal[9].red = pex_[bgpal.red];
+    xpal[9].green = pex_[bgpal.green];
+    xpal[9].blue = pex_[bgpal.blue];
 
     Draw::Palette palette[0x90];
     Draw::Palette* p = palette;
 
-    int textcolor = port30 & 2 ? 7 : 0;
+    int textcolor = port30_ & 2 ? 7 : 0;
 
     if (color) {
-      Log("\ncolor  port53 = %.2x  port32 = %.2x\n", port53, port32);
+      Log("\ncolor  port53 = %.2x  port32 = %.2x\n", port53_, port32_);
       //  color mode      GG GG GR GB TE TG TR TB
-      if (port53 & 1)  // hide text plane ?
+      if (port53_ & 1)  // hide text plane ?
       {
         for (int gc = 0; gc < 9; gc++) {
           Draw::Palette c = displaygraphics || texttp ? xpal[gc] : xpal[8];
@@ -226,10 +226,10 @@ bool Screen::UpdatePalette(Draw* draw) {
     } else {
       //  b/w mode    0  1  G  RE TE   TG TB TR
 
-      const Draw::Palette* tpal = port32 & 0x20 ? xpal : palcolor;
+      const Draw::Palette* tpal = port32_ & 0x20 ? xpal : palcolor;
 
-      Log("\nb/w  port53 = %.2x  port32 = %.2x  port30 = %.2x\n", port53, port32, port30);
-      if (port53 & 1)  // hidetext
+      Log("\nb/w  port53 = %.2x  port32 = %.2x  port30 = %.2x\n", port53_, port32_, port30_);
+      if (port53_ & 1)  // hidetext
       {
         int m = texttp || displaygraphics ? ~0 : ~1;
         for (int gc = 0; gc < 4; gc++) {
@@ -277,17 +277,17 @@ bool Screen::UpdatePalette(Draw* draw) {
 void Screen::UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool refresh) {
   // 53 53 53 GR TX  80 V2 32 CL  53 53 53 L4 (b4〜b6の配置は変えないこと)
   int gmode = line400 ? 1 : 0;
-  gmode |= color ? 0x10 : (port53 & 0x0e);
+  gmode |= color ? 0x10 : (port53_ & 0x0e);
   gmode |= line320 ? 0x20 : 0;
-  gmode |= (port33 & 0x80) ? 0x40 : 0;
+  gmode |= (port33_ & 0x80) ? 0x40 : 0;
   gmode |= n80mode ? 0x80 : 0;
   gmode |= textpriority ? 0x100 : 0;
   gmode |= grphpriority ? 0x200 : 0;
-  if (n80mode && (port33 & 0x80)) {
+  if (n80mode && (port33_ & 0x80)) {
     if (color)
-      gmode |= port53 & (line320 ? 6 : 2);
+      gmode |= port53_ & (line320 ? 6 : 2);
     else if (line320)
-      gmode |= (port53 & 0x70) << 6;
+      gmode |= (port53_ & 0x70) << 6;
   }
 
   if (gmode != prevgmode) {
@@ -301,7 +301,7 @@ void Screen::UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool re
     modechanged = false;
     palettechanged = true;
     ClearScreen(image, bpl);
-    memset(memory->GetDirtyFlag(), 1, 0x400);
+    memset(memory_->GetDirtyFlag(), 1, 0x400);
   }
   if (!n80mode) {
     if (color)
@@ -364,7 +364,7 @@ void Screen::UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool re
 
 // 640x200, 3 plane color
 void Screen::UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region) {
-  uint8_t* dirty = memory->GetDirtyFlag();
+  uint8_t* dirty = memory_->GetDirtyFlag();
   int y;
   for (y = 0; y < 1000; y += sizeof(packed)) {
     if (*(packed*)(&dirty[y]))
@@ -378,7 +378,7 @@ void Screen::UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region) {
     image += 2 * bpl * y;
     dirty += 5 * y;
 
-    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory_->GetGVRAM() + y * 80;
     int dm = 0;
 
     if (!fullline) {
@@ -456,7 +456,7 @@ void Screen::UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region) {
 
 // 640x200, b/w
 void Screen::UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region) {
-  uint8_t* dirty = memory->GetDirtyFlag();
+  uint8_t* dirty = memory_->GetDirtyFlag();
   int y;
   for (y = 0; y < 1000; y += sizeof(packed)) {
     if (*(packed*)(&dirty[y]))
@@ -470,12 +470,12 @@ void Screen::UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region) {
     image += 2 * bpl * y;
     dirty += 5 * y;
 
-    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory_->GetGVRAM() + y * 80;
 
     Memory::Quadbyte mask;
-    mask.byte[0] = port53 & 2 ? 0x00 : 0xff;
-    mask.byte[1] = port53 & 4 ? 0x00 : 0xff;
-    mask.byte[2] = port53 & 8 ? 0x00 : 0xff;
+    mask.byte[0] = port53_ & 2 ? 0x00 : 0xff;
+    mask.byte[1] = port53_ & 4 ? 0x00 : 0xff;
+    mask.byte[2] = port53_ & 8 ? 0x00 : 0xff;
     mask.byte[3] = 0;
 
     int dm = 0;
@@ -554,7 +554,7 @@ void Screen::UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region) {
   (d)[1] = ((d)[1] & ~PACK(GVRAMM_BIT)) | BETable1[(a >> 0) & 15]
 
 void Screen::UpdateScreen400b(uint8_t* image, int bpl, Draw::Region& region) {
-  uint8_t* dirty = memory->GetDirtyFlag();
+  uint8_t* dirty = memory_->GetDirtyFlag();
   int y;
   for (y = 0; y < 1000; y += sizeof(packed)) {
     if (*(packed*)(&dirty[y]))
@@ -568,12 +568,12 @@ void Screen::UpdateScreen400b(uint8_t* image, int bpl, Draw::Region& region) {
     image += bpl * y;
     dirty += 5 * y;
 
-    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory_->GetGVRAM() + y * 80;
 
     Memory::Quadbyte mask;
-    mask.byte[0] = port53 & 2 ? 0x00 : 0xff;
-    mask.byte[1] = port53 & 4 ? 0x00 : 0xff;
-    mask.byte[2] = port53 & 8 ? 0x00 : 0xff;
+    mask.byte[0] = port53_ & 2 ? 0x00 : 0xff;
+    mask.byte[1] = port53_ & 4 ? 0x00 : 0xff;
+    mask.byte[2] = port53_ & 8 ? 0x00 : 0xff;
     mask.byte[3] = 0;
 
     int dm = 0;
@@ -623,7 +623,7 @@ void Screen::UpdateScreen400b(uint8_t* image, int bpl, Draw::Region& region) {
 
 // 320x200, color?
 void Screen::UpdateScreen80c(uint8_t* image, int bpl, Draw::Region& region) {
-  uint8_t* dirty = memory->GetDirtyFlag();
+  uint8_t* dirty = memory_->GetDirtyFlag();
   int y;
   for (y = 0; y < 1000; y += sizeof(packed)) {
     if (*(packed*)(&dirty[y]))
@@ -637,7 +637,7 @@ void Screen::UpdateScreen80c(uint8_t* image, int bpl, Draw::Region& region) {
     image += 2 * bpl * y;
     dirty += 5 * y;
 
-    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory_->GetGVRAM() + y * 80;
     int dm = 0;
 
     if (!fullline) {
@@ -712,7 +712,7 @@ void Screen::UpdateScreen80c(uint8_t* image, int bpl, Draw::Region& region) {
   *((packed*)(((uint8_t*)(d + o)) + bpl)) = d[o] = (d[o] & ~PACK(GVRAMM_BIT)) | BETable1[(a)&15]
 
 void Screen::UpdateScreen80b(uint8_t* image, int bpl, Draw::Region& region) {
-  uint8_t* dirty = memory->GetDirtyFlag();
+  uint8_t* dirty = memory_->GetDirtyFlag();
   int y;
   for (y = 0; y < 1000; y += sizeof(packed)) {
     if (*(packed*)(&dirty[y]))
@@ -726,13 +726,13 @@ void Screen::UpdateScreen80b(uint8_t* image, int bpl, Draw::Region& region) {
     image += 2 * bpl * y;
     dirty += 5 * y;
 
-    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory_->GetGVRAM() + y * 80;
 
     Memory::Quadbyte mask;
     if (!gmask) {
-      mask.byte[0] = port53 & 2 ? 0x00 : 0xff;
-      mask.byte[1] = port53 & 4 ? 0x00 : 0xff;
-      mask.byte[2] = port53 & 8 ? 0x00 : 0xff;
+      mask.byte[0] = port53_ & 2 ? 0x00 : 0xff;
+      mask.byte[1] = port53_ & 4 ? 0x00 : 0xff;
+      mask.byte[2] = port53_ & 8 ? 0x00 : 0xff;
     } else {
       mask.byte[0] = gmask & 1 ? 0x00 : 0xff;
       mask.byte[1] = gmask & 2 ? 0x00 : 0xff;
@@ -813,7 +813,7 @@ void Screen::UpdateScreen80b(uint8_t* image, int bpl, Draw::Region& region) {
       (E80SRTable[(bp1 & 0x03) | (rp1 & 0x0c) | (gp1 & 0x30)] & m) | \
       (E80SRTable[(bp2 & 0x03) | (rp2 & 0x0c) | (gp2 & 0x30)] & ~m);
 void Screen::UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region) {
-  uint8_t* dirty1 = memory->GetDirtyFlag();
+  uint8_t* dirty1 = memory_->GetDirtyFlag();
   uint8_t* dirty2 = dirty1 + 0x200;
   int y;
   for (y = 0; y < 500; y += sizeof(packed)) {
@@ -833,13 +833,13 @@ void Screen::UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region) {
     Memory::Quadbyte* src2 = nullptr;
     uint32_t dspoff;
     if (!grphpriority) {
-      src1 = memory->GetGVRAM() + y * 80;
-      src2 = memory->GetGVRAM() + y * 80 + 0x2000;
-      dspoff = port53;
+      src1 = memory_->GetGVRAM() + y * 80;
+      src2 = memory_->GetGVRAM() + y * 80 + 0x2000;
+      dspoff = port53_;
     } else {
-      src1 = memory->GetGVRAM() + y * 80 + 0x2000;
-      src2 = memory->GetGVRAM() + y * 80;
-      dspoff = ((port53 >> 1) & 2) | ((port53 << 1) & 4);
+      src1 = memory_->GetGVRAM() + y * 80 + 0x2000;
+      src2 = memory_->GetGVRAM() + y * 80;
+      dspoff = ((port53_ >> 1) & 2) | ((port53_ << 1) & 4);
     }
     int dm = 0;
 
@@ -981,7 +981,7 @@ void Screen::UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region) {
       (dest[o] & ~PACK(GVRAMM_BIT)) | BE80Table[a & 3]
 
 void Screen::UpdateScreen320b(uint8_t* image, int bpl, Draw::Region& region) {
-  uint8_t* dirty1 = memory->GetDirtyFlag();
+  uint8_t* dirty1 = memory_->GetDirtyFlag();
   uint8_t* dirty2 = dirty1 + 0x200;
   int y;
   for (y = 0; y < 500; y += sizeof(packed)) {
@@ -997,17 +997,17 @@ void Screen::UpdateScreen320b(uint8_t* image, int bpl, Draw::Region& region) {
     dirty1 += 5 * y;
     dirty2 += 5 * y;
 
-    Memory::Quadbyte* src = memory->GetGVRAM() + y * 80;
+    Memory::Quadbyte* src = memory_->GetGVRAM() + y * 80;
 
     Memory::Quadbyte mask1;
     Memory::Quadbyte mask2;
-    mask1.byte[0] = port53 & 2 ? 0x00 : 0xff;
-    mask1.byte[1] = port53 & 4 ? 0x00 : 0xff;
-    mask1.byte[2] = port53 & 8 ? 0x00 : 0xff;
+    mask1.byte[0] = port53_ & 2 ? 0x00 : 0xff;
+    mask1.byte[1] = port53_ & 4 ? 0x00 : 0xff;
+    mask1.byte[2] = port53_ & 8 ? 0x00 : 0xff;
     mask1.byte[3] = 0;
-    mask2.byte[0] = port53 & 16 ? 0x00 : 0xff;
-    mask2.byte[1] = port53 & 32 ? 0x00 : 0xff;
-    mask2.byte[2] = port53 & 64 ? 0x00 : 0xff;
+    mask2.byte[0] = port53_ & 16 ? 0x00 : 0xff;
+    mask2.byte[1] = port53_ & 32 ? 0x00 : 0xff;
+    mask2.byte[2] = port53_ & 64 ? 0x00 : 0xff;
     mask2.byte[3] = 0;
 
     int dm = 0;
@@ -1108,8 +1108,8 @@ void Screen::UpdateScreen320b(uint8_t* image, int bpl, Draw::Region& region) {
 //
 void IOCALL Screen::Out30(uint32_t, uint32_t data) {
   //  uint32_t i = port30 ^ data;
-  port30 = data;
-  crtc->SetTextSize(!(data & 0x01));
+  port30_ = data;
+  crtc_->SetTextSize(!(data & 0x01));
 }
 
 // ---------------------------------------------------------------------------
@@ -1119,22 +1119,22 @@ void IOCALL Screen::Out30(uint32_t, uint32_t data) {
 //  b0  200line / ~400line
 //
 void IOCALL Screen::Out31(uint32_t, uint32_t data) {
-  int i = port31 ^ data;
+  int i = port31_ ^ data;
 
   if (!n80mode) {
     if (i & 0x19) {
-      port31 = data;
+      port31_ = data;
       displaygraphics = (data & 8) != 0;
 
       if (i & 0x11) {
         color = (data & 0x10) != 0;
         line400 = !(data & 0x01) && !color;
-        crtc->SetTextMode(color);
+        crtc_->SetTextMode(color);
       }
     }
   } else {
     if (i & 0xfc) {
-      port31 = data;
+      port31_ = data;
       displaygraphics = (data & 8) != 0;
 
       if (i & 0xf4) {
@@ -1143,12 +1143,12 @@ void IOCALL Screen::Out31(uint32_t, uint32_t data) {
         col.red = data & 0x40 ? 7 : 0;
         col.blue = data & 0x20 ? 7 : 0;
 
-        if (port33 & 0x80) {
+        if (port33_ & 0x80) {
           if (i & 0x1c)
             palettechanged = true;
           line320 = (data & 0x04) != 0;
           color = (data & 0x10) != 0;
-          crtc->SetTextMode(color);
+          crtc_->SetTextMode(color);
           if (!color) {
             if (i & 0xe0)
               palettechanged = true;
@@ -1156,14 +1156,14 @@ void IOCALL Screen::Out31(uint32_t, uint32_t data) {
           }
           if (color) {
             uint32_t mask53 = (line320 ? 6 : 2);
-            displaygraphics = ((port53 & mask53) != mask53 && (port31 & 8) != 0);
+            displaygraphics = ((port53_ & mask53) != mask53 && (port31_ & 8) != 0);
           }
         } else {
           palettechanged = true;
 
           line320 = (data & 0x10) != 0;
           color = line320 || (data & 0x04) != 0;
-          crtc->SetTextMode(color);
+          crtc_->SetTextMode(color);
 
           if (!line320) {
             pal[0].green = pal[0].red = pal[0].blue = 0;
@@ -1208,9 +1208,9 @@ void IOCALL Screen::Out31(uint32_t, uint32_t data) {
 //  b5  パレットモード
 //
 void IOCALL Screen::Out32(uint32_t, uint32_t data) {
-  uint32_t i = port32 ^ data;
+  uint32_t i = port32_ ^ data;
   if (i & 0x20) {
-    port32 = data;
+    port32_ = data;
     if (!color)
       palettechanged = true;
   }
@@ -1224,9 +1224,9 @@ void IOCALL Screen::Out32(uint32_t, uint32_t data) {
 //
 void IOCALL Screen::Out33(uint32_t, uint32_t data) {
   if (n80mode) {
-    uint32_t i = port33 ^ data;
+    uint32_t i = port33_ ^ data;
     if (i & 0x8c) {
-      port33 = data;
+      port33_ = data;
       textpriority = (data & 0x08) != 0;
       grphpriority = (data & 0x04) != 0;
       palettechanged = true;
@@ -1239,7 +1239,7 @@ void IOCALL Screen::Out33(uint32_t, uint32_t data) {
 //  バックグラウンドカラー(デジタル)の指定
 //
 void IOCALL Screen::Out52(uint32_t, uint32_t data) {
-  if (!(port32 & 0x20)) {
+  if (!(port32_ & 0x20)) {
     bgpal.blue = (data & 0x08) ? 255 : 0;
     bgpal.red = (data & 0x10) ? 255 : 0;
     bgpal.green = (data & 0x20) ? 255 : 0;
@@ -1258,10 +1258,10 @@ void IOCALL Screen::Out53(uint32_t, uint32_t data) {
     Log("show plane(53) : %c%c%c %c\n", data & 8 ? '-' : '2', data & 4 ? '-' : '1',
         data & 2 ? '-' : '0', data & 1 ? '-' : 'T');
 
-    if ((port53 ^ data) & (color ? 0x01 : 0x0f)) {
-      port53 = data;
+    if ((port53_ ^ data) & (color ? 0x01 : 0x0f)) {
+      port53_ = data;
     }
-  } else if (port33 & 0x80) {
+  } else if (port33_ & 0x80) {
     Log("show plane(53) : %c%c%c%c%c%c %c\n", data & 64 ? '-' : '5', data & 32 ? '-' : '4',
         data & 16 ? '-' : '3', data & 8 ? '-' : '2', data & 4 ? '-' : '1', data & 2 ? '-' : '0',
         data & 1 ? '-' : 'T');
@@ -1278,14 +1278,14 @@ void IOCALL Screen::Out53(uint32_t, uint32_t data) {
         mask = 0x0f;
     }
 
-    if ((port53 ^ data) & mask) {
+    if ((port53_ ^ data) & mask) {
       modechanged = true;
       if (color) {
         uint32_t mask53 = (line320 ? 6 : 2);
-        displaygraphics = ((data & mask53) != mask53 && (port31 & 8) != 0);
+        displaygraphics = ((data & mask53) != mask53 && (port31_ & 8) != 0);
       }
     }
-    port53 = data;  //  画面モードが変更される可能性に備え，値は常に全ビット保存
+    port53_ = data;  //  画面モードが変更される可能性に備え，値は常に全ビット保存
   }
 }
 
@@ -1294,7 +1294,7 @@ void IOCALL Screen::Out53(uint32_t, uint32_t data) {
 //  set palette #0 / BG Color
 //
 void IOCALL Screen::Out54(uint32_t, uint32_t data) {
-  if (port32 & 0x20)  // is analog palette mode ?
+  if (port32_ & 0x20)  // is analog palette mode ?
   {
     Pal& p = data & 0x80 ? bgpal : pal[0];
 
@@ -1321,7 +1321,7 @@ void IOCALL Screen::Out54(uint32_t, uint32_t data) {
 void IOCALL Screen::Out55to5b(uint32_t port, uint32_t data) {
   Pal& p = pal[port - 0x54];
 
-  if (!n80mode && (port32 & 0x20))  // is analog palette mode?
+  if (!n80mode && (port32_ & 0x20))  // is analog palette mode?
   {
     if (data & 0x40)
       p.green = data & 7;
@@ -1387,7 +1387,7 @@ void Screen::ClearScreen(uint8_t* image, int bpl) {
 //
 void Screen::ApplyConfig(const Config* config) {
   fv15k = config->IsFV15k();
-  pex = palextable[(config->flags & Config::kDigitalPalette) ? 1 : 0];
+  pex_ = palextable[(config->flags & Config::kDigitalPalette) ? 1 : 0];
   texttp = (config->flags & Config::kSpecialPalette) != 0;
   bool flp = fullline;
   fullline = (config->flags & Config::kFullline) != 0;
@@ -1415,11 +1415,11 @@ packed Screen::BE80Table[4];
 void Screen::CreateTable() {
   if (BETable0[0] == -1) {
     int i;
-    for (i = 0; i < (1 << sizeof(packed)); i++) {
+    for (i = 0; i < (1 << sizeof(packed)); ++i) {
       int j;
       packed p = 0, q = 0, r = 0;
 
-      for (j = 0; j < sizeof(packed); j++) {
+      for (j = 0; j < sizeof(packed); ++j) {
         bool chkbit = CHKBIT(i, j) != 0;
         p = (p << 8) | (chkbit ? GVRAM0_SET : GVRAM0_RES);
         q = (q << 8) | (chkbit ? GVRAM1_SET : GVRAM1_RES);
@@ -1430,12 +1430,12 @@ void Screen::CreateTable() {
       BETable2[i] = r;
     }
 
-    for (i = 0; i < (1 << sizeof(packed)); i++) {
+    for (i = 0; i < (1 << sizeof(packed)); ++i) {
       E80Table[i] = BETable0[(i & 0x05) | ((i & 0x05) << 1)] |
                     BETable1[(i & 0x0a) | ((i & 0x0a) >> 1)] | PACK(GVRAM2_RES);
     }
 
-    for (i = 0; i < 64; i++) {
+    for (i = 0; i < 64; ++i) {
       packed p;
 
       p = (i & 0x01) ? GVRAM0_SET : GVRAM0_RES;
@@ -1449,7 +1449,7 @@ void Screen::CreateTable() {
       E80SRTable[i] |= E80SRTable[i] << 8;
     }
 
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < 4; ++i) {
       E80SRMask[i] = ((i & 1) ? 0xffff : 0x0000) << (16 * BIT80SR);
       E80SRMask[i] |= ((i & 2) ? 0xffff : 0x0000) << (16 * (1 - BIT80SR));
       BE80Table[i] = ((i & 1) ? GVRAM1_SET : GVRAM1_RES) << (16 * BIT80SR);
@@ -1467,13 +1467,13 @@ uint32_t IFCALL Screen::GetStatusSize() {
 }
 
 bool IFCALL Screen::SaveStatus(uint8_t* s) {
-  Status* st = (Status*)s;
+  auto st = (Status*)s;
   st->rev = ssrev;
-  st->p30 = port30;
-  st->p31 = port31;
-  st->p32 = port32;
-  st->p33 = port33;
-  st->p53 = port53;
+  st->p30 = port30_;
+  st->p31 = port31_;
+  st->p32 = port32_;
+  st->p33 = port33_;
+  st->p53 = port53_;
   st->bgpal = bgpal;
   for (int i = 0; i < 8; i++)
     st->pal[i] = pal[i];
@@ -1481,7 +1481,7 @@ bool IFCALL Screen::SaveStatus(uint8_t* s) {
 }
 
 bool IFCALL Screen::LoadStatus(const uint8_t* s) {
-  const Status* st = (const Status*)s;
+  const auto* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;
   Out30(0x30, st->p30);
@@ -1499,12 +1499,12 @@ bool IFCALL Screen::LoadStatus(const uint8_t* s) {
 // ---------------------------------------------------------------------------
 //  device description
 //
-const Device::Descriptor Screen::descriptor = {0, Screen::outdef};
+const Device::Descriptor Screen::descriptor = {nullptr, Screen::outdef};
 
 const Device::OutFuncPtr Screen::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&Reset),     static_cast<Device::OutFuncPtr>(&Out30),
-    static_cast<Device::OutFuncPtr>(&Out31),     static_cast<Device::OutFuncPtr>(&Out32),
-    static_cast<Device::OutFuncPtr>(&Out33),     static_cast<Device::OutFuncPtr>(&Out52),
-    static_cast<Device::OutFuncPtr>(&Out53),     static_cast<Device::OutFuncPtr>(&Out54),
-    static_cast<Device::OutFuncPtr>(&Out55to5b),
+    static_cast<Device::OutFuncPtr>(&Screen::Reset),     static_cast<Device::OutFuncPtr>(&Screen::Out30),
+    static_cast<Device::OutFuncPtr>(&Screen::Out31),     static_cast<Device::OutFuncPtr>(&Screen::Out32),
+    static_cast<Device::OutFuncPtr>(&Screen::Out33),     static_cast<Device::OutFuncPtr>(&Screen::Out52),
+    static_cast<Device::OutFuncPtr>(&Screen::Out53),     static_cast<Device::OutFuncPtr>(&Screen::Out54),
+    static_cast<Device::OutFuncPtr>(&Screen::Out55to5b),
 };

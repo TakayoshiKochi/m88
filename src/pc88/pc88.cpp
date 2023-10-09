@@ -46,14 +46,14 @@ PC88::PC88()
     : scheduler_(this),
       cpu1(DEV_ID('C', 'P', 'U', '1')),
       cpu2(DEV_ID('C', 'P', 'U', '2')),
-      scrn(0),
-      intc(0),
-      fdc(0),
-      siotape(0),
-      caln(0),
-      diskmgr(0),
-      siomidi(0),
-      joypad(0) {
+      scrn(nullptr),
+      intc(nullptr),
+      fdc(nullptr),
+      siotape(nullptr),
+      caln(nullptr),
+      diskmgr(nullptr),
+      siomidi(nullptr),
+      joypad(nullptr) {
   assert((1 << MemoryManager::pagebits) <= 0x400);
   DIAGINIT(&cpu1);
 }
