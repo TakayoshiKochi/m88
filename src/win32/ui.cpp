@@ -225,14 +225,14 @@ bool WinUI::InitM88(const char* cmdline) {
 
   //  debug 用クラス初期化
   Log("%d\tmonitors\n", timeGetTime());
-  opnmon.Init(core.GetOPN1(), core.GetSound());
-  memmon.Init(&core);
-  codemon.Init(&core);
-  basmon.Init(&core);
-  regmon.Init(&core);
-  loadmon.Init();
-  iomon.Init(&core);
-  core.GetSound()->SetSoundMonitor(&opnmon);
+  opn_mon_.Init(core.GetOPN1(), core.GetSound());
+  mem_mon_.Init(&core);
+  code_mon_.Init(&core);
+  bas_mon_.Init(&core);
+  reg_mon_.Init(&core);
+  load_mon_.Init();
+  io_mon_.Init(&core);
+  core.GetSound()->SetSoundMonitor(&opn_mon_);
 
   //  実行ファイル改変チェック
   Log("%d\tself test\n", timeGetTime());
@@ -889,7 +889,7 @@ void WinUI::SetGUIFlag(bool gui) {
   }
   //  core.SetGUIFlag(gui);
   draw.SetGUIFlag(gui);
-  //SetCursorVisibility(gui);
+  // SetCursorVisibility(gui);
 }
 
 void WinUI::SetCursorVisibility(bool flag) {
@@ -1388,32 +1388,32 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_SOUNDMON:
-      opnmon.Show(hinst_, hwnd, !opnmon.IsOpen());
+      opn_mon_.Show(hinst_, hwnd, !opn_mon_.IsOpen());
       break;
 
     case IDM_MEMMON:
-      memmon.Show(hinst_, hwnd, !memmon.IsOpen());
+      mem_mon_.Show(hinst_, hwnd, !mem_mon_.IsOpen());
       break;
 
     case IDM_CODEMON:
-      codemon.Show(hinst_, hwnd, !codemon.IsOpen());
+      code_mon_.Show(hinst_, hwnd, !code_mon_.IsOpen());
       break;
 
     case IDM_BASMON:
-      basmon.Show(hinst_, hwnd, !basmon.IsOpen());
+      bas_mon_.Show(hinst_, hwnd, !bas_mon_.IsOpen());
       break;
 
     case IDM_LOADMON:
-      loadmon.Show(hinst_, hwnd, !loadmon.IsOpen());
+      load_mon_.Show(hinst_, hwnd, !load_mon_.IsOpen());
       break;
 
     case IDM_IOMON:
-      iomon.Show(hinst_, hwnd, !iomon.IsOpen());
+      io_mon_.Show(hinst_, hwnd, !io_mon_.IsOpen());
       break;
 
     case IDM_WATCHREGISTER:
       config.flags &= ~PC8801::Config::kWatchRegister;
-      regmon.Show(hinst_, hwnd, !regmon.IsOpen());
+      reg_mon_.Show(hinst_, hwnd, !reg_mon_.IsOpen());
       break;
 
     case IDM_TAPE:
@@ -1752,18 +1752,18 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   CheckMenuItem(hmenu_, IDM_KEY_KANA, keyif_.IsKanaLocked() ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu_, IDM_WATCHREGISTER,
-                (config.dipsw != 1 && regmon.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
+                (config.dipsw != 1 && reg_mon_.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_STATUSBAR,
                 (config.flags & Config::kShowStatusBar) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_STATUSBAR, fullscreen_ ? MF_GRAYED : MF_ENABLED);
   CheckMenuItem(hmenu_, IDM_FDC_STATUS,
                 (config.flags & Config::kShowFDCStatus) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu_, IDM_SOUNDMON, opnmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu_, IDM_MEMMON, memmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu_, IDM_CODEMON, codemon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu_, IDM_BASMON, basmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu_, IDM_LOADMON, loadmon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu_, IDM_IOMON, iomon.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_SOUNDMON, opn_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_MEMMON, mem_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_CODEMON, code_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_BASMON, bas_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_LOADMON, load_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_IOMON, io_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_RECORDPCM, core.GetSound()->IsDumping() ? MF_CHECKED : MF_UNCHECKED);
 
   EnableMenuItem(hmenu_, IDM_DUMPCPU1,

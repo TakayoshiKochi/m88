@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 
+#include <memory>
+
 //  概要：
 //  デバッグ表示のために使用するテキストウィンドウの管理用基本クラス
 //  機能：
@@ -20,12 +22,12 @@
 class WinMonitor {
  public:
   WinMonitor();
-  ~WinMonitor();
+  virtual ~WinMonitor();
 
   bool Init(LPCTSTR tmpl);
   void Show(HINSTANCE, HWND, bool show);
 
-  bool IsOpen() { return !!hwnd; }
+  bool IsOpen() { return hwnd_ != nullptr; }
 
   void Update();
 
@@ -34,12 +36,12 @@ class WinMonitor {
   void Puts(const char*);
   void Putf(const char*, ...);
 
-  void SetTxCol(COLORREF col) { txcol = col; }
-  void SetBkCol(COLORREF col) { bkcol = col; }
+  void SetTxCol(COLORREF col) { txcol_ = col; }
+  void SetBkCol(COLORREF col) { bkcol_ = col; }
 
-  int GetWidth() { return width; }
-  int GetHeight() { return height; }
-  int GetLine() { return line; }
+  [[nodiscard]] int GetWidth() const { return width_; }
+  [[nodiscard]] int GetHeight() const { return height_; }
+  [[nodiscard]] int GetLine() const { return line_; }
   void SetLine(int l);
   void SetLines(int nlines);
   bool GetTextPos(POINT*);
@@ -59,9 +61,9 @@ class WinMonitor {
   virtual void DrawMain(HDC, bool = false);
   virtual BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
 
-  HWND GetHWnd() { return hwnd; }
-  HWND GetHWndStatus() { return hwndstatus; }
-  HINSTANCE GetHInst() { return hinst; }
+  [[nodiscard]] HWND GetHWnd() const { return hwnd_; }
+  [[nodiscard]] HWND GetHWndStatus() const { return hwnd_status_; }
+  [[nodiscard]] HINSTANCE GetHInst() const { return hinst_; }
 
  private:
   virtual void UpdateText();
@@ -74,22 +76,24 @@ class WinMonitor {
   void Draw(HWND, HDC);
   void ResizeWindow(HWND);
 
-  HWND hwnd;
-  HINSTANCE hinst;
-  LPCTSTR lptemplate;
+  HWND hwnd_ = nullptr;
+  HINSTANCE hinst_ = nullptr;
+  LPCTSTR lptemplate_ = nullptr;
 
-  HWND hwndstatus;
-  char statusbuf[128];
+  HWND hwnd_status_ = nullptr;
+  char status_buf_[128]{};
 
-  int clientwidth;
-  int clientheight;
+  int client_width_ = 0;
+  int client_height_ = 0;
 
-  HDC hdc;
-  HFONT hfont;
-  int fontwidth;
-  int fontheight;
+  int dpi_ = 0;
 
-  HBITMAP hbitmap;
+  HDC hdc_ = nullptr;
+  HFONT hfont_ = nullptr;
+  int font_width_ = 0;
+  int font_height_ = 12;
+
+  HBITMAP hbitmap_ = nullptr;
 
   struct TXCHAR {
     char ch;
@@ -97,21 +101,23 @@ class WinMonitor {
     COLORREF bkcol;
   };
 
-  TXCHAR* txtbuf;
-  TXCHAR* txpbuf;
-  TXCHAR* txtbufptr;
-  POINT txp;
-  int width;
-  int height;
+  std::unique_ptr<TXCHAR[]> txtbuf_;
+  TXCHAR* txpbuf_ = nullptr;
+  TXCHAR* txtbufptr_ = nullptr;
+  POINT txp_{};
+  int width_ = 0;
+  int height_ = 0;
 
-  COLORREF txcol, txcolprev;
-  COLORREF bkcol, bkcolprev;
+  COLORREF txcol_;
+  COLORREF txcol_prev_;
+  COLORREF bkcol_;
+  COLORREF bkcol_prev_;
 
-  RECT wndrect;
+  RECT wndrect_{};
 
-  int line;
-  int nlines;
+  int line_ = 0;
+  int nlines_ = 0;
 
-  UINT_PTR timer;
-  int timerinterval;
+  UINT_PTR timer_ = 0;
+  int timer_interval_ = 0;
 };

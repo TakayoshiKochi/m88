@@ -151,13 +151,13 @@ class WinUI {
   PC8801::Config config;
   PC8801::WinConfig winconfig;
   WinNewDisk newdisk;
-  OPNMonitor opnmon;
-  PC8801::MemoryMonitor memmon;
-  PC8801::CodeMonitor codemon;
-  PC8801::BasicMonitor basmon;
-  PC8801::IOMonitor iomon;
-  Z80RegMonitor regmon;
-  LoadMonitor loadmon;
+  OPNMonitor opn_mon_;
+  PC8801::MemoryMonitor mem_mon_;
+  PC8801::CodeMonitor code_mon_;
+  PC8801::BasicMonitor bas_mon_;
+  PC8801::IOMonitor io_mon_;
+  Z80RegMonitor reg_mon_;
+  LoadMonitor load_mon_;
   std::unique_ptr<DiskManager> diskmgr_;
   std::unique_ptr<TapeManager> tapemgr_;
 
