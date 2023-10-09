@@ -407,7 +407,8 @@ void WinUI::ApplyConfig() {
   mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
-  mii.dwTypeData = (config.flags & Config::kDisableF12Reset) ? const_cast<LPSTR>("&Reset") : const_cast<LPSTR>("&Reset\tF12");
+  mii.dwTypeData = (config.flags & Config::kDisableF12Reset) ? const_cast<LPSTR>("&Reset")
+                                                             : const_cast<LPSTR>("&Reset\tF12");
   SetMenuItemInfo(GetMenu(hwnd_), IDM_RESET, false, &mii);
   ShowStatusWindow();
 
