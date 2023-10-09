@@ -162,7 +162,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
     kPOPNio2,  // OPN の入出力ポート 2 (連番)
     kPSIOin,   // SIO 関係
     kPSIOReq,
-    kPTimeSync, // time sync between cpu and opn
+    kPTimeSync,  // time sync between cpu and opn
     kPortEnd
   };
   enum SpecialPort2 {

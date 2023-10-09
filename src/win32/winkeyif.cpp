@@ -462,7 +462,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable106[16 * 8][8] = {
     {KEY(VK_BACK), KEYF(VK_INSERT, ext), KEYF(VK_DELETE, ext), TERM},  // BS
     {KEY(VK_MENU), TERM},                                              // GRPH
     // The second VK_SCROLL is for emulating kana lock from menu.
-    {KEYF(VK_SCROLL, lock), KEY(VK_SCROLL), TERM},                     // カナ
+    {KEYF(VK_SCROLL, lock), KEY(VK_SCROLL), TERM},  // カナ
     {KEY(VK_SHIFT), KEY(VK_F6), KEY(VK_F7), KEY(VK_F8), KEY(VK_F9), KEY(VK_F10),
      KEYF(VK_INSERT, ext), KEYF(1, pc80sft)},  // SHIFT
     {KEY(VK_CONTROL), TERM},                   // CTRL
@@ -703,7 +703,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY(VK_BACK), KEYF(VK_INSERT, ext), KEYF(VK_DELETE, ext), TERM},  // BS
     {KEY(VK_MENU), TERM},                                              // GRPH
     // The second VK_SCROLL is for emulating kana lock from menu.
-    {KEYF(VK_SCROLL, lock), KEY(VK_SCROLL), TERM},                     // カナ
+    {KEYF(VK_SCROLL, lock), KEY(VK_SCROLL), TERM},  // カナ
     {KEY(VK_SHIFT), KEY(VK_F6), KEY(VK_F7), KEY(VK_F8), KEY(VK_F9), KEY(VK_F10),
      KEYF(VK_INSERT, ext), KEYF(1, pc80sft)},  // SHIFT
     {KEY(VK_CONTROL), TERM},                   // CTRL

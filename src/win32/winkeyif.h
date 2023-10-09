@@ -44,7 +44,9 @@ class WinKeyIF : public Device {
   void LockKana(bool lock);
 
   [[nodiscard]] bool IsAltLocked() const { return alt_locked_ || keystate_[VK_MENU] != 0; }
-  [[nodiscard]] bool IsKanaLocked() const { return kana_locked_ || (keyboard_[VK_SCROLL] & 0x01) != 0; }
+  [[nodiscard]] bool IsKanaLocked() const {
+    return kana_locked_ || (keyboard_[VK_SCROLL] & 0x01) != 0;
+  }
 
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
