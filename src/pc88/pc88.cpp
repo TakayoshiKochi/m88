@@ -104,7 +104,7 @@ bool PC88::Init(Draw* draw, DiskManager* disk, TapeManager* tape) {
 
   Reset();
   region.Reset();
-  scheduler_.set_clocks_per_tick(1);
+  scheduler_.set_cpu_clock(100000);
   return true;
 }
 
@@ -119,15 +119,10 @@ void PC88::DeInit() {
 
 // ---------------------------------------------------------------------------
 //  執行
-//  1 tick = 10μs
-//
-// int PC88::Proceed(uint32_t ticks, uint32_t clock, uint32_t ecl) {
-//  return int(ProceedNS(ticks * 10000ULL, clock, ecl) / 10000);
-//}
 
-int64_t PC88::ProceedNS(int64_t ns, uint32_t clock, uint32_t ecl) {
-  scheduler_.set_clocks_per_tick(std::max(1U, clock));
-  effective_clocks_per_tick_ = std::max(1U, ecl);
+int64_t PC88::ProceedNSX(int64_t ns, uint64_t cpu_clock, int64_t ecl) {
+  scheduler_.set_cpu_clock(cpu_clock);
+  effective_clocks_ = std::max(1LL, ecl);
   return scheduler_.ProceedNS(ns);
 }
 
@@ -135,17 +130,14 @@ int64_t PC88::ProceedNS(int64_t ns, uint32_t clock, uint32_t ecl) {
 //  実行
 //
 int64_t SchedulerImpl::ExecuteNS(int64_t ns) {
-  int64_t ns_per_clock = 10000LL / clocks_per_tick_;
-  int clocks = int(ns / ns_per_clock);
-  // TODO: fix this logic.
-  if (clocks == 0)
-    clocks = 1;
+  int64_t clocks = std::max(1, int(cpu_clock_ * ns / 1000000000LL));
+  int64_t ns_per_clock = 1000000000LL / (int64_t)cpu_clock_;
   return ex_->Execute(clocks) * ns_per_clock;
 }
 
-int PC88::Execute(int clocks) {
+int64_t PC88::Execute(int64_t clocks) {
   LOADBEGIN("Core.CPU");
-  int ex = 0;
+  int64_t ex = 0;
   if (!(cpumode & stopwhenidle) || subsys_->IsBusy() || fdc->IsBusy()) {
     if ((cpumode & 1) == ms11)
       ex = Z80::ExecDual(&cpu1, &cpu2, clocks);
@@ -163,11 +155,11 @@ int PC88::Execute(int clocks) {
 //
 void SchedulerImpl::ShortenNS(int64_t ns) {
   // int64 nanos_per_clock = 10000LL / clocks_per_tick_;
-  Z80::StopDual(int(ns / (10000LL / clocks_per_tick_)));
+  Z80::StopDual(int(ns * cpu_clock_ / 1000000000LL));
 }
 
 int64_t SchedulerImpl::GetNS() {
-  return Z80::GetCCount() * (10000LL / clocks_per_tick_);
+  return Z80::GetCCount() * (1000000000LL / cpu_clock_);
 }
 
 // ---------------------------------------------------------------------------

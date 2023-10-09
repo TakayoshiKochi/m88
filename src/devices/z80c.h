@@ -157,10 +157,10 @@ class Z80C : public Device, private IOStrategy, public MemStrategy {
   bool Init(MemoryManager* mem, IOBus* bus, int iack);
 
   int Exec(int count);
-  int ExecOne();
-  static int ExecSingle(Z80C* first, Z80C* second, int count);
-  static int ExecDual(Z80C* first, Z80C* second, int count);
-  static int ExecDual2(Z80C* first, Z80C* second, int count);
+  int64_t ExecOne();
+  static int64_t ExecSingle(Z80C* first, Z80C* second, int clocks);
+  static int64_t ExecDual(Z80C* first, Z80C* second, int count);
+  static int64_t ExecDual2(Z80C* first, Z80C* second, int count);
 
   void Stop(int count);
   static void StopDual(int count) {
@@ -168,9 +168,9 @@ class Z80C : public Device, private IOStrategy, public MemStrategy {
       currentcpu->Stop(count);
   }
   // クロックカウンタ取得
-  [[nodiscard]] int GetCount() const { return exec_count_ + (clock_count_ << eshift_); }
-  static int GetCCount() {
-    return currentcpu ? currentcpu->GetCount() - currentcpu->start_count_ : 0;
+  [[nodiscard]] int64_t GetClocks() const { return exec_clocks_ + (clock_count_ << eshift_); }
+  static int64_t GetCCount() {
+    return currentcpu ? currentcpu->GetClocks() - currentcpu->start_count_ : 0;
   }
 
   // External CPU interface
@@ -217,18 +217,19 @@ class Z80C : public Device, private IOStrategy, public MemStrategy {
 
   // Emulation state
   static Z80C* currentcpu;
-  static int cbase;
+  static int64_t cbase;
 
-  int exec_count_ = 0;
-  int clock_count_ = 0;
-  int stop_count_ = 0;
-  int delay_count_ = 0;
+  int64_t exec_clocks_ = 0;
+  int64_t clock_count_ = 0;
+  int64_t stop_count_ = 0;
+  int64_t delay_count_ = 0;
 
   // CPU external state
   IOBus* bus_ = nullptr;
   int int_ack_ = 0;
   int intr_ = 0;
   int wait_state_ = 0;  // b0:HALT b1:WAIT
+  // main:sub clock ratio 1:1 = 0, 2:1 = 1 (thus for shift value)
   int eshift_ = 0;
   int start_count_ = 0;
 
@@ -261,8 +262,8 @@ class Z80C : public Device, private IOStrategy, public MemStrategy {
   void SingleStep(uint32_t inst);
   void SingleStep();
   // void Init();
-  int Exec0(int stop, int d);
-  int Exec1(int stop, int d);
+  int64_t Exec0(int64_t stop, int64_t other);
+  int64_t Exec1(int64_t stop, int64_t other);
   bool Sync();
   void OutTestIntr();
 

@@ -67,7 +67,8 @@ bool WinCore::Init(WinUI* _ui,
   if (!ConnectExternalDevices())
     return false;
 
-  seq.SetClock(40);   // 4MHz
+  // seq.SetClock(40);   // 4MHz
+  seq.SetCPUClock(3993600);
   seq.SetSpeed(100);  // 100%
 
   if (!seq.Init(this))
@@ -107,12 +108,19 @@ void WinCore::Reset() {
 void WinCore::ApplyConfig(PC8801::Config* cfg) {
   config = *cfg;
 
-  int c = cfg->clock;
+  int c = cfg->legacy_clock;
+  uint64_t cpu_clock = c * 100000;
+  if (c == 40) {
+    cpu_clock = 3993600;
+  } else if (c == 80) {
+    cpu_clock = 7987200;
+  }
   if (cfg->flags & PC8801::Config::kFullSpeed)
     c = 0;
   if (cfg->flags & PC8801::Config::kCPUBurst)
     c = -c;
-  seq.SetClock(c);
+  seq.SetLegacyClock(c);
+  seq.SetCPUClock(cpu_clock);
   seq.SetSpeed(cfg->speed / 10);
   seq.SetRefreshTiming(cfg->refreshtiming);
 
@@ -192,7 +200,7 @@ bool WinCore::SaveShapshot(const std::string_view filename) {
     ssh.minor = ssminor;
     ssh.datasize = size;
     ssh.basicmode = config.basicmode;
-    ssh.clock = int16_t(config.clock);
+    ssh.legacy_clock = int16_t(config.legacy_clock);
     ssh.erambanks = uint16_t(config.erambanks);
     ssh.cpumode = int16_t(config.cpumode);
     ssh.mainsubratio = int16_t(config.mainsubratio);
@@ -242,7 +250,7 @@ bool WinCore::LoadShapshot(const std::string_view filename, const std::string_vi
   config.flags = (config.flags & ~fl1a) | (ssh.flags & fl1a);
   config.flag2 = (config.flag2 & ~fl2a) | (ssh.flag2 & fl2a);
   config.basicmode = ssh.basicmode;
-  config.clock = ssh.clock;
+  config.legacy_clock = ssh.legacy_clock;
   config.erambanks = ssh.erambanks;
   config.cpumode = ssh.cpumode;
   config.mainsubratio = ssh.mainsubratio;

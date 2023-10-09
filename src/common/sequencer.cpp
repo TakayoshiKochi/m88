@@ -22,8 +22,9 @@ bool Sequencer::Init(PC88* vm) {
   vm_ = vm;
 
   active_ = false;
-  exec_count_ = 0;
-  clocks_per_tick_ = 40;
+  exec_clocks_ = 0;
+  legacy_clocks_per_tick_ = 40;
+  cpu_clock_ = 3993600;
   speed_ = 100;
 
   draw_next_frame_ = false;
@@ -50,12 +51,12 @@ bool Sequencer::CleanUp() {
 void Sequencer::ThreadInit() {
   SetName(L"M88 Sequencer thread");
   relatime_lastsync_ns_ = keeper_.GetTimeNS();
-  eff_clock_ = 100;
+  effective_clock_ = 3993600;
 }
 
 bool Sequencer::ThreadLoop() {
   if (active_) {
-    auto clocks = clocks_per_tick_;
+    auto clocks = legacy_clocks_per_tick_;
     if (clocks <= 0) {
       ExecuteBurst(-clocks);
     } else {
@@ -70,32 +71,34 @@ bool Sequencer::ThreadLoop() {
 
 // ---------------------------------------------------------------------------
 //  ＣＰＵメインループ
-//  clock   ＣＰＵのクロック(0.1MHz)
+//  clock   ＣＰＵのクロック (Hz)
 //  length_ns  実行する時間 (nanoseconds)
 //  eff     実効クロック
-inline void Sequencer::ExecuteNS(int32_t clock, int64_t length_ns, int32_t ec) {
-  assert(clock > 0);
+inline void Sequencer::ExecuteNSX(int64_t cpu_clock, int64_t length_ns, int64_t ec) {
   std::lock_guard<std::mutex> lock(mtx_);
-  exec_count_ += clock * vm_->ProceedNS(length_ns, clock, ec) / 10000;
+  exec_clocks_ += cpu_clock * vm_->ProceedNSX(length_ns, cpu_clock, ec) / 1000000000LL;
 }
 
 void Sequencer::ExecuteBurst(uint32_t clocks) {
-  relatime_lastsync_ns_ = keeper_.GetTimeNS();
   vm_->TimeSync();
   int64_t ns = 0;
-  int eclk = 0;
+  relatime_lastsync_ns_ = keeper_.GetTimeNS();
+  // Execute up to 10ms (10_000_000ns)
+  int64_t orig_exec_clocks = exec_clocks_;
   do {
-    if (clocks == 0)
-      ExecuteNS(eff_clock_, 50000 * speed_, eff_clock_);
-    else
-      ExecuteNS(clocks, 5000000, eff_clock_);
-    eclk += 5;
+    // Try executing 1ms
+    if (clocks == 0) {
+      // Full speed
+      ExecuteNSX(effective_clock_, 10000 * speed_, effective_clock_);
+    } else {
+      // Burst mode
+      ExecuteNSX(cpu_clock_, 1000000, effective_clock_);
+    }
     ns = keeper_.GetTimeNS() - relatime_lastsync_ns_;
-  } while (ns < 1000000);
+  } while (ns < 10000000);
   vm_->UpdateScreen();
-  // eff_clock_ = std::min((std::min(1000, eclk) * eff_clock_ * 100 / ms) + 1, 10000UL);
-  eff_clock_ =
-      (int)std::min((std::min(1000, eclk) * eff_clock_ * 100000 / ns) + 1, (int64_t)10000);
+  int64_t clock_per_ns = std::max(1LL, ns / (exec_clocks_ - orig_exec_clocks));
+  effective_clock_ = 1000000000LL / clock_per_ns;
 }
 
 void Sequencer::ExecuteNormal(uint32_t clocks) {
@@ -107,7 +110,7 @@ void Sequencer::ExecuteNormal(uint32_t clocks) {
   // TODO: timing?
   vm_->TimeSync();
   // Execute CPU
-  ExecuteNS(clocks, texec_ns, clocks * speed_ / 100);
+  ExecuteNSX(cpu_clock_, texec_ns, clocks * speed_ / 100);
 
   // Time used for CPU execution
   int64_t tcpu_ns = keeper_.GetTimeNS() - relatime_lastsync_ns_;
@@ -147,11 +150,11 @@ void Sequencer::ExecuteNormal(uint32_t clocks) {
 // ---------------------------------------------------------------------------
 //  実行クロックカウントの値を返し、カウンタをリセット
 //
-int32_t Sequencer::GetExecCount() {
+int64_t Sequencer::GetExecClocks() {
   // std::lock_guard<std::mutex> lock(mtx_); // 正確な値が必要なときは有効にする
 
-  int i = exec_count_;
-  exec_count_ = 0;
+  auto i = exec_clocks_;
+  exec_clocks_ = 0;
   return i;
 }
 

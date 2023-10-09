@@ -135,6 +135,8 @@ int64_t Scheduler::ProceedNS(int64_t ns) {
         continue;
       ptime_ns = std::min(ev.count_ns - time_ns_, ptime_ns);
     }
+    // TODO: investigate when ptime_ns is negative (in the past).
+    ptime_ns = std::max(1LL, ptime_ns);
 
     endtime_ns_ = time_ns_ + ptime_ns;
     // 最短イベント発生時刻まで実行する。ただし、途中で新イベントが発生することにより、ptime

@@ -34,14 +34,15 @@ class Sequencer : public Threadable<Sequencer> {
   bool Init(PC88* vm);
   bool CleanUp();
 
-  int32_t GetExecCount();
+  int64_t GetExecClocks();
   void Activate();
   void Deactivate();
 
   void Lock() { mtx_.lock(); }
   void Unlock() { mtx_.unlock(); }
 
-  void SetClock(int clock) { clocks_per_tick_ = clock; }
+  void SetLegacyClock(int clock) { legacy_clocks_per_tick_ = clock; }
+  void SetCPUClock(uint64_t cpu_clock) { cpu_clock_ = effective_clock_ = cpu_clock; }
   void SetSpeed(int speed) { speed_ = std::min(std::max(speed, 10), 10000); }
   void SetRefreshTiming(uint32_t refresh_timing) { refresh_timing_ = refresh_timing; }
 
@@ -50,7 +51,7 @@ class Sequencer : public Threadable<Sequencer> {
   bool ThreadLoop();
 
  private:
-  void ExecuteNS(int32_t clock, int64_t length_ns, int32_t ec);
+  void ExecuteNSX(int64_t cpu_clock, int64_t length_ns, int64_t ec);
   void ExecuteBurst(uint32_t clocks);
   void ExecuteNormal(uint32_t clocks);
 
@@ -61,10 +62,11 @@ class Sequencer : public Threadable<Sequencer> {
   std::mutex mtx_;
 
   // 1Tick (=10us) あたりのクロック数 (e.g. 4MHz のとき 40)
-  int32_t clocks_per_tick_ = 40;
+  int32_t legacy_clocks_per_tick_ = 40;
+  uint64_t cpu_clock_ = 3993600;
   int speed_ = 100;  // percent, 10%~10000%
-  int64_t exec_count_ = 0;
-  int eff_clock_ = 100;
+  int64_t exec_clocks_ = 0;
+  int64_t effective_clock_ = 3993600;
   int64_t relatime_lastsync_ns_ = 0;
 
   uint32_t skipped_frames_ = 0;

@@ -392,7 +392,7 @@ void WinUI::Reset() {
 //  WinUI::ApplyConfig
 //
 void WinUI::ApplyConfig() {
-  config.mainsubratio = (config.clock >= 60 || (config.flags & Config::kFullSpeed)) ? 2 : 1;
+  config.mainsubratio = (config.legacy_clock >= 60 || (config.flags & Config::kFullSpeed)) ? 2 : 1;
   if (config.dipsw != 1) {
     config.flags &= ~Config::kSpecialPalette;
     config.flag2 &= ~(Config::kMask0 | Config::kMask1 | Config::kMask2);
@@ -478,7 +478,7 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
 
         // clock を設定  -cクロック
         case 'c':
-          config.clock = Limit(strtoul(cmdline, &endptr, 10), 100, 1) * 10;
+          config.legacy_clock = Limit(strtoul(cmdline, &endptr, 10), 100, 1) * 10;
           cmdline = endptr;
           break;
 
@@ -1256,12 +1256,12 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_4MHZ:
-      this->config.clock = 40;
+      this->config.legacy_clock = 40;
       Reset();
       break;
 
     case IDM_8MHZ:
-      this->config.clock = 80;
+      this->config.legacy_clock = 80;
       Reset();
       break;
 
@@ -1710,8 +1710,8 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   EnableMenuItem(hmenu_, IDM_LOGSTART, MF_GRAYED);
   EnableMenuItem(hmenu_, IDM_LOGEND, MF_GRAYED);
 #endif
-  CheckMenuItem(hmenu_, IDM_4MHZ, (config.clock == 40) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu_, IDM_8MHZ, (config.clock == 80) ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_4MHZ, (config.legacy_clock == 40) ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_8MHZ, (config.legacy_clock == 80) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V1,
                 (config.basicmode == BasicMode::kN88V1) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V1H,
@@ -1923,14 +1923,14 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM) {
   if (wparam == timerid_) {
     // 実効周波数,表示フレーム数を取得
     int fcount = draw.GetDrawCount();
-    int icount = core.GetExecCount();
+    int64_t icount = core.GetExecClocks();
 
     // レポートする場合はタイトルバーを更新
     if (report_) {
       if (active_) {
         char buf[64];
-        uint32_t freq = icount / 10000;
-        wsprintf(buf, "M88 - %d fps.  %d.%.2d MHz", fcount, freq / 100, freq % 100);
+        int64_t freq100 = icount / 10000;
+        wsprintf(buf, "M88 - %d fps.  %d.%.2d MHz", fcount, int(freq100 / 100), int(freq100 % 100));
         SetWindowText(hwnd, buf);
       } else
         SetWindowText(hwnd, "M88");
