@@ -17,14 +17,14 @@ class PC88;
 class Z80RegMonitor : public WinMonitor {
  public:
   Z80RegMonitor();
-  ~Z80RegMonitor();
+  ~Z80RegMonitor() override;
 
   bool Init(PC88* pc);
 
  private:
-  void UpdateText();
-  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
-  void DrawMain(HDC, bool);
+  void UpdateText() override;
+  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM) override;
+  void DrawMain(HDC, bool) override;
 
-  PC88* pc;
+  PC88* vm_ = nullptr;
 };

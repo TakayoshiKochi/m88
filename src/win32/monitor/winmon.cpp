@@ -11,39 +11,41 @@
 #include <stdio.h>
 
 #include <algorithm>
+#include <memory>
 
 #include "common/misc.h"
 #include "win32/resource.h"
 
+namespace {
+constexpr int kDefaultFontHeight = 12;
+}  // namespace
+
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-WinMonitor::WinMonitor() : txtbuf(0), txpbuf(0), timerinterval(0), timer(0) {
-  hwnd = 0;
-  hwndstatus = 0;
-  line = 0;
-  hfont = 0;
-  hbitmap = 0;
-  fontheight = 12;
-  wndrect.right = -1;
+WinMonitor::WinMonitor() {
+  wndrect_.right = -1;
 }
 
 WinMonitor::~WinMonitor() {
-  if (hbitmap)
-    DeleteObject(hbitmap);
-  if (hfont)
-    DeleteObject(hfont);
-  delete[] txtbuf;
+  if (hbitmap_) {
+    DeleteObject(hbitmap_);
+    hbitmap_ = nullptr;
+  }
+  if (hfont_) {
+    DeleteObject(hfont_);
+    hfont_ = nullptr;
+  }
 }
 
 // ---------------------------------------------------------------------------
 //  初期化
 //
 bool WinMonitor::Init(LPCTSTR tmpl) {
-  lptemplate = tmpl;
-  nlines = 0;
-  txcol = 0xffffff;
-  bkcol = 0x400000;
+  lptemplate_ = tmpl;
+  nlines_ = 0;
+  txcol_ = 0xffffff;
+  bkcol_ = 0x400000;
   return true;
 }
 
@@ -52,26 +54,27 @@ bool WinMonitor::Init(LPCTSTR tmpl) {
 //
 void WinMonitor::Show(HINSTANCE hinstance, HWND hwndparent, bool show) {
   if (show) {
-    if (!hwnd) {
-      assert(!hwndstatus);
+    if (!hwnd_) {
+      assert(!hwnd_status_);
 
-      RECT rect = wndrect;
-      hinst = hinstance;
-      hwnd = CreateDialogParam(hinst, lptemplate, hwndparent, DLGPROC((void*)DlgProcGate),
+      RECT rect = wndrect_;
+      hinst_ = hinstance;
+      hwnd_ = CreateDialogParam(hinst_, lptemplate_, hwndparent, DLGPROC((void*)DlgProcGate),
                                (LPARAM)this);
-      hwndstatus = 0;
+      hwnd_status_ = nullptr;
 
+      dpi_ = GetDpiForWindow(hwnd_);
       if (rect.right > 0) {
-        SetWindowPos(hwnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
+        SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
                      SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
       }
-      SetLines(nlines);
+      SetLines(nlines_);
       Start();
     }
   } else {
-    if (hwnd) {
+    if (hwnd_) {
       Stop();
-      SendMessage(hwnd, WM_CLOSE, 0, 0);
+      SendMessage(hwnd_, WM_CLOSE, 0, 0);
     }
   }
 }
@@ -80,18 +83,18 @@ void WinMonitor::Show(HINSTANCE hinstance, HWND hwndparent, bool show) {
 //  フォント高さの変更
 //
 bool WinMonitor::SetFont(HWND hwnd, int fh) {
-  if (hfont)
-    DeleteObject(hfont);
+  if (hfont_)
+    DeleteObject(hfont_);
 
-  fontheight = fh;
-  hfont = CreateFont(fontheight, 0, 0, 0, 0, 0, 0, 0, SHIFTJIS_CHARSET, OUT_DEFAULT_PRECIS,
+  font_height_ = fh;
+  hfont_ = CreateFont(font_height_, 0, 0, 0, 0, 0, 0, 0, SHIFTJIS_CHARSET, OUT_DEFAULT_PRECIS,
                      CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH, "ＭＳゴシック");
-  if (!hfont)
+  if (!hfont_)
     return false;
 
-  HDC hdc = GetDC(hwnd);
-  HFONT hof = (HFONT)SelectObject(hdc, hfont);
-  GetCharWidth(hdc, '0', '0', &fontwidth);
+  auto hdc = GetDC(hwnd);
+  auto hof = (HFONT)SelectObject(hdc, hfont_);
+  GetCharWidth(hdc, '0', '0', &font_width_);
   SelectObject(hdc, hof);
   ReleaseDC(hwnd, hdc);
   return true;
@@ -103,36 +106,35 @@ bool WinMonitor::SetFont(HWND hwnd, int fh) {
 void WinMonitor::ResizeWindow(HWND hwnd) {
   RECT rect;
 
-  GetWindowRect(hwnd, &wndrect);
+  GetWindowRect(hwnd, &wndrect_);
   GetClientRect(hwnd, &rect);
 
-  clientwidth = rect.right;
-  clientheight = rect.bottom;
-  if (hwndstatus) {
+  client_width_ = rect.right;
+  client_height_ = rect.bottom;
+  if (hwnd_status_) {
     RECT rectstatus;
-    GetWindowRect(hwndstatus, &rectstatus);
-    clientheight -= rectstatus.bottom - rectstatus.top;
+    GetWindowRect(hwnd_status_, &rectstatus);
+    client_height_ -= rectstatus.bottom - rectstatus.top;
   }
-  width = (clientwidth + fontwidth - 1) / fontwidth;
-  height = (clientheight + fontheight - 1) / fontheight;
+  width_ = (client_width_ + font_width_ - 1) / font_width_;
+  height_ = (client_height_ + font_height_ - 1) / font_height_;
 
   // 仮想 TVRAM のセットアップ
-  delete[] txtbuf;
-  txtbuf = new TXCHAR[width * height * 2];
-  txpbuf = txtbuf + width * height;
+  txtbuf_ = std::make_unique<TXCHAR[]>(width_ * height_ * 2);
+  txpbuf_ = txtbuf_.get() + width_ * height_;
   ClearText();
 
   // DDB の入れ替え
-  HDC hdc = GetDC(hwnd);
-  HDC hmemdc = CreateCompatibleDC(hdc);
+  auto hdc = GetDC(hwnd);
+  auto hmemdc = CreateCompatibleDC(hdc);
 
-  if (hbitmap)
-    DeleteObject(hbitmap);
-  hbitmap = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
+  if (hbitmap_)
+    DeleteObject(hbitmap_);
+  hbitmap_ = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
 
   // 背景色で塗りつぶし
-  HBITMAP holdbmp = (HBITMAP)SelectObject(hmemdc, hbitmap);
-  HBRUSH hbrush = (HBRUSH)SelectObject(hmemdc, CreateSolidBrush(bkcol));
+  auto holdbmp = (HBITMAP)SelectObject(hmemdc, hbitmap_);
+  auto hbrush = (HBRUSH)SelectObject(hmemdc, CreateSolidBrush(bkcol_));
   PatBlt(hmemdc, 0, 0, rect.right, rect.bottom, PATCOPY);
   DeleteObject(SelectObject(hmemdc, hbrush));
   SelectObject(hmemdc, holdbmp);
@@ -141,18 +143,18 @@ void WinMonitor::ResizeWindow(HWND hwnd) {
   ReleaseDC(hwnd, hdc);
 
   // スクロールバーの設定
-  SetLines(nlines);
+  SetLines(nlines_);
 }
 
 // ---------------------------------------------------------------------------
 //  画面の中身を消す
 //
 void WinMonitor::ClearText() {
-  int nch = width * height;
-  for (int i = 0; i < nch; i++) {
-    txtbuf[i].ch = ' ';
-    txtbuf[i].txcol = txcol;
-    txtbuf[i].bkcol = bkcol;
+  int nch = width_ * height_;
+  for (int i = 0; i < nch; ++i) {
+    txtbuf_[i].ch = ' ';
+    txtbuf_[i].txcol = txcol_;
+    txtbuf_[i].bkcol = bkcol_;
   }
 }
 
@@ -163,65 +165,64 @@ static inline bool IsKan(int c) {
 // ---------------------------------------------------------------------------
 //  画面を書く
 //
-void WinMonitor::DrawMain(HDC _hdc, bool update) {
-  hdc = _hdc;
+void WinMonitor::DrawMain(HDC hdc, bool update) {
+  hdc_ = hdc;
 
   Locate(0, 0);
 
-  assert(height >= 0);
-  memcpy(txpbuf, txtbuf, sizeof(TXCHAR) * width * height);
+  assert(height_ >= 0);
+  memcpy(txpbuf_, txtbuf_.get(), sizeof(TXCHAR) * width_ * height_);
   UpdateText();
 
-  char* buf = new char[width];
+  std::unique_ptr<char[]> buf = std::make_unique<char[]>(width_);
   int c = 0;
   int y = 0;
-  for (int l = 0; l < height; l++) {
-    if (memcmp(txpbuf + c, txtbuf + c, width * sizeof(TXCHAR)) || update) {
+  for (int l = 0; l < height_; ++l) {
+    if (memcmp(txpbuf_ + c, txtbuf_.get() + c, width_ * sizeof(TXCHAR)) != 0 || update) {
       // 1行描画
-      for (int x = 0; x < width;) {
+      for (int x = 0; x < width_;) {
         // 同じ属性で何文字書けるか…？
-        int n;
-
-        for (n = x; n < width; n++) {
-          if (txtbuf[c + x].txcol != txtbuf[c + n].txcol ||
-              txtbuf[c + x].bkcol != txtbuf[c + n].bkcol)
+        int n = 0;
+        for (n = x; n < width_; ++n) {
+          if (txtbuf_[c + x].txcol != txtbuf_[c + n].txcol ||
+              txtbuf_[c + x].bkcol != txtbuf_[c + n].bkcol)
             break;
-          buf[n - x] = txtbuf[c + n].ch;
+          buf[n - x] = txtbuf_[c + n].ch;
         }
 
         // 書く
-        SetTextColor(hdc, txtbuf[c + x].txcol);
-        SetBkColor(hdc, txtbuf[c + x].bkcol);
-        TextOut(hdc, x * fontwidth, y, buf, n - x);
+        SetTextColor(hdc_, txtbuf_[c + x].txcol);
+        SetBkColor(hdc_, txtbuf_[c + x].bkcol);
+        TextOut(hdc_, x * font_width_, y, buf.get(), n - x);
         x = n;
       }
     }
-    c += width, y += fontheight;
+    c += width_;
+    y += font_height_;
   }
-  delete[] buf;
 }
 
 // ---------------------------------------------------------------------------
 //  1行上にスクロール
 //
 void WinMonitor::ScrollUp() {
-  if (height > 2) {
-    memmove(txtbuf, txtbuf + width, width * (height - 2) * sizeof(TXCHAR));
-    memset(txtbuf + width * (height - 1), 0, width * sizeof(TXCHAR));
+  if (height_ > 2) {
+    memmove(txtbuf_.get(), txtbuf_.get() + width_, width_ * (height_ - 2) * sizeof(TXCHAR));
+    memset(txtbuf_.get() + width_ * (height_ - 1), 0, width_ * sizeof(TXCHAR));
 
-    HDC hdc = GetDC(hwnd);
-    HDC hmemdc = CreateCompatibleDC(hdc);
+    auto hdc = GetDC(hwnd_);
+    auto hmemdc = CreateCompatibleDC(hdc);
 
-    HBITMAP holdbmp = (HBITMAP)SelectObject(hmemdc, hbitmap);
+    auto holdbmp = (HBITMAP)SelectObject(hmemdc, hbitmap_);
 
-    RECT rect;
-    GetClientRect(hwnd, &rect);
-    BitBlt(hmemdc, 0, 0, rect.right, rect.bottom - fontheight, hmemdc, 0, fontheight, SRCCOPY);
+    RECT rect{};
+    GetClientRect(hwnd_, &rect);
+    BitBlt(hmemdc, 0, 0, rect.right, rect.bottom - font_height_, hmemdc, 0, font_height_, SRCCOPY);
 
     SelectObject(hmemdc, holdbmp);
     DeleteDC(hmemdc);
 
-    ReleaseDC(hwnd, hdc);
+    ReleaseDC(hwnd_, hdc);
   }
 }
 
@@ -229,22 +230,22 @@ void WinMonitor::ScrollUp() {
 //  1行下にスクロール
 //
 void WinMonitor::ScrollDown() {
-  if (height > 2) {
-    memmove(txtbuf + width, txtbuf, width * (height - 1) * sizeof(TXCHAR));
+  if (height_ > 2) {
+    memmove(txtbuf_.get() + width_, txtbuf_.get(), width_ * (height_ - 1) * sizeof(TXCHAR));
 
-    HDC hdc = GetDC(hwnd);
-    HDC hmemdc = CreateCompatibleDC(hdc);
+    auto hdc = GetDC(hwnd_);
+    auto hmemdc = CreateCompatibleDC(hdc);
 
-    HBITMAP holdbmp = (HBITMAP)SelectObject(hmemdc, hbitmap);
+    auto holdbmp = (HBITMAP)SelectObject(hmemdc, hbitmap_);
 
-    RECT rect;
-    GetClientRect(hwnd, &rect);
-    BitBlt(hmemdc, 0, fontheight, rect.right, rect.bottom - fontheight, hmemdc, 0, 0, SRCCOPY);
+    RECT rect{};
+    GetClientRect(hwnd_, &rect);
+    BitBlt(hmemdc, 0, font_height_, rect.right, rect.bottom - font_height_, hmemdc, 0, 0, SRCCOPY);
 
     SelectObject(hmemdc, holdbmp);
     DeleteDC(hmemdc);
 
-    ReleaseDC(hwnd, hdc);
+    ReleaseDC(hwnd_, hdc);
   }
 }
 
@@ -259,58 +260,58 @@ void WinMonitor::UpdateText() {
 //  書き込み位置の変更
 //
 void WinMonitor::Locate(int x, int y) {
-  txp.x = std::min(x, (int)width);
-  txp.y = std::min(y, (int)height);
-  txtbufptr = txtbuf + txp.x + txp.y * width;
+  txp_.x = std::min(x, (int)width_);
+  txp_.y = std::min(y, (int)height_);
+  txtbufptr_ = txtbuf_.get() + txp_.x + txp_.y * width_;
 }
 
 // ---------------------------------------------------------------------------
 //  文字列書き込み
 //
 void WinMonitor::Puts(const char* text) {
-  if (txp.y >= height)
+  if (txp_.y >= height_)
     return;
 
   int c;
   char* txx;
   while (c = *text++) {
     if (c == '\n') {
-      while (txp.x++ < width) {
-        txtbufptr->ch = ' ';
-        txtbufptr->txcol = txcol;
-        txtbufptr->bkcol = bkcol;
-        txtbufptr++;
+      while (txp_.x++ < width_) {
+        txtbufptr_->ch = ' ';
+        txtbufptr_->txcol = txcol_;
+        txtbufptr_->bkcol = bkcol_;
+        txtbufptr_++;
       }
-      txp.x = 0, txp.y++;
-      if (txp.y >= height)
+      txp_.x = 0, txp_.y++;
+      if (txp_.y >= height_)
         return;
     } else if (c == '\a') {
       // set fgcolor
       if (*text != ';') {
-        txcolprev = txcol;
-        txcol = strtoul(text, &txx, 0);
+        txcol_prev_ = txcol_;
+        txcol_ = strtoul(text, &txx, 0);
         text = txx + (*txx == ';');
       } else {
-        txcol = txcolprev;
+        txcol_ = txcol_prev_;
         text++;
       }
     } else if (c == '\b') {
       // set bkcolor
       if (*text != ';') {
-        bkcolprev = bkcol;
-        bkcol = strtoul(text, &txx, 0);
+        bkcol_prev_ = bkcol_;
+        bkcol_ = strtoul(text, &txx, 0);
         text = txx + (*txx == ';');
       } else {
-        bkcol = bkcolprev;
+        bkcol_ = bkcol_prev_;
         text++;
       }
     } else {
-      if (txp.x < width) {
-        txtbufptr->ch = c;
-        txtbufptr->txcol = txcol;
-        txtbufptr->bkcol = bkcol;
-        txtbufptr++;
-        txp.x++;
+      if (txp_.x < width_) {
+        txtbufptr_->ch = c;
+        txtbufptr_->txcol = txcol_;
+        txtbufptr_->bkcol = bkcol_;
+        txtbufptr_++;
+        txp_.x++;
       }
     }
   }
@@ -332,31 +333,30 @@ void WinMonitor::Putf(const char* msg, ...) {
 //  窓書き換え
 //
 void WinMonitor::Draw(HWND hwnd, HDC hdc) {
-  if (!hbitmap)
+  if (!hbitmap_)
     return;
 
-  HDC hmemdc = CreateCompatibleDC(hdc);
-
-  HBITMAP holdbmp = (HBITMAP)SelectObject(hmemdc, hbitmap);
+  auto hmemdc = CreateCompatibleDC(hdc);
+  auto holdbmp = (HBITMAP)SelectObject(hmemdc, hbitmap_);
 
   SetTextColor(hmemdc, 0xffffff);
-  SetBkColor(hmemdc, bkcol);
-  HFONT holdfont = (HFONT)SelectObject(hmemdc, hfont);
+  SetBkColor(hmemdc, bkcol_);
+  auto holdfont = (HFONT)SelectObject(hmemdc, hfont_);
 
   DrawMain(hmemdc);
 
   SelectObject(hmemdc, holdfont);
 
-  BitBlt(hdc, 0, 0, clientwidth, clientheight, hmemdc, 0, 0, SRCCOPY);
+  BitBlt(hdc, 0, 0, client_width_, client_height_, hmemdc, 0, 0, SRCCOPY);
 
   SelectObject(hmemdc, holdbmp);
   DeleteDC(hmemdc);
 }
 
 void WinMonitor::Update() {
-  if (hwnd) {
-    InvalidateRect(hwnd, 0, false);
-    RedrawWindow(hwnd, 0, 0, RDW_UPDATENOW);
+  if (hwnd_) {
+    InvalidateRect(hwnd_, nullptr, false);
+    RedrawWindow(hwnd_, nullptr, nullptr, RDW_UPDATENOW);
   }
 }
 
@@ -364,17 +364,17 @@ void WinMonitor::Update() {
 //  ライン数を設定
 //
 void WinMonitor::SetLines(int nl) {
-  nlines = nl;
-  line = Limit(line, nlines, 0);
-  if (nlines) {
+  nlines_ = nl;
+  line_ = Limit(line_, nlines_, 0);
+  if (nlines_) {
     SCROLLINFO si;
     si.cbSize = sizeof(SCROLLINFO);
     si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_DISABLENOSCROLL;
     si.nMin = 0;
-    si.nMax = std::max(1, nlines + height - 2);
-    si.nPage = height;
-    si.nPos = line;
-    SetScrollInfo(hwnd, SB_VERT, &si, true);
+    si.nMax = std::max(1, nlines_ + height_ - 2);
+    si.nPage = height_;
+    si.nPos = line_;
+    SetScrollInfo(hwnd_, SB_VERT, &si, true);
   }
 }
 
@@ -382,16 +382,16 @@ void WinMonitor::SetLines(int nl) {
 //  ライン数を設定
 //
 void WinMonitor::SetLine(int nl) {
-  line = nl;
-  if (nlines) {
+  line_ = nl;
+  if (nlines_) {
     SCROLLINFO si;
     si.cbSize = sizeof(SCROLLINFO);
     si.fMask = SIF_POS | SIF_DISABLENOSCROLL;
     si.nMin = 0;
-    si.nMax = std::max(1, nlines + height - 2);
-    si.nPage = height;
-    si.nPos = line;
-    SetScrollInfo(hwnd, SB_VERT, &si, true);
+    si.nMax = std::max(1, nlines_ + height_ - 2);
+    si.nPage = height_;
+    si.nPos = line_;
+    SetScrollInfo(hwnd_, SB_VERT, &si, true);
   }
 }
 
@@ -401,41 +401,41 @@ void WinMonitor::SetLine(int nl) {
 int WinMonitor::VerticalScroll(int msg) {
   switch (msg) {
     case SB_LINEUP:
-      if (--line < 0)
-        line = 0;
+      if (--line_ < 0)
+        line_ = 0;
       else
         ScrollDown();
       break;
 
     case SB_LINEDOWN:
-      if (++line >= nlines)
-        line = std::max(0, nlines - 1);
+      if (++line_ >= nlines_)
+        line_ = std::max(0, nlines_ - 1);
       else
         ScrollUp();
       break;
 
     case SB_PAGEUP:
-      line = std::max(line - std::max(1, height - 1), 0);
+      line_ = std::max(line_ - std::max(1, height_ - 1), 0);
       break;
 
     case SB_PAGEDOWN:
-      line = std::min(line + std::max(1, height - 1), nlines - 1);
+      line_ = std::min(line_ + std::max(1, height_ - 1), nlines_ - 1);
       break;
 
     case SB_TOP:
-      line = 0;
+      line_ = 0;
       break;
 
     case SB_BOTTOM:
-      line = std::max(0, nlines - 1);
+      line_ = std::max(0, nlines_ - 1);
       break;
 
     case SB_THUMBTRACK:
     case SB_THUMBPOSITION:
-      line = Limit(GetScrPos(msg == SB_THUMBTRACK), nlines - 1, 0);
+      line_ = Limit(GetScrPos(msg == SB_THUMBTRACK), nlines_ - 1, 0);
       break;
   }
-  return line;
+  return line_;
 }
 
 // ---------------------------------------------------------------------------
@@ -446,7 +446,7 @@ int WinMonitor::GetScrPos(bool track) {
   memset(&si, 0, sizeof(si));
   si.cbSize = sizeof(si);
   si.fMask = track ? SIF_TRACKPOS : SIF_POS;
-  GetScrollInfo(hwnd, SB_VERT, &si);
+  GetScrollInfo(hwnd_, SB_VERT, &si);
   return track ? si.nTrackPos : si.nPos;
 }
 
@@ -454,9 +454,9 @@ int WinMonitor::GetScrPos(bool track) {
 //  クライエント領域座標を文字座標に変換
 //
 bool WinMonitor::GetTextPos(POINT* p) {
-  if (fontwidth && fontheight) {
-    p->x /= fontwidth;
-    p->y /= fontheight;
+  if (font_width_ && font_height_) {
+    p->x /= font_width_;
+    p->y /= font_height_;
     return true;
   }
   return false;
@@ -466,12 +466,12 @@ bool WinMonitor::GetTextPos(POINT* p) {
 //  自動更新頻度を設定
 //
 void WinMonitor::SetUpdateTimer(int t) {
-  timerinterval = t;
-  if (hwnd) {
-    if (timer)
-      KillTimer(hwnd, timer), timer = 0;
+  timer_interval_ = t;
+  if (hwnd_) {
+    if (timer_)
+      KillTimer(hwnd_, timer_), timer_ = 0;
     if (t)
-      timer = SetTimer(hwnd, 1, timerinterval, 0);
+      timer_ = SetTimer(hwnd_, 1, timer_interval_, 0);
   }
 }
 
@@ -480,36 +480,36 @@ void WinMonitor::SetUpdateTimer(int t) {
 //
 bool WinMonitor::EnableStatus(bool s) {
   if (s) {
-    if (!hwndstatus) {
-      hwndstatus = CreateStatusWindow(WS_CHILD | WS_VISIBLE, 0, GetHWnd(), 1);
-      if (!hwndstatus)
+    if (!hwnd_status_) {
+      hwnd_status_ = CreateStatusWindow(WS_CHILD | WS_VISIBLE, 0, GetHWnd(), 1);
+      if (!hwnd_status_)
         return false;
     }
   } else {
-    if (hwndstatus) {
-      DestroyWindow(hwndstatus);
-      hwndstatus = 0;
+    if (hwnd_status_) {
+      DestroyWindow(hwnd_status_);
+      hwnd_status_ = nullptr;
     }
   }
-  ResizeWindow(hwnd);
+  ResizeWindow(hwnd_);
   return true;
 }
 
 bool WinMonitor::PutStatus(const char* text, ...) {
-  if (!hwndstatus)
+  if (!hwnd_status_)
     return false;
 
   if (!text) {
-    SendMessage(hwndstatus, SB_SETTEXT, SBT_OWNERDRAW, 0);
+    SendMessage(hwnd_status_, SB_SETTEXT, SBT_OWNERDRAW, 0);
     return true;
   }
 
   va_list a;
   va_start(a, text);
-  vsprintf_s(statusbuf, sizeof(statusbuf), text, a);
+  vsprintf_s(status_buf_, sizeof(status_buf_), text, a);
   va_end(a);
 
-  SendMessage(hwndstatus, SB_SETTEXT, SBT_OWNERDRAW, (LPARAM)statusbuf);
+  SendMessage(hwnd_status_, SB_SETTEXT, SBT_OWNERDRAW, (LPARAM)status_buf_);
   return true;
 }
 
@@ -523,11 +523,11 @@ BOOL WinMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 
   switch (msg) {
     case WM_INITDIALOG:
-      SetFont(hdlg, fontheight);
+      SetFont(hdlg, font_height_);
       ResizeWindow(hdlg);
 
-      if (timerinterval && !timer)
-        timer = SetTimer(hdlg, 1, timerinterval, 0);
+      if (timer_interval_ && !timer_)
+        timer_ = SetTimer(hdlg, 1, timer_interval_, nullptr);
       break;
 
     case WM_ACTIVATE:
@@ -536,36 +536,36 @@ BOOL WinMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
       break;
 
     case WM_INITMENU: {
-      HMENU hmenu = (HMENU)wp;
+      auto hmenu = (HMENU)wp;
 
-      CheckMenuItem(hmenu, IDM_MEM_F_1, (fontheight == 12) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_F_2, (fontheight == 14) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_F_3, (fontheight == 16) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_F_1, (font_height_ == 12) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_F_2, (font_height_ == 14) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_F_3, (font_height_ == 16) ? MF_CHECKED : MF_UNCHECKED);
     } break;
 
     case WM_COMMAND:
       switch (LOWORD(wp)) {
         case IDM_MEM_F_1:
-          fontheight = 12;
+          font_height_ = 12;
           break;
         case IDM_MEM_F_2:
-          fontheight = 14;
+          font_height_ = 14;
           break;
         case IDM_MEM_F_3:
-          fontheight = 16;
+          font_height_ = 16;
           break;
       }
-      SetFont(hdlg, fontheight);
+      SetFont(hdlg, font_height_);
       ResizeWindow(hdlg);
       break;
 
     case WM_CLOSE:
       EnableStatus(false);
-      if (timer)
-        KillTimer(hdlg, timer), timer = 0;
+      if (timer_)
+        KillTimer(hdlg, timer_), timer_ = 0;
 
       DestroyWindow(hdlg);
-      hwnd = 0;
+      hwnd_ = nullptr;
       r = true;
       break;
 
@@ -584,20 +584,20 @@ BOOL WinMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 
     case WM_SIZE:
       ResizeWindow(hdlg);
-      if (hwndstatus)
-        PostMessage(hwndstatus, WM_SIZE, wp, lp);
+      if (hwnd_status_)
+        PostMessage(hwnd_status_, WM_SIZE, wp, lp);
       Update();
 
       r = true;
       break;
 
     case WM_VSCROLL:
-      line = VerticalScroll(LOWORD(wp));
+      line_ = VerticalScroll(LOWORD(wp));
 
       memset(&si, 0, sizeof(si));
       si.cbSize = sizeof(si);
       si.fMask = SIF_POS;
-      si.nPos = line;
+      si.nPos = line_;
       SetScrollInfo(hdlg, SB_VERT, &si, true);
 
       Update();
@@ -605,11 +605,11 @@ BOOL WinMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 
     case WM_MOUSEWHEEL: {
       sn = static_cast<short>(HIWORD(wp)) / 120;
-      SendMessage(hwnd, WM_VSCROLL, MAKELONG((sn > 0) ? SB_LINEUP : SB_LINEDOWN, 0), 0L);
+      SendMessage(hwnd_, WM_VSCROLL, MAKELONG((sn > 0) ? SB_LINEUP : SB_LINEDOWN, 0), 0L);
     } break;
 
     case WM_KEYDOWN:
-      if (nlines) {
+      if (nlines_) {
         sn = -1;
         switch (wp) {
           case VK_UP:
@@ -632,13 +632,13 @@ BOOL WinMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
             break;
         }
         if (sn != -1)
-          SendMessage(hwnd, WM_VSCROLL, MAKELONG(sn, 0), 0L);
+          SendMessage(hwnd_, WM_VSCROLL, MAKELONG(sn, 0), 0L);
       }
       break;
 
     case WM_DRAWITEM:
       if ((UINT)wp == 1) {
-        DRAWITEMSTRUCT* dis = (DRAWITEMSTRUCT*)lp;
+        auto* dis = (DRAWITEMSTRUCT*)lp;
         SetBkColor(dis->hDC, GetSysColor(COLOR_3DFACE));
         //          SetTextColor(dis->hDC, RGB(255, 0, 0));
         char* text = reinterpret_cast<char*>(dis->itemData);
@@ -651,7 +651,7 @@ BOOL WinMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 }
 
 BOOL CALLBACK WinMonitor::DlgProcGate(HWND hwnd, UINT m, WPARAM w, LPARAM l) {
-  WinMonitor* winmon = 0;
+  WinMonitor* winmon = nullptr;
 
   if (m == WM_INITDIALOG) {
     winmon = reinterpret_cast<WinMonitor*>(l);
