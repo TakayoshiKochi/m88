@@ -78,16 +78,17 @@ inline void Sequencer::ExecuteNS(int32_t clock, int64_t length_ns, int32_t ec) {
 //  VSYNC 非同期
 //
 void Sequencer::ExecuteAsynchronus() {
-  if (clocks_per_tick_ <= 0) {
+  auto clocks = clocks_per_tick_;
+  if (clocks <= 0) {
     time_ns_ = keeper_.GetTimeNS();
     vm_->TimeSync();
     int64_t ns = 0;
     int eclk = 0;
     do {
-      if (clocks_per_tick_ == 0)
+      if (clocks == 0)
         ExecuteNS(eff_clock_, 50000 * speed_, eff_clock_);
       else
-        ExecuteNS(-clocks_per_tick_, 5000000, eff_clock_);
+        ExecuteNS(-clocks, 5000000, eff_clock_);
       eclk += 5;
       ns = keeper_.GetTimeNS() - time_ns_;
     } while (ns < 1000000);
@@ -103,7 +104,7 @@ void Sequencer::ExecuteAsynchronus() {
     // actual time expected to spend for this amount of work
     int64_t twork_ns = texec_ns * 100 / speed_;
     vm_->TimeSync();
-    ExecuteNS(clocks_per_tick_, texec_ns, clocks_per_tick_ * speed_ / 100);
+    ExecuteNS(clocks, texec_ns, clocks * speed_ / 100);
 
     // Time used for CPU execution
     int64_t tcpu_ns = keeper_.GetTimeNS() - time_ns_;
