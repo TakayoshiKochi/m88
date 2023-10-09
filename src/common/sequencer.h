@@ -12,6 +12,7 @@
 
 #include <stdint.h>
 
+#include <atomic>
 #include <mutex>
 
 #include "common/threadable.h"
@@ -72,5 +73,5 @@ class Sequencer : public Threadable<Sequencer> {
   uint32_t refresh_timing_ = 1;
   bool draw_next_frame_ = false;
 
-  bool active_ = false;
+  std::atomic<bool> active_ = false;
 };
