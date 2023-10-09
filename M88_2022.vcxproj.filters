@@ -159,9 +159,6 @@
     <ClCompile Include="src\win32\newdisk.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\status.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\Ui.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
@@ -369,6 +366,12 @@
     <ClCompile Include="src\services\disk_image_holder.cpp">
       <Filter>services</Filter>
     </ClCompile>
+    <ClCompile Include="src\win32\status_win.cpp">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\status.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -507,9 +510,6 @@
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\resource.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\status.h">
       <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\Win32\ui.h">
@@ -733,6 +733,9 @@
     </ClInclude>
     <ClInclude Include="src\services\disk_image_holder.h">
       <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\status_win.h">
+      <Filter>win32</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

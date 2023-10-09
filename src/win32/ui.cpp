@@ -110,7 +110,7 @@ bool WinUI::InitWindow(int) {
   REASON_CONTEXT ctx{};
   ctx.Version = POWER_REQUEST_CONTEXT_VERSION;
   ctx.Flags = POWER_REQUEST_CONTEXT_SIMPLE_STRING;
-  ctx.Reason.SimpleReasonString = L"M88 wakelock for fulllscreen";
+  ctx.Reason.SimpleReasonString = const_cast<LPWSTR>(L"M88 wakelock for fulllscreen");
   if (!hpower_) {
     hpower_.reset(PowerCreateRequest(&ctx));
     if (hpower_.get() == INVALID_HANDLE_VALUE) {
@@ -407,7 +407,8 @@ void WinUI::ApplyConfig() {
   mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
-  mii.dwTypeData = (config.flags & Config::kDisableF12Reset) ? "&Reset" : "&Reset\tF12";
+  mii.dwTypeData = (config.flags & Config::kDisableF12Reset) ? const_cast<LPSTR>("&Reset")
+                                                             : const_cast<LPSTR>("&Reset\tF12");
   SetMenuItemInfo(GetMenu(hwnd_), IDM_RESET, false, &mii);
   ShowStatusWindow();
 
@@ -417,14 +418,14 @@ void WinUI::ApplyConfig() {
 
       mii.fMask = MIIM_TYPE | MIIM_SUBMENU;
       mii.fType = MFT_STRING;
-      mii.dwTypeData = "Control &Plane";
+      mii.dwTypeData = const_cast<LPSTR>("Control &Plane");
       mii.hSubMenu = hmenudbg_;
       SetMenuItemInfo(GetMenu(hwnd_), IDM_WATCHREGISTER, false, &mii);
     }
   } else {
     mii.fMask = MIIM_TYPE | MIIM_SUBMENU;
     mii.fType = MFT_STRING;
-    mii.dwTypeData = "Show &Register";
+    mii.dwTypeData = const_cast<LPSTR>("Show &Register");
     mii.hSubMenu = nullptr;
     SetMenuItemInfo(GetMenu(hwnd_), IDM_WATCHREGISTER, false, &mii);
     hmenudbg_ = nullptr;
@@ -826,7 +827,7 @@ void WinUI::OpenTapeImage(const char* filename) {
     wsprintf(buf, "&Open - %s...", tapetitle_.c_str());
     mii.dwTypeData = buf;
   } else {
-    mii.dwTypeData = "&Open...";
+    mii.dwTypeData = const_cast<LPSTR>("&Open...");
   }
   SetMenuItemInfo(GetMenu(hwnd_), IDM_TAPE, false, &mii);
 }

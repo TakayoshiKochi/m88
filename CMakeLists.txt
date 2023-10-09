@@ -10,7 +10,7 @@ if (WIN32)
 endif (WIN32)
 
 if (MSVC)
-    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD 20)
     add_compile_definitions(NOMINMAX)
     add_compile_definitions(STRICT)
     add_compile_definitions(WIN32_LEAN_AND_MEAN)

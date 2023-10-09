@@ -17,30 +17,32 @@
 ExtendedAPIAccessBase::ExtendedAPIAccessBase(const char* dllname,
                                              const char* apiname,
                                              void* dummy) {
-  method = dummy;
-  valid = false;
+  method_ = dummy;
+  valid_ = false;
   HMODULE hmod = ::GetModuleHandle(dllname);
   if (hmod) {
-    method = ::GetProcAddress(hmod, apiname);
-    if (!method)
-      method = dummy;
-    valid = true;
+    method_ = (void*)::GetProcAddress(hmod, apiname);
+    if (!method_)
+      method_ = dummy;
+    valid_ = true;
   }
 }
 
 void ExternalDLLAccessBase::Load() {
-  method = dummy;
-  hmod = ::LoadLibrary(dllname);
-  if (hmod) {
-    void* addr = GetProcAddress(hmod, apiname);
-    if (addr)
-      method = addr;
-    else
-      ::FreeLibrary(hmod), hmod = 0;
+  method_ = dummy_;
+  hmod_ = ::LoadLibrary(dllname_);
+  if (hmod_) {
+    auto* addr = (void*)::GetProcAddress(hmod_, apiname_);
+    if (addr) {
+      method_ = addr;
+    } else {
+      ::FreeLibrary(hmod_);
+      hmod_ = nullptr;
+    }
   }
 }
 
 ExternalDLLAccessBase::~ExternalDLLAccessBase() {
-  if (hmod)
-    ::FreeLibrary(hmod);
+  if (hmod_)
+    ::FreeLibrary(hmod_);
 }

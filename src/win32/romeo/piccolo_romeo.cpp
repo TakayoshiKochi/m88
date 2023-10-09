@@ -24,7 +24,7 @@ struct PCIDRV {
 #define ROMEO_TPTR(member) (int)&(((PCIDRV *)NULL)->member)
 
 struct DLLPROCESS {
-  char *symbol;
+  const char *symbol;
   int addr;
 };
 
