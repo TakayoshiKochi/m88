@@ -307,10 +307,11 @@ int64_t Z80C::ExecDual(Z80C* first, Z80C* second, int count) {
   first->SingleStep();
   first->TestIntr();
 
-  int c1 = first->GetClocks(), c2 = second->GetClocks();
-  int delay = c2 - c1;
+  int64_t c1 = first->GetClocks();
+  int64_t c2 = second->GetClocks();
+  int64_t delay = c2 - c1;
   cbase = delay > 0 ? c1 : c2;
-  int stop = cbase + count;
+  int64_t stop = cbase + count;
 
   while ((stop - first->GetClocks() > 0) || (stop - second->GetClocks() > 0)) {
     stop = first->Exec0(stop, second->GetClocks());
@@ -333,10 +334,11 @@ int64_t Z80C::ExecDual2(Z80C* first, Z80C* second, int count) {
   first->SingleStep();
   first->TestIntr();
 
-  int c1 = first->GetClocks(), c2 = second->GetClocks();
-  int delay = c2 - c1;
+  int64_t c1 = first->GetClocks();
+  int64_t c2 = second->GetClocks();
+  int64_t delay = c2 - c1;
   cbase = delay > 0 ? c1 : c2;
-  int stop = cbase + count;
+  int64_t stop = cbase + count;
 
   while ((stop - first->GetClocks() > 0) || (stop - second->GetClocks() > 0)) {
     stop = first->Exec0(stop, second->GetClocks());
