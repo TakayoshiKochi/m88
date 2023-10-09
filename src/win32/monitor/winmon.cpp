@@ -18,12 +18,16 @@
 
 namespace {
 constexpr int kDefaultFontHeight = 12;
+int font_size_small = kDefaultFontHeight;
+int font_size_medium = font_size_small + 2;
+int font_size_large = font_size_medium + 2;
 }  // namespace
 
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
 WinMonitor::WinMonitor() {
+  font_height_ = kDefaultFontHeight;
   wndrect_.right = -1;
 }
 
@@ -63,7 +67,6 @@ void WinMonitor::Show(HINSTANCE hinstance, HWND hwndparent, bool show) {
                                (LPARAM)this);
       hwnd_status_ = nullptr;
 
-      dpi_ = GetDpiForWindow(hwnd_);
       if (rect.right > 0) {
         SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
                      SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
@@ -104,7 +107,7 @@ bool WinMonitor::SetFont(HWND hwnd, int fh) {
 //  窓の大きさに従いテキストバッファのサイズを変更
 //
 void WinMonitor::ResizeWindow(HWND hwnd) {
-  RECT rect;
+  RECT rect{};
 
   GetWindowRect(hwnd, &wndrect_);
   GetClientRect(hwnd, &rect);
@@ -523,6 +526,12 @@ BOOL WinMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 
   switch (msg) {
     case WM_INITDIALOG:
+      dpi_ = GetDpiForWindow(hdlg);
+      font_height_ = kDefaultFontHeight * dpi_ / 96;
+      font_size_small = kDefaultFontHeight * dpi_ / 96;
+      font_size_medium = (kDefaultFontHeight + 2) * dpi_ / 96;
+      font_size_large = (kDefaultFontHeight + 4) * dpi_ / 96;
+      SetFont(hwnd_, font_height_);
       SetFont(hdlg, font_height_);
       ResizeWindow(hdlg);
 
@@ -538,21 +547,21 @@ BOOL WinMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
     case WM_INITMENU: {
       auto hmenu = (HMENU)wp;
 
-      CheckMenuItem(hmenu, IDM_MEM_F_1, (font_height_ == 12) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_F_2, (font_height_ == 14) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_F_3, (font_height_ == 16) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_F_1, (font_height_ == font_size_small) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_F_2, (font_height_ == font_size_medium) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_F_3, (font_height_ == font_size_large) ? MF_CHECKED : MF_UNCHECKED);
     } break;
 
     case WM_COMMAND:
       switch (LOWORD(wp)) {
         case IDM_MEM_F_1:
-          font_height_ = 12;
+          font_height_ = font_size_small;
           break;
         case IDM_MEM_F_2:
-          font_height_ = 14;
+          font_height_ = font_size_medium;
           break;
         case IDM_MEM_F_3:
-          font_height_ = 16;
+          font_height_ = font_size_large;
           break;
       }
       SetFont(hdlg, font_height_);
