@@ -231,7 +231,7 @@ class Z80C : public Device, private IOStrategy, public MemStrategy {
   int wait_state_ = 0;  // b0:HALT b1:WAIT
   // main:sub clock ratio 1:1 = 0, 2:1 = 1 (thus for shift value)
   int eshift_ = 0;
-  int start_count_ = 0;
+  int64_t start_count_ = 0;
 
   // CPU emulation internal state
   enum index { USEHL, USEIX, USEIY };
