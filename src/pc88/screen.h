@@ -91,10 +91,10 @@ class Screen : public Device {
   Memory* memory_ = nullptr;
   CRTC* crtc_ = nullptr;
 
-  Pal pal[8];
-  Pal bgpal;
-  int prevgmode;
-  int prevpmode;
+  Pal pal_[8]{};
+  Pal bg_pal_{};
+  int prev_gmode_ = 0;
+  int prev_pmode_ = 0;
 
   static const Draw::Palette palcolor[8];
 
@@ -106,22 +106,22 @@ class Screen : public Device {
   uint8_t port33_ = 0;
   uint8_t port53_ = 0;
 
-  bool fullline;
-  bool fv15k;
-  bool line400;
-  bool line320;  // 320x200 mode
-  uint8_t displayplane;
-  bool displaytext;
-  bool palettechanged;
-  bool modechanged;
-  bool color;
-  bool displaygraphics;
-  bool texttp;
-  bool n80mode;
-  bool textpriority;
-  bool grphpriority;
-  uint8_t gmask;
-  BasicMode newmode;
+  bool full_line_ = false;
+  bool fv15k_ = false;
+  bool line400_ = false;
+  bool line320_ = false;  // 320x200 mode
+  uint8_t display_plane_ = 0;
+  bool display_text_ = false;
+  bool palette_changed_ = false;
+  bool mode_changed_ = false;
+  bool color_ = false;
+  bool display_graphics_ = false;
+  bool text_tp_ = false;
+  bool n80mode_ = false;
+  bool text_priority_ = false;
+  bool grph_priority_ = false;
+  uint8_t gmask_ = 0;
+  BasicMode newmode_ = BasicMode::kN88V1;
 
   static packed BETable0[1 << sizeof(packed)];
   static packed BETable1[1 << sizeof(packed)];
