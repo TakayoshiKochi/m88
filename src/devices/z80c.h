@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include "common/device.h"
+#include "common/io_bus.h"
 #include "common/memory_manager.h"
 #include "devices/z80.h"
 #include "devices/z80diag.h"
@@ -61,7 +62,81 @@ class IOBus;
 //  in:     wait    止める場合 true
 //                  wait 状態の場合 Exec が命令を実行しないようになる
 //
-class Z80C : public Device {
+
+class Z80C;
+
+class IOStrategy {
+ public:
+  IOStrategy() = default;
+  ~IOStrategy() = default;
+
+ protected:
+  void SetIOBus(IOBus* bus) { bus_ = bus; }
+
+  uint32_t Inp(uint32_t port);
+  void Outp(uint32_t port, uint32_t data);
+  [[nodiscard]] bool IsSyncPort(uint32_t port) const { return bus_->IsSyncPort(port); }
+
+ private:
+  IOBus* bus_ = nullptr;
+};
+
+class MemStrategy {
+ public:
+  explicit MemStrategy() = default;
+  ~MemStrategy() = default;
+
+  // TODO: clean this up
+  [[nodiscard]] uint32_t GetPC() const { return static_cast<uint32_t>(inst_ - instbase_); }
+  bool GetPages(MemoryPage** rd, MemoryPage** wr) {
+    *rd = rdpages_;
+    *wr = wrpages_;
+    return true;
+  }
+
+ protected:
+  void ResetMemory() {
+    instlim_ = nullptr;
+    instbase_ = nullptr;
+  }
+
+  // For generic memory access
+  uint32_t Read8(uint32_t addr);
+  uint32_t Read16(uint32_t a);
+  void Write8(uint32_t addr, uint32_t data);
+  void Write16(uint32_t a, uint32_t d);
+
+  // For memory read (from PC) (fast path)
+  uint32_t Fetch8();
+  uint32_t Fetch16();
+
+  void SetPC(uint32_t newpc);
+
+  void PCInc(uint32_t inc);
+  void PCDec(uint32_t dec);
+
+  void Jump(uint32_t dest);
+  void JumpR(uint32_t rel);
+
+ private:
+  // Memory read from PC - slow path
+  uint32_t Fetch8B();
+  uint32_t Fetch16B();
+
+  static constexpr uint32_t pagebits = MemoryManagerBase::pagebits;
+  static constexpr uint32_t pagemask = MemoryManagerBase::pagemask;
+  static constexpr uint32_t PAGESMASK = (1 << (16 - pagebits)) - 1;
+
+  MemoryPage rdpages_[0x10000 >> pagebits]{};
+  MemoryPage wrpages_[0x10000 >> pagebits]{};
+
+  uint8_t* inst_ = nullptr;      // PC の指すメモリのポインタ，または PC そのもの
+  uint8_t* instlim_ = nullptr;   // inst の有効上限
+  uint8_t* instbase_ = nullptr;  // inst - PC        (PC = inst - instbase)
+  uint8_t* instpage_ = nullptr;
+};
+
+class Z80C : public Device, private IOStrategy, public MemStrategy {
  public:
   enum {
     reset = 0,
@@ -71,14 +146,13 @@ class Z80C : public Device {
 
   struct Statistics {
     uint32_t execute[0x10000];
-
     void Clear() { memset(execute, 0, sizeof(execute)); }
   };
 
- public:
   explicit Z80C(const ID& id);
   ~Z80C() override;
 
+  // Overrides Deevice
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   bool Init(MemoryManager* mem, IOBus* bus, int iack);
@@ -111,15 +185,8 @@ class Z80C : public Device {
   bool IFCALL SaveStatus(uint8_t* status) override;
   bool IFCALL LoadStatus(const uint8_t* status) override;
 
-  [[nodiscard]] uint32_t GetPC() const { return static_cast<uint32_t>(inst_ - instbase_); }
-
-  void SetPC(uint32_t newpc);
   const Z80Reg& GetReg() { return reg_; }
 
-  bool GetPages(MemoryPage** rd, MemoryPage** wr) {
-    *rd = rdpages_, *wr = wrpages_;
-    return true;
-  }
   int* GetWaits() { return nullptr; }
 
   void TestIntr();
@@ -130,9 +197,6 @@ class Z80C : public Device {
   Statistics* GetStatistics();
 
  private:
-  static constexpr uint32_t pagebits = MemoryManagerBase::pagebits;
-  static constexpr uint32_t pagemask = MemoryManagerBase::pagemask;
-
   enum {
     ssrev = 1,
   };
@@ -147,13 +211,7 @@ class Z80C : public Device {
 
   void DumpLog();
 
-  uint8_t* inst_ = nullptr;      // PC の指すメモリのポインタ，または PC そのもの
-  uint8_t* instlim_ = nullptr;   // inst の有効上限
-  uint8_t* instbase_ = nullptr;  // inst - PC        (PC = inst - instbase)
-  uint8_t* instpage_ = nullptr;
-
   Z80Reg reg_{};
-  IOBus* bus_ = nullptr;
 
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];
@@ -168,6 +226,7 @@ class Z80C : public Device {
   int delay_count_ = 0;
 
   // CPU external state
+  IOBus* bus_ = nullptr;
   int int_ack_ = 0;
   int intr_ = 0;
   int wait_state_ = 0;  // b0:HALT b1:WAIT
@@ -190,9 +249,6 @@ class Z80C : public Device {
   Z80Reg::wordreg* ref_hl_[3]{};  // HL/ IX / IY のテーブル
   uint8_t* ref_byte_[8]{};        // BCDEHL A のテーブル
 
-  MemoryPage rdpages_[0x10000 >> pagebits]{};
-  MemoryPage wrpages_[0x10000 >> pagebits]{};
-
   // Debug
   FILE* dump_log_;
   Z80Diag diag_;
@@ -203,17 +259,6 @@ class Z80C : public Device {
 
   // 内部インターフェース
  private:
-  uint32_t Read8(uint32_t addr);
-  uint32_t Read16(uint32_t a);
-  uint32_t Fetch8();
-  uint32_t Fetch16();
-  void Write8(uint32_t addr, uint32_t data);
-  void Write16(uint32_t a, uint32_t d);
-  uint32_t Inp(uint32_t port);
-  void Outp(uint32_t port, uint32_t data);
-  uint32_t Fetch8B();
-  uint32_t Fetch16B();
-
   void SingleStep(uint32_t inst);
   void SingleStep();
   // void Init();
@@ -221,14 +266,6 @@ class Z80C : public Device {
   int Exec1(int stop, int d);
   bool Sync();
   void OutTestIntr();
-
-  // void SetPCi(uint32_t newpc);
-  void PCInc(uint32_t inc);
-  void PCDec(uint32_t dec);
-
-  void Call();
-  void Jump(uint32_t dest);
-  void JumpR();
 
   uint8_t GetCF();
   uint8_t GetZF();
@@ -238,6 +275,8 @@ class Z80C : public Device {
 
   void SetM(uint32_t n);
   uint8_t GetM();
+
+  void Call();
 
   void Push(uint32_t n);
   uint32_t Pop();
@@ -365,8 +404,8 @@ class Z80C : public Device {
     uf_ &= ~clr;
   }
 
+ public:  // XXX
   void CLK(int count) { clock_count_ += count; }
-  static constexpr uint32_t PAGESMASK = (1 << (16 - pagebits)) - 1;
 };
 
 inline Z80C::Statistics* Z80C::GetStatistics() {
