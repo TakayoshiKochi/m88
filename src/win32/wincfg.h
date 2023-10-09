@@ -25,11 +25,6 @@ class WinConfig : public IConfigPropBase {
   void Close();
 
  private:
-  struct PPNode {
-    PPNode* next;
-    IConfigPropSheet* sheet;
-  };
-
   bool IFCALL Add(IConfigPropSheet* sheet) override;
   bool IFCALL Remove(IConfigPropSheet* sheet) override;
 
@@ -42,9 +37,8 @@ class WinConfig : public IConfigPropBase {
   static int CALLBACK PropProcGate(HWND, UINT, LPARAM);
   static WinConfig* instance;
 
-  PPNode* pplist_ = nullptr;
-  typedef std::vector<IConfigPropSheet*> PropSheets;
-  PropSheets propsheets;
+  using PropSheets = std::vector<IConfigPropSheet*>;
+  PropSheets prop_sheets_;
 
   HWND hwndparent_ = nullptr;
   HWND hwndps_ = nullptr;
