@@ -889,7 +889,7 @@ void WinUI::SetGUIFlag(bool gui) {
   }
   //  core.SetGUIFlag(gui);
   draw.SetGUIFlag(gui);
-  SetCursorVisibility(gui);
+  //SetCursorVisibility(gui);
 }
 
 void WinUI::SetCursorVisibility(bool flag) {
@@ -1158,6 +1158,7 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
     ShowStatusWindow();
     report_ = true;
     gui_mode_by_mouse_ = false;
+    SetCursorVisibility(true);
   } else {
     if (gui_mode_by_mouse_)
       SetGUIFlag(false);
@@ -1178,13 +1179,10 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
     hmenu_ = GetMenu(hwnd);
     SetMenu(hwnd, nullptr);
     draw.Resize(width, height);
+    SetCursorVisibility(false);
 
     report_ = false;
   }
-  SetGUIFlag(true);
-  SetGUIFlag(false);
-  SetGUIFlag(true);
-  SetGUIFlag(false);
 
   return 0;
 }
@@ -1829,7 +1827,7 @@ LRESULT WinUI::WmActivate(HWND hwnd, WPARAM wparam, LPARAM) {
     //      core.ActivateMouse(!background);
     M88ClipCursor(hwnd, foreground_ ? -CLIPCURSOR_RELEASE : CLIPCURSOR_RELEASE, 0);
     draw.SetGUIFlag(!foreground_);
-    SetCursorVisibility(!foreground_);
+    SetCursorVisibility(!fullscreen_);
   }
   snapshotchanged = true;
   return 0;
