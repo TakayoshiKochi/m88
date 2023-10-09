@@ -1335,8 +1335,8 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       CaptureScreen();
       break;
 
-    case IDM_KEY_ALT:
-      keyif_.LockAlt(!keyif_.IsAltLocked());
+    case IDM_KEY_GRPH:
+      keyif_.LockGrph(!keyif_.IsGrphLocked());
       break;
 
     case IDM_KEY_KANA:
@@ -1734,7 +1734,7 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   CheckMenuItem(hmenu_, IDM_CPU_BURST,
                 (config.flags & Config::kCPUBurst) ? MF_CHECKED : MF_UNCHECKED);
 
-  CheckMenuItem(hmenu_, IDM_KEY_ALT, keyif_.IsAltLocked() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_KEY_GRPH, keyif_.IsGrphLocked() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_KEY_KANA, keyif_.IsKanaLocked() ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu_, IDM_WATCHREGISTER,

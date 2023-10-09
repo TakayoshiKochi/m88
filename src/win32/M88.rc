@@ -94,7 +94,7 @@ BEGIN
     END
     POPUP "&Key"
     BEGIN
-        MENUITEM "Alt",                         IDM_KEY_ALT
+        MENUITEM "GRPH",                        IDM_KEY_GRPH
         MENUITEM "Kana",                        IDM_KEY_KANA
     END
     POPUP "D&ebug"

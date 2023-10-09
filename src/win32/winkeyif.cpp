@@ -44,15 +44,16 @@ WinKeyIF::~WinKeyIF() {
 //
 bool WinKeyIF::Init(HWND hwndmsg) {
   hwnd_ = hwndmsg;
-  hevent_ = CreateEvent(0, 0, 0, 0);
+  hevent_ = CreateEvent(nullptr, 0, 0, nullptr);
   keytable_ = KeyTable106[0];
-  return hevent_ != 0;
+  return hevent_ != nullptr;
 }
 
 // ---------------------------------------------------------------------------
 //  リセット（というか、BASIC モードの変更）
 //
 void IOCALL WinKeyIF::Reset(uint32_t, uint32_t) {
+  SyncLockState();
   pc80mode_ = (static_cast<uint32_t>(basicmode_) & 2) != 0;
 }
 
@@ -147,15 +148,15 @@ void WinKeyIF::KeyUp(uint32_t vkcode, uint32_t keydata) {
   }
 }
 
-void WinKeyIF::LockAlt(bool lock) {
-  if (alt_locked_ == lock)
+void WinKeyIF::LockGrph(bool lock) {
+  if (grph_locked_ == lock)
     return;
   if (lock) {
     KeyDown(VK_MENU, 1);
   } else {
     KeyUp(VK_MENU, 0xc0000001);
   }
-  alt_locked_ = lock;
+  grph_locked_ = lock;
 }
 
 void WinKeyIF::LockKana(bool lock) {
@@ -462,7 +463,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable106[16 * 8][8] = {
     {KEY(VK_BACK), KEYF(VK_INSERT, ext), KEYF(VK_DELETE, ext), TERM},  // BS
     {KEY(VK_MENU), TERM},                                              // GRPH
     // The second VK_SCROLL is for emulating kana lock from menu.
-    {KEYF(VK_SCROLL, lock), KEY(VK_SCROLL), TERM},                     // カナ
+    {KEYF(VK_SCROLL, lock), KEY(VK_SCROLL), TERM},  // カナ
     {KEY(VK_SHIFT), KEY(VK_F6), KEY(VK_F7), KEY(VK_F8), KEY(VK_F9), KEY(VK_F10),
      KEYF(VK_INSERT, ext), KEYF(1, pc80sft)},  // SHIFT
     {KEY(VK_CONTROL), TERM},                   // CTRL
@@ -703,7 +704,7 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY(VK_BACK), KEYF(VK_INSERT, ext), KEYF(VK_DELETE, ext), TERM},  // BS
     {KEY(VK_MENU), TERM},                                              // GRPH
     // The second VK_SCROLL is for emulating kana lock from menu.
-    {KEYF(VK_SCROLL, lock), KEY(VK_SCROLL), TERM},                     // カナ
+    {KEYF(VK_SCROLL, lock), KEY(VK_SCROLL), TERM},  // カナ
     {KEY(VK_SHIFT), KEY(VK_F6), KEY(VK_F7), KEY(VK_F8), KEY(VK_F9), KEY(VK_F10),
      KEYF(VK_INSERT, ext), KEYF(1, pc80sft)},  // SHIFT
     {KEY(VK_CONTROL), TERM},                   // CTRL
