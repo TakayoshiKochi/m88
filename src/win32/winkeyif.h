@@ -48,6 +48,11 @@ class WinKeyIF : public Device {
     return kana_locked_ || (keyboard_[VK_SCROLL] & 0x01) != 0;
   }
 
+  void SyncLockState() {
+    grph_locked_ = keystate_[VK_MENU] != 0;
+    kana_locked_ = (keyboard_[VK_SCROLL] & 0x01) != 0;
+  }
+
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:

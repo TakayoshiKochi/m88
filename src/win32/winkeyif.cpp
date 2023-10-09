@@ -44,15 +44,16 @@ WinKeyIF::~WinKeyIF() {
 //
 bool WinKeyIF::Init(HWND hwndmsg) {
   hwnd_ = hwndmsg;
-  hevent_ = CreateEvent(0, 0, 0, 0);
+  hevent_ = CreateEvent(nullptr, 0, 0, nullptr);
   keytable_ = KeyTable106[0];
-  return hevent_ != 0;
+  return hevent_ != nullptr;
 }
 
 // ---------------------------------------------------------------------------
 //  リセット（というか、BASIC モードの変更）
 //
 void IOCALL WinKeyIF::Reset(uint32_t, uint32_t) {
+  SyncLockState();
   pc80mode_ = (static_cast<uint32_t>(basicmode_) & 2) != 0;
 }
 
