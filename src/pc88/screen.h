@@ -63,16 +63,17 @@ class Screen : public Device {
   bool IFCALL LoadStatus(const uint8_t* status) override;
 
  private:
-  struct Pal {
-    uint8_t red, blue, green, _pad;
-  };
   enum {
     ssrev = 1,
   };
   struct Status {
     uint32_t rev;
-    Pal pal[8], bgpal;
-    uint8_t p30, p31, p32, p33, p53;
+    Draw::Palette pal[8], bgpal;
+    uint8_t p30;
+    uint8_t p31;
+    uint8_t p32;
+    uint8_t p33;
+    uint8_t p53;
   };
 
   void CreateTable();
@@ -91,12 +92,10 @@ class Screen : public Device {
   Memory* memory_ = nullptr;
   CRTC* crtc_ = nullptr;
 
-  Pal pal_[8]{};
-  Pal bg_pal_{};
+  Draw::Palette pal_[8]{};
+  Draw::Palette bg_pal_{};
   int prev_gmode_ = 0;
   int prev_pmode_ = 0;
-
-  static const Draw::Palette palcolor[8];
 
   const uint8_t* pex_ = nullptr;
 
@@ -123,20 +122,10 @@ class Screen : public Device {
   uint8_t gmask_ = 0;
   BasicMode newmode_ = BasicMode::kN88V1;
 
-  static packed BETable0[1 << sizeof(packed)];
-  static packed BETable1[1 << sizeof(packed)];
-  static packed BETable2[1 << sizeof(packed)];
-  static packed E80Table[1 << sizeof(packed)];
-  static packed E80SRTable[64];
-  static packed E80SRMask[4];
-  static packed BE80Table[4];
-  static const uint8_t palextable[2][8];
-
  private:
   static const Descriptor descriptor;
   //  static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];
-  static const int16_t RegionTable[];
 };
 
 }  // namespace PC8801
