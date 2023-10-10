@@ -275,7 +275,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
       break;
 
       // START DISPLAY
-      // b0   invert
+      // b0   0: normal  1:invert
     case 1:
       if (cmdc_ == 0) {
         pcount[1] = 1;
@@ -751,7 +751,7 @@ uint8_t CRTC::ChangeAttr(uint8_t code, uint8_t old_attr) const {
   if (IsSet(kColor)) {
     if (code & 0b00001000) {
       attr = (attr & 0b00001111) | (code & 0b11110000);
-      //          attr ^= mode & inverse;
+      attr = (attr & ~kInverse) | (flags_ & kInverse);
     } else {
       attr = (attr & 0b11110000) | ((code >> 2) & 0b00001101) | ((code & 1) << 1);
       attr ^= flags_ & kInverse;
