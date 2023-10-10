@@ -27,8 +27,8 @@ class IOBus;
 //
 namespace PC8801 {
 
-class Memory;
 class CRTC;
+class Memory;
 
 // ---------------------------------------------------------------------------
 //  88 の画面に関するクラス
@@ -47,6 +47,7 @@ class Screen : public Device {
   void UpdateScreen(uint8_t* image, int bpl, Draw::Region& region, bool refresh);
   void ApplyConfig(const Config* config);
 
+  // I/O
   void IOCALL Out30(uint32_t port, uint32_t data);
   void IOCALL Out31(uint32_t port, uint32_t data);
   void IOCALL Out32(uint32_t port, uint32_t data);
@@ -56,8 +57,8 @@ class Screen : public Device {
   void IOCALL Out54(uint32_t port, uint32_t data);
   void IOCALL Out55to5b(uint32_t port, uint32_t data);
 
+  // Overrides Device
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
-
   uint32_t IFCALL GetStatusSize() override;
   bool IFCALL SaveStatus(uint8_t* status) override;
   bool IFCALL LoadStatus(const uint8_t* status) override;
@@ -76,7 +77,7 @@ class Screen : public Device {
     uint8_t p53;
   };
 
-  void CreateTable();
+  static void CreateTable();
 
   void ClearScreen(uint8_t* image, int bpl);
   void UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region);
@@ -111,8 +112,8 @@ class Screen : public Device {
   bool line320_ = false;  // 320x200 mode
   uint8_t display_plane_ = 0;
   bool display_text_ = false;
-  bool palette_changed_ = false;
-  bool mode_changed_ = false;
+  bool palette_changed_ = true;
+  bool mode_changed_ = true;
   bool color_ = false;
   bool display_graphics_ = false;
   bool text_tp_ = false;
