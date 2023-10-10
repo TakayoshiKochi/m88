@@ -79,7 +79,7 @@ class Screen : public Device {
 
   static void CreateTable();
 
-  void ClearScreen(uint8_t* image, int bpl);
+  void ClearScreen(uint8_t* image, int bpl) const;
   void UpdateScreen200c(uint8_t* image, int bpl, Draw::Region& region);
   void UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region);
   void UpdateScreen400b(uint8_t* image, int bpl, Draw::Region& region);
