@@ -33,9 +33,16 @@ constexpr uint8_t GVRAMM_BITF = 0xe0;  // 1110
 constexpr uint8_t GVRAMM_SET = 0x20;
 constexpr uint8_t GVRAMM_ODD = 0x40;
 constexpr uint8_t GVRAMM_EVEN = 0x80;
-}  // namespace
 
-constexpr int16_t Screen::RegionTable[64] = {
+packed BETable0[1 << sizeof(packed)] = {-1};
+packed BETable1[1 << sizeof(packed)];
+packed BETable2[1 << sizeof(packed)];
+packed E80Table[1 << sizeof(packed)];
+packed E80SRTable[64];
+packed E80SRMask[4];
+packed BE80Table[4];
+
+constexpr int16_t RegionTable[64] = {
     640, -1,  0, 128, 128, 256, 0, 256, 256, 384, 0, 384, 128, 384, 0, 384,
     384, 512, 0, 512, 128, 512, 0, 512, 256, 512, 0, 512, 128, 512, 0, 512,
 
@@ -46,15 +53,16 @@ constexpr int16_t Screen::RegionTable[64] = {
 // ---------------------------------------------------------------------------
 //  原色パレット
 //  RGB
-constexpr Draw::Palette Screen::palcolor[8] = {
+constexpr Draw::Palette palcolor[8] = {
     {0, 0, 0},   {0, 0, 255},   {255, 0, 0},   {255, 0, 255},
     {0, 255, 0}, {0, 255, 255}, {255, 255, 0}, {255, 255, 255},
 };
 
-constexpr uint8_t Screen::palextable[2][8] = {
+constexpr uint8_t palextable[2][8] = {
     {0, 36, 73, 109, 146, 182, 219, 255},
     {0, 255, 255, 255, 255, 255, 255, 255},
 };
+}  // namespace
 
 // ---------------------------------------------------------------------------
 // 構築/消滅
@@ -1133,7 +1141,7 @@ void IOCALL Screen::Out31(uint32_t, uint32_t data) {
       display_graphics_ = (data & 8) != 0;
 
       if (i & 0xf4) {
-        Pal col;
+        Draw::Palette col;
         col.green = data & 0x80 ? 7 : 0;
         col.red = data & 0x40 ? 7 : 0;
         col.blue = data & 0x20 ? 7 : 0;
@@ -1291,7 +1299,7 @@ void IOCALL Screen::Out53(uint32_t, uint32_t data) {
 void IOCALL Screen::Out54(uint32_t, uint32_t data) {
   if (port32_ & 0x20)  // is analog palette mode ?
   {
-    Pal& p = data & 0x80 ? bg_pal_ : pal_[0];
+    Draw::Palette& p = data & 0x80 ? bg_pal_ : pal_[0];
 
     if (data & 0x40)
       p.green = data & 7;
@@ -1314,7 +1322,7 @@ void IOCALL Screen::Out54(uint32_t, uint32_t data) {
 //  Set palette #1 to #7
 //
 void IOCALL Screen::Out55to5b(uint32_t port, uint32_t data) {
-  Pal& p = pal_[port - 0x54];
+  Draw::Palette& p = pal_[port - 0x54];
 
   if (!n80mode_ && (port32_ & 0x20))  // is analog palette mode?
   {
@@ -1396,13 +1404,6 @@ void Screen::ApplyConfig(const Config* config) {
 // ---------------------------------------------------------------------------
 //  Table 作成
 //
-packed Screen::BETable0[1 << sizeof(packed)] = {-1};
-packed Screen::BETable1[1 << sizeof(packed)];
-packed Screen::BETable2[1 << sizeof(packed)];
-packed Screen::E80Table[1 << sizeof(packed)];
-packed Screen::E80SRTable[64];
-packed Screen::E80SRMask[4];
-packed Screen::BE80Table[4];
 
 #define CHKBIT(i, j) ((1 << j) & i)
 #define BIT80SR 1
