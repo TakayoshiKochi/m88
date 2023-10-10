@@ -211,8 +211,8 @@ bool Screen::UpdatePalette(Draw* draw) {
             for (int tc = 0; tc < 8; ++tc)
               *p++ = c;
           } else if (text_tp_) {
-            for (int tc = 0; tc < 8; ++tc)
-              *p++ = Avg(c, palcolor[tc]);
+            for (auto tc : palcolor)
+              *p++ = Avg(c, tc);
           } else {
             *p++ = palcolor[0];
             for (int tc = 1; tc < 8; ++tc)
@@ -508,19 +508,18 @@ void Screen::UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region) {
             Memory::Quadbyte* s = src;
             auto* d = (packed*)dest;
             for (int j = 0; j < 4; ++j) {
-              uint32_t x;
-              x = s[0].pack & mask.pack;
-              WRITEB0_(d[0], x);
-              WRITEB1_(d[1], x);
-              x = s[1].pack & mask.pack;
-              WRITEB0_(d[2], x);
-              WRITEB1_(d[3], x);
-              x = s[2].pack & mask.pack;
-              WRITEB0_(d[4], x);
-              WRITEB1_(d[5], x);
-              x = s[3].pack & mask.pack;
-              WRITEB0_(d[6], x);
-              WRITEB1_(d[7], x);
+              uint32_t xx = s[0].pack & mask.pack;
+              WRITEB0_(d[0], xx);
+              WRITEB1_(d[1], xx);
+              xx = s[1].pack & mask.pack;
+              WRITEB0_(d[2], xx);
+              WRITEB1_(d[3], xx);
+              xx = s[2].pack & mask.pack;
+              WRITEB0_(d[4], xx);
+              WRITEB1_(d[5], xx);
+              xx = s[3].pack & mask.pack;
+              WRITEB0_(d[6], xx);
+              WRITEB1_(d[7], xx);
               d += 8;
               s += 4;
             }
@@ -540,18 +539,18 @@ void Screen::UpdateScreen200b(uint8_t* image, int bpl, Draw::Region& region) {
             Memory::Quadbyte* s = src;
             auto* d = (packed*)dest;
             for (int j = 0; j < 4; ++j) {
-              uint32_t x = s[0].pack & mask.pack;
-              WRITEB0F_(0, x, d, bpl);
-              WRITEB1F_(1, x, d, bpl);
-              x = s[1].pack & mask.pack;
-              WRITEB0F_(2, x, d, bpl);
-              WRITEB1F_(3, x, d, bpl);
-              x = s[2].pack & mask.pack;
-              WRITEB0F_(4, x, d, bpl);
-              WRITEB1F_(5, x, d, bpl);
-              x = s[3].pack & mask.pack;
-              WRITEB0F_(6, x, d, bpl);
-              WRITEB1F_(7, x, d, bpl);
+              uint32_t xx = s[0].pack & mask.pack;
+              WRITEB0F_(0, xx, d, bpl);
+              WRITEB1F_(1, xx, d, bpl);
+              xx = s[1].pack & mask.pack;
+              WRITEB0F_(2, xx, d, bpl);
+              WRITEB1F_(3, xx, d, bpl);
+              xx = s[2].pack & mask.pack;
+              WRITEB0F_(4, xx, d, bpl);
+              WRITEB1F_(5, xx, d, bpl);
+              xx = s[3].pack & mask.pack;
+              WRITEB0F_(6, xx, d, bpl);
+              WRITEB1F_(7, xx, d, bpl);
               d += 8;
               s += 4;
             }
@@ -852,13 +851,13 @@ void Screen::UpdateScreen80b(uint8_t* image, int bpl, Draw::Region& region) {
 #define WRITEC320(d)                                                                           \
   m = E80SRMask[(bp1 | rp1 >> 2 | gp1 >> 4) & 3];                                              \
   d = (d & ~PACK(GVRAMC_BIT)) | (E80SRTable[(bp1 & 0x03) | (rp1 & 0x0c) | (gp1 & 0x30)] & m) | \
-      (E80SRTable[(bp2 & 0x03) | (rp2 & 0x0c) | (gp2 & 0x30)] & ~m);
+      (E80SRTable[(bp2 & 0x03) | (rp2 & 0x0c) | (gp2 & 0x30)] & ~m)
 #define WRITEC320F(o)                                                \
   m = E80SRMask[(bp1 | rp1 >> 2 | gp1 >> 4) & 3];                    \
   *((packed*)(((uint8_t*)(dest + o)) + bpl)) = dest[o] =             \
       (dest[o] & ~PACK(GVRAMC_BIT)) |                                \
       (E80SRTable[(bp1 & 0x03) | (rp1 & 0x0c) | (gp1 & 0x30)] & m) | \
-      (E80SRTable[(bp2 & 0x03) | (rp2 & 0x0c) | (gp2 & 0x30)] & ~m);
+      (E80SRTable[(bp2 & 0x03) | (rp2 & 0x0c) | (gp2 & 0x30)] & ~m)
 void Screen::UpdateScreen320c(uint8_t* image, int bpl, Draw::Region& region) {
   uint8_t* dirty1 = memory_->GetDirtyFlag();
   uint8_t* dirty2 = dirty1 + 0x200;
@@ -1387,7 +1386,7 @@ void IOCALL Screen::Out55to5b(uint32_t port, uint32_t data) {
 // ---------------------------------------------------------------------------
 //  画面消去
 //
-void Screen::ClearScreen(uint8_t* image, int bpl) {
+void Screen::ClearScreen(uint8_t* image, int bpl) const {
   // COLOR
 
   if (color_) {
