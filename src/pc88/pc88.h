@@ -14,14 +14,6 @@
 
 #include <memory>
 
-#ifdef CPU_TEST
-#include "devices/z80test.h"
-#endif
-
-#ifdef CPU_DEBUG
-#include "devices/z80debug.h"
-#endif
-
 // ---------------------------------------------------------------------------
 //  仮宣言
 //

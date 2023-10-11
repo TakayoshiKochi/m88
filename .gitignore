@@ -12,6 +12,7 @@ cmake-build-release/
 
 # IDE files
 .vs/
+.vscode/
 .idea/
 
 # Work files
