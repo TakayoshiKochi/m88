@@ -135,7 +135,57 @@ class MemStrategy {
   uint8_t* instpage_ = nullptr;
 };
 
-class Z80C : public Device, private IOStrategy, public MemStrategy {
+class Z80C;
+
+class CPUExecutor {
+ public:
+  explicit CPUExecutor(Z80C* cpu) : cpu_(cpu) {}
+  ~CPUExecutor() = default;
+
+  void Init();
+  void Reset();
+
+  static int64_t ExecSingle(Z80C* first, Z80C* second, int clocks);
+  static int64_t ExecDual(Z80C* first, Z80C* second, int count);
+  static int64_t ExecDual2(Z80C* first, Z80C* second, int count);
+
+  void Stop(int count);
+  static void StopDual(int count);
+
+  // クロックカウンタ取得
+  [[nodiscard]] int64_t GetClocks() const { return exec_clocks_ + (clock_count_ << eshift_); }
+  static int64_t GetCCount();
+
+ protected:
+  // XXX
+  void CLK(int count) { clock_count_ += count; }
+  bool Sync();
+
+  int64_t clock_count_ = 0;
+  int64_t exec_clocks_ = 0;
+
+ private:
+  int64_t Exec0(Z80C* cpu, int64_t stop, int64_t other);
+  int64_t Exec1(Z80C* cpu, int64_t stop, int64_t other);
+
+  Z80C* cpu_;
+
+  // Emulation state
+  static Z80C* currentcpu;
+  static int64_t cbase;
+
+  // main:sub clock ratio 1:1 = 0, 2:1 = 1 (thus for shift value)
+  int eshift_ = 0;
+  int64_t start_count_ = 0;
+
+  int64_t stop_count_ = 0;
+  int64_t delay_count_ = 0;
+
+  // XXX
+  bool dump_log_ = false;
+};
+
+class Z80C : public Device, private IOStrategy, public MemStrategy, public CPUExecutor {
  public:
   enum {
     reset = 0,
@@ -155,23 +205,6 @@ class Z80C : public Device, private IOStrategy, public MemStrategy {
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   bool Init(MemoryManager* mem, IOBus* bus, int iack);
-
-  int Exec(int count);
-  int64_t ExecOne();
-  static int64_t ExecSingle(Z80C* first, Z80C* second, int clocks);
-  static int64_t ExecDual(Z80C* first, Z80C* second, int count);
-  static int64_t ExecDual2(Z80C* first, Z80C* second, int count);
-
-  void Stop(int count);
-  static void StopDual(int count) {
-    if (currentcpu)
-      currentcpu->Stop(count);
-  }
-  // クロックカウンタ取得
-  [[nodiscard]] int64_t GetClocks() const { return exec_clocks_ + (clock_count_ << eshift_); }
-  static int64_t GetCCount() {
-    return currentcpu ? currentcpu->GetClocks() - currentcpu->start_count_ : 0;
-  }
 
   // External CPU interface
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
@@ -196,6 +229,7 @@ class Z80C : public Device, private IOStrategy, public MemStrategy {
   Statistics* GetStatistics();
 
  private:
+  friend class CPUExecutor;
   enum {
     ssrev = 1,
   };
@@ -215,23 +249,11 @@ class Z80C : public Device, private IOStrategy, public MemStrategy {
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];
 
-  // Emulation state
-  static Z80C* currentcpu;
-  static int64_t cbase;
-
-  int64_t exec_clocks_ = 0;
-  int64_t clock_count_ = 0;
-  int64_t stop_count_ = 0;
-  int64_t delay_count_ = 0;
-
   // CPU external state
   IOBus* bus_ = nullptr;
   int int_ack_ = 0;
   int intr_ = 0;
   int wait_state_ = 0;  // b0:HALT b1:WAIT
-  // main:sub clock ratio 1:1 = 0, 2:1 = 1 (thus for shift value)
-  int eshift_ = 0;
-  int64_t start_count_ = 0;
 
   // CPU emulation internal state
   enum index { USEHL, USEIX, USEIY };
@@ -261,10 +283,7 @@ class Z80C : public Device, private IOStrategy, public MemStrategy {
  private:
   void SingleStep(uint32_t inst);
   void SingleStep();
-  // void Init();
-  int64_t Exec0(int64_t stop, int64_t other);
-  int64_t Exec1(int64_t stop, int64_t other);
-  bool Sync();
+
   void OutTestIntr();
 
   uint8_t GetCF();
@@ -403,9 +422,6 @@ class Z80C : public Device, private IOStrategy, public MemStrategy {
     SetRegF((RegF() & ~clr) | set);
     uf_ &= ~clr;
   }
-
- public:  // XXX
-  void CLK(int count) { clock_count_ += count; }
 };
 
 inline Z80C::Statistics* Z80C::GetStatistics() {
@@ -414,4 +430,9 @@ inline Z80C::Statistics* Z80C::GetStatistics() {
 #else
   return 0;
 #endif
+}
+
+// static
+inline int64_t CPUExecutor::GetCCount() {
+  return currentcpu ? currentcpu->GetClocks() - currentcpu->start_count_ : 0;
 }
