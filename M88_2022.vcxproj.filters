@@ -69,9 +69,6 @@
     <ClCompile Include="src\devices\z80c.cpp">
       <Filter>devices</Filter>
     </ClCompile>
-    <ClCompile Include="src\devices\z80debug.cpp">
-      <Filter>devices</Filter>
-    </ClCompile>
     <ClCompile Include="src\devices\z80diag.cpp">
       <Filter>devices</Filter>
     </ClCompile>
@@ -414,9 +411,6 @@
       <Filter>devices</Filter>
     </ClInclude>
     <ClInclude Include="src\devices\z80c.h">
-      <Filter>devices</Filter>
-    </ClInclude>
-    <ClInclude Include="src\devices\z80debug.h">
       <Filter>devices</Filter>
     </ClInclude>
     <ClInclude Include="src\devices\z80diag.h">
