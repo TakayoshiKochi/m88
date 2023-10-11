@@ -72,9 +72,6 @@
     <ClCompile Include="src\devices\z80diag.cpp">
       <Filter>devices</Filter>
     </ClCompile>
-    <ClCompile Include="src\devices\z80Test.cpp">
-      <Filter>devices</Filter>
-    </ClCompile>
     <ClCompile Include="src\pc88\base.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
@@ -414,9 +411,6 @@
       <Filter>devices</Filter>
     </ClInclude>
     <ClInclude Include="src\devices\z80diag.h">
-      <Filter>devices</Filter>
-    </ClInclude>
-    <ClInclude Include="src\devices\z80Test.h">
       <Filter>devices</Filter>
     </ClInclude>
     <ClInclude Include="src\pc88\base.h">
