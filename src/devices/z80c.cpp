@@ -35,18 +35,17 @@ void MemStrategy::SetPC(uint32_t newpc) {
   if (!page.func) {
     DEBUGCOUNT(4);
     // instruction is on memory
-    instpage_ = ((uint8_t*)page.ptr);
-    instbase_ = ((uint8_t*)page.ptr) - (newpc & ~pagemask & 0xffff);
-    instlim_ = ((uint8_t*)page.ptr) + (1 << pagebits);
-    inst_ = ((uint8_t*)page.ptr) + (newpc & pagemask);
-    return;
-  } else {
-    DEBUGCOUNT(5);
-    instbase_ = instlim_ = nullptr;
-    instpage_ = (uint8_t*)~0;
-    inst_ = (uint8_t*)newpc;
+    instpage_ = reinterpret_cast<uint8_t*>(page.ptr);
+    instbase_ = reinterpret_cast<uint8_t*>(page.ptr) - (newpc & ~pagemask & 0xffff);
+    instlim_ = reinterpret_cast<uint8_t*>(page.ptr) + (1 << pagebits);
+    inst_ = reinterpret_cast<uint8_t*>(page.ptr) + (newpc & pagemask);
     return;
   }
+
+  DEBUGCOUNT(5);
+  instbase_ = instlim_ = nullptr;
+  instpage_ = (uint8_t*)~0;
+  inst_ = reinterpret_cast<uint8_t*>(static_cast<uintptr_t>(newpc));
 }
 
 /*
