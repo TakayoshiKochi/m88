@@ -63,7 +63,7 @@ class MemoryViewer {
   MemoryBus bus_;
 
   PC88* pc_ = nullptr;
-  PC88::Z80* z80_ = nullptr;
+  PC88::Z80XX* z80_ = nullptr;
 
   Type bank_[5];
 

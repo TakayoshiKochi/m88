@@ -140,11 +140,11 @@ int64_t PC88::Execute(int64_t clocks) {
   int64_t ex = 0;
   if (!(cpumode & stopwhenidle) || subsys_->IsBusy() || fdc->IsBusy()) {
     if ((cpumode & 1) == ms11)
-      ex = Z80::ExecDual(&cpu1, &cpu2, clocks);
+      ex = Z80XX::ExecDual(&cpu1, &cpu2, clocks);
     else
-      ex = Z80::ExecDual2(&cpu1, &cpu2, clocks);
+      ex = Z80XX::ExecDual2(&cpu1, &cpu2, clocks);
   } else {
-    ex = Z80::ExecSingle(&cpu1, &cpu2, clocks);
+    ex = Z80XX::ExecSingle(&cpu1, &cpu2, clocks);
   }
   return ex;
   LOADEND("Core.CPU");
@@ -155,11 +155,11 @@ int64_t PC88::Execute(int64_t clocks) {
 //
 void SchedulerImpl::ShortenNS(int64_t ns) {
   // int64 nanos_per_clock = 10000LL / clocks_per_tick_;
-  Z80::StopDual(int(ns * cpu_clock_ / 1000000000LL));
+  Z80XX::StopDual(int(ns * cpu_clock_ / 1000000000LL));
 }
 
 int64_t SchedulerImpl::GetNS() {
-  return Z80::GetCCount() * (1000000000LL / cpu_clock_);
+  return Z80XX::GetCCount() * (1000000000LL / cpu_clock_);
 }
 
 // ---------------------------------------------------------------------------
@@ -276,7 +276,7 @@ void PC88::Reset() {
 //
 bool PC88::ConnectDevices() {
   static const IOBus::Connector c_cpu1[] = {
-      {kPReset, IOBus::portout, Z80::reset}, {kPIRQ, IOBus::portout, Z80::irq}, {0, 0, 0}};
+      {kPReset, IOBus::portout, Z80XX::reset}, {kPIRQ, IOBus::portout, Z80XX::irq}, {0, 0, 0}};
   if (!bus1.Connect(&cpu1, c_cpu1))
     return false;
   if (!cpu1.Init(&mm1, &bus1, kPIAck))
@@ -531,7 +531,7 @@ bool PC88::ConnectDevices() {
 //
 bool PC88::ConnectDevices2() {
   static const IOBus::Connector c_cpu2[] = {
-      {kPReset2, IOBus::portout, Z80::reset}, {kPIRQ2, IOBus::portout, Z80::irq}, {0, 0, 0}};
+      {kPReset2, IOBus::portout, Z80XX::reset}, {kPIRQ2, IOBus::portout, Z80XX::irq}, {0, 0, 0}};
   if (!bus2.Connect(&cpu2, c_cpu2))
     return false;
   if (!cpu2.Init(&mm2, &bus2, kPIAck2))

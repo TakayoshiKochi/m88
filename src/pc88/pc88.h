@@ -52,7 +52,7 @@ class SchedulerExecutable {
 
 class SchedulerImpl : public Scheduler {
  public:
-  using Z80 = Z80C;
+  using Z80XX = Z80C;
 
   explicit SchedulerImpl(SchedulerExecutable* ex) : ex_(ex) {}
   ~SchedulerImpl() override = default;
@@ -77,7 +77,7 @@ class SchedulerImpl : public Scheduler {
 //
 class PC88 : public SchedulerExecutable, public ICPUTime {
  public:
-  using Z80 = Z80C;
+  using Z80XX = Z80C;
 
   PC88();
   ~PC88() override;
@@ -116,8 +116,8 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   PC8801::SubSystem* GetMem2() { return subsys_.get(); }
   PC8801::OPNIF* GetOPN1() { return opn1_.get(); }
   PC8801::OPNIF* GetOPN2() { return opn2_.get(); }
-  Z80* GetCPU1() { return &cpu1; }
-  Z80* GetCPU2() { return &cpu2; }
+  Z80XX* GetCPU1() { return &cpu1; }
+  Z80XX* GetCPU2() { return &cpu2; }
   PC8801::PD8257* GetDMAC() { return dmac_.get(); }
   PC8801::Beep* GetBEEP() { return beep_.get(); }
 
@@ -218,8 +218,8 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   DeviceList devlist;
 
  private:
-  Z80 cpu1;
-  Z80 cpu2;
+  Z80XX cpu1;
+  Z80XX cpu2;
 
   friend class PC8801::Base;
 };
