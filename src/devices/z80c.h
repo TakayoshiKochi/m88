@@ -201,7 +201,7 @@ class Z80C : public Device, private IOStrategy, public MemStrategy, public CPUEx
   explicit Z80C(const ID& id);
   ~Z80C() override;
 
-  // Overrides Deevice
+  // Overrides Device
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   bool Init(MemoryManager* mem, IOBus* bus, int iack);
