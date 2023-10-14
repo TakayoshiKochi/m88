@@ -84,6 +84,7 @@ target_link_libraries(common_unittests
 
 add_library(devices ${LIB_TYPE}
         src/devices/z80.h
+        src/devices/z80.cpp
         src/devices/z80c.cpp
         src/devices/z80diag.h
         src/devices/z80diag.cpp)
