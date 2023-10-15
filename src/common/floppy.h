@@ -40,9 +40,9 @@ class FloppyDisk {
 
   class Track {
    public:
-    Track() : sector(0) {}
+    Track() = default;
     ~Track() {
-      for (Sector* s = sector; s;) {
+      for (Sector* s = sector_; s;) {
         Sector* n = s->next;
         delete[] s->image;
         delete s;
@@ -50,7 +50,7 @@ class FloppyDisk {
       }
     }
 
-    Sector* sector;
+    Sector* sector_ = nullptr;
   };
 
  public:
@@ -59,8 +59,8 @@ class FloppyDisk {
 
   bool Init(DiskType type, bool readonly);
 
-  [[nodiscard]] bool IsReadOnly() const { return readonly; }
-  DiskType GetType() { return type; }
+  [[nodiscard]] bool IsReadOnly() const { return readonly_; }
+  DiskType GetType() { return type_; }
 
   void Seek(uint32_t tr);
   Sector* GetSector();
@@ -68,20 +68,20 @@ class FloppyDisk {
   uint32_t GetNumSectors();
   uint32_t GetTrackCapacity();
   uint32_t GetTrackSize();
-  [[nodiscard]] uint32_t GetNumTracks() const { return ntracks; }
+  [[nodiscard]] uint32_t GetNumTracks() const { return ntracks_; }
   bool Resize(Sector* sector, uint32_t newsize);
   bool FormatTrack(int nsec, int secsize);
   Sector* AddSector(int secsize);
   Sector* GetFirstSector(uint32_t track);
-  void IndexHole() { cursector = 0; }
+  void IndexHole() { cur_sector_ = nullptr; }
 
  private:
-  Track tracks[168];
-  int ntracks;
-  DiskType type;
-  bool readonly;
+  Track tracks_[168]{};
+  int ntracks_ = 0;
+  DiskType type_ = MD2D;
+  bool readonly_ = false;
 
-  Track* curtrack;
-  Sector* cursector;
-  uint32_t curtracknum;
+  Track* cur_track_ = nullptr;
+  Sector* cur_sector_ = nullptr;
+  uint32_t cur_tracknum_ = 0;
 };
