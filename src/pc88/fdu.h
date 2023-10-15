@@ -43,7 +43,7 @@ class FDU {
   bool Mount(FloppyDisk* disk);
   bool Unmount();
 
-  bool IsMounted() const { return disk != 0; }
+  bool IsMounted() const { return disk_ != nullptr; }
   uint32_t ReadSector(uint32_t flags, IDR id, uint8_t* data);
   uint32_t WriteSector(uint32_t flags, IDR id, const uint8_t* data, bool deleted);
   uint32_t Seek(uint32_t cyrinder);
@@ -62,13 +62,13 @@ class FDU {
 
   void SetHead(uint32_t hd);
 
-  FloppyDisk* disk;
-  FloppyDisk::Sector* sector;
-  DiskManager* diskmgr;
-  int cyrinder;
-  int head;
-  int drive;
-  int track;
+  FloppyDisk* disk_ = nullptr;
+  FloppyDisk::Sector* sector_ = nullptr;
+  DiskManager* diskmgr_ = nullptr;
+  int cyrinder = 0;
+  int head = 0;
+  int drive = 0;
+  int track = 0;
 };
 
 }  // namespace PC8801
