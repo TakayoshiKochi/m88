@@ -20,8 +20,8 @@ if (MSVC)
 
     # https://gitlab.kitware.com/cmake/community/wikis/FAQ#how-can-i-build-my-msvc-application-with-a-static-runtime
     string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_DEBUG          ${CMAKE_CXX_FLAGS_DEBUG})
-    string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_MINSIZEREL     ${CMAKE_CXX_FLAGS_MINSIZEREL})
     string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE        ${CMAKE_CXX_FLAGS_RELEASE})
+    string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_MINSIZEREL     ${CMAKE_CXX_FLAGS_MINSIZEREL})
     string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 endif (MSVC)
 
@@ -80,7 +80,7 @@ add_library(common ${LIB_TYPE}
 
 target_include_directories(common
         PUBLIC ${CMAKE_SOURCE_DIR}/src
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+        PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
 
 # TODO: remove this dependency
 target_link_libraries(common Z80)
@@ -190,7 +190,7 @@ add_executable(pc88core_unittests
 
 target_link_libraries(pc88core_unittests
         PRIVATE gtest gtest_main
-        common devices fmgen pc88core pc88shell)
+        common devices fmgen pc88core pc88shell win32mon)
 
 add_library(pc88shell ${LIB_TYPE}
         src/services/disk_image_holder.h
@@ -273,7 +273,7 @@ add_executable(win32_unittests
 
 target_link_libraries(win32_unittests
         PRIVATE gtest gtest_main
-        common devices fmgen pc88core pc88shell win32)
+        common devices fmgen pc88core pc88shell win32 win32mon)
 
 add_library(win32mon ${LIB_TYPE}
         src/win32/monitor/basmon.h
@@ -299,7 +299,9 @@ target_include_directories(win32mon
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
-target_link_libraries(win32mon devices)
+target_link_libraries(win32mon
+        PUBLIC devices
+        PRIVATE comctl32)
 
 add_executable(win32mon_unittests
         src/pc88/pc88_test.cc)

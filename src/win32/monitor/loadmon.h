@@ -9,11 +9,9 @@
 #include "common/device.h"
 #include "win32/monitor/winmon.h"
 
-// #define ENABLE_LOADMONITOR
-
-// ---------------------------------------------------------------------------
-
-#ifdef ENABLE_LOADMONITOR
+#include <map>
+#include <mutex>
+#include <string>
 
 class LoadMonitor : public WinMonitor {
  public:
@@ -22,7 +20,7 @@ class LoadMonitor : public WinMonitor {
   };
 
   LoadMonitor();
-  ~LoadMonitor();
+  ~LoadMonitor() override;
 
   bool Init();
 
@@ -33,19 +31,19 @@ class LoadMonitor : public WinMonitor {
  private:
   struct State {
     int total[presis];  // 累計
-    DWORD timeentered;  // 開始時刻
+    DWORD time_entered;  // 開始時刻
   };
 
-  typedef map<string, State> States;
+  typedef std::map<std::string, State> States;
 
-  void UpdateText();
-  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
-  void DrawMain(HDC, bool);
+  void UpdateText() override;
+  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM) override;
+  void DrawMain(HDC, bool) override;
 
   States states;
-  int base;
-  int tidx;
-  int tprv;
+  int base_ = 0;
+  int tidx_ = 0;
+  int tprv_ = 0;
 
   std::mutex mtx_;
   static LoadMonitor* instance;
@@ -62,20 +60,3 @@ inline void LOADEND(const char* key) {
   if (lm)
     lm->ProcEnd(key);
 }
-
-#else
-
-class LoadMonitor {
- public:
-  LoadMonitor() = default;
-  ~LoadMonitor() = default;
-
-  bool Show(HINSTANCE, HWND, bool) { return false; }
-  bool IsOpen() { return false; }
-  bool Init() { return false; }
-};
-
-#define LOADBEGIN(a)
-#define LOADEND(a)
-
-#endif

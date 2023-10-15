@@ -136,8 +136,8 @@ int64_t PC88::Execute(int64_t clocks) {
   } else {
     ex = Z80XX::ExecSingle(&cpu1_, &cpu2_, clocks);
   }
-  return ex;
   LOADEND("Core.CPU");
+  return ex;
 }
 
 // ---------------------------------------------------------------------------

@@ -175,8 +175,8 @@ void WinDraw::PaintWindow() {
     if (rect.left < rect.right && rect.top < rect.bottom) {
       draw_count_++;
       Log("\t\t\t(%3d,%3d)-(%3d,%3d)\n", rect.left, rect.top, rect.right - 1, rect.bottom - 1);
-      //          statusdisplay.Show(100, 0, "(%.3d, %.3d)-(%.3d, %.3d)", rect.left, rect.top,
-      //          rect.right-1, rect.bottom-1);
+      // statusdisplay.Show(100, 0, "(%.3d, %.3d)-(%.3d, %.3d)", rect.left, rect.top,
+      //                    rect.right-1, rect.bottom-1);
     }
     drawing_ = false;
   }
