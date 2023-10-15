@@ -30,7 +30,7 @@ class LoadMonitor : public WinMonitor {
 
  private:
   struct State {
-    int total[presis];  // 累計
+    int total[presis];   // 累計
     DWORD time_entered;  // 開始時刻
   };
 

@@ -89,7 +89,7 @@ void Scheduler::SetEventNS(Event* ev,
   ev->time_ns = repeat ? ev->count_ns : 0;
 
   // 最短イベント発生時刻を更新する？
-  if ((endtime_ns_ - ev->count_ns) > 0) {
+  if (endtime_ns_ > ev->count_ns) {
     ShortenNS(endtime_ns_ - ev->count_ns);
     endtime_ns_ = ev->count_ns;
   }
