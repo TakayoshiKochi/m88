@@ -20,15 +20,15 @@ namespace PC8801 {
 class IOMonitor : public WinMonitor {
  public:
   IOMonitor();
-  ~IOMonitor();
+  ~IOMonitor() override;
 
   bool Init(WinCore*);
 
  private:
-  void Start();
-  void Stop();
-  void UpdateText();
-  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
+  void Start() override;
+  void Stop() override;
+  void UpdateText() override;
+  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM) override;
   IOViewer iov;
   WinCore* pc;
   bool bank;

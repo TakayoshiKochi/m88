@@ -50,7 +50,7 @@ bool IOMonitor::Init(WinCore* _pc) {
 void IOMonitor::Start() {
   pc->Lock();
 
-  IIOBus* bus = (IIOBus*)pc->QueryIF(bank ? M88IID_IOBus1 : M88IID_IOBus2);
+  auto* bus = (IIOBus*)pc->QueryIF(bank ? M88IID_IOBus1 : M88IID_IOBus2);
   if (bus)
     iov.Connect(bus);
 

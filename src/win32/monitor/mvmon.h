@@ -20,13 +20,13 @@ namespace PC8801 {
 class MemViewMonitor : public WinMonitor {
  public:
   MemViewMonitor();
-  ~MemViewMonitor();
+  ~MemViewMonitor() override;
 
   bool Init(LPCTSTR tmpl, PC88*);
 
  protected:
   MemoryBus* GetBus() { return bus; }
-  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
+  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM) override;
 
   void StatClear();
   uint32_t StatExec(uint32_t a);
@@ -34,15 +34,15 @@ class MemViewMonitor : public WinMonitor {
 
   MemoryViewer mv;
 
-  MemoryViewer::Type GetA0() { return a0; }
-  MemoryViewer::Type GetA6() { return a6; }
-  MemoryViewer::Type GetAf() { return af; }
+  MemoryViewer::Type GetA0() { return a0_; }
+  MemoryViewer::Type GetA6() { return a6_; }
+  MemoryViewer::Type GetAf() { return af_; }
 
  private:
-  MemoryBus* bus;
-  MemoryViewer::Type a0;
-  MemoryViewer::Type a6;
-  MemoryViewer::Type af;
+  MemoryBus* bus{};
+  MemoryViewer::Type a0_ = MemoryViewer::kMainRam;
+  MemoryViewer::Type a6_ = MemoryViewer::kMainRam
+  MemoryViewer::Type af_ = MemoryViewer::kTVRam;
 };
 
 }  // namespace PC8801

@@ -58,7 +58,7 @@ class WinMonitor {
 
   void SetUpdateTimer(int t);
 
-  virtual void DrawMain(HDC, bool = false);
+  virtual void DrawMain(HDC, bool);
   virtual BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
 
   [[nodiscard]] HWND GetHWnd() const { return hwnd_; }

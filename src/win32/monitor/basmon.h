@@ -20,27 +20,27 @@ namespace PC8801 {
 class BasicMonitor : public WinMonitor {
  public:
   BasicMonitor();
-  ~BasicMonitor();
+  ~BasicMonitor() override;
 
   bool Init(PC88*);
 
  private:
   void Decode(bool always);
-  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
-  void UpdateText();
+  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM) override;
+  void UpdateText() override;
 
-  char basictext[0x10000];
-  int line[0x4000];
-  int nlines;
+  char basictext[0x10000]{};
+  int line[0x4000]{};
+  int nlines{};
 
   MemoryViewer mv;
-  MemoryBus* bus;
+  MemoryBus* bus{};
 
   uint32_t Read8(uint32_t adr);
   uint32_t Read16(uint32_t adr);
   uint32_t Read32(uint32_t adr);
 
-  uint32_t prvs;
+  uint32_t prvs{};
 
   static const char* rsvdword[];
 };

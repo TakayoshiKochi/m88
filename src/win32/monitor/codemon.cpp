@@ -16,14 +16,16 @@ using namespace PC8801;
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-CodeMonitor::CodeMonitor() {}
+CodeMonitor::CodeMonitor() = default;
 
-CodeMonitor::~CodeMonitor() {}
+CodeMonitor::~CodeMonitor() = default;
 
 bool CodeMonitor::Init(PC88* pc88) {
+  pc_ = pc88;
+
   if (!MemViewMonitor::Init(MAKEINTRESOURCE(IDD_CODEMON), pc88))
     return false;
-  if (!diag.Init(GetBus()))
+  if (!diag_.Init(GetBus()))
     return false;
 
   SetLines(0x10000);
@@ -55,25 +57,25 @@ int CodeMonitor::VerticalScroll(int msg) {
     int i;
 
     case SB_LINEUP:
-      addr = diag.InstDec(addr);
+      addr = diag_.InstDec(addr);
       if (addr >= 0)
         ScrollDown();
       break;
 
     case SB_LINEDOWN:
-      addr = diag.InstInc(addr);
+      addr = diag_.InstInc(addr);
       if (addr < 0x10000)
         ScrollUp();
       break;
 
     case SB_PAGEUP:
       for (i = 1; i < GetHeight() && addr > 0; i++)
-        addr = diag.InstDec(addr);
+        addr = diag_.InstDec(addr);
       break;
 
     case SB_PAGEDOWN:
       for (i = 1; i < GetHeight() && addr < 0x10000; i++)
-        addr = diag.InstInc(addr);
+        addr = diag_.InstInc(addr);
       break;
 
     case SB_TOP:
@@ -108,7 +110,7 @@ void CodeMonitor::UpdateText() {
       // 実行回数に基づいて色をつけてみる
       SetBkCol(RGB(StatExec(a), 0, 0x20));
 
-      int next = diag.Disassemble(a, buf + 8);
+      int next = diag_.Disassemble(a, buf + 8);
       char* ptr = buf;
       int c, d = next - a;
       for (c = 0; c < d; c++)
@@ -126,7 +128,7 @@ void CodeMonitor::UpdateText() {
 bool CodeMonitor::Dump(FILE* fp, int from, int to) {
   char buf[128];
   for (int a = from; a < to; a) {
-    int next = diag.Disassemble(a, buf + 8);
+    int next = diag_.Disassemble(a, buf + 8);
 
     char* ptr = buf;
     int c, d = next - a;

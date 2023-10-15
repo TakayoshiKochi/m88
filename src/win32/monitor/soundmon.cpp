@@ -17,12 +17,12 @@ using namespace PC8801;
 //  構築/消滅
 //
 OPNMonitor::OPNMonitor() {
-  soundcontrol = 0;
+  soundcontrol = nullptr;
   read = !(write = 0);
   width = 1024;
 }
 
-OPNMonitor::~OPNMonitor() {}
+OPNMonitor::~OPNMonitor() = default;
 
 bool OPNMonitor::Init(OPNIF* o, ISoundControl* sc) {
   if (!WinMonitor::Init(MAKEINTRESOURCE(IDD_SOUNDMON)))
