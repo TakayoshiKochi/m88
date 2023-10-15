@@ -12,15 +12,15 @@
 //  構築
 //
 FloppyDisk::FloppyDisk() {
-  ntracks = 0;
-  curtrack = 0;
-  cursector = 0;
-  curtracknum = ~0;
-  readonly = false;
-  type = MD2D;
+  ntracks_ = 0;
+  cur_track_ = nullptr;
+  cur_sector_ = nullptr;
+  cur_tracknum_ = ~0;
+  readonly_ = false;
+  type_ = kMD2D;
 }
 
-FloppyDisk::~FloppyDisk() {}
+FloppyDisk::~FloppyDisk() = default;
 
 // ---------------------------------------------------------------------------
 //  初期化
@@ -28,13 +28,13 @@ FloppyDisk::~FloppyDisk() {}
 bool FloppyDisk::Init(DiskType _type, bool _readonly) {
   static const int trtbl[] = {84, 164, 164};
 
-  type = _type;
-  readonly = _readonly;
-  ntracks = trtbl[type];
+  type_ = _type;
+  readonly_ = _readonly;
+  ntracks_ = trtbl[type_];
 
-  curtrack = 0;
-  cursector = 0;
-  curtracknum = ~0;
+  cur_track_ = nullptr;
+  cur_sector_ = nullptr;
+  cur_tracknum_ = ~0;
   return true;
 }
 
@@ -42,10 +42,10 @@ bool FloppyDisk::Init(DiskType _type, bool _readonly) {
 //  指定のトラックにシーク
 //
 void FloppyDisk::Seek(uint32_t tr) {
-  if (tr != curtracknum) {
-    curtracknum = tr;
-    curtrack = tr < 168 ? tracks + tr : 0;
-    cursector = 0;
+  if (tr != cur_tracknum_) {
+    cur_tracknum_ = tr;
+    cur_track_ = tr < 168 ? tracks_ + tr : nullptr;
+    cur_sector_ = nullptr;
   }
 }
 
@@ -53,15 +53,15 @@ void FloppyDisk::Seek(uint32_t tr) {
 //  セクタ一つ読み出し
 //
 FloppyDisk::Sector* FloppyDisk::GetSector() {
-  if (!cursector) {
-    if (curtrack)
-      cursector = curtrack->sector;
+  if (!cur_sector_) {
+    if (cur_track_)
+      cur_sector_ = cur_track_->sector_;
   }
 
-  Sector* ret = cursector;
+  Sector* ret = cur_sector_;
 
-  if (cursector)
-    cursector = cursector->next;
+  if (cur_sector_)
+    cur_sector_ = cur_sector_->next;
 
   return ret;
 }
@@ -70,21 +70,21 @@ FloppyDisk::Sector* FloppyDisk::GetSector() {
 //  指定した ID を検索
 //
 bool FloppyDisk::FindID(IDR idr, uint32_t density) {
-  if (!curtrack)
+  if (!cur_track_)
     return false;
 
-  Sector* first = cursector;
+  Sector* first = cur_sector_;
   do {
-    if (cursector) {
-      if (cursector->id == idr) {
-        if ((cursector->flags & 0xc0) == (density & 0xc0))
+    if (cur_sector_) {
+      if (cur_sector_->id == idr) {
+        if ((cur_sector_->flags & 0xc0) == (density & 0xc0))
           return true;
       }
-      cursector = cursector->next;
+      cur_sector_ = cur_sector_->next;
     } else {
-      cursector = curtrack->sector;
+      cur_sector_ = cur_track_->sector_;
     }
-  } while (cursector != first);
+  } while (cur_sector_ != first);
 
   return false;
 }
@@ -94,8 +94,8 @@ bool FloppyDisk::FindID(IDR idr, uint32_t density) {
 //
 uint32_t FloppyDisk::GetNumSectors() {
   int n = 0;
-  if (curtrack) {
-    Sector* sec = curtrack->sector;
+  if (cur_track_) {
+    Sector* sec = cur_track_->sector_;
     while (sec) {
       sec = sec->next;
       n++;
@@ -110,8 +110,8 @@ uint32_t FloppyDisk::GetNumSectors() {
 uint32_t FloppyDisk::GetTrackSize() {
   int size = 0;
 
-  if (curtrack) {
-    Sector* sec = curtrack->sector;
+  if (cur_track_) {
+    Sector* sec = cur_track_->sector_;
     while (sec) {
       size += sec->size;
       sec = sec->next;
@@ -126,7 +126,7 @@ uint32_t FloppyDisk::GetTrackSize() {
 //  sector は現在選択しているトラックに属している必要がある．
 //
 bool FloppyDisk::Resize(Sector* sec, uint32_t newsize) {
-  assert(curtrack && sec);
+  assert(cur_track_ && sec);
 
   int extend = newsize - sec->size - 0x40;
 
@@ -140,24 +140,24 @@ bool FloppyDisk::Resize(Sector* sec, uint32_t newsize) {
     return false;
   }
 
-  cursector = sec->next;
-  while (extend > 0 && cursector) {
-    Sector* next = cursector->next;
-    extend -= cursector->size + 0xc0;
-    delete[] cursector->image;
-    delete cursector;
-    sec->next = cursector = next;
+  cur_sector_ = sec->next;
+  while (extend > 0 && cur_sector_) {
+    Sector* next = cur_sector_->next;
+    extend -= cur_sector_->size + 0xc0;
+    delete[] cur_sector_->image;
+    delete cur_sector_;
+    sec->next = cur_sector_ = next;
   }
   if (extend > 0) {
     int gapsize = GetTrackCapacity() - GetTrackSize() - 0x60 * GetNumSectors();
     extend -= gapsize;
   }
-  while (extend > 0 && cursector) {
-    Sector* next = cursector->next;
-    extend -= cursector->size + 0xc0;
-    delete[] cursector->image;
-    delete cursector;
-    curtrack->sector = cursector = next;
+  while (extend > 0 && cur_sector_) {
+    Sector* next = cur_sector_->next;
+    extend -= cur_sector_->size + 0xc0;
+    delete[] cur_sector_->image;
+    delete cur_sector_;
+    cur_track_->sector_ = cur_sector_ = next;
   }
   if (extend > 0)
     return false;
@@ -171,28 +171,28 @@ bool FloppyDisk::Resize(Sector* sec, uint32_t newsize) {
 bool FloppyDisk::FormatTrack(int nsec, int secsize) {
   Sector* sec;
 
-  if (!curtrack)
+  if (!cur_track_)
     return false;
 
   // 今あるトラックを破棄
-  sec = curtrack->sector;
+  sec = cur_track_->sector_;
   while (sec) {
     Sector* next = sec->next;
     delete[] sec->image;
     delete sec;
     sec = next;
   }
-  curtrack->sector = 0;
+  cur_track_->sector_ = nullptr;
 
   if (nsec) {
     // セクタを作成
-    cursector = 0;
+    cur_sector_ = 0;
     for (int i = 0; i < nsec; i++) {
-      Sector* newsector = new Sector;
+      auto* newsector = new Sector;
       if (!newsector)
         return false;
-      curtrack->sector = newsector;
-      newsector->next = cursector;
+      cur_track_->sector_ = newsector;
+      newsector->next = cur_sector_;
       newsector->size = secsize;
       if (secsize) {
         newsector->image = new uint8_t[secsize];
@@ -201,9 +201,9 @@ bool FloppyDisk::FormatTrack(int nsec, int secsize) {
           return false;
         }
       } else {
-        newsector->image = 0;
+        newsector->image = nullptr;
       }
-      cursector = newsector;
+      cur_sector_ = newsector;
     }
   }
   return true;
@@ -213,33 +213,33 @@ bool FloppyDisk::FormatTrack(int nsec, int secsize) {
 //  セクタ一つ追加
 //
 FloppyDisk::Sector* FloppyDisk::AddSector(int size) {
-  if (!curtrack)
-    return 0;
+  if (!cur_track_)
+    return nullptr;
 
-  Sector* newsector = new Sector;
+  auto* newsector = new Sector;
   if (!newsector)
-    return 0;
+    return nullptr;
   if (size) {
     newsector->image = new uint8_t[size];
     if (!newsector->image) {
       delete newsector;
-      return 0;
+      return nullptr;
     }
   } else {
-    newsector->image = 0;
+    newsector->image = nullptr;
   }
 
-  if (!cursector)
-    cursector = curtrack->sector;
+  if (!cur_sector_)
+    cur_sector_ = cur_track_->sector_;
 
-  if (cursector) {
-    newsector->next = cursector->next;
-    cursector->next = newsector;
+  if (cur_sector_) {
+    newsector->next = cur_sector_->next;
+    cur_sector_->next = newsector;
   } else {
-    newsector->next = 0;
-    curtrack->sector = newsector;
+    newsector->next = nullptr;
+    cur_track_->sector_ = newsector;
   }
-  cursector = newsector;
+  cur_sector_ = newsector;
   return newsector;
 }
 
@@ -248,7 +248,7 @@ FloppyDisk::Sector* FloppyDisk::AddSector(int size) {
 //
 uint32_t FloppyDisk::GetTrackCapacity() {
   static const int table[3] = {6250, 6250, 10416};
-  return table[type];
+  return table[type_];
 }
 
 // ---------------------------------------------------------------------------
@@ -256,6 +256,6 @@ uint32_t FloppyDisk::GetTrackCapacity() {
 //
 FloppyDisk::Sector* FloppyDisk::GetFirstSector(uint32_t tr) {
   if (tr < 168)
-    return tracks[tr].sector;
-  return 0;
+    return tracks_[tr].sector_;
+  return nullptr;
 }

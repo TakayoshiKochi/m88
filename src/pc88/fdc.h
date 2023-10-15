@@ -13,6 +13,8 @@
 #include "common/scheduler.h"
 #include "pc88/fdu.h"
 
+#include <memory>
+
 class DiskManager;
 class IOBus;
 
@@ -59,8 +61,9 @@ class FDC : public Device {
     ST3_WP = 0x40,
     ST3_FT = 0x80,
   };
-  typedef FloppyDisk::IDR IDR;
-  typedef FDU::WIDDESC WIDDESC;
+
+  using IDR = FloppyDisk::IDR;
+  using WIDDESC = FDU::WIDDESC;
 
  protected:
   enum Stat {
@@ -81,11 +84,11 @@ class FDC : public Device {
   bool Init(DiskManager* dm, Scheduler* scheduler, IOBus* bus, int intport, int statport = -1);
   void ApplyConfig(const Config* cfg);
 
-  bool IsBusy() { return phase != idlephase; }
+  bool IsBusy() { return phase_ != idlephase; }
 
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
-  void IOCALL DriveControl(uint32_t, uint32_t data);    // 2HD/2DD 切り替えとか
-  void IOCALL MotorControl(uint32_t, uint32_t data) {}  // モーター制御
+  void IOCALL DriveControl(uint32_t, uint32_t x);       // 2HD/2DD 切り替えとか
+  void IOCALL MotorControl(uint32_t, uint32_t x) {}  // モーター制御
   void IOCALL SetData(uint32_t, uint32_t data);         // データセット
   uint32_t IOCALL TC(uint32_t);                         // TC
   uint32_t IOCALL Status(uint32_t);                     // ステータス入力
@@ -173,7 +176,7 @@ class FDC : public Device {
   void ShiftToIdlePhase();
   void ShiftToCommandPhase(int);
   void ShiftToExecutePhase();
-  void ShiftToExecReadPhase(int, uint8_t* data = 0);
+  void ShiftToExecReadPhase(int, uint8_t* x = 0);
   void ShiftToExecWritePhase(int);
   void ShiftToExecScanPhase(int);
   void ShiftToResultPhase(int);
@@ -181,47 +184,48 @@ class FDC : public Device {
 
   uint32_t GetDeviceStatus(uint32_t dr);
 
-  DiskManager* diskmgr;
-  IOBus* bus;
-  int pintr;
-  Scheduler* scheduler;
+  DiskManager* diskmgr_ = nullptr;
+  IOBus* bus_ = nullptr;
+  int pintr_ = 0;
+  Scheduler* scheduler_ = nullptr;
 
-  Scheduler::Event* timerhandle;
-  uint32_t seektime;
+  Scheduler::Event* timer_handle_ = nullptr;
+  uint32_t seek_time_ = 0;
 
-  uint32_t status;  // ステータスレジスタ
-  uint8_t* buffer;
-  uint8_t* bufptr;
-  int count;         // Exec*Phase での転送残りバイト
-  uint32_t command;  // 現在処理中のコマンド
-  uint32_t data;     // データレジスタ
-  Phase phase, prevphase;
-  Phase t_phase;
-  bool int_requested;  // SENCEINTSTATUS の呼び出しを要求した
-  bool accepttc;
-  bool showstatus;
+  uint32_t status_ = 0;  // ステータスレジスタ
+  std::unique_ptr<uint8_t[]> buffer_;
+  uint8_t* bufptr_ = nullptr;
+  int count_ = 0;          // Exec*Phase での転送残りバイト
+  uint32_t command_ = 0;  // 現在処理中のコマンド
+  uint32_t data_ = 0;      // データレジスタ
+  Phase phase_ = idlephase;
+  Phase prev_phase_ = idlephase;
+  Phase t_phase_ = idlephase;
+  bool int_requested_ = false;  // SENCEINTSTATUS の呼び出しを要求した
+  bool accept_tc_ = false;
+  bool show_status_ = false;
 
-  bool diskwait;
+  bool disk_wait_ = true;
 
-  IDR idr;
-  uint32_t hdu;  // HD US1 US0
-  uint32_t hdue;
-  uint32_t dtl;
-  uint32_t eot;
-  uint32_t seekstate;
-  uint32_t result;
+  IDR idr_{};
+  uint32_t hdu_ = 0;  // HD US1 US0
+  uint32_t hdue_ = 0;
+  uint32_t dtl_ = 0;
+  uint32_t eot_ = 0;
+  uint32_t seek_state_ = 0;
+  uint32_t result_ = 0;
 
-  uint8_t* readdiagptr;
-  uint8_t* readdiaglim;
-  uint32_t xbyte;
-  uint32_t readdiagcount;
+  uint8_t* read_diag_ptr_ = nullptr;
+  uint8_t* read_diag_lim_ = nullptr;
+  uint32_t xbyte_ = 0;
+  uint32_t read_diag_count_ = 0;
 
-  uint32_t litdrive;
-  uint32_t fdstat;
-  uint32_t pfdstat;
+  uint32_t lit_drive_ = 0;
+  uint32_t fd_stat_ = 0;
+  uint32_t pfd_stat_ = 0;
 
-  WIDDESC wid;
-  Drive drive[4];
+  WIDDESC wid_{};
+  Drive drive_[4]{};
 
   static const CommandFunc CommandTable[32];
 
