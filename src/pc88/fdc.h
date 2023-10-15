@@ -87,12 +87,12 @@ class FDC : public Device {
   bool IsBusy() { return phase_ != idlephase; }
 
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
-  void IOCALL DriveControl(uint32_t, uint32_t x);       // 2HD/2DD 切り替えとか
+  void IOCALL DriveControl(uint32_t, uint32_t x);    // 2HD/2DD 切り替えとか
   void IOCALL MotorControl(uint32_t, uint32_t x) {}  // モーター制御
-  void IOCALL SetData(uint32_t, uint32_t data);         // データセット
-  uint32_t IOCALL TC(uint32_t);                         // TC
-  uint32_t IOCALL Status(uint32_t);                     // ステータス入力
-  uint32_t IOCALL GetData(uint32_t);                    // データ取得
+  void IOCALL SetData(uint32_t, uint32_t data);      // データセット
+  uint32_t IOCALL TC(uint32_t);                      // TC
+  uint32_t IOCALL Status(uint32_t);                  // ステータス入力
+  uint32_t IOCALL GetData(uint32_t);                 // データ取得
 
   uint32_t IFCALL GetStatusSize() override;
   bool IFCALL SaveStatus(uint8_t* status) override;
@@ -195,9 +195,9 @@ class FDC : public Device {
   uint32_t status_ = 0;  // ステータスレジスタ
   std::unique_ptr<uint8_t[]> buffer_;
   uint8_t* bufptr_ = nullptr;
-  int count_ = 0;          // Exec*Phase での転送残りバイト
+  int count_ = 0;         // Exec*Phase での転送残りバイト
   uint32_t command_ = 0;  // 現在処理中のコマンド
-  uint32_t data_ = 0;      // データレジスタ
+  uint32_t data_ = 0;     // データレジスタ
   Phase phase_ = idlephase;
   Phase prev_phase_ = idlephase;
   Phase t_phase_ = idlephase;

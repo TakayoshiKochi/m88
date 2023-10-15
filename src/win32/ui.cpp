@@ -914,7 +914,7 @@ void WinUI::SetCursorVisibility(bool flag) {
 void WinUI::SaveSnapshot(int n) {
   char name[MAX_PATH];
   GetSnapshotName(name, n);
-  if (core.SaveShapshot(name))
+  if (core.SaveSnapshot(name))
     statusdisplay.Show(80, 3000, "%s に保存しました", name);
   else
     statusdisplay.Show(80, 3000, "%s に保存できません", name);
@@ -931,9 +931,9 @@ void WinUI::LoadSnapshot(int n) {
   bool r;
   if (!diskinfo[0].filename_.empty() && diskmgr_->GetNumDisks(0) >= 2) {
     OpenDiskImage(1, diskinfo[0].filename_, diskinfo[0].readonly, 1, false);
-    r = core.LoadShapshot(name, diskinfo[0].filename_);
+    r = core.LoadSnapshot(name, diskinfo[0].filename_);
   } else {
-    r = core.LoadShapshot(name, "");
+    r = core.LoadSnapshot(name, "");
   }
 
   if (r)

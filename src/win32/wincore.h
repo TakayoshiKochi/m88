@@ -44,16 +44,16 @@ class WinCore : public PC88, public ISystem, public ILockCore {
   void Reset();
   void ApplyConfig(PC8801::Config* config);
 
-  bool SaveShapshot(const std::string_view filename);
-  bool LoadShapshot(const std::string_view filename, const std::string_view diskname);
+  bool SaveSnapshot(const std::string_view filename);
+  bool LoadSnapshot(const std::string_view filename, const std::string_view diskname);
 
-  PC8801::WinSound* GetSound() { return &sound; }
+  PC8801::WinSound* GetSound() { return &sound_; }
 
-  int64_t GetExecClocks() { return seq.GetExecClocks(); }
-  void Wait(bool dowait) { dowait ? seq.Deactivate() : seq.Activate(); }
+  int64_t GetExecClocks() { return seq_.GetExecClocks(); }
+  void Wait(bool dowait) { dowait ? seq_.Deactivate() : seq_.Activate(); }
   void* IFCALL QueryIF(REFIID iid) override;
-  void IFCALL Lock() override { seq.Lock(); }
-  void IFCALL Unlock() override { seq.Unlock(); }
+  void IFCALL Lock() override { seq_.Lock(); }
+  void IFCALL Unlock() override { seq_.Unlock(); }
 
  private:
   //  Snapshot ヘッダー
@@ -77,30 +77,32 @@ class WinCore : public PC88, public ISystem, public ILockCore {
     uint32_t flag2;
   };
 
+  // Lock between UI thread and emulation thread.
   class LockObj {
-    WinCore* b;
-
    public:
-    LockObj(WinCore* _b) : b(_b) { b->Lock(); }
-    ~LockObj() { b->Unlock(); }
+    LockObj(WinCore* c) : core_(c) { core_->Lock(); }
+    ~LockObj() { core_->Unlock(); }
+
+   private:
+    WinCore* core_;
   };
 
  private:
   bool ConnectDevices(PC8801::WinKeyIF* keyb);
   bool ConnectExternalDevices();
 
-  WinUI* ui;
-  IConfigPropBase* cfgprop;
+  WinUI* ui_ = nullptr;
+  IConfigPropBase* cfg_prop_ = nullptr;
 
-  Sequencer seq;
-  WinPadIF padif;
+  Sequencer seq_;
+  WinPadIF pad_if_;
 
-  typedef std::vector<PC8801::ExtendModule*> ExtendModules;
-  ExtendModules extmodules;
+  using ExtendModules = std::vector<PC8801::ExtendModule*>;
+  ExtendModules ext_modules_;
 
-  PC8801::WinSound sound;
-  PC8801::Config config;
+  PC8801::WinSound sound_;
+  PC8801::Config config_;
 
-  typedef std::vector<PC8801::ExternalDevice*> ExternalDevices;
-  ExternalDevices extdevices;
+  using ExternalDevices = std::vector<PC8801::ExternalDevice*>;
+  ExternalDevices ext_devices_;
 };
