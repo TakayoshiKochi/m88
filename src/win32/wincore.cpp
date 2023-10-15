@@ -71,10 +71,7 @@ bool WinCore::Init(WinUI* ui,
   seq_.SetCPUClock(3993600);
   seq_.SetSpeed(100);  // 100%
 
-  if (!seq_.Init(&pc88_))
-    return false;
-
-  return true;
+  return seq_.Init(&pc88_);
 }
 
 // ---------------------------------------------------------------------------
