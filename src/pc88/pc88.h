@@ -78,7 +78,7 @@ class SchedulerImpl : public Scheduler {
 //
 class PC88 : public SchedulerExecutable, public ICPUTime {
  public:
-  using Z80XX = Z80X;
+  using Z80XX = SchedulerImpl::Z80XX;
 
   PC88();
   ~PC88() override;
