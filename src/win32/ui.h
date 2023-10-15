@@ -130,13 +130,13 @@ class WinUI {
   bool gui_mode_by_mouse_ = false;
 
   // disk
-  DiskInfo diskinfo[2];
-  std::string tapetitle_;
+  DiskInfo diskinfo[2]{};
+  std::string tape_title_;
 
   // snapshot 関係
-  HMENU hmenuss[2];
-  int currentsnapshot;
-  bool snapshotchanged;
+  HMENU hmenuss[2]{};
+  int current_snapshot_ = 0;
+  bool snapshot_changed_ = false;
 
   // PC88
   bool capture_mouse_ = true;
@@ -145,12 +145,14 @@ class WinUI {
   // Power management
   scoped_handle<HANDLE> hpower_;
 
-  WinCore core;
-  WinDraw draw;
+  WinCore core_;
+  WinDraw draw_;
   PC8801::WinKeyIF keyif_;
-  PC8801::Config config;
-  PC8801::WinConfig winconfig;
-  WinNewDisk newdisk;
+  PC8801::Config config_;
+  PC8801::WinConfig win_config_;
+  WinNewDisk new_disk_;
+
+  // Monitors
   OPNMonitor opn_mon_;
   PC8801::MemoryMonitor mem_mon_;
   PC8801::CodeMonitor code_mon_;
@@ -158,8 +160,9 @@ class WinUI {
   PC8801::IOMonitor io_mon_;
   Z80RegMonitor reg_mon_;
   LoadMonitor load_mon_;
-  std::unique_ptr<DiskManager> diskmgr_;
-  std::unique_ptr<TapeManager> tapemgr_;
+
+  std::unique_ptr<DiskManager> disk_manager_;
+  std::unique_ptr<TapeManager> tape_manager_;
 
  private:
   // メッセージ関数
