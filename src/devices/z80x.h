@@ -12,51 +12,7 @@
 // XXX not to confuse with z80.h in the current directory.
 #include "Z80/API/Z80.h"
 
-class Z80X;
-
-class CPUExecutorX {
- public:
-  explicit CPUExecutorX(Z80X* cpu) : cpu_(cpu) {}
-  ~CPUExecutorX() = default;
-
-  void Init();
-  void Reset();
-
-  static int64_t ExecSingle(Z80X* first, Z80X* second, int clocks);
-  static int64_t ExecDual(Z80X* first, Z80X* second, int count);
-  static int64_t ExecDual2(Z80X* first, Z80X* second, int count);
-
-  void Stop(int count);
-  static void StopDual(int count);
-
-  // クロックカウンタ取得
-  [[nodiscard]] int64_t GetClocks() const { return exec_clocks_ + (clock_count_ << eshift_); }
-  static int64_t GetCCount();
-
- protected:
-  bool Sync();
-
-  int64_t clock_count_ = 0;
-  int64_t exec_clocks_ = 0;
-
- private:
-  int64_t Exec0(Z80X* cpu, int64_t stop, int64_t other);
-  int64_t Exec1(Z80X* cpu, int64_t stop, int64_t other);
-
-  Z80X* cpu_;
-
-  // Emulation state
-  static Z80X* currentcpu;
-  static int64_t cbase;
-
-  // main:sub clock ratio 1:1 = 0, 2:1 = 1 (thus for shift value)
-  int eshift_ = 0;
-  int64_t start_count_ = 0;
-  int64_t stop_count_ = 0;
-  int64_t delay_count_ = 0;
-};
-
-class Z80X : public Device, private IOStrategy, public MemStrategy, public CPUExecutorX {
+class Z80X : public Device, private IOStrategy, public MemStrategy {
  public:
   enum {
     reset = 0,
@@ -77,6 +33,18 @@ class Z80X : public Device, private IOStrategy, public MemStrategy, public CPUEx
   void IOCALL IRQ(uint32_t, uint32_t d);
   void IOCALL NMI(uint32_t = 0, uint32_t = 0);
   void Wait(bool flag);
+
+  // Execution
+  static int64_t ExecSingle(Z80X* first, Z80X* second, int clocks);
+  static int64_t ExecDual(Z80X* first, Z80X* second, int clocks);
+  static int64_t ExecDual2(Z80X* first, Z80X* second, int clocks);
+
+  void Stop(int count);
+  static void StopDual(int count);
+
+  // クロックカウンタ取得
+  [[nodiscard]] int64_t GetClocks() const { return exec_cycles_ + cycles_; }
+  static int64_t GetCCount();
 
   bool EnableDump(bool dump) {}
   int GetDumpState() { return 0; }
@@ -116,6 +84,12 @@ class Z80X : public Device, private IOStrategy, public MemStrategy, public CPUEx
   // Execute ~1 instruction
   void SingleStep();
 
+  // Sync execution / clock count
+  void SyncCycles() {
+    exec_cycles_ += cycles_;
+    cycles_ = 0;
+  }
+
   // Syncs libz80 reg -> Z80Reg
   void ImportReg();
   // Syncs Z80Reg -> libz80 reg
@@ -134,6 +108,12 @@ class Z80X : public Device, private IOStrategy, public MemStrategy, public CPUEx
   Z80 z80_{};
   Z80Reg reg_{};
 
+  // Execution
+  int64_t cycles_ = 0;
+  int64_t exec_cycles_ = 0;
+
+  static Z80X* currentcpu;
+
   static const Descriptor descriptor;
   static const OutFuncPtr outdef[];
 
@@ -149,6 +129,6 @@ class Z80X : public Device, private IOStrategy, public MemStrategy, public CPUEx
 };
 
 // static
-inline int64_t CPUExecutorX::GetCCount() {
-  return currentcpu ? currentcpu->GetClocks() - currentcpu->start_count_ : 0;
+inline int64_t Z80X::GetCCount() {
+  return currentcpu ? currentcpu->cycles_ : 0;
 }
