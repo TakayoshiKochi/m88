@@ -11,7 +11,6 @@
 #include <commdlg.h>
 #include <dwmapi.h>
 #include <shellapi.h>
-#include <mbstring.h>
 
 #include <algorithm>
 
