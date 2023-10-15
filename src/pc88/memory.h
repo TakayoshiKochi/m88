@@ -94,7 +94,10 @@ class Memory : public Device, public IGetMemoryBank {
   uint8_t* GetTVRAM() { return tvram_.get(); }
   Quadbyte* GetGVRAM() { return gvram_.get(); }
   uint8_t* GetROM() { return rom_.get(); }
+  [[nodiscard]] bool HasEROM(int b) const { return (erom_mask_ & (1 << b)) == 0; }
+  uint8_t* GetEROM(int b) { return erom_[b].get(); }
   uint8_t* GetDirtyFlag() { return dirty_.get(); }
+
 
   // Overrides for class IGetMemoryBank
   uint32_t IFCALL GetRdBank(uint32_t addr) override;

@@ -28,7 +28,7 @@ bool MemoryViewer::Init(PC88* _pc) {
   mem2_ = pc_->GetMem2();
   z80_ = nullptr;
 #ifdef Z80C_STATISTICS
-  stat_ = 0;
+  stat_ = nullptr;
 #endif
 
   SelectBank(kMainRam, kMainRam, kMainRam, kMainRam, kMainRam);
@@ -86,6 +86,16 @@ void MemoryViewer::SelectBank(Type a0, Type a6, Type a8, Type ac, Type af) {
       case kN88E2:
       case kN88E3:
         p = mem1_->GetROM() + Memory::n88e + (a6 - kN88E0) * 0x2000;
+        break;
+      case kExtRom1:
+      case kExtRom2:
+      case kExtRom3:
+      case kExtRom4:
+      case kExtRom5:
+      case kExtRom6:
+      case kExtRom7:
+        if (mem1_->HasEROM(a6 - kExtRom1 + 1))
+          p = mem1_->GetEROM(a6 - kExtRom1 + 1);
         break;
       case kERam0:
         p = mem1_->GetERAM(0) + 0x6000;

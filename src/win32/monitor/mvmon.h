@@ -39,9 +39,10 @@ class MemViewMonitor : public WinMonitor {
   MemoryViewer::Type GetAf() { return af_; }
 
  private:
+  PC88* pc88_ = nullptr;
   MemoryBus* bus{};
   MemoryViewer::Type a0_ = MemoryViewer::kMainRam;
-  MemoryViewer::Type a6_ = MemoryViewer::kMainRam
+  MemoryViewer::Type a6_ = MemoryViewer::kMainRam;
   MemoryViewer::Type af_ = MemoryViewer::kTVRam;
 };
 

@@ -52,12 +52,11 @@ BOOL Z80RegMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
       p.y = HIWORD(lp);
 
       if (GetTextPos(&p)) {
-
       }
       break;
     case WM_SIZE:
-//      width_ = std::min(LOWORD(lp) + 128, buf_size_);
-//      SetFont(hdlg, Limit(HIWORD(lp) / 11, 24, 8));
+      //      width_ = std::min(LOWORD(lp) + 128, buf_size_);
+      //      SetFont(hdlg, Limit(HIWORD(lp) / 11, 24, 8));
       break;
   }
   return WinMonitor::DlgProc(hdlg, msg, wp, lp);
@@ -74,15 +73,17 @@ void Z80RegMonitor::UpdateText() {
 
   constexpr uint32_t mask = 0xffff;
 
-  Putf("PC:%.4x SP:%.4x   PC:%.4x SP:%.4x\n", c1->GetPC() & mask, r1.r.w.sp & mask, c2->GetPC() & mask,
-       r2.r.w.sp & mask);
+  Putf("PC:%.4x SP:%.4x   PC:%.4x SP:%.4x\n", c1->GetPC() & mask, r1.r.w.sp & mask,
+       c2->GetPC() & mask, r2.r.w.sp & mask);
   Putf("AF:%.4x BC:%.4x   AF:%.4x BC:%.4x\n", r1.r.w.af & mask, r1.r.w.bc & mask, r2.r.w.af & mask,
        r2.r.w.bc & mask);
   Putf("HL:%.4x DE:%.4x   HL:%.4x DE:%.4x\n", r1.r.w.hl & mask, r1.r.w.de & mask, r2.r.w.hl & mask,
        r2.r.w.de & mask);
   Putf("IX:%.4x IY:%.4x   IX:%.4x IY:%.4x\n", r1.r.w.ix & mask, r1.r.w.iy & mask, r2.r.w.ix & mask,
        r2.r.w.iy & mask);
-  Putf("AF'%.4x BC'%.4x   AF'%.4x BC'%.4x\n", r1.r_af & mask, r1.r_bc & mask, r2.r_af & mask, r2.r_bc & mask);
-  Putf("HL'%.4x DE'%.4x   HL'%.4x DE'%.4x\n", r1.r_hl & mask, r1.r_de & mask, r2.r_hl & mask, r2.r_de & mask);
+  Putf("AF'%.4x BC'%.4x   AF'%.4x BC'%.4x\n", r1.r_af & mask, r1.r_bc & mask, r2.r_af & mask,
+       r2.r_bc & mask);
+  Putf("HL'%.4x DE'%.4x   HL'%.4x DE'%.4x\n", r1.r_hl & mask, r1.r_de & mask, r2.r_hl & mask,
+       r2.r_de & mask);
   Putf("I :%.2x   IM:   %x   I :%.2x   IM:   %x\n", r1.ireg, r1.intmode, r2.ireg, r2.intmode);
 }
