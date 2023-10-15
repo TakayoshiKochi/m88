@@ -25,9 +25,18 @@ if (MSVC)
     string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 endif (MSVC)
 
+set(Z80_SHARED_LIBS NO  CACHE BOOL "")
+set(Z80_WITH_EXECUTE YES CACHE BOOL "")
+set(Z80_WITH_FULL_IM0 YES CACHE BOOL "")
+set(Z80_WITH_Q YES CACHE BOOL "")
+set(Z80_WITH_IM0_RETX_NOTIFICATIONS YES CACHE BOOL "")
+set(Z80_WITH_ZILOG_NMOS_LD_A_IR_BUG YES CACHE BOOL "")
+
+#add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/abseil)
 #add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/glog)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/gtest)
-#add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/abseil)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Z80)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Zeta)
 
 add_library(common ${LIB_TYPE}
         src/common/bmp_codec.h
@@ -73,6 +82,9 @@ target_include_directories(common
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+# TODO: remove this dependency
+target_link_libraries(common Z80)
+
 add_executable(common_unittests
         src/common/device_test.cc
         src/common/io_bus_test.cc
@@ -84,13 +96,18 @@ target_link_libraries(common_unittests
 
 add_library(devices ${LIB_TYPE}
         src/devices/z80.h
+        src/devices/z80.cpp
         src/devices/z80c.cpp
         src/devices/z80diag.h
-        src/devices/z80diag.cpp)
+        src/devices/z80diag.cpp
+        src/devices/z80x.h
+        src/devices/z80x.cpp)
 
 target_include_directories(devices
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+target_link_libraries(devices Z80)
 
 add_executable(devices_unittests
         src/devices/fmgen_test.cc
@@ -161,6 +178,8 @@ target_include_directories(pc88core
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+target_link_libraries(pc88core Z80)
+
 add_executable(pc88core_unittests
         src/pc88/base_test.cc
         src/pc88/beep_test.cc
@@ -190,6 +209,8 @@ add_library(pc88shell ${LIB_TYPE}
 target_include_directories(pc88shell
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+target_link_libraries(pc88shell devices)
 
 add_library(win32 ${LIB_TYPE}
         src/win32/88config.h
@@ -245,6 +266,8 @@ target_include_directories(win32
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+target_link_libraries(win32 devices)
+
 add_executable(win32_unittests
         src/pc88/pc88_test.cc)
 
@@ -275,6 +298,8 @@ add_library(win32mon ${LIB_TYPE}
 target_include_directories(win32mon
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+target_link_libraries(win32mon devices)
 
 add_executable(win32mon_unittests
         src/pc88/pc88_test.cc)
@@ -356,8 +381,9 @@ add_executable(m88 WIN32
         src/win32/utf8.manifest)
 
 target_link_libraries(m88
-        PRIVATE common devices fmgen pc88core pc88shell win32 win32mon romeo zlib libpng
-        winmm.lib comctl32.lib dwmapi.lib d3d12.lib dxgi.lib d3dcompiler.lib)
+        PRIVATE common devices fmgen pc88core pc88shell win32 win32mon romeo
+        PRIVATE zlib libpng
+        PRIVATE winmm.lib comctl32.lib dwmapi.lib d3d12.lib dxgi.lib d3dcompiler.lib)
 
 add_library(cdif SHARED
         cdif/src/aspi.h

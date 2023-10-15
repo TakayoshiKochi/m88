@@ -64,79 +64,6 @@ class IOBus;
 
 class Z80C;
 
-class IOStrategy {
- public:
-  IOStrategy() = default;
-  ~IOStrategy() = default;
-
- protected:
-  void SetIOBus(IOBus* bus) { bus_ = bus; }
-
-  uint32_t Inp(uint32_t port);
-  void Outp(uint32_t port, uint32_t data);
-  [[nodiscard]] bool IsSyncPort(uint32_t port) const { return bus_->IsSyncPort(port); }
-
- private:
-  IOBus* bus_ = nullptr;
-};
-
-class MemStrategy {
- public:
-  explicit MemStrategy() = default;
-  ~MemStrategy() = default;
-
-  // TODO: clean this up
-  [[nodiscard]] uint32_t GetPC() const { return static_cast<uint32_t>(inst_ - instbase_); }
-  bool GetPages(MemoryPage** rd, MemoryPage** wr) {
-    *rd = rdpages_;
-    *wr = wrpages_;
-    return true;
-  }
-
- protected:
-  void ResetMemory() {
-    instlim_ = nullptr;
-    instbase_ = nullptr;
-  }
-
-  // For generic memory access
-  uint32_t Read8(uint32_t addr);
-  uint32_t Read16(uint32_t a);
-  void Write8(uint32_t addr, uint32_t data);
-  void Write16(uint32_t a, uint32_t d);
-
-  // For memory read (from PC) (fast path)
-  uint32_t Fetch8();
-  uint32_t Fetch16();
-
-  void SetPC(uint32_t newpc);
-
-  void PCInc(uint32_t inc);
-  void PCDec(uint32_t dec);
-
-  void Jump(uint32_t dest);
-  void JumpR(uint32_t rel);
-
- private:
-  // Memory read from PC - slow path
-  uint32_t Fetch8B();
-  uint32_t Fetch16B();
-
-  static constexpr uint32_t pagebits = MemoryManagerBase::pagebits;
-  static constexpr uint32_t pagemask = MemoryManagerBase::pagemask;
-  static constexpr uint32_t PAGESMASK = (1 << (16 - pagebits)) - 1;
-
-  MemoryPage rdpages_[0x10000 >> pagebits]{};
-  MemoryPage wrpages_[0x10000 >> pagebits]{};
-
-  uint8_t* inst_ = nullptr;      // PC の指すメモリのポインタ，または PC そのもの
-  uint8_t* instlim_ = nullptr;   // inst の有効上限
-  uint8_t* instbase_ = nullptr;  // inst - PC        (PC = inst - instbase)
-  uint8_t* instpage_ = nullptr;
-};
-
-class Z80C;
-
 class CPUExecutor {
  public:
   explicit CPUExecutor(Z80C* cpu) : cpu_(cpu) {}
@@ -201,7 +128,7 @@ class Z80C : public Device, private IOStrategy, public MemStrategy, public CPUEx
   explicit Z80C(const ID& id);
   ~Z80C() override;
 
-  // Overrides Deevice
+  // Overrides Device
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   bool Init(MemoryManager* mem, IOBus* bus, int iack);

@@ -37,6 +37,9 @@
     <Filter Include="services">
       <UniqueIdentifier>{2800f041-702a-46d3-9fb2-77f9ec40ca31}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Z80">
+      <UniqueIdentifier>{a52fd16b-9396-4c63-958e-b1d213839132}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\device.cpp">
@@ -365,6 +368,15 @@
     </ClCompile>
     <ClCompile Include="src\common\status.cpp">
       <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\z80.cpp">
+      <Filter>devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\z80x.cpp">
+      <Filter>devices</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\Z80\sources\Z80.c">
+      <Filter>Z80</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -724,6 +736,12 @@
     </ClInclude>
     <ClInclude Include="src\win32\status_win.h">
       <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\Z80\API\Z80.h">
+      <Filter>Z80</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\z80x.h">
+      <Filter>devices</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -60,8 +60,8 @@ BOOL Z80RegMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 //  状態を表示
 //
 void Z80RegMonitor::UpdateText() {
-  PC88::Z80* c1 = vm_->GetCPU1();
-  PC88::Z80* c2 = vm_->GetCPU2();
+  PC88::Z80XX* c1 = vm_->GetCPU1();
+  PC88::Z80XX* c2 = vm_->GetCPU2();
   const Z80Reg& r1 = c1->GetReg();
   const Z80Reg& r2 = c2->GetReg();
 
