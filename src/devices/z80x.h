@@ -81,7 +81,10 @@ class Z80X : public Device, private IOStrategy, public MemStrategy, public CPUEx
   bool EnableDump(bool dump) {}
   int GetDumpState() { return 0; }
 
-  const Z80Reg& GetReg() { ImportReg(); return reg_; }
+  const Z80Reg& GetReg() {
+    ImportReg();
+    return reg_;
+  }
   [[nodiscard]] uint32_t GetPC() const { return reg_.pc; }
   int* GetWaits() { return nullptr; }
 
