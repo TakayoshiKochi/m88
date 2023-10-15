@@ -11,6 +11,7 @@
 #include "common/io_bus.h"
 #include "common/scheduler.h"
 #include "devices/z80c.h"
+#include "devices/z80x.h"
 
 #include <memory>
 
@@ -52,7 +53,7 @@ class SchedulerExecutable {
 
 class SchedulerImpl : public Scheduler {
  public:
-  using Z80XX = Z80C;
+  using Z80XX = Z80X;
 
   explicit SchedulerImpl(SchedulerExecutable* ex) : ex_(ex) {}
   ~SchedulerImpl() override = default;
@@ -77,7 +78,7 @@ class SchedulerImpl : public Scheduler {
 //
 class PC88 : public SchedulerExecutable, public ICPUTime {
  public:
-  using Z80XX = Z80C;
+  using Z80XX = Z80X;
 
   PC88();
   ~PC88() override;

@@ -82,6 +82,9 @@ target_include_directories(common
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+# TODO: remove this dependency
+target_link_libraries(common Z80)
+
 add_executable(common_unittests
         src/common/device_test.cc
         src/common/io_bus_test.cc
@@ -175,6 +178,8 @@ target_include_directories(pc88core
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+target_link_libraries(pc88core Z80)
+
 add_executable(pc88core_unittests
         src/pc88/base_test.cc
         src/pc88/beep_test.cc
@@ -204,6 +209,8 @@ add_library(pc88shell ${LIB_TYPE}
 target_include_directories(pc88shell
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+target_link_libraries(pc88shell devices)
 
 add_library(win32 ${LIB_TYPE}
         src/win32/88config.h
@@ -259,6 +266,8 @@ target_include_directories(win32
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+target_link_libraries(win32 devices)
+
 add_executable(win32_unittests
         src/pc88/pc88_test.cc)
 
@@ -289,6 +298,8 @@ add_library(win32mon ${LIB_TYPE}
 target_include_directories(win32mon
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+target_link_libraries(win32mon devices)
 
 add_executable(win32mon_unittests
         src/pc88/pc88_test.cc)
