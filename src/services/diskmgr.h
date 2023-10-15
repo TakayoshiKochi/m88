@@ -42,7 +42,7 @@ class DiskManager {
   void Modified(int drive = -1, int track = -1);
   std::mutex& GetMutex() { return mtx_; }
 
-  PC8801::FDU* GetFDU(int dr) { return dr < kMaxDrives ? &drive_[dr].fdu : 0; }
+  PC8801::FDU* GetFDU(uint32_t dr) { return dr < kMaxDrives ? &drive_[dr].fdu : nullptr; }
 
  private:
   struct Drive {
