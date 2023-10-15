@@ -28,10 +28,10 @@ class WinUI;
 
 // ---------------------------------------------------------------------------
 
-class WinCore : public PC88, public ISystem, public ILockCore {
+class WinCore : public ISystem, public ILockCore {
  public:
   WinCore() = default;
-  ~WinCore() override;
+  ~WinCore();
   bool Init(WinUI* ui,
             HWND hwnd,
             Draw* draw,
@@ -47,6 +47,7 @@ class WinCore : public PC88, public ISystem, public ILockCore {
   bool SaveSnapshot(const std::string_view filename);
   bool LoadSnapshot(const std::string_view filename, const std::string_view diskname);
 
+  PC88* GetPC88() { return &pc88_; }
   PC8801::WinSound* GetSound() { return &sound_; }
 
   int64_t GetExecClocks() { return seq_.GetExecClocks(); }
@@ -92,6 +93,7 @@ class WinCore : public PC88, public ISystem, public ILockCore {
   bool ConnectExternalDevices();
 
   WinUI* ui_ = nullptr;
+  PC88 pc88_;
   IConfigPropBase* cfg_prop_ = nullptr;
 
   Sequencer seq_;

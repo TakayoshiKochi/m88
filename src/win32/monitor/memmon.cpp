@@ -44,7 +44,7 @@ MemoryMonitor::~MemoryMonitor() {}
 //
 bool MemoryMonitor::Init(WinCore* pc88) {
   core = pc88;
-  if (!MemViewMonitor::Init(MAKEINTRESOURCE(IDD_MEMORY), pc88))
+  if (!MemViewMonitor::Init(MAKEINTRESOURCE(IDD_MEMORY), pc88->GetPC88()))
     return false;
   SetLines(0x1000);
   SetUpdateTimer(50);

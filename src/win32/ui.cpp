@@ -225,11 +225,11 @@ bool WinUI::InitM88(const char* cmdline) {
 
   //  debug 用クラス初期化
   Log("%d\tmonitors\n", timeGetTime());
-  opn_mon_.Init(core.GetOPN1(), core.GetSound());
+  opn_mon_.Init(core.GetPC88()->GetOPN1(), core.GetSound());
   mem_mon_.Init(&core);
-  code_mon_.Init(&core);
-  bas_mon_.Init(&core);
-  reg_mon_.Init(&core);
+  code_mon_.Init(core.GetPC88());
+  bas_mon_.Init(core.GetPC88());
+  reg_mon_.Init(core.GetPC88());
   load_mon_.Init();
   io_mon_.Init(&core);
   core.GetSound()->SetSoundMonitor(&opn_mon_);
@@ -1192,7 +1192,7 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
 //
 LRESULT WinUI::M88ChangeVolume(HWND, WPARAM c, LPARAM) {
   if (c)
-    core.SetVolume((PC8801::Config*)c);
+    core.GetPC88()->SetVolume((PC8801::Config*)c);
   return 0;
 }
 
@@ -1736,14 +1736,15 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
                 (config.basicmode == BasicMode::kN80) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N80MODE,
                 (config.basicmode == BasicMode::kN802) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu_, IDM_N80MODE, core.IsN80Supported() ? MF_ENABLED : MF_GRAYED);
+  EnableMenuItem(hmenu_, IDM_N80MODE, core.GetPC88()->IsN80Supported() ? MF_ENABLED : MF_GRAYED);
   CheckMenuItem(hmenu_, IDM_N80V2MODE,
                 (config.basicmode == BasicMode::kN80V2) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu_, IDM_N80V2MODE, core.IsN80V2Supported() ? MF_ENABLED : MF_GRAYED);
+  EnableMenuItem(hmenu_, IDM_N80V2MODE,
+                 core.GetPC88()->IsN80V2Supported() ? MF_ENABLED : MF_GRAYED);
 
   CheckMenuItem(hmenu_, IDM_N88V2CD,
                 (config.basicmode == BasicMode::kN88V2CD) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu_, IDM_N88V2CD, core.IsCDSupported() ? MF_ENABLED : MF_GRAYED);
+  EnableMenuItem(hmenu_, IDM_N88V2CD, core.GetPC88()->IsCDSupported() ? MF_ENABLED : MF_GRAYED);
 
   CheckMenuItem(hmenu_, IDM_CPU_BURST,
                 (config.flags & Config::kCPUBurst) ? MF_CHECKED : MF_UNCHECKED);
@@ -1767,13 +1768,13 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   CheckMenuItem(hmenu_, IDM_RECORDPCM, core.GetSound()->IsDumping() ? MF_CHECKED : MF_UNCHECKED);
 
   EnableMenuItem(hmenu_, IDM_DUMPCPU1,
-                 core.GetCPU1()->GetDumpState() == -1 ? MF_GRAYED : MF_ENABLED);
+                 core.GetPC88()->GetCPU1()->GetDumpState() == -1 ? MF_GRAYED : MF_ENABLED);
   CheckMenuItem(hmenu_, IDM_DUMPCPU1,
-                core.GetCPU1()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
+                core.GetPC88()->GetCPU1()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_DUMPCPU2,
-                 core.GetCPU2()->GetDumpState() == -1 ? MF_GRAYED : MF_ENABLED);
+                 core.GetPC88()->GetCPU2()->GetDumpState() == -1 ? MF_GRAYED : MF_ENABLED);
   CheckMenuItem(hmenu_, IDM_DUMPCPU2,
-                core.GetCPU2()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
+                core.GetPC88()->GetCPU2()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
 
   if (hmenudbg_) {
     CheckMenuItem(hmenudbg_, IDM_DEBUG_TEXT,

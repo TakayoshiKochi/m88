@@ -96,7 +96,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
   // Overrides ICPUTime
   // Returns CPU clock cycles executed
-  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1.GetClocks(); }
+  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1_.GetClocks(); }
   // Returns CPU clock cycles per tick
   [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override {
     return (scheduler_.cpu_clock() + 50000) / 100000;
@@ -117,10 +117,17 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   PC8801::SubSystem* GetMem2() { return subsys_.get(); }
   PC8801::OPNIF* GetOPN1() { return opn1_.get(); }
   PC8801::OPNIF* GetOPN2() { return opn2_.get(); }
-  Z80XX* GetCPU1() { return &cpu1; }
-  Z80XX* GetCPU2() { return &cpu2; }
+  Z80XX* GetCPU1() { return &cpu1_; }
+  Z80XX* GetCPU2() { return &cpu2_; }
+  IOBus* GetBus1() { return &bus1_; }
+  IOBus* GetBus2() { return &bus2_; }
+  MemoryManager* GetMM1() { return &mm1_; }
+  MemoryManager* GetMM2() { return &mm2_; }
   PC8801::PD8257* GetDMAC() { return dmac_.get(); }
   PC8801::Beep* GetBEEP() { return beep_.get(); }
+  PC8801::JoyPad* GetJoyPad() { return joy_pad_; }
+  DeviceList* GetDeviceList() { return &devlist_; }
+  DiskManager* GetDiskManager() { return disk_manager_; }
 
   Scheduler* GetScheduler() { return &scheduler_; }
 
@@ -210,21 +217,23 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
  protected:
   Draw* draw_ = nullptr;
-  DiskManager* diskmgr = nullptr;
-  TapeManager* tapemgr = nullptr;
-  PC8801::JoyPad* joypad = nullptr;
+  DiskManager* disk_manager_ = nullptr;
+  TapeManager* tape_manager_ = nullptr;
+  PC8801::JoyPad* joy_pad_ = nullptr;
 
-  MemoryManager mm1, mm2;
-  IOBus bus1, bus2;
-  DeviceList devlist;
+  MemoryManager mm1_;
+  MemoryManager mm2_;
+  IOBus bus1_;
+  IOBus bus2_;
+  DeviceList devlist_;
 
  private:
-  Z80XX cpu1;
-  Z80XX cpu2;
+  Z80XX cpu1_;
+  Z80XX cpu2_;
 
   friend class PC8801::Base;
 };
 
 inline bool PC88::IsCDSupported() {
-  return devlist.Find(DEV_ID('c', 'd', 'i', 'f')) != 0;
+  return devlist_.Find(DEV_ID('c', 'd', 'i', 'f')) != 0;
 }
