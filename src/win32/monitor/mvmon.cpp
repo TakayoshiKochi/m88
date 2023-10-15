@@ -169,13 +169,20 @@ BOOL MemViewMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
       CheckMenuItem(hmenu, IDM_MEM_6_E1, (a6_ == MemoryViewer::kN88E1) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_E2, (a6_ == MemoryViewer::kN88E2) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_E3, (a6_ == MemoryViewer::kN88E3) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_EROM1, (a6_ == MemoryViewer::kExtRom1) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_EROM2, (a6_ == MemoryViewer::kExtRom2) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_EROM3, (a6_ == MemoryViewer::kExtRom3) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_EROM4, (a6_ == MemoryViewer::kExtRom4) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_EROM5, (a6_ == MemoryViewer::kExtRom5) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_EROM6, (a6_ == MemoryViewer::kExtRom6) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_EROM7, (a6_ == MemoryViewer::kExtRom7) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_EROM1,
+                    (a6_ == MemoryViewer::kExtRom1) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_EROM2,
+                    (a6_ == MemoryViewer::kExtRom2) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_EROM3,
+                    (a6_ == MemoryViewer::kExtRom3) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_EROM4,
+                    (a6_ == MemoryViewer::kExtRom4) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_EROM5,
+                    (a6_ == MemoryViewer::kExtRom5) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_EROM6,
+                    (a6_ == MemoryViewer::kExtRom6) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_EROM7,
+                    (a6_ == MemoryViewer::kExtRom7) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_F_RAM,
                     (af_ == MemoryViewer::kMainRam) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_F_TVRAM,

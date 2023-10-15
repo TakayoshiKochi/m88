@@ -98,7 +98,6 @@ class Memory : public Device, public IGetMemoryBank {
   uint8_t* GetEROM(int b) { return erom_[b].get(); }
   uint8_t* GetDirtyFlag() { return dirty_.get(); }
 
-
   // Overrides for class IGetMemoryBank
   uint32_t IFCALL GetRdBank(uint32_t addr) override;
   uint32_t IFCALL GetWrBank(uint32_t addr) override;
