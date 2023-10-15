@@ -13,15 +13,15 @@
 //
 class FloppyDisk {
  public:
-  enum SectorFlags {
-    deleted = 1,
-    datacrc = 2,
-    idcrc = 4,
-    mam = 8,
-    density = 0x40,      // MFM = 0x40, FM = 0x00
-    highdensity = 0x80,  // 2HD?
+  enum SectorFlags : uint32_t {
+    kDeleted = 1,
+    kDataCRC = 2,
+    kIDCRC = 4,
+    kMAM = 8,
+    kDensity = 0x40,      // MFM = 0x40, FM = 0x00
+    kHighDensity = 0x80,  // 2HD?
   };
-  enum DiskType { MD2D = 0, MD2DD, MD2HD };
+  enum DiskType { kMD2D = 0, kMD2DD, kMD2HD };
   struct IDR {
     uint8_t c, h, r, n;
 
@@ -78,7 +78,7 @@ class FloppyDisk {
  private:
   Track tracks_[168]{};
   int ntracks_ = 0;
-  DiskType type_ = MD2D;
+  DiskType type_ = kMD2D;
   bool readonly_ = false;
 
   Track* cur_track_ = nullptr;

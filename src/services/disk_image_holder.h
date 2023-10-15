@@ -62,9 +62,9 @@ class DiskImageHolder {
   bool IsValidHeader(D88::ImageHeader&);
 
   FileIODummy fio_;
-  int ndisks_;
+  int ndisks_ = 0;
   int ref_ = 0;
-  bool readonly_;
-  DiskInfo disks_[kMaxDisks];
+  bool readonly_ = false;
+  DiskInfo disks_[kMaxDisks]{};
   std::string diskname_;
 };

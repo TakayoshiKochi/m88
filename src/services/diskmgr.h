@@ -64,8 +64,8 @@ class DiskManager {
   uint32_t GetDiskImageSize(Drive* drive);
   void UpdateDrive(Drive* drive);
 
-  DiskImageHolder holder_[kMaxDrives];
-  Drive drive_[kMaxDrives];
+  DiskImageHolder holder_[kMaxDrives]{};
+  Drive drive_[kMaxDrives]{};
 
   std::mutex mtx_;
 };

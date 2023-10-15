@@ -23,7 +23,7 @@ namespace PC8801 {
 //
 class FDU {
  public:
-  typedef FloppyDisk::IDR IDR;
+  using IDR = FloppyDisk::IDR;
   struct WIDDESC {
     IDR* idr;
     uint8_t n, sc, gpl, d;

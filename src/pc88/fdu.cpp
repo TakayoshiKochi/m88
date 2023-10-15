@@ -126,10 +126,10 @@ uint32_t FDU::ReadSector(uint32_t flags, IDR id, uint8_t* data) {
     if (rid == id) {
       memcpy(data, sector_->image, std::min(0x2000U, sector_->size));
 
-      if (sector_->flags & FloppyDisk::datacrc)
+      if (sector_->flags & FloppyDisk::kDataCRC)
         return FDC::ST0_AT | FDC::ST1_DE | FDC::ST2_DD;
 
-      if (sector_->flags & FloppyDisk::deleted)
+      if (sector_->flags & FloppyDisk::kDeleted)
         return FDC::ST2_CM;
 
       return 0;
@@ -177,7 +177,7 @@ uint32_t FDU::WriteSector(uint32_t flags, IDR id, const uint8_t* data, bool dele
       }
 
       memcpy(sector_->image, data, writesize);
-      sector_->flags = (flags & 0xc0) | (deleted ? FloppyDisk::deleted : 0);
+      sector_->flags = (flags & 0xc0) | (deleted ? FloppyDisk::kDeleted : 0);
       sector_->size = writesize;
       diskmgr_->Modified(drive, track);
       return 0;
@@ -284,7 +284,7 @@ uint32_t FDU::MakeDiagData(uint32_t flags, uint8_t* data, uint32_t* size) {
   FloppyDisk::Sector* sec = disk_->GetFirstSector(track);
   if (!sec)
     return FDC::ST0_AT | FDC::ST1_ND;
-  if (sec->flags & FloppyDisk::mam)
+  if (sec->flags & FloppyDisk::kMAM)
     return FDC::ST0_AT | FDC::ST1_MA | FDC::ST2_MD;
 
   int capacity = disk_->GetTrackCapacity();
@@ -332,7 +332,7 @@ uint32_t FDU::MakeDiagData(uint32_t flags, uint8_t* data, uint32_t* size) {
         dest[56] = 0xa1;
         dest[57] = 0xa1;  // IDAM
         dest[58] = 0xa1;
-        dest[59] = sec->flags & FloppyDisk::deleted ? 0xfb : 0xf8;
+        dest[59] = sec->flags & FloppyDisk::kDeleted ? 0xfb : 0xf8;
         dest += 60;
       } else {               // FM
         memset(dest, 0, 6);  // SYNC
@@ -343,7 +343,7 @@ uint32_t FDU::MakeDiagData(uint32_t flags, uint8_t* data, uint32_t* size) {
         dest[10] = sec->id.n;
         memset(dest + 11, 0xff, 11 + 2);  // CRC+GAP2
         memset(dest + 24, 0, 6);          // SYNC
-        dest[30] = sec->flags & FloppyDisk::deleted ? 0xfb : 0xf8;
+        dest[30] = sec->flags & FloppyDisk::kDeleted ? 0xfb : 0xf8;
         dest += 31;
       }
 

@@ -17,7 +17,7 @@ FloppyDisk::FloppyDisk() {
   cur_sector_ = nullptr;
   cur_tracknum_ = ~0;
   readonly_ = false;
-  type_ = MD2D;
+  type_ = kMD2D;
 }
 
 FloppyDisk::~FloppyDisk() = default;
@@ -188,7 +188,7 @@ bool FloppyDisk::FormatTrack(int nsec, int secsize) {
     // セクタを作成
     cur_sector_ = 0;
     for (int i = 0; i < nsec; i++) {
-      Sector* newsector = new Sector;
+      auto* newsector = new Sector;
       if (!newsector)
         return false;
       cur_track_->sector_ = newsector;
@@ -201,7 +201,7 @@ bool FloppyDisk::FormatTrack(int nsec, int secsize) {
           return false;
         }
       } else {
-        newsector->image = 0;
+        newsector->image = nullptr;
       }
       cur_sector_ = newsector;
     }
@@ -218,15 +218,15 @@ FloppyDisk::Sector* FloppyDisk::AddSector(int size) {
 
   auto* newsector = new Sector;
   if (!newsector)
-    return 0;
+    return nullptr;
   if (size) {
     newsector->image = new uint8_t[size];
     if (!newsector->image) {
       delete newsector;
-      return 0;
+      return nullptr;
     }
   } else {
-    newsector->image = 0;
+    newsector->image = nullptr;
   }
 
   if (!cur_sector_)
@@ -236,7 +236,7 @@ FloppyDisk::Sector* FloppyDisk::AddSector(int size) {
     newsector->next = cur_sector_->next;
     cur_sector_->next = newsector;
   } else {
-    newsector->next = 0;
+    newsector->next = nullptr;
     cur_track_->sector_ = newsector;
   }
   cur_sector_ = newsector;

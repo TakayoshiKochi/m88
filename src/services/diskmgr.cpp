@@ -184,17 +184,17 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
   uint32_t hd = 0;
   switch (ih.disktype) {
     case 0x00:
-      type = FloppyDisk::MD2D;
+      type = FloppyDisk::kMD2D;
       memset(&ih.trackptr[84], 0, 4 * 80);
       break;
 
     case 0x10:
-      type = FloppyDisk::MD2DD;
+      type = FloppyDisk::kMD2DD;
       break;
 
     case 0x20:
-      type = FloppyDisk::MD2HD;
-      hd = FloppyDisk::highdensity;
+      type = FloppyDisk::kMD2HD;
+      hd = FloppyDisk::kHighDensity;
       break;
 
     default:
@@ -241,7 +241,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
   // 各トラックの読み込み
   for (t = 0; t < disk.GetNumTracks(); t++) {
     int cy = t >> 1;
-    if (type == FloppyDisk::MD2D)
+    if (type == FloppyDisk::kMD2D)
       cy *= 2;
     disk.Seek((cy * 2) + (t & 1));
     if (ih.trackptr[t]) {
@@ -260,17 +260,17 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
         sec->size = sh.length;
         sec->flags = (sh.density ^ 0x40) | hd;
         if (sh.deleted == 0x10)
-          sec->flags |= FloppyDisk::deleted;
+          sec->flags |= FloppyDisk::kDeleted;
 
         switch (sh.status) {
           case 0xa0:
-            sec->flags |= FloppyDisk::idcrc;
+            sec->flags |= FloppyDisk::kIDCRC;
             break;
           case 0xb0:
-            sec->flags |= FloppyDisk::datacrc;
+            sec->flags |= FloppyDisk::kDataCRC;
             break;
           case 0xf0:
-            sec->flags |= FloppyDisk::mam;
+            sec->flags |= FloppyDisk::kMAM;
             break;
         }
         if (fio->Read(sec->image, sh.length) != sh.length)
@@ -293,7 +293,7 @@ bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive) {
   bool readonly = drive->holder->IsReadOnly();
 
   FloppyDisk& disk = drive->disk;
-  if (!disk.Init(FloppyDisk::MD2D, readonly)) {
+  if (!disk.Init(FloppyDisk::kMD2D, readonly)) {
     g_status_display->Show(70, 3000, "作業用領域を割り当てることができませんでした");
     return false;
   }
@@ -346,7 +346,7 @@ uint32_t DiskManager::GetDiskImageSize(Drive* drv) {
   uint32_t disksize = sizeof(ImageHeader);
 
   for (int t = drv->disk.GetNumTracks() - 1; t >= 0; t--) {
-    int tr = (drv->disk.GetType() == FloppyDisk::MD2D) ? t & ~1 : t >> 1;
+    int tr = (drv->disk.GetType() == FloppyDisk::kMD2D) ? t & ~1 : t >> 1;
     tr = (tr << 1) | (t & 1);
 
     FloppyDisk::Sector* sec;
@@ -378,7 +378,7 @@ bool DiskManager::WriteDiskImage(FileIO* fio, Drive* drv) {
 
   for (t = 0; t < ntracks; t++) {
     int tracksize = 0;
-    int tr = (drv->disk.GetType() == FloppyDisk::MD2D) ? t & ~1 : t >> 1;
+    int tr = (drv->disk.GetType() == FloppyDisk::kMD2D) ? t & ~1 : t >> 1;
     tr = (tr << 1) | (t & 1);
 
     FloppyDisk::Sector* sec;
@@ -399,7 +399,7 @@ bool DiskManager::WriteDiskImage(FileIO* fio, Drive* drv) {
     return false;
 
   for (t = 0; t < ntracks; t++) {
-    int tr = (drv->disk.GetType() == FloppyDisk::MD2D) ? t & ~1 : t >> 1;
+    int tr = (drv->disk.GetType() == FloppyDisk::kMD2D) ? t & ~1 : t >> 1;
     tr = (tr << 1) | (t & 1);
     if (!WriteTrackImage(fio, drv, tr))
       return false;
@@ -427,13 +427,13 @@ bool DiskManager::WriteTrackImage(FileIO* fio, Drive* drv, int t) {
     sh.length = sec->size;
     sh.status = 0;
     switch (sec->flags & 14) {
-      case FloppyDisk::idcrc:
+      case FloppyDisk::kIDCRC:
         sh.status = 0xa0;
         break;
-      case FloppyDisk::datacrc:
+      case FloppyDisk::kDataCRC:
         sh.status = 0xb0;
         break;
-      case FloppyDisk::mam:
+      case FloppyDisk::kMAM:
         sh.status = 0xf0;
         break;
     }
@@ -553,7 +553,7 @@ bool DiskManager::AddDisk(uint32_t dr, const std::string_view title, uint32_t ty
 //  豪快な方法で(^^;
 //
 bool DiskManager::FormatDisk(uint32_t dr) {
-  if (!drive_[dr].holder || drive_[dr].disk.GetType() != FloppyDisk::MD2D)
+  if (!drive_[dr].holder || drive_[dr].disk.GetType() != FloppyDisk::kMD2D)
     return false;
   //  g_status_display->Show(10, 5000, "Format drive : %d", dr);
 

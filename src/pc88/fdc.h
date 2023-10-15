@@ -61,8 +61,9 @@ class FDC : public Device {
     ST3_WP = 0x40,
     ST3_FT = 0x80,
   };
-  typedef FloppyDisk::IDR IDR;
-  typedef FDU::WIDDESC WIDDESC;
+
+  using IDR = FloppyDisk::IDR;
+  using WIDDESC = FDU::WIDDESC;
 
  protected:
   enum Stat {
