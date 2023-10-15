@@ -346,7 +346,7 @@ void WinMonitor::Draw(HWND hwnd, HDC hdc) {
   SetBkColor(hmemdc, bkcol_);
   auto holdfont = (HFONT)SelectObject(hmemdc, hfont_);
 
-  DrawMain(hmemdc);
+  DrawMain(hmemdc, false);
 
   SelectObject(hmemdc, holdfont);
 
@@ -454,7 +454,7 @@ int WinMonitor::GetScrPos(bool track) {
 }
 
 // ---------------------------------------------------------------------------
-//  クライエント領域座標を文字座標に変換
+//  クライアント領域座標を文字座標に変換
 //
 bool WinMonitor::GetTextPos(POINT* p) {
   if (font_width_ && font_height_) {
@@ -652,7 +652,7 @@ BOOL WinMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
       if ((UINT)wp == 1) {
         auto* dis = (DRAWITEMSTRUCT*)lp;
         SetBkColor(dis->hDC, GetSysColor(COLOR_3DFACE));
-        //          SetTextColor(dis->hDC, RGB(255, 0, 0));
+        // SetTextColor(dis->hDC, RGB(255, 0, 0));
         char* text = reinterpret_cast<char*>(dis->itemData);
         if (text)
           TextOut(dis->hDC, dis->rcItem.left, dis->rcItem.top, text, strlen(text));

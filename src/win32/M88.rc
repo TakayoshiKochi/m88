@@ -147,6 +147,13 @@ BEGIN
         MENUITEM "E&1",                         IDM_MEM_6_E1
         MENUITEM "E&2",                         IDM_MEM_6_E2
         MENUITEM "E&3",                         IDM_MEM_6_E3
+        MENUITEM "EROM1",                       IDM_MEM_6_EROM1
+        MENUITEM "EROM2",                       IDM_MEM_6_EROM2
+        MENUITEM "EROM3",                       IDM_MEM_6_EROM3
+        MENUITEM "EROM4",                       IDM_MEM_6_EROM4
+        MENUITEM "EROM5",                       IDM_MEM_6_EROM5
+        MENUITEM "EROM6",                       IDM_MEM_6_EROM6
+        MENUITEM "EROM7",                       IDM_MEM_6_EROM7
     END
     POPUP "&f000"
     BEGIN
@@ -158,6 +165,11 @@ BEGIN
         MENUITEM "&1",                          IDM_MEM_F_1
         MENUITEM "&2",                          IDM_MEM_F_2
         MENUITEM "&3",                          IDM_MEM_F_3
+    END
+    POPUP "Jump"
+    BEGIN
+        MENUITEM "Main PC",                     IDM_JUMP_MAINPC
+        MENUITEM "Sub PC",                      IDM_JUMP_SUBPC
     END
 END
 

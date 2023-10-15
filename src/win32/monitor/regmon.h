@@ -26,5 +26,5 @@ class Z80RegMonitor : public WinMonitor {
   BOOL DlgProc(HWND, UINT, WPARAM, LPARAM) override;
   void DrawMain(HDC, bool) override;
 
-  PC88* vm_ = nullptr;
+  PC88* pc_ = nullptr;
 };

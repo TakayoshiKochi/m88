@@ -22,19 +22,20 @@ namespace PC8801 {
 class CodeMonitor : public MemViewMonitor {
  public:
   CodeMonitor();
-  ~CodeMonitor();
+  ~CodeMonitor() override;
 
   bool Init(PC88*);
 
  private:
-  void UpdateText();
-  int VerticalScroll(int msg);
-  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM);
+  void UpdateText() override;
+  int VerticalScroll(int msg) override;
+  BOOL DlgProc(HWND, UINT, WPARAM, LPARAM) override;
 
   bool Dump(FILE* fp, int from, int to);
   bool DumpImage();
 
-  Z80Diag diag;
+  PC88* pc_;
+  Z80Diag diag_;
 };
 
 }  // namespace PC8801

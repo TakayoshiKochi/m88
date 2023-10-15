@@ -18,21 +18,21 @@
 
 using namespace PC8801;
 
-COLORREF MemoryMonitor::col[0x100] = {0};
+COLORREF MemoryMonitor::col_[0x100] = {0};
 
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
 MemoryMonitor::MemoryMonitor() {
-  mid = -1;
-  mm = 0;
+  mid_ = -1;
+  mm_ = nullptr;
 
-  if (!col[0xff]) {
-    col[0xff] = RGB(0x1f, 0x1f, 0x9f);
+  if (!col_[0xff]) {
+    col_[0xff] = RGB(0x1f, 0x1f, 0x9f);
     for (int i = 1; i < 256; i++) {
       int r = 0x40 + static_cast<int>(0xbf * pow((i / 256.), 8.0));
       int g = 0x20 + static_cast<int>(0xdf * pow((i / 256.), 24.0));
-      col[0xff - i] = RGB(std::min(r, 0xff), std::min(g, 0xff), 0xff);
+      col_[0xff - i] = RGB(std::min(r, 0xff), std::min(g, 0xff), 0xff);
     }
   }
 }
@@ -43,68 +43,68 @@ MemoryMonitor::~MemoryMonitor() {}
 //  初期化
 //
 bool MemoryMonitor::Init(WinCore* pc88) {
-  core = pc88;
+  core_ = pc88;
   if (!MemViewMonitor::Init(MAKEINTRESOURCE(IDD_MEMORY), pc88->GetPC88()))
     return false;
   SetLines(0x1000);
   SetUpdateTimer(50);
   line[0] = 0;
-  memset(stat, 1, 0x10000);
-  time = 0x1;
-  memset(access, 0, sizeof(access));
+  memset(stat_, 1, 0x10000);
+  time_ = 0x1;
+  memset(access_, 0, sizeof(access_));
 
-  watchflag = 0;
-  prevaddr = -1;
-  prevlines = 0;
+  watch_flag_ = 0;
+  prev_addr_ = -1;
+  prev_lines_ = 0;
   return true;
 }
 
 void MemoryMonitor::SetWatch(uint32_t addr, uint32_t range) {
-  core->Lock();
-  if (mid >= 0) {
-    Log("SetWatch: %p %.4x - %.4x\n", mm, addr, range);
+  core_->Lock();
+  if (mid_ >= 0) {
+    Log("SetWatch: %p %.4x - %.4x\n", mm_, addr, range);
     range = std::min(range, 0x10000 - addr);
 
-    mm->ReleaseR(mid, 0, 0x10000);
-    if (watchflag & 1)
-      mm->AllocR(mid, addr, range, MemRead);
+    mm_->ReleaseR(mid_, 0, 0x10000);
+    if (watch_flag_ & 1)
+      mm_->AllocR(mid_, addr, range, MemRead);
 
-    mm->ReleaseW(mid, 0, 0x10000);
-    if (watchflag & 2)
-      mm->AllocW(mid, addr, range, MemWrite);
+    mm_->ReleaseW(mid_, 0, 0x10000);
+    if (watch_flag_ & 2)
+      mm_->AllocW(mid_, addr, range, MemWrite);
   }
-  core->Unlock();
+  core_->Unlock();
 }
 
 void MemoryMonitor::Start() {
-  core->Lock();
+  core_->Lock();
   if (GetA0() == MemoryViewer::kSub) {
-    mm = (IMemoryManager*)core->QueryIF(M88IID_MemoryManager2);
+    mm_ = (IMemoryManager*)core_->QueryIF(M88IID_MemoryManager2);
   } else {
-    mm = (IMemoryManager*)core->QueryIF(M88IID_MemoryManager1);
+    mm_ = (IMemoryManager*)core_->QueryIF(M88IID_MemoryManager1);
   }
-  if (mm) {
-    mid = mm->Connect(this, true);
+  if (mm_) {
+    mid_ = mm_->Connect(this, true);
   }
 
-  gmb = (IGetMemoryBank*)core->QueryIF(M88IID_GetMemoryBank);
-  core->Unlock();
+  gmb_ = (IGetMemoryBank*)core_->QueryIF(M88IID_GetMemoryBank);
+  core_->Unlock();
 }
 
 void MemoryMonitor::Stop() {
-  core->Lock();
-  if (mm) {
-    mm->ReleaseR(mid, 0, 0x10000);
-    mm->ReleaseW(mid, 0, 0x10000);
-    mm->Disconnect(mid);
-    mm = 0;
-    mid = -1;
+  core_->Lock();
+  if (mm_) {
+    mm_->ReleaseR(mid_, 0, 0x10000);
+    mm_->ReleaseW(mid_, 0, 0x10000);
+    mm_->Disconnect(mid_);
+    mm_ = 0;
+    mid_ = -1;
   }
-  core->Unlock();
+  core_->Unlock();
 }
 
 void MemoryMonitor::SetBank() {
-  prevlines = 0;
+  prev_lines_ = 0;
   Stop();
   Start();
   MemViewMonitor::SetBank();
@@ -115,10 +115,10 @@ uint32_t MemoryMonitor::MemRead(void* p, uint32_t a) {
 
   // 領域が見たいメモリを指し示しているなら更新
   int b = m->mv.GetCurrentBank(a);
-  if (b == -1 || b == m->gmb->GetRdBank(a))
-    m->access[a] = m->time;
+  if (b == -1 || b == m->gmb_->GetRdBank(a))
+    m->access_[a] = m->time_;
 
-  return m->mm->Read8P(m->mid, a);  // 本来のメモリ空間へとアクセス
+  return m->mm_->Read8P(m->mid_, a);  // 本来のメモリ空間へとアクセス
 }
 
 void MemoryMonitor::MemWrite(void* p, uint32_t a, uint32_t d) {
@@ -126,10 +126,10 @@ void MemoryMonitor::MemWrite(void* p, uint32_t a, uint32_t d) {
 
   // 領域が見たいメモリを指し示しているなら更新
   int b = m->mv.GetCurrentBank(a);
-  if (b == -1 || b == m->gmb->GetWrBank(a))
-    m->access[a] = m->time;
+  if (b == -1 || b == m->gmb_->GetWrBank(a))
+    m->access_[a] = m->time_;
 
-  m->mm->Write8P(m->mid, a, d);  // 本来のメモリ空間へとアクセス
+  m->mm_->Write8P(m->mid_, a, d);  // 本来のメモリ空間へとアクセス
 }
 
 // ---------------------------------------------------------------------------
@@ -140,9 +140,9 @@ void MemoryMonitor::UpdateText() {
   char mem[16];
   int a = GetLine() * 0x10;
 
-  if (prevaddr != a || prevlines != GetHeight()) {
-    prevaddr = a;
-    prevlines = GetHeight();
+  if (prev_addr_ != a || prev_lines_ != GetHeight()) {
+    prev_addr_ = a;
+    prev_lines_ = GetHeight();
     SetWatch(a, GetHeight() * 0x10);
   }
 
@@ -157,15 +157,15 @@ void MemoryMonitor::UpdateText() {
       for (x = 0; x < 16; x++) {
         int d = GetBus()->Read8(a);
 
-        if (watchflag) {
+        if (watch_flag_) {
           uint32_t t = 0xff;
-          if (access[a]) {
-            t = time - access[a];
+          if (access_[a]) {
+            t = time_ - access_[a];
             t = t < 0xfe ? t : 0xfe;
           }
-          SetTxCol(col[t]);
+          SetTxCol(col_[t]);
         }
-        SetBkCol(RGB(StatExec(a), stat[a], 0x20));
+        SetBkCol(RGB(StatExec(a), stat_[a], 0x20));
         Putf("%.2x", d);
         SetBkCol(RGB(0, 0, 0x20));
         Puts(" ");
@@ -179,20 +179,20 @@ void MemoryMonitor::UpdateText() {
       Puts("\n");
     }
   }
-  time++;
+  time_++;
 }
 
 // ---------------------------------------------------------------------------
 //  ダイアログ処理
 //
 BOOL MemoryMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
-  switch (msg) {
-    POINT p;
+  POINT p{};
 
+  switch (msg) {
     case WM_INITMENU: {
       HMENU hmenu = (HMENU)wp;
-      CheckMenuItem(hmenu, IDM_MEM_READ, (watchflag & 1) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_WRITE, (watchflag & 2) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_READ, (watch_flag_ & 1) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_WRITE, (watch_flag_ & 2) ? MF_CHECKED : MF_UNCHECKED);
     } break;
 
     case WM_COMMAND:
@@ -202,18 +202,18 @@ BOOL MemoryMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
           break;
 
         case IDM_MEM_STATCLEAR:
-          time = 0x1;
-          memset(access, 0, sizeof(access));
+          time_ = 0x1;
+          memset(access_, 0, sizeof(access_));
           break;
 
         case IDM_MEM_READ:
-          watchflag ^= 1;
-          prevlines = -1;
+          watch_flag_ ^= 1;
+          prev_lines_ = -1;
           break;
 
         case IDM_MEM_WRITE:
-          watchflag ^= 2;
-          prevlines = -1;
+          watch_flag_ ^= 2;
+          prev_lines_ = -1;
           break;
       }
       break;
@@ -224,8 +224,8 @@ BOOL MemoryMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 
       if (GetTextPos(&p)) {
         if (6 <= p.x && p.x <= 5 + 48) {
-          editaddr = (GetLine() + p.y) * 16 + (p.x - 6) / 3;
-          if (editaddr < 0x10000) {
+          edit_addr_ = (GetLine() + p.y) * 16 + (p.x - 6) / 3;
+          if (edit_addr_ < 0x10000) {
             DialogBoxParam(GetHInst(), MAKEINTRESOURCE(IDD_MEMORY_EDIT), hdlg,
                            DLGPROC((void*)EDlgProcGate), (LPARAM)this);
           }
@@ -275,7 +275,7 @@ void MemoryMonitor::ExecCommand() {
       break;
 
     case 0:
-      memset(stat, 1, 0x10000);
+      memset(stat_, 1, 0x10000);
       break;
 
     default:
@@ -295,22 +295,22 @@ void MemoryMonitor::Search(uint32_t key, int bytes) {
       data = (data << 8) | GetBus()->Read8(i + j);
     }
 
-    if (stat[i]) {
+    if (stat_[i]) {
       if (!((data ^ key) & mask)) {
         if (!match++)
           SetLine(i / 16);
         for (int j = 0; j < bytes; j++)
-          stat[i++] = 0xc0;
+          stat_[i++] = 0xc0;
         i--;
       } else
-        stat[i] = 0;
+        stat_[i] = 0;
     }
   }
   if (match) {
     PutStatus("%d hits", match);
   } else {
     PutStatus("not found");
-    memset(stat, 1, 0x10000);
+    memset(stat_, 1, 0x10000);
   }
 }
 
@@ -364,9 +364,9 @@ BOOL MemoryMonitor::EDlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
   char buf[16];
   switch (msg) {
     case WM_INITDIALOG:
-      wsprintf(buf, "%.4x:", editaddr);
+      wsprintf(buf, "%.4x:", edit_addr_);
       SetDlgItemText(hdlg, IDC_MEMORY_EDIT_TEXT, buf);
-      wsprintf(buf, "%.2x", GetBus()->Read8(editaddr));
+      wsprintf(buf, "%.2x", GetBus()->Read8(edit_addr_));
       SetDlgItemText(hdlg, IDC_MEMORY_EDITBOX, buf);
       SetFocus(GetDlgItem(hdlg, IDC_MEMORY_EDITBOX));
       SendDlgItemMessage(hdlg, IDC_MEMORY_EDITBOX, EM_SETSEL, 0, -1);
@@ -379,7 +379,7 @@ BOOL MemoryMonitor::EDlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
           case IDOK:
             GetDlgItemText(hdlg, IDC_MEMORY_EDITBOX, buf, 5);
             if (isxdigit(buf[0]))
-              GetBus()->Write8(editaddr, strtoul(buf, &dum, 16));
+              GetBus()->Write8(edit_addr_, strtoul(buf, &dum, 16));
           case IDCANCEL:
             EndDialog(hdlg, false);
             break;

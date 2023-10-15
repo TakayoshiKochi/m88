@@ -67,8 +67,8 @@ inline void LOADEND(const char* key) {
 
 class LoadMonitor {
  public:
-  LoadMonitor() {}
-  ~LoadMonitor() {}
+  LoadMonitor() = default;
+  ~LoadMonitor() = default;
 
   bool Show(HINSTANCE, HWND, bool) { return false; }
   bool IsOpen() { return false; }

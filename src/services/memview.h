@@ -37,6 +37,13 @@ class MemoryViewer {
     kN88E1 = Memory::mN88E1,
     kN88E2 = Memory::mN88E2,
     kN88E3 = Memory::mN88E3,
+    kExtRom1 = Memory::mE1,
+    kExtRom2 = Memory::mE2,
+    kExtRom3 = Memory::mE3,
+    kExtRom4 = Memory::mE4,
+    kExtRom5 = Memory::mE5,
+    kExtRom6 = Memory::mE6,
+    kExtRom7 = Memory::mE7,
     kGVRam0 = Memory::mG0,
     kGVRam1 = Memory::mG1,
     kGVRam2 = Memory::mG2,
@@ -65,7 +72,7 @@ class MemoryViewer {
   PC88* pc_ = nullptr;
   PC88::Z80XX* z80_ = nullptr;
 
-  Type bank_[5];
+  Type bank_[5]{};
 
  protected:
 #ifdef Z80C_STATISTICS

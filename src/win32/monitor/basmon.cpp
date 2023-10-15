@@ -16,9 +16,9 @@ using namespace PC8801;
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-BasicMonitor::BasicMonitor() {}
+BasicMonitor::BasicMonitor() = default;
 
-BasicMonitor::~BasicMonitor() {}
+BasicMonitor::~BasicMonitor() = default;
 
 bool BasicMonitor::Init(PC88* pc88) {
   if (!WinMonitor::Init(MAKEINTRESOURCE(IDD_BASMON)))
