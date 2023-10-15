@@ -83,7 +83,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   PC88();
   ~PC88() override;
 
-  bool Init(Draw* draw, DiskManager* diskmgr, TapeManager* tape);
+  bool Init(Draw* draw, DiskManager* disk_manager, TapeManager* tape_manager);
   void DeInit();
 
   void Reset();
@@ -96,7 +96,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
   // Overrides ICPUTime
   // Returns CPU clock cycles executed
-  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1.GetClocks(); }
+  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1_.GetClocks(); }
   // Returns CPU clock cycles per tick
   [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override {
     return (scheduler_.cpu_clock() + 50000) / 100000;
@@ -113,19 +113,28 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   // For tests
   PC8801::Base* GetBase() { return base_.get(); }
 
+  // TODO: Usages of these getters should be cleaned up.
   PC8801::Memory* GetMem1() { return mem1_.get(); }
   PC8801::SubSystem* GetMem2() { return subsys_.get(); }
   PC8801::OPNIF* GetOPN1() { return opn1_.get(); }
   PC8801::OPNIF* GetOPN2() { return opn2_.get(); }
-  Z80XX* GetCPU1() { return &cpu1; }
-  Z80XX* GetCPU2() { return &cpu2; }
+  Z80XX* GetCPU1() { return &cpu1_; }
+  Z80XX* GetCPU2() { return &cpu2_; }
+  IOBus* GetBus1() { return &bus1_; }
+  IOBus* GetBus2() { return &bus2_; }
+  MemoryManager* GetMM1() { return &mm1_; }
+  MemoryManager* GetMM2() { return &mm2_; }
   PC8801::PD8257* GetDMAC() { return dmac_.get(); }
   PC8801::Beep* GetBEEP() { return beep_.get(); }
+  PC8801::JoyPad* GetJoyPad() { return joy_pad_; }
+  DeviceList* GetDeviceList() { return &devlist_; }
+  DiskManager* GetDiskManager() { return disk_manager_; }
 
   Scheduler* GetScheduler() { return &scheduler_; }
 
-  // bool SaveShapshot(const char* filename);
-  // bool LoadShapshot(const char* filename);
+  // TODO: make these only create snapshot data, and delegate saving to file outside.
+  // bool SaveSnapshot(const char* filename);
+  // bool LoadSnapshot(const char* filename);
 
   uint64_t GetFramePeriodNS();
 
@@ -181,50 +190,52 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
   SchedulerImpl scheduler_;
 
-  Draw::Region region;
+  Draw::Region region{};
 
-  int cpumode;
+  int cpu_mode_ = 0;
   // 実効速度 (単位はclock)
   int64_t effective_clocks_ = 1;
 
-  uint32_t cfgflags;
-  uint32_t cfgflag2;
-  bool updated;
+  uint32_t cfg_flags_ = 0;
+  uint32_t cfg_flags2_ = 0;
+  bool updated_ = false;
 
   std::unique_ptr<PC8801::Memory> mem1_;
   std::unique_ptr<PC8801::KanjiROM> knj1_;
   std::unique_ptr<PC8801::KanjiROM> knj2_;
-  PC8801::Screen* scrn = nullptr;
-  PC8801::INTC* intc = nullptr;
+  PC8801::Screen* screen_ = nullptr;
+  PC8801::INTC* int_controller_ = nullptr;
   std::unique_ptr<PC8801::CRTC> crtc_;
   std::unique_ptr<PC8801::Base> base_;
-  PC8801::FDC* fdc = nullptr;
+  PC8801::FDC* fdc_ = nullptr;
   std::unique_ptr<PC8801::SubSystem> subsys_;
-  PC8801::SIO* siotape = nullptr;
-  PC8801::SIO* siomidi = nullptr;
+  PC8801::SIO* sio_tape_ = nullptr;
+  PC8801::SIO* sio_midi_ = nullptr;
   std::unique_ptr<PC8801::OPNIF> opn1_;
   std::unique_ptr<PC8801::OPNIF> opn2_;
-  PC8801::Calendar* caln = nullptr;
+  PC8801::Calendar* calendar_ = nullptr;
   std::unique_ptr<PC8801::Beep> beep_;
   std::unique_ptr<PC8801::PD8257> dmac_;
 
  protected:
   Draw* draw_ = nullptr;
-  DiskManager* diskmgr = nullptr;
-  TapeManager* tapemgr = nullptr;
-  PC8801::JoyPad* joypad = nullptr;
+  DiskManager* disk_manager_ = nullptr;
+  TapeManager* tape_manager_ = nullptr;
+  PC8801::JoyPad* joy_pad_ = nullptr;
 
-  MemoryManager mm1, mm2;
-  IOBus bus1, bus2;
-  DeviceList devlist;
+  MemoryManager mm1_;
+  MemoryManager mm2_;
+  IOBus bus1_;
+  IOBus bus2_;
+  DeviceList devlist_;
 
  private:
-  Z80XX cpu1;
-  Z80XX cpu2;
+  Z80XX cpu1_;
+  Z80XX cpu2_;
 
   friend class PC8801::Base;
 };
 
 inline bool PC88::IsCDSupported() {
-  return devlist.Find(DEV_ID('c', 'd', 'i', 'f')) != 0;
+  return devlist_.Find(DEV_ID('c', 'd', 'i', 'f')) != 0;
 }

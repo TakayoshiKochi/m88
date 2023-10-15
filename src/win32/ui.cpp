@@ -58,8 +58,8 @@ WinUI::WinUI(HINSTANCE hinstance) : hinst_(hinstance) {
   diskinfo[1].idchgdisk = IDM_CHANGEDISK_2;
   hmenuss[0] = nullptr;
   hmenuss[1] = nullptr;
-  currentsnapshot = 0;
-  snapshotchanged = true;
+  current_snapshot_ = 0;
+  snapshot_changed_ = true;
 
   mouse_button_ = 0;
 }
@@ -103,7 +103,7 @@ bool WinUI::InitWindow(int) {
 
   //  SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0xc0, LWA_ALPHA);
 
-  if (!draw.Init0(hwnd_))
+  if (!draw_.Init0(hwnd_))
     return false;
 
   // Power management
@@ -148,15 +148,15 @@ int WinUI::Main(const char* cmdline) {
 
   MSG msg;
   while (GetMessage(&msg, nullptr, 0, 0)) {
-    if (winconfig.ProcMsg(msg)) {
-      if (!winconfig.IsOpen())
+    if (win_config_.ProcMsg(msg)) {
+      if (!win_config_.IsOpen())
         SetGUIFlag(false);
       continue;
     }
 
     if (!TranslateAccelerator(msg.hwnd, haccel_, &msg)) {
       if ((msg.message == WM_SYSKEYDOWN || msg.message == WM_SYSKEYUP) &&
-          !(config.flags & Config::kSuppressMenu))
+          !(config_.flags & Config::kSuppressMenu))
         TranslateMessage(&msg);
     }
     DispatchMessage(&msg);
@@ -177,11 +177,11 @@ int WinUI::Main(const char* cmdline) {
 //
 bool WinUI::InitM88(const char* cmdline) {
   active_ = false;
-  tapetitle_.clear();
+  tape_title_.clear();
 
   //  設定読み込み
   Log("%d\tLoadConfig\n", timeGetTime());
-  PC8801::LoadConfig(&config, m88ini, true);
+  PC8801::LoadConfig(&config_, m88ini, true);
 
   // ステータスバー初期化
   statusdisplay.Init(hwnd_);
@@ -204,35 +204,36 @@ bool WinUI::InitM88(const char* cmdline) {
   GetCurrentDirectory(MAX_PATH, path);
 
   //  デバイスの初期化
-  PC8801::LoadConfigDirectory(&config, m88ini, "BIOSPath", true);
+  PC8801::LoadConfigDirectory(&config_, m88ini, "BIOSPath", true);
 
   Log("%d\tdiskmanager\n", timeGetTime());
-  if (!diskmgr_)
-    diskmgr_ = std::make_unique<DiskManager>();
-  if (!diskmgr_ || !diskmgr_->Init())
+  if (!disk_manager_)
+    disk_manager_ = std::make_unique<DiskManager>();
+  if (!disk_manager_ || !disk_manager_->Init())
     return false;
-  if (!tapemgr_)
-    tapemgr_ = std::make_unique<TapeManager>();
-  if (!tapemgr_)
+  if (!tape_manager_)
+    tape_manager_ = std::make_unique<TapeManager>();
+  if (!tape_manager_)
     return false;
 
   Log("%d\tkeyboard if\n", timeGetTime());
   if (!keyif_.Init(hwnd_))
     return false;
   Log("%d\tcore\n", timeGetTime());
-  if (!core.Init(this, hwnd_, &draw, diskmgr_.get(), &keyif_, &winconfig, tapemgr_.get()))
+  if (!core_.Init(this, hwnd_, &draw_, disk_manager_.get(), &keyif_, &win_config_,
+                  tape_manager_.get()))
     return false;
 
   //  debug 用クラス初期化
   Log("%d\tmonitors\n", timeGetTime());
-  opn_mon_.Init(core.GetOPN1(), core.GetSound());
-  mem_mon_.Init(&core);
-  code_mon_.Init(&core);
-  bas_mon_.Init(&core);
-  reg_mon_.Init(&core);
+  opn_mon_.Init(core_.GetPC88()->GetOPN1(), core_.GetSound());
+  mem_mon_.Init(&core_);
+  code_mon_.Init(core_.GetPC88());
+  bas_mon_.Init(core_.GetPC88());
+  reg_mon_.Init(core_.GetPC88());
   load_mon_.Init();
-  io_mon_.Init(&core);
-  core.GetSound()->SetSoundMonitor(&opn_mon_);
+  io_mon_.Init(&core_);
+  core_.GetSound()->SetSoundMonitor(&opn_mon_);
 
   //  実行ファイル改変チェック
   Log("%d\tself test\n", timeGetTime());
@@ -241,7 +242,7 @@ bool WinUI::InitM88(const char* cmdline) {
 
   //  エミュレーション開始
   Log("%d\temulation begin\n", timeGetTime());
-  core.Wait(false);
+  core_.Wait(false);
   active_ = true;
   fullscreen_ = false;
 
@@ -254,12 +255,12 @@ bool WinUI::InitM88(const char* cmdline) {
 
   //  リセット
   Log("%d\treset\n", timeGetTime());
-  core.Reset();
+  core_.Reset();
 
   // あとごちゃごちゃしたもの
   Log("%d\tetc\n", timeGetTime());
   if (diskinfo[0].filename_.empty())
-    PC8801::LoadConfigDirectory(&config, m88ini, "Directory", false);
+    PC8801::LoadConfigDirectory(&config_, m88ini, "Directory", false);
 
   Log("%d\tend initm88\n", timeGetTime());
   return true;
@@ -270,11 +271,11 @@ bool WinUI::InitM88(const char* cmdline) {
 //  M88 の後片付け
 //
 void WinUI::CleanUpM88() {
-  PC8801::Config cfg = config;
+  PC8801::Config cfg = config_;
   PC8801::SaveConfig(&cfg, m88ini, true);
-  core.CleanUp();
-  diskmgr_.reset();
-  tapemgr_.reset();
+  core_.CleanUp();
+  disk_manager_.reset();
+  tape_manager_.reset();
 }
 
 // ---------------------------------------------------------------------------
@@ -375,7 +376,7 @@ void WinUI::ReportError() {
 //  WinUI::Reset
 //
 void WinUI::Reset() {
-  if (config.flags & Config::kAskBeforeReset) {
+  if (config_.flags & Config::kAskBeforeReset) {
     SetGUIFlag(true);
     int res = MessageBox(hwnd_, "リセットしますか？", "M88",
                          MB_ICONQUESTION | MB_OKCANCEL | MB_DEFBUTTON2);
@@ -383,36 +384,37 @@ void WinUI::Reset() {
     if (res != IDOK)
       return;
   }
-  keyif_.ApplyConfig(&config);
-  core.ApplyConfig(&config);
-  core.Reset();
+  keyif_.ApplyConfig(&config_);
+  core_.ApplyConfig(&config_);
+  core_.Reset();
 }
 
 // ---------------------------------------------------------------------------
 //  WinUI::ApplyConfig
 //
 void WinUI::ApplyConfig() {
-  config.mainsubratio = (config.legacy_clock >= 60 || (config.flags & Config::kFullSpeed)) ? 2 : 1;
-  if (config.dipsw != 1) {
-    config.flags &= ~Config::kSpecialPalette;
-    config.flag2 &= ~(Config::kMask0 | Config::kMask1 | Config::kMask2);
+  config_.mainsubratio =
+      (config_.legacy_clock >= 60 || (config_.flags & Config::kFullSpeed)) ? 2 : 1;
+  if (config_.dipsw != 1) {
+    config_.flags &= ~Config::kSpecialPalette;
+    config_.flag2 &= ~(Config::kMask0 | Config::kMask1 | Config::kMask2);
   }
 
-  core.ApplyConfig(&config);
-  keyif_.ApplyConfig(&config);
-  draw.SetPriorityLow((config.flags & Config::kDrawPriorityLow) != 0);
+  core_.ApplyConfig(&config_);
+  keyif_.ApplyConfig(&config_);
+  draw_.SetPriorityLow((config_.flags & Config::kDrawPriorityLow) != 0);
 
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(mii));
   mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
-  mii.dwTypeData = (config.flags & Config::kDisableF12Reset) ? const_cast<LPSTR>("&Reset")
-                                                             : const_cast<LPSTR>("&Reset\tF12");
+  mii.dwTypeData = (config_.flags & Config::kDisableF12Reset) ? const_cast<LPSTR>("&Reset")
+                                                              : const_cast<LPSTR>("&Reset\tF12");
   SetMenuItemInfo(GetMenu(hwnd_), IDM_RESET, false, &mii);
   ShowStatusWindow();
 
-  if (config.dipsw == 1) {
+  if (config_.dipsw == 1) {
     if (!hmenudbg_) {
       hmenudbg_ = LoadMenu(hinst_, MAKEINTRESOURCE(IDR_MENU_DEBUG));
 
@@ -472,13 +474,13 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
       switch (cmdline[-1]) {
         // BASIC モードを設定  -bモード番号
         case 'b':
-          config.basicmode = BasicMode(strtoul(cmdline, &endptr, 16));
+          config_.basicmode = BasicMode(strtoul(cmdline, &endptr, 16));
           cmdline = endptr;
           break;
 
         // clock を設定  -cクロック
         case 'c':
-          config.legacy_clock = Limit(strtoul(cmdline, &endptr, 10), 100, 1) * 10;
+          config_.legacy_clock = Limit(strtoul(cmdline, &endptr, 10), 100, 1) * 10;
           cmdline = endptr;
           break;
 
@@ -495,7 +497,7 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
             activate = strtoul(endptr + 1, &endptr, 16);
           }
           cmdline = endptr;
-          config.flags = (config.flags & ~activate) | (newflags & activate);
+          config_.flags = (config_.flags & ~activate) | (newflags & activate);
           break;
 
         // flag2 の値を設定  -g値,有効ビット
@@ -506,7 +508,7 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
             activate = strtoul(endptr + 1, &endptr, 16);
           }
           cmdline = endptr;
-          config.flag2 = (config.flag2 & ~activate) | (newflags & activate);
+          config_.flag2 = (config_.flag2 & ~activate) | (newflags & activate);
           break;
       }
 
@@ -543,8 +545,8 @@ void WinUI::ToggleDisplayMode() {
 //  表示メソッド変更
 //
 void WinUI::ChangeDisplayType(bool savepos) {
-  if (winconfig.IsOpen()) {
-    winconfig.Close();
+  if (win_config_.IsOpen()) {
+    win_config_.Close();
     SetGUIFlag(false);
   }
   if (savepos) {
@@ -567,7 +569,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
 
   SetGUIFlag(true);
 
-  if (!diskmgr_->Unmount(drive)) {
+  if (!disk_manager_->Unmount(drive)) {
     MessageBox(hwnd, "DiskManger::Unmount failed\nディスクの取り外しに失敗しました.", "M88",
                MB_ICONERROR | MB_OK);
   }
@@ -575,7 +577,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
   ofn.lStructSize = sizeof(OPENFILENAME);
-  ofn.FlagsEx = config.flag2 & Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
+  ofn.FlagsEx = config_.flag2 & Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];
   filename[0] = 0;
@@ -597,13 +599,13 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
   if (isopen) {
     // 指定されたファイルは存在するか？
     bool createnew = false;
-    if (!diskmgr_->IsImageOpen(filename)) {
+    if (!disk_manager_->IsImageOpen(filename)) {
       FileIOWin file;
       if (!file.Open(filename, FileIO::readonly)) {
         if (file.GetError() == FileIO::file_not_found) {
           // ファイルが存在しない
           createnew = true;
-          if (!newdisk.Show(hinst_, hwnd))
+          if (!new_disk_.Show(hinst_, hwnd))
             return;
         } else {
           // 何らかの理由でアクセスできない
@@ -614,13 +616,13 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
 
     OpenDiskImage(drive, filename, ofn.Flags & OFN_READONLY, 0, createnew);
 
-    if (createnew && diskmgr_->GetNumDisks(drive) == 0) {
-      diskmgr_->AddDisk(drive, newdisk.GetTitle(), newdisk.GetType());
+    if (createnew && disk_manager_->GetNumDisks(drive) == 0) {
+      disk_manager_->AddDisk(drive, new_disk_.GetTitle(), new_disk_.GetType());
       OpenDiskImage(drive, filename, false, 0, false);
-      if (newdisk.DoFormat())
-        diskmgr_->FormatDisk(drive);
+      if (new_disk_.DoFormat())
+        disk_manager_->FormatDisk(drive);
     }
-    if (drive == 0 && diskinfo[1].filename_.empty() && diskmgr_->GetNumDisks(0) > 1) {
+    if (drive == 0 && diskinfo[1].filename_.empty() && disk_manager_->GetNumDisks(0) > 1) {
       OpenDiskImage(1, filename, ofn.Flags & OFN_READONLY, 1, false);
     }
   } else
@@ -628,7 +630,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
 
   SetGUIFlag(false);
   SetThreadPriority(hthread, prev);
-  snapshotchanged = true;
+  snapshot_changed_ = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -659,9 +661,9 @@ bool WinUI::OpenDiskImage(int drive,
   bool result = false;
   if (!name.empty()) {
     dinfo.filename_ = name;
-    result = diskmgr_->Mount(drive, dinfo.filename_, readonly, id, create);
+    result = disk_manager_->Mount(drive, dinfo.filename_, readonly, id, create);
     dinfo.readonly = readonly;
-    dinfo.currentdisk = diskmgr_->GetCurrentDisk(0);
+    dinfo.currentdisk = disk_manager_->GetCurrentDisk(0);
   }
   if (!result)
     dinfo.filename_.clear();
@@ -676,10 +678,10 @@ bool WinUI::OpenDiskImage(int drive,
 void WinUI::OpenDiskImage(const std::string_view path) {
   // ディスクイメージをマウントする
   OpenDiskImage(0, path, false, 0, false);
-  if (diskmgr_->GetNumDisks(0) > 1) {
+  if (disk_manager_->GetNumDisks(0) > 1) {
     OpenDiskImage(1, path, false, 1, false);
   } else {
-    diskmgr_->Unmount(1);
+    disk_manager_->Unmount(1);
     OpenDiskImage(1, "", false, 0, false);
   }
 }
@@ -698,9 +700,9 @@ bool WinUI::SelectDisk(uint32_t drive, int id, bool menuonly) {
 
   bool result = true;
   if (!menuonly)
-    result = diskmgr_->Mount(drive, dinfo.filename_, dinfo.readonly, id, false);
+    result = disk_manager_->Mount(drive, dinfo.filename_, dinfo.readonly, id, false);
 
-  int current = result ? diskmgr_->GetCurrentDisk(drive) : -1;
+  int current = result ? disk_manager_->GetCurrentDisk(drive) : -1;
 
   CheckMenuItem(dinfo.hmenu, dinfo.idchgdisk + (current < 0 ? 63 : current),
                 MF_BYCOMMAND | MF_CHECKED);
@@ -719,7 +721,7 @@ bool WinUI::CreateDiskMenu(uint32_t drive) {
   HMENU hmenuprev = dinfo.hmenu;
   dinfo.currentdisk = -1;
 
-  int ndisks = std::min(diskmgr_->GetNumDisks(drive), 60U);
+  int ndisks = std::min(disk_manager_->GetNumDisks(drive), 60U);
   if (ndisks) {
     // メニュー作成
     dinfo.hmenu = CreatePopupMenu();
@@ -727,7 +729,7 @@ bool WinUI::CreateDiskMenu(uint32_t drive) {
       return false;
 
     for (int i = 0; i < ndisks; i++) {
-      const char* title = diskmgr_->GetImageTitle(drive, i);
+      const char* title = disk_manager_->GetImageTitle(drive, i);
 
       if (!title)
         break;
@@ -782,12 +784,12 @@ void WinUI::ChangeTapeImage() {
 
   SetGUIFlag(true);
 
-  tapemgr_->Close();
+  tape_manager_->Close();
 
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
   ofn.lStructSize = sizeof(OPENFILENAME);
-  ofn.FlagsEx = config.flag2 & Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
+  ofn.FlagsEx = config_.flag2 & Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];
   filename[0] = 0;
@@ -811,7 +813,7 @@ void WinUI::ChangeTapeImage() {
 
   SetGUIFlag(false);
   SetThreadPriority(hthread, prev);
-  snapshotchanged = true;
+  snapshot_changed_ = true;
 }
 
 void WinUI::OpenTapeImage(const char* filename) {
@@ -822,9 +824,9 @@ void WinUI::OpenTapeImage(const char* filename) {
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
 
-  if (tapemgr_->Open(filename)) {
-    tapetitle_ = GetFileNameTitle(filename);
-    wsprintf(buf, "&Open - %s...", tapetitle_.c_str());
+  if (tape_manager_->Open(filename)) {
+    tape_title_ = GetFileNameTitle(filename);
+    wsprintf(buf, "&Open - %s...", tape_title_.c_str());
     mii.dwTypeData = buf;
   } else {
     mii.dwTypeData = const_cast<LPSTR>("&Open...");
@@ -838,8 +840,8 @@ void WinUI::OpenTapeImage(const char* filename) {
 void WinUI::ShowStatusWindow() {
   if (fullscreen_)
     return;
-  if (config.flags & PC8801::Config::kShowStatusBar) {
-    statusdisplay.Enable((config.flags & PC8801::Config::kShowFDCStatus) != 0);
+  if (config_.flags & PC8801::Config::kShowStatusBar) {
+    statusdisplay.Enable((config_.flags & PC8801::Config::kShowFDCStatus) != 0);
     // Allow window corner rounding.
     DWORD dwm_attr = DWMWCP_DEFAULT;
     DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
@@ -877,7 +879,7 @@ void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
   SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
                SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
   PostMessage(hwnd_, WM_SIZE, SIZE_RESTORED, MAKELONG(width, height));
-  draw.Resize(width, height);
+  draw_.Resize(width, height);
 }
 
 // ---------------------------------------------------------------------------
@@ -888,7 +890,7 @@ void WinUI::SetGUIFlag(bool gui) {
     ::DrawMenuBar(hwnd_);
   }
   //  core.SetGUIFlag(gui);
-  draw.SetGUIFlag(gui);
+  draw_.SetGUIFlag(gui);
   // SetCursorVisibility(gui);
 }
 
@@ -914,12 +916,12 @@ void WinUI::SetCursorVisibility(bool flag) {
 void WinUI::SaveSnapshot(int n) {
   char name[MAX_PATH];
   GetSnapshotName(name, n);
-  if (core.SaveShapshot(name))
+  if (core_.SaveSnapshot(name))
     statusdisplay.Show(80, 3000, "%s に保存しました", name);
   else
     statusdisplay.Show(80, 3000, "%s に保存できません", name);
-  currentsnapshot = n;
-  snapshotchanged = true;
+  current_snapshot_ = n;
+  snapshot_changed_ = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -929,11 +931,11 @@ void WinUI::LoadSnapshot(int n) {
   char name[MAX_PATH];
   GetSnapshotName(name, n);
   bool r;
-  if (!diskinfo[0].filename_.empty() && diskmgr_->GetNumDisks(0) >= 2) {
+  if (!diskinfo[0].filename_.empty() && disk_manager_->GetNumDisks(0) >= 2) {
     OpenDiskImage(1, diskinfo[0].filename_, diskinfo[0].readonly, 1, false);
-    r = core.LoadShapshot(name, diskinfo[0].filename_);
+    r = core_.LoadSnapshot(name, diskinfo[0].filename_);
   } else {
-    r = core.LoadShapshot(name, "");
+    r = core_.LoadSnapshot(name, "");
   }
 
   if (r)
@@ -942,8 +944,8 @@ void WinUI::LoadSnapshot(int n) {
     statusdisplay.Show(80, 2500, "%s から復元できません", name);
   for (uint32_t i = 0; i < 2; i++)
     CreateDiskMenu(i);
-  currentsnapshot = n;
-  snapshotchanged = true;
+  current_snapshot_ = n;
+  snapshot_changed_ = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -952,10 +954,10 @@ void WinUI::LoadSnapshot(int n) {
 void WinUI::GetSnapshotName(char* name, int n) {
   std::string title;
 
-  if (diskmgr_->GetNumDisks(0)) {
+  if (disk_manager_->GetNumDisks(0)) {
     title = GetFileNameTitle(diskinfo[0].filename_);
-  } else if (tapemgr_->IsOpen()) {
-    title = tapetitle_;
+  } else if (tape_manager_->IsOpen()) {
+    title = tape_title_;
   } else {
     title = "snapshot";
   }
@@ -970,9 +972,9 @@ void WinUI::GetSnapshotName(char* name, int n) {
 //  スナップショット用のメニューを作成
 //
 bool WinUI::MakeSnapshotMenu() {
-  if (snapshotchanged) {
+  if (snapshot_changed_) {
     int i;
-    snapshotchanged = false;
+    snapshot_changed_ = false;
 
     // メニューを元に戻す
     MENUITEMINFO mii;
@@ -1014,11 +1016,11 @@ bool WinUI::MakeSnapshotMenu() {
       if (entries & (1 << i)) {
         CheckMenuItem(hmenuss[0], IDM_SNAPSHOT_SAVE_0 + i, MF_BYCOMMAND | MF_CHECKED);
         AppendMenu(hmenuss[1], MF_STRING, IDM_SNAPSHOT_LOAD_0 + i, buf);
-        if (i == currentsnapshot)
+        if (i == current_snapshot_)
           SetMenuDefaultItem(hmenuss[1], IDM_SNAPSHOT_LOAD_0 + i, FALSE);
       }
     }
-    SetMenuDefaultItem(hmenuss[0], IDM_SNAPSHOT_SAVE_0 + currentsnapshot, FALSE);
+    SetMenuDefaultItem(hmenuss[0], IDM_SNAPSHOT_SAVE_0 + current_snapshot_, FALSE);
 
     mii.hSubMenu = hmenuss[0];
     SetMenuItemInfo(GetMenu(hwnd_), IDM_SNAPSHOT_SAVE, false, &mii);
@@ -1038,20 +1040,20 @@ void WinUI::CaptureScreen() {
   if (!buf)
     return;
 
-  draw.CaptureScreen(buf.get());
+  draw_.CaptureScreen(buf.get());
 
   const std::string type("png");
   std::unique_ptr<ImageCodec> codec;
   codec.reset(ImageCodec::GetCodec(type));
   if (codec) {
-    codec->Encode(buf.get(), draw.GetPalette());
+    codec->Encode(buf.get(), draw_.GetPalette());
     codec->Save(ImageCodec::GenerateFileName(type));
   }
   statusdisplay.Show(80, 1500, "画面イメージを保存しました");
 
   codec.reset(ImageCodec::GetCodec("bmp"));
   if (codec) {
-    codec->Encode(buf.get(), draw.GetPalette());
+    codec->Encode(buf.get(), draw_.GetPalette());
     if (CopyToClipboard(codec->data(), codec->encoded_size()))
       statusdisplay.Show(80, 1500, "クリップボードに画面イメージを保存しました");
   }
@@ -1086,12 +1088,12 @@ void WinUI::SaveWindowPosition() {
   WINDOWPLACEMENT wp;
   wp.length = sizeof(WINDOWPLACEMENT);
   ::GetWindowPlacement(hwnd_, &wp);
-  config.winposx = wp.rcNormalPosition.left;
-  config.winposy = wp.rcNormalPosition.top;
+  config_.winposx = wp.rcNormalPosition.left;
+  config_.winposy = wp.rcNormalPosition.top;
 }
 
 void WinUI::LoadWindowPosition() {
-  if (config.flag2 & Config::kSavePosition) {
+  if (config_.flag2 & Config::kSavePosition) {
     WINDOWPLACEMENT wp;
     wp.length = sizeof(WINDOWPLACEMENT);
     ::GetWindowPlacement(hwnd_, &wp);
@@ -1099,10 +1101,10 @@ void WinUI::LoadWindowPosition() {
     LONG winw = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
     LONG winh = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
 
-    wp.rcNormalPosition.top = config.winposy;
-    wp.rcNormalPosition.bottom = config.winposy + winh;
-    wp.rcNormalPosition.left = config.winposx;
-    wp.rcNormalPosition.right = config.winposx + winw;
+    wp.rcNormalPosition.top = config_.winposy;
+    wp.rcNormalPosition.bottom = config_.winposy + winh;
+    wp.rcNormalPosition.left = config_.winposx;
+    wp.rcNormalPosition.right = config_.winposx + winw;
     ::SetWindowPlacement(hwnd_, &wp);
   }
 }
@@ -1130,7 +1132,7 @@ void WinUI::AllowSleep() {
 //  表示メソッドの変更
 //
 LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
-  if (!draw.ChangeDisplayMode(fullscreen_, (config.flags & PC8801::Config::kForce480) != 0)) {
+  if (!draw_.ChangeDisplayMode(fullscreen_, (config_.flags & PC8801::Config::kForce480) != 0)) {
     fullscreen_ = false;
   }
 
@@ -1171,14 +1173,14 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle);
     SetWindowText(hwnd, "M88");
 
-    RECT rect = draw.GetFullScreenRect();
+    RECT rect = draw_.GetFullScreenRect();
     int width = rect.right - rect.left;
     int height = rect.bottom - rect.top;
     SetWindowPos(hwnd, HWND_TOPMOST, rect.left, rect.top, rect.right, rect.bottom,
                  SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE);
     hmenu_ = GetMenu(hwnd);
     SetMenu(hwnd, nullptr);
-    draw.Resize(width, height);
+    draw_.Resize(width, height);
     SetCursorVisibility(false);
 
     report_ = false;
@@ -1192,7 +1194,7 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
 //
 LRESULT WinUI::M88ChangeVolume(HWND, WPARAM c, LPARAM) {
   if (c)
-    core.SetVolume((PC8801::Config*)c);
+    core_.GetPC88()->SetVolume((PC8801::Config*)c);
   return 0;
 }
 
@@ -1202,8 +1204,8 @@ LRESULT WinUI::M88ChangeVolume(HWND, WPARAM c, LPARAM) {
 LRESULT WinUI::M88ApplyConfig(HWND, WPARAM newconfig, LPARAM) {
   if (newconfig) {
     // 乱暴ですな。
-    if (memcmp(&config, (PC8801::Config*)newconfig, sizeof(PC8801::Config)) != 0) {
-      config = *((PC8801::Config*)newconfig);
+    if (memcmp(&config_, (PC8801::Config*)newconfig, sizeof(PC8801::Config)) != 0) {
+      config_ = *((PC8801::Config*)newconfig);
       ApplyConfig();
     }
   }
@@ -1263,54 +1265,54 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_CPU_BURST:
-      config.flags ^= Config::kCPUBurst;
-      if (config.flags & Config::kCPUBurst)
-        config.flags &= ~Config::kFullSpeed;
+      config_.flags ^= Config::kCPUBurst;
+      if (config_.flags & Config::kCPUBurst)
+        config_.flags &= ~Config::kFullSpeed;
       ApplyConfig();
       break;
 
     case IDM_4MHZ:
-      this->config.legacy_clock = 40;
+      this->config_.legacy_clock = 40;
       Reset();
       break;
 
     case IDM_8MHZ:
-      this->config.legacy_clock = 80;
+      this->config_.legacy_clock = 80;
       Reset();
       break;
 
     case IDM_N88V1:
-      config.basicmode = BasicMode::kN88V1;
+      config_.basicmode = BasicMode::kN88V1;
       Reset();
       break;
 
     case IDM_N88V1H:
-      config.basicmode = BasicMode::kN88V1H;
+      config_.basicmode = BasicMode::kN88V1H;
       Reset();
       break;
 
     case IDM_N88V2:
-      config.basicmode = BasicMode::kN88V2;
+      config_.basicmode = BasicMode::kN88V2;
       Reset();
       break;
 
     case IDM_N88V2CD:
-      config.basicmode = BasicMode::kN88V2CD;
+      config_.basicmode = BasicMode::kN88V2CD;
       Reset();
       break;
 
     case IDM_NMODE:
-      config.basicmode = BasicMode::kN80;
+      config_.basicmode = BasicMode::kN80;
       Reset();
       break;
 
     case IDM_N80MODE:
-      config.basicmode = BasicMode::kN802;
+      config_.basicmode = BasicMode::kN802;
       Reset();
       break;
 
     case IDM_N80V2MODE:
-      config.basicmode = BasicMode::kN80V2;
+      config_.basicmode = BasicMode::kN80V2;
       Reset();
       break;
 
@@ -1325,7 +1327,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_BOTHDRIVE:
-      diskmgr_->Unmount(1);
+      disk_manager_->Unmount(1);
       OpenDiskImage(1, "", false, 0, false);
       ChangeDiskImage(hwnd, 0);
       break;
@@ -1338,7 +1340,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
 
     case IDM_CONFIG:
       SetGUIFlag(true);
-      winconfig.Show(hinst_, hwnd, &config);
+      win_config_.Show(hinst_, hwnd, &config_);
       break;
 
     case IDM_TOGGLEDISPLAY:
@@ -1358,32 +1360,32 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_DEBUG_TEXT:
-      config.flags ^= PC8801::Config::kSpecialPalette;
+      config_.flags ^= PC8801::Config::kSpecialPalette;
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM0:
-      config.flag2 ^= PC8801::Config::kMask0;
+      config_.flag2 ^= PC8801::Config::kMask0;
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM1:
-      config.flag2 ^= PC8801::Config::kMask1;
+      config_.flag2 ^= PC8801::Config::kMask1;
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM2:
-      config.flag2 ^= PC8801::Config::kMask2;
+      config_.flag2 ^= PC8801::Config::kMask2;
       ApplyConfig();
       break;
 
     case IDM_STATUSBAR:
-      config.flags ^= PC8801::Config::kShowStatusBar;
+      config_.flags ^= PC8801::Config::kShowStatusBar;
       ShowStatusWindow();
       break;
 
     case IDM_FDC_STATUS:
-      config.flags ^= PC8801::Config::kShowFDCStatus;
+      config_.flags ^= PC8801::Config::kShowFDCStatus;
       ApplyConfig();
       break;
 
@@ -1412,7 +1414,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_WATCHREGISTER:
-      config.flags &= ~PC8801::Config::kWatchRegister;
+      config_.flags &= ~PC8801::Config::kWatchRegister;
       reg_mon_.Show(hinst_, hwnd, !reg_mon_.IsOpen());
       break;
 
@@ -1421,20 +1423,20 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_RECORDPCM:
-      if (!core.GetSound()->IsDumping()) {
+      if (!core_.GetSound()->IsDumping()) {
         char buf[16];
         SYSTEMTIME t;
 
         GetLocalTime(&t);
         wsprintf(buf, "%.2d%.2d%.2d%.2d.wav", t.wDay, t.wHour, t.wMinute, t.wSecond);
-        core.GetSound()->DumpBegin(buf);
+        core_.GetSound()->DumpBegin(buf);
       } else {
-        core.GetSound()->DumpEnd();
+        core_.GetSound()->DumpEnd();
       }
       break;
 
     case IDM_SNAPSHOT_SAVE:
-      SaveSnapshot(currentsnapshot);
+      SaveSnapshot(current_snapshot_);
       break;
     case IDM_SNAPSHOT_SAVE_0:
     case IDM_SNAPSHOT_SAVE_1:
@@ -1450,7 +1452,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_SNAPSHOT_LOAD:
-      LoadSnapshot(currentsnapshot);
+      LoadSnapshot(current_snapshot_);
       break;
     case IDM_SNAPSHOT_LOAD_0:
     case IDM_SNAPSHOT_LOAD_1:
@@ -1645,7 +1647,7 @@ LRESULT WinUI::WmSize(HWND hwnd, WPARAM wp, LPARAM lp) {
   if (hwndstatus)
     PostMessage(hwndstatus, WM_SIZE, wp, lp);
   active_ = wp != SIZE_MINIMIZED;
-  draw.Activate(active_);
+  draw_.Activate(active_);
   return DefWindowProc(hwnd, WM_SIZE, wp, lp);
 }
 
@@ -1657,7 +1659,7 @@ LRESULT WinUI::WmMove(HWND hwnd, WPARAM, LPARAM) {
   srcpoint.x = 0, srcpoint.y = 0;
   ClientToScreen(hwnd, &srcpoint);
 
-  draw.WindowMoved(srcpoint.x, srcpoint.y);
+  draw_.WindowMoved(srcpoint.x, srcpoint.y);
   return 0;
 }
 
@@ -1681,7 +1683,7 @@ LRESULT WinUI::WmSetCursor(HWND hwnd, WPARAM wp, LPARAM lp) {
 }
 
 inline LRESULT WinUI::WmKeyDown(HWND, WPARAM wparam, LPARAM lparam) {
-  if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::kDisableF12Reset))
+  if ((uint32_t)wparam == VK_F12 && !(config_.flags & Config::kDisableF12Reset))
     ;
   else
     keyif_.KeyDown((uint32_t)wparam, (uint32_t)lparam);
@@ -1690,7 +1692,7 @@ inline LRESULT WinUI::WmKeyDown(HWND, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmKeyUp(HWND, WPARAM wparam, LPARAM lparam) {
-  if ((uint32_t)wparam == VK_F12 && !(config.flags & Config::kDisableF12Reset))
+  if ((uint32_t)wparam == VK_F12 && !(config_.flags & Config::kDisableF12Reset))
     Reset();
   else
     keyif_.KeyUp((uint32_t)wparam, (uint32_t)lparam);
@@ -1699,7 +1701,7 @@ inline LRESULT WinUI::WmKeyUp(HWND, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  if (config.flags & Config::kSuppressMenu) {
+  if (config_.flags & Config::kSuppressMenu) {
     keyif_.KeyDown((uint32_t)wparam, (uint32_t)lparam);
     return 0;
   }
@@ -1707,7 +1709,7 @@ inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmSysKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  if (config.flags & Config::kSuppressMenu) {
+  if (config_.flags & Config::kSuppressMenu) {
     keyif_.KeyUp((uint32_t)wparam, (uint32_t)lparam);
     return 0;
   }
@@ -1724,61 +1726,62 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   EnableMenuItem(hmenu_, IDM_LOGSTART, MF_GRAYED);
   EnableMenuItem(hmenu_, IDM_LOGEND, MF_GRAYED);
 #endif
-  CheckMenuItem(hmenu_, IDM_4MHZ, (config.legacy_clock == 40) ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu_, IDM_8MHZ, (config.legacy_clock == 80) ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_4MHZ, (config_.legacy_clock == 40) ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_8MHZ, (config_.legacy_clock == 80) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V1,
-                (config.basicmode == BasicMode::kN88V1) ? MF_CHECKED : MF_UNCHECKED);
+                (config_.basicmode == BasicMode::kN88V1) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V1H,
-                (config.basicmode == BasicMode::kN88V1H) ? MF_CHECKED : MF_UNCHECKED);
+                (config_.basicmode == BasicMode::kN88V1H) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V2,
-                (config.basicmode == BasicMode::kN88V2) ? MF_CHECKED : MF_UNCHECKED);
+                (config_.basicmode == BasicMode::kN88V2) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_NMODE,
-                (config.basicmode == BasicMode::kN80) ? MF_CHECKED : MF_UNCHECKED);
+                (config_.basicmode == BasicMode::kN80) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N80MODE,
-                (config.basicmode == BasicMode::kN802) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu_, IDM_N80MODE, core.IsN80Supported() ? MF_ENABLED : MF_GRAYED);
+                (config_.basicmode == BasicMode::kN802) ? MF_CHECKED : MF_UNCHECKED);
+  EnableMenuItem(hmenu_, IDM_N80MODE, core_.GetPC88()->IsN80Supported() ? MF_ENABLED : MF_GRAYED);
   CheckMenuItem(hmenu_, IDM_N80V2MODE,
-                (config.basicmode == BasicMode::kN80V2) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu_, IDM_N80V2MODE, core.IsN80V2Supported() ? MF_ENABLED : MF_GRAYED);
+                (config_.basicmode == BasicMode::kN80V2) ? MF_CHECKED : MF_UNCHECKED);
+  EnableMenuItem(hmenu_, IDM_N80V2MODE,
+                 core_.GetPC88()->IsN80V2Supported() ? MF_ENABLED : MF_GRAYED);
 
   CheckMenuItem(hmenu_, IDM_N88V2CD,
-                (config.basicmode == BasicMode::kN88V2CD) ? MF_CHECKED : MF_UNCHECKED);
-  EnableMenuItem(hmenu_, IDM_N88V2CD, core.IsCDSupported() ? MF_ENABLED : MF_GRAYED);
+                (config_.basicmode == BasicMode::kN88V2CD) ? MF_CHECKED : MF_UNCHECKED);
+  EnableMenuItem(hmenu_, IDM_N88V2CD, core_.GetPC88()->IsCDSupported() ? MF_ENABLED : MF_GRAYED);
 
   CheckMenuItem(hmenu_, IDM_CPU_BURST,
-                (config.flags & Config::kCPUBurst) ? MF_CHECKED : MF_UNCHECKED);
+                (config_.flags & Config::kCPUBurst) ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu_, IDM_KEY_GRPH, keyif_.IsGrphLocked() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_KEY_KANA, keyif_.IsKanaLocked() ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu_, IDM_WATCHREGISTER,
-                (config.dipsw != 1 && reg_mon_.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
+                (config_.dipsw != 1 && reg_mon_.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_STATUSBAR,
-                (config.flags & Config::kShowStatusBar) ? MF_CHECKED : MF_UNCHECKED);
+                (config_.flags & Config::kShowStatusBar) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_STATUSBAR, fullscreen_ ? MF_GRAYED : MF_ENABLED);
   CheckMenuItem(hmenu_, IDM_FDC_STATUS,
-                (config.flags & Config::kShowFDCStatus) ? MF_CHECKED : MF_UNCHECKED);
+                (config_.flags & Config::kShowFDCStatus) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_SOUNDMON, opn_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_MEMMON, mem_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_CODEMON, code_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_BASMON, bas_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_LOADMON, load_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_IOMON, io_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
-  CheckMenuItem(hmenu_, IDM_RECORDPCM, core.GetSound()->IsDumping() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_RECORDPCM, core_.GetSound()->IsDumping() ? MF_CHECKED : MF_UNCHECKED);
 
   EnableMenuItem(hmenu_, IDM_DUMPCPU1,
-                 core.GetCPU1()->GetDumpState() == -1 ? MF_GRAYED : MF_ENABLED);
+                 core_.GetPC88()->GetCPU1()->GetDumpState() == -1 ? MF_GRAYED : MF_ENABLED);
   CheckMenuItem(hmenu_, IDM_DUMPCPU1,
-                core.GetCPU1()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
+                core_.GetPC88()->GetCPU1()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_DUMPCPU2,
-                 core.GetCPU2()->GetDumpState() == -1 ? MF_GRAYED : MF_ENABLED);
+                 core_.GetPC88()->GetCPU2()->GetDumpState() == -1 ? MF_GRAYED : MF_ENABLED);
   CheckMenuItem(hmenu_, IDM_DUMPCPU2,
-                core.GetCPU2()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
+                core_.GetPC88()->GetCPU2()->GetDumpState() == 1 ? MF_CHECKED : MF_UNCHECKED);
 
   if (hmenudbg_) {
     CheckMenuItem(hmenudbg_, IDM_DEBUG_TEXT,
-                  (config.flags & Config::kSpecialPalette) ? MF_CHECKED : MF_UNCHECKED);
-    int mask = (config.flag2 / Config::kMask0) & 7;
+                  (config_.flags & Config::kSpecialPalette) ? MF_CHECKED : MF_UNCHECKED);
+    int mask = (config_.flag2 / Config::kMask0) & 7;
     CheckMenuItem(hmenudbg_, IDM_DEBUG_GVRAM0, (mask & 1) ? MF_CHECKED : MF_UNCHECKED);
     CheckMenuItem(hmenudbg_, IDM_DEBUG_GVRAM1, (mask & 2) ? MF_CHECKED : MF_UNCHECKED);
     CheckMenuItem(hmenudbg_, IDM_DEBUG_GVRAM2, (mask & 4) ? MF_CHECKED : MF_UNCHECKED);
@@ -1793,7 +1796,7 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
 //  WM_QUERYNEWPALETTE ハンドラ
 //
 LRESULT WinUI::WmQueryNewPalette(HWND, WPARAM, LPARAM) {
-  draw.QueryNewPalette(!foreground_);
+  draw_.QueryNewPalette(!foreground_);
   return 1;
 }
 
@@ -1803,7 +1806,7 @@ LRESULT WinUI::WmQueryNewPalette(HWND, WPARAM, LPARAM) {
 //
 LRESULT WinUI::WmPaletteChanged(HWND hwnd, WPARAM wparam, LPARAM) {
   if ((HWND)wparam != hwnd) {
-    draw.QueryNewPalette(!foreground_);
+    draw_.QueryNewPalette(!foreground_);
     return 1;
   }
   return 0;
@@ -1818,18 +1821,18 @@ LRESULT WinUI::WmActivate(HWND hwnd, WPARAM wparam, LPARAM) {
   foreground_ = (LOWORD(wparam) != WA_INACTIVE);
 
   if (!HIWORD(wparam)) {
-    draw.RequestPaint();
+    draw_.RequestPaint();
   }
 
   keyif_.Activate(foreground_);
-  draw.QueryNewPalette(!foreground_);
+  draw_.QueryNewPalette(!foreground_);
   if (prev_fg != foreground_) {
     //      core.ActivateMouse(!background);
     M88ClipCursor(hwnd, foreground_ ? -CLIPCURSOR_RELEASE : CLIPCURSOR_RELEASE, 0);
-    draw.SetGUIFlag(!foreground_);
+    draw_.SetGUIFlag(!foreground_);
     SetCursorVisibility(!fullscreen_);
   }
-  snapshotchanged = true;
+  snapshot_changed_ = true;
   return 0;
 }
 
@@ -1838,7 +1841,7 @@ LRESULT WinUI::WmActivate(HWND hwnd, WPARAM wparam, LPARAM) {
 //  WM_PAINT ハンドラ
 //
 LRESULT WinUI::WmPaint(HWND hwnd, WPARAM wp, LPARAM lp) {
-  draw.RequestPaint();
+  draw_.RequestPaint();
   return DefWindowProc(hwnd, WM_PAINT, wp, lp);
 }
 
@@ -1887,7 +1890,7 @@ LRESULT WinUI::WmDestroy(HWND, WPARAM, LPARAM) {
 //
 LRESULT WinUI::WmClose(HWND hwnd, WPARAM, LPARAM) {
   // 確認
-  if (config.flags & Config::kAskBeforeReset) {
+  if (config_.flags & Config::kAskBeforeReset) {
     SetGUIFlag(true);
     int res = MessageBox(hwnd, "M88 を終了します", "M88",
                          MB_ICONEXCLAMATION | MB_OKCANCEL | MB_DEFBUTTON2);
@@ -1937,8 +1940,8 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM) {
   Log("WmTimer:%d(%d)\n", wparam, timerid_);
   if (wparam == timerid_) {
     // 実効周波数,表示フレーム数を取得
-    int fcount = draw.GetDrawCount();
-    int64_t icount = core.GetExecClocks();
+    int fcount = draw_.GetDrawCount();
+    int64_t icount = core_.GetExecClocks();
 
     // レポートする場合はタイトルバーを更新
     if (report_) {

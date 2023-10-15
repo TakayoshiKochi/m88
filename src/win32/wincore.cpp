@@ -36,30 +36,30 @@ using namespace PC8801;
 //  構築/消滅
 //
 WinCore::~WinCore() {
-  PC88::DeInit();
+  pc88_.DeInit();
   CleanUp();
 }
 
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool WinCore::Init(WinUI* _ui,
+bool WinCore::Init(WinUI* ui,
                    HWND hwnd,
                    Draw* draw,
                    DiskManager* disk,
                    WinKeyIF* keyb,
                    IConfigPropBase* cp,
                    TapeManager* tape) {
-  ui = _ui;
-  cfgprop = cp;
+  ui_ = ui;
+  cfg_prop_ = cp;
 
-  if (!PC88::Init(draw, disk, tape))
+  if (!pc88_.Init(draw, disk, tape))
     return false;
 
-  if (!sound.Init(this, hwnd, 0, 0))
+  if (!sound_.Init(&pc88_, hwnd, 0, 0))
     return false;
 
-  padif.Init();
+  pad_if_.Init();
 
   if (!ConnectDevices(keyb))
     return false;
@@ -68,28 +68,25 @@ bool WinCore::Init(WinUI* _ui,
     return false;
 
   // seq.SetClock(40);   // 4MHz
-  seq.SetCPUClock(3993600);
-  seq.SetSpeed(100);  // 100%
+  seq_.SetCPUClock(3993600);
+  seq_.SetSpeed(100);  // 100%
 
-  if (!seq.Init(this))
-    return false;
-
-  return true;
+  return seq_.Init(&pc88_);
 }
 
 // ---------------------------------------------------------------------------
 //  後始末
 //
 bool WinCore::CleanUp() {
-  seq.CleanUp();
+  seq_.CleanUp();
 
-  for (ExtendModules::iterator i = extmodules.begin(); i != extmodules.end(); ++i)
+  for (ExtendModules::iterator i = ext_modules_.begin(); i != ext_modules_.end(); ++i)
     delete *i;
-  extmodules.clear();
+  ext_modules_.clear();
 
-  for (ExternalDevices::iterator j = extdevices.begin(); j != extdevices.end(); ++j)
+  for (ExternalDevices::iterator j = ext_devices_.begin(); j != ext_devices_.end(); ++j)
     delete *j;
-  extdevices.clear();
+  ext_devices_.clear();
 
   return true;
 }
@@ -99,14 +96,14 @@ bool WinCore::CleanUp() {
 //
 void WinCore::Reset() {
   LockObj lock(this);
-  PC88::Reset();
+  pc88_.Reset();
 }
 
 // ---------------------------------------------------------------------------
 //  設定を反映する
 //
 void WinCore::ApplyConfig(PC8801::Config* cfg) {
-  config = *cfg;
+  config_ = *cfg;
 
   int c = cfg->legacy_clock;
   uint64_t cpu_clock = c * 100000;
@@ -119,17 +116,16 @@ void WinCore::ApplyConfig(PC8801::Config* cfg) {
     c = 0;
   if (cfg->flags & PC8801::Config::kCPUBurst)
     c = -c;
-  seq.SetLegacyClock(c);
-  seq.SetCPUClock(cpu_clock);
-  seq.SetSpeed(cfg->speed / 10);
-  seq.SetRefreshTiming(cfg->refreshtiming);
+  seq_.SetLegacyClock(c);
+  seq_.SetCPUClock(cpu_clock);
+  seq_.SetSpeed(cfg->speed / 10);
+  seq_.SetRefreshTiming(cfg->refreshtiming);
 
-  if (joypad)
-    joypad->Connect(&padif);
+  if (pc88_.GetJoyPad())
+    pc88_.GetJoyPad()->Connect(&pad_if_);
 
-  PC88::ApplyConfig(cfg);
-  sound.ApplyConfig(cfg);
-  draw_->SetFlipMode(false);
+  pc88_.ApplyConfig(cfg);
+  sound_.ApplyConfig(cfg);
 }
 
 // ---------------------------------------------------------------------------
@@ -155,14 +151,14 @@ bool WinCore::ConnectDevices(WinKeyIF* keyb) {
                                             {0x0e, IOBus::portin, WinKeyIF::in},
                                             {0x0f, IOBus::portin, WinKeyIF::in},
                                             {0, 0, 0}};
-  if (!bus1.Connect(keyb, c_keyb))
+  if (!pc88_.GetBus1()->Connect(keyb, c_keyb))
     return false;
 
-  if (FAILED(GetOPN1()->Connect(&sound)))
+  if (FAILED(pc88_.GetOPN1()->Connect(&sound_)))
     return false;
-  if (FAILED(GetOPN2()->Connect(&sound)))
+  if (FAILED(pc88_.GetOPN2()->Connect(&sound_)))
     return false;
-  if (FAILED(GetBEEP()->Connect(&sound)))
+  if (FAILED(pc88_.GetBEEP()->Connect(&sound_)))
     return false;
 
   return true;
@@ -171,25 +167,25 @@ bool WinCore::ConnectDevices(WinKeyIF* keyb) {
 // ---------------------------------------------------------------------------
 //  スナップショット保存
 //
-bool WinCore::SaveShapshot(const std::string_view filename) {
+bool WinCore::SaveSnapshot(const std::string_view filename) {
   LockObj lock(this);
 
-  bool docomp = !!(config.flag2 & Config::kCompressSnapshot);
+  bool docomp = !!(config_.flag2 & Config::kCompressSnapshot);
 
-  uint32_t size = devlist.GetStatusSize();
-  uint8_t* buf = new uint8_t[docomp ? size * 129 / 64 + 20 : size];
+  uint32_t size = pc88_.GetDeviceList()->GetStatusSize();
+  std::unique_ptr<uint8_t[]> buf =
+      std::make_unique<uint8_t[]>(docomp ? size * 129 / 64 + 20 : size);
   if (!buf)
     return false;
-  memset(buf, 0, size);
+  memset(buf.get(), 0, size);
 
-  if (devlist.SaveStatus(buf)) {
+  if (pc88_.GetDeviceList()->SaveStatus(buf.get())) {
     uint32_t esize = size * 129 / 64 + 20 - 4;
     if (docomp) {
-      if (Z_OK != compress(buf + size + 4, (uLongf*)&esize, buf, size)) {
-        delete[] buf;
+      if (Z_OK != compress(buf.get() + size + 4, (uLongf*)&esize, buf.get(), size)) {
         return false;
       }
-      *(int32_t*)(buf + size) = -(long)esize;
+      *(int32_t*)(buf.get() + size) = -(long)esize;
       esize += 4;
     }
 
@@ -199,33 +195,32 @@ bool WinCore::SaveShapshot(const std::string_view filename) {
     ssh.major = ssmajor;
     ssh.minor = ssminor;
     ssh.datasize = size;
-    ssh.basicmode = config.basicmode;
-    ssh.legacy_clock = int16_t(config.legacy_clock);
-    ssh.erambanks = uint16_t(config.erambanks);
-    ssh.cpumode = int16_t(config.cpumode);
-    ssh.mainsubratio = int16_t(config.mainsubratio);
-    ssh.flags = config.flags | (esize < size ? 0x80000000 : 0);
-    ssh.flag2 = config.flag2;
+    ssh.basicmode = config_.basicmode;
+    ssh.legacy_clock = int16_t(config_.legacy_clock);
+    ssh.erambanks = uint16_t(config_.erambanks);
+    ssh.cpumode = int16_t(config_.cpumode);
+    ssh.mainsubratio = int16_t(config_.mainsubratio);
+    ssh.flags = config_.flags | (esize < size ? 0x80000000 : 0);
+    ssh.flag2 = config_.flag2;
     for (uint32_t i = 0; i < 2; i++)
-      ssh.disk[i] = (int8_t)diskmgr->GetCurrentDisk(i);
+      ssh.disk[i] = (int8_t)pc88_.GetDiskManager()->GetCurrentDisk(i);
 
     FileIOWin file;
     if (file.Open(filename, FileIO::create)) {
       file.Write(&ssh, sizeof(ssh));
       if (esize < size)
-        file.Write(buf + size, esize);
+        file.Write(buf.get() + size, esize);
       else
-        file.Write(buf, size);
+        file.Write(buf.get(), size);
     }
   }
-  delete[] buf;
   return true;
 }
 
 // ---------------------------------------------------------------------------
 //  スナップショット復元
 //
-bool WinCore::LoadShapshot(const std::string_view filename, const std::string_view diskname) {
+bool WinCore::LoadSnapshot(const std::string_view filename, const std::string_view diskname) {
   LockObj lock(this);
 
   FileIOWin file;
@@ -247,21 +242,21 @@ bool WinCore::LoadShapshot(const std::string_view filename, const std::string_vi
                         Config::kOPNAonA8 | Config::kEnableWait;
   const uint32_t fl2a = Config::kDisableOPN44;
 
-  config.flags = (config.flags & ~fl1a) | (ssh.flags & fl1a);
-  config.flag2 = (config.flag2 & ~fl2a) | (ssh.flag2 & fl2a);
-  config.basicmode = ssh.basicmode;
-  config.legacy_clock = ssh.legacy_clock;
-  config.erambanks = ssh.erambanks;
-  config.cpumode = ssh.cpumode;
-  config.mainsubratio = ssh.mainsubratio;
-  ApplyConfig(&config);
+  config_.flags = (config_.flags & ~fl1a) | (ssh.flags & fl1a);
+  config_.flag2 = (config_.flag2 & ~fl2a) | (ssh.flag2 & fl2a);
+  config_.basicmode = ssh.basicmode;
+  config_.legacy_clock = ssh.legacy_clock;
+  config_.erambanks = ssh.erambanks;
+  config_.cpumode = ssh.cpumode;
+  config_.mainsubratio = ssh.mainsubratio;
+  ApplyConfig(&config_);
 
   // Reset
-  PC88::Reset();
+  pc88_.Reset();
 
   // 読み込み
 
-  uint8_t* buf = new uint8_t[ssh.datasize];
+  std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(ssh.datasize);
   bool r = false;
 
   if (buf) {
@@ -272,33 +267,31 @@ bool WinCore::LoadShapshot(const std::string_view filename, const std::string_vi
       file.Read(&csize, 4);
       if (csize < 0) {
         csize = -csize;
-        uint8_t* cbuf = new uint8_t[csize];
+        std::unique_ptr<uint8_t[]> cbuf = std::make_unique<uint8_t[]>(csize);
 
         if (cbuf) {
           uint32_t bufsize = ssh.datasize;
-          file.Read(cbuf, csize);
-          read = uncompress(buf, (uLongf*)&bufsize, cbuf, csize) == Z_OK;
-
-          delete[] cbuf;
+          file.Read(cbuf.get(), csize);
+          read = uncompress(buf.get(), (uLongf*)&bufsize, cbuf.get(), csize) == Z_OK;
         }
       }
-    } else
-      read = file.Read(buf, ssh.datasize) == ssh.datasize;
+    } else {
+      read = file.Read(buf.get(), ssh.datasize) == ssh.datasize;
+    }
 
     if (read) {
-      r = devlist.LoadStatus(buf);
+      r = pc88_.GetDeviceList()->LoadStatus(buf.get());
       if (r && !diskname.empty()) {
         for (uint32_t i = 0; i < 2; i++) {
-          diskmgr->Unmount(i);
-          diskmgr->Mount(i, diskname, false, ssh.disk[i], false);
+          pc88_.GetDiskManager()->Unmount(i);
+          pc88_.GetDiskManager()->Mount(i, diskname, false, ssh.disk[i], false);
         }
       }
       if (!r) {
         statusdisplay.Show(70, 3000, "バージョンが異なります");
-        PC88::Reset();
+        pc88_.Reset();
       }
     }
-    delete[] buf;
   }
   return r;
 }
@@ -308,39 +301,39 @@ bool WinCore::LoadShapshot(const std::string_view filename, const std::string_vi
 //
 void* WinCore::QueryIF(REFIID id) {
   if (id == M88IID_IOBus1)
-    return static_cast<IIOBus*>(&bus1);
+    return static_cast<IIOBus*>(pc88_.GetBus1());
   if (id == M88IID_IOBus2)
-    return static_cast<IIOBus*>(&bus2);
+    return static_cast<IIOBus*>(pc88_.GetBus2());
   if (id == M88IID_IOAccess1)
-    return static_cast<IIOAccess*>(&bus1);
+    return static_cast<IIOAccess*>(pc88_.GetBus1());
   if (id == M88IID_IOAccess2)
-    return static_cast<IIOAccess*>(&bus2);
+    return static_cast<IIOAccess*>(pc88_.GetBus2());
   if (id == M88IID_MemoryManager1)
-    return static_cast<IMemoryManager*>(&mm1);
+    return static_cast<IMemoryManager*>(pc88_.GetMM1());
   if (id == M88IID_MemoryManager2)
-    return static_cast<IMemoryManager*>(&mm2);
+    return static_cast<IMemoryManager*>(pc88_.GetMM2());
   if (id == M88IID_MemoryAccess1)
-    return static_cast<IMemoryAccess*>(&mm1);
+    return static_cast<IMemoryAccess*>(pc88_.GetMM1());
   if (id == M88IID_MemoryAccess2)
-    return static_cast<IMemoryAccess*>(&mm2);
+    return static_cast<IMemoryAccess*>(pc88_.GetMM2());
   if (id == M88IID_SoundControl)
-    return static_cast<ISoundControl*>(&sound);
+    return static_cast<ISoundControl*>(&sound_);
   if (id == M88IID_Scheduler)
-    return static_cast<IScheduler*>(this->GetScheduler());
+    return static_cast<IScheduler*>(pc88_.GetScheduler());
   if (id == M88IID_Time)
-    return static_cast<ITime*>(this->GetScheduler());
+    return static_cast<ITime*>(pc88_.GetScheduler());
   if (id == M88IID_CPUTime)
-    return static_cast<ICPUTime*>(this);
+    return static_cast<ICPUTime*>(&pc88_);
   if (id == M88IID_DMA)
-    return static_cast<IDMAAccess*>(GetDMAC());
+    return static_cast<IDMAAccess*>(pc88_.GetDMAC());
   if (id == M88IID_ConfigPropBase)
-    return cfgprop;
+    return cfg_prop_;
   if (id == M88IID_LockCore)
     return static_cast<ILockCore*>(this);
   if (id == M88IID_GetMemoryBank)
-    return static_cast<IGetMemoryBank*>(GetMem1());
+    return static_cast<IGetMemoryBank*>(pc88_.GetMem1());
 
-  return 0;
+  return nullptr;
 }
 
 bool WinCore::ConnectExternalDevices() {
@@ -355,13 +348,14 @@ bool WinCore::ConnectExternalDevices() {
       const char* modname = ff.GetFileName();
       ExtendModule* em = ExtendModule::Create(modname, this);
       if (em) {
-        extmodules.push_back(em);
+        ext_modules_.push_back(em);
       } else {
         auto* extdevice = new ExternalDevice();
         if (extdevice) {
-          if (extdevice->Init(modname, this->GetScheduler(), &bus1, GetDMAC(), &sound, &mm1)) {
-            devlist.Add(extdevice);
-            extdevices.push_back(extdevice);
+          if (extdevice->Init(modname, pc88_.GetScheduler(), pc88_.GetBus1(), pc88_.GetDMAC(),
+                              &sound_, pc88_.GetMM1())) {
+            pc88_.GetDeviceList()->Add(extdevice);
+            ext_devices_.push_back(extdevice);
           } else {
             delete extdevice;
           }
