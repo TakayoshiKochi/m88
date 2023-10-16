@@ -38,16 +38,17 @@ DriverDS::~DriverDS() {
 // ---------------------------------------------------------------------------
 //  初期化 -------------------------------------------------------------------
 
-bool DriverDS::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) {
+bool DriverDS::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms) {
   if (playing_)
     return false;
 
   src_ = s;
-  buffer_length_ = buflen;
+  // buffer length in milliseconds.
+  buffer_length_ms_ = buflen_ms;
   sample_shift_ = 1 + (ch == 2 ? 1 : 0);
 
   // 計算
-  buffer_size_ = (rate * ch * sizeof(Sample) * buffer_length_ / 1000) & ~7;
+  buffer_size_ = (rate * ch * sizeof(Sample) * buffer_length_ms_ / 1000) & ~7;
 
   // DirectSound object 作成
   if (FAILED(CoCreateInstance(CLSID_DirectSound, 0, CLSCTX_ALL, IID_IDirectSound, (void**)&lpds_)))
@@ -101,13 +102,13 @@ bool DriverDS::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint3
   //  lpdsb_primary->Play(0, 0, DSBPLAY_LOOPING);
 
   // タイマー作成
-  timeBeginPeriod(buffer_length_ / num_blocks);
-  timer_id_ = timeSetEvent(buffer_length_ / num_blocks, timer_resolution, &DriverDS::TimeProc,
+  timeBeginPeriod(buffer_length_ms_ / num_blocks);
+  timer_id_ = timeSetEvent(buffer_length_ms_ / num_blocks, timer_resolution, &DriverDS::TimeProc,
                            reinterpret_cast<DWORD_PTR>(this), TIME_PERIODIC);
   next_write_ = 1 << sample_shift_;
 
   if (!timer_id_) {
-    timeEndPeriod(buffer_length_ / num_blocks);
+    timeEndPeriod(buffer_length_ms_ / num_blocks);
     return false;
   }
 
@@ -122,7 +123,7 @@ bool DriverDS::CleanUp() {
   playing_ = false;
   if (timer_id_) {
     timeKillEvent(timer_id_);
-    timeEndPeriod(buffer_length_ / num_blocks);
+    timeEndPeriod(buffer_length_ms_ / num_blocks);
     timer_id_ = 0;
   }
   for (int i = 0; i < 300 && sending_; i++)

@@ -23,7 +23,7 @@ class DriverWO : public Driver {
   DriverWO();
   ~DriverWO();
 
-  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen);
+  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms);
   bool CleanUp();
 
  private:

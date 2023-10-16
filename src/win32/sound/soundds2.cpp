@@ -30,16 +30,16 @@ DriverDS2::~DriverDS2() {
 // ---------------------------------------------------------------------------
 //  初期化 -------------------------------------------------------------------
 
-bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) {
+bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms) {
   if (playing_)
     return false;
 
   src_ = s;
-  buffer_length_ = buflen;
+  buffer_length_ms_ = buflen_ms;
   sample_shift_ = 1 + (ch == 2 ? 1 : 0);
 
   // 計算
-  buffer_size_ = (rate * ch * sizeof(Sample) * buffer_length_ / 1000) & ~7;
+  buffer_size_ = (rate * ch * sizeof(Sample) * buffer_length_ms_ / 1000) & ~7;
 
   // DirectSound object 作成
   if (FAILED(CoCreateInstance(CLSID_DirectSound, nullptr, CLSCTX_ALL, IID_IDirectSound,
@@ -61,7 +61,7 @@ bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint
   DSBUFFERDESC dsbd{};
   dsbd.dwSize = sizeof(DSBUFFERDESC);
   dsbd.dwFlags = DSBCAPS_PRIMARYBUFFER;
-  dsbd.dwBufferBytes = 0;
+  dsbd.dwBufferBytes = 32768;
   dsbd.lpwfxFormat = nullptr;
   hr = lpds_->CreateSoundBuffer(&dsbd, &lpdsb_primary_, nullptr);
   if (hr != DS_OK)

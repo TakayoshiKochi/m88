@@ -74,7 +74,7 @@ class WinSound : public Sound {
   bool DumpEnd();
   bool IsDumping() { return dumper.IsDumping(); }
 
-  void SetSoundMonitor(OPNMonitor* mon) { soundmon = mon; }
+  void SetSoundMonitor(OPNMonitor* mon) { sound_mon_ = mon; }
 
  private:
   bool InitSoundBuffer(LPDIRECTSOUND lpds, uint32_t rate);
@@ -88,8 +88,8 @@ class WinSound : public Sound {
   uint32_t current_buffer_len_ = 0;
   uint32_t sample_rate_ = 0;
 
-  OPNMonitor* soundmon;
-  bool wodrv_ = false;
+  OPNMonitor* sound_mon_ = nullptr;
+  bool use_waveout_ = false;
   bool use_ds2_ = false;
 
   SoundDumpPipe dumper;

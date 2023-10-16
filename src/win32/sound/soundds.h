@@ -27,7 +27,7 @@ class DriverDS : public Driver {
   DriverDS();
   ~DriverDS();
 
-  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen);
+  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms);
   bool CleanUp();
 
  private:
@@ -42,7 +42,8 @@ class DriverDS : public Driver {
   LONG sending_ = 0;
 
   uint32_t next_write_ = 0;
-  uint32_t buffer_length_ = 0;
+  // buffer size in milliseconds.
+  uint32_t buffer_length_ms_ = 0;
 };
 
 }  // namespace WinSoundDriver

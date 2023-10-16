@@ -39,9 +39,7 @@ DriverWO::~DriverWO() {
 //  ch          チャネル数(2 以外は未テスト)
 //  buflen      バッファ長(単位: ms)
 //
-bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t buflen) {
-  int i;
-
+bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t buflen_ms) {
   if (playing_)
     return false;
 
@@ -51,13 +49,13 @@ bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t b
   DeleteBuffers();
 
   // バッファ作成
-  buffer_size_ = (rate * ch * sizeof(Sample) * buflen / 1000 / 4) & ~7;
+  buffer_size_ = (rate * ch * sizeof(Sample) * buflen_ms / 1000 / 4) & ~7;
   wavehdr_ = new WAVEHDR[num_blocks_];
   if (!wavehdr_)
     return false;
 
   memset(wavehdr_, 0, sizeof(wavehdr_) * num_blocks_);
-  for (i = 0; i < num_blocks_; i++) {
+  for (int i = 0; i < num_blocks_; ++i) {
     wavehdr_[i].lpData = new char[buffer_size_];
     if (!wavehdr_[i].lpData) {
       DeleteBuffers();
@@ -99,7 +97,7 @@ bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t b
   dont_mix_ = true;
 
   // wavehdr の準備
-  for (i = 0; i < num_blocks_; i++)
+  for (int i = 0; i < num_blocks_; ++i)
     SendBlock(&wavehdr_[i]);
 
   dont_mix_ = false;

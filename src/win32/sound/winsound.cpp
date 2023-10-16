@@ -25,7 +25,7 @@ using namespace WinSoundDriver;
 //  構築/消滅
 //
 WinSound::WinSound() : driver_(0) {
-  soundmon = 0;
+  sound_mon_ = 0;
   use_ds2_ = true;
 }
 
@@ -65,68 +65,73 @@ void WinSound::CleanUp() {
 //  合成・再生レート変更
 //
 bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
-  if (current_rate_ != rate || current_buffer_len_ != buflen || wodrv_ != waveout) {
-    if (IsDumping()) {
-      statusdisplay.Show(70, 3000, "wav 書き出し時の音設定の変更はできません");
-      return false;
-    }
+  if (current_rate_ == rate && current_buffer_len_ == buflen && use_waveout_ == waveout)
+    return true;
 
-    sample_rate_ = rate;
-    current_rate_ = rate;
-    current_buffer_len_ = buflen;
-    wodrv_ = waveout;
+  if (IsDumping()) {
+    statusdisplay.Show(70, 3000, "wav 書き出し時の音設定の変更はできません");
+    return false;
+  }
 
-    if (rate < 8000) {
-      rate = 100;
-      sample_rate_ = 0;
-    }
+  sample_rate_ = rate;
+  current_rate_ = rate;
+  current_buffer_len_ = buflen;
+  use_waveout_ = waveout;
 
-    // DirectSound: サンプリングレート * バッファ長 / 2
-    // waveOut:     サンプリングレート * バッファ長 * 2
-    int bufsize;
-    if (wodrv_)
-      bufsize = (sample_rate_ * buflen / 1000 * 1) & ~15;
-    else
-      bufsize = (sample_rate_ * buflen / 1000 / 2) & ~15;
+  if (rate < 8000) {
+    rate = 100;
+    sample_rate_ = 0;
+  }
 
-    if (driver_) {
-      driver_->CleanUp();
+  // DirectSound: サンプリングレート * バッファ長 / 2
+  // waveOut:     サンプリングレート * バッファ長 * 2
+  int bufsize = 0;
+  if (use_waveout_)
+    bufsize = (sample_rate_ * buflen / 1000 * 1) & ~15;
+  else
+    bufsize = (sample_rate_ * buflen / 1000 / 2) & ~15;
+
+  if (driver_) {
+    driver_->CleanUp();
+    delete driver_;
+    driver_ = nullptr;
+  }
+
+  if (rate < 1000)
+    bufsize = 0;
+
+  if (!SetRate(rate, bufsize))
+    return false;
+
+  if (bufsize > 0) {
+    while (true) {
+      if (use_waveout_) {
+        driver_ = new DriverWO;
+      } else if (use_ds2_) {
+        driver_ = new DriverDS2;
+        statusdisplay.Show(200, 8000, "sounddrv: using Notify driven driver");
+      } else {
+        driver_ = new DriverDS;
+        statusdisplay.Show(200, 8000, "sounddrv: using timer driven driver");
+      }
+
+      if (driver_ && driver_->Init(&dumper, hwnd_, sample_rate_, 2, buflen))
+        break;
+
       delete driver_;
-      driver_ = 0;
+      driver_ = nullptr;
+      if (!use_waveout_ && use_ds2_) {
+        use_ds2_ = false;
+        statusdisplay.Show(100, 3000, "IDirectSoundNotify は使用できないようです");
+        continue;
+      }
+      break;
     }
 
-    if (rate < 1000)
-      bufsize = 0;
-
-    if (!SetRate(rate, bufsize))
+    if (!driver_) {
+      SetRate(rate, 0);
+      statusdisplay.Show(70, 3000, "オーディオデバイスを使用できません");
       return false;
-
-    if (bufsize > 0) {
-      for (int i = 0; i < 1; i++) {
-        if (wodrv_) {
-          driver_ = new DriverWO;
-        } else if (use_ds2_) {
-          driver_ = new DriverDS2;
-          statusdisplay.Show(200, 8000, "sounddrv: using Notify driven driver");
-        } else {
-          driver_ = new DriverDS;
-          statusdisplay.Show(200, 8000, "sounddrv: using timer driven driver");
-        }
-
-        if (!driver_ || !driver_->Init(&dumper, hwnd_, sample_rate_, 2, buflen)) {
-          delete driver_;
-          driver_ = 0;
-          if (!wodrv_ && use_ds2_) {
-            use_ds2_ = false;
-            statusdisplay.Show(100, 3000, "IDirectSoundNotify は使用できないようです");
-            i = -1;
-          }
-        }
-      }
-      if (!driver_) {
-        SetRate(rate, 0);
-        statusdisplay.Show(70, 3000, "オーディオデバイスを使用できません");
-      }
     }
   }
   return true;
