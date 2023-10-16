@@ -30,7 +30,7 @@ class DriverDS2 : public Driver, public Threadable<DriverDS2> {
   DriverDS2();
   ~DriverDS2() override;
 
-  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) override;
+  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms) override;
   bool CleanUp() override;
 
   void ThreadInit();
@@ -44,7 +44,7 @@ class DriverDS2 : public Driver, public Threadable<DriverDS2> {
   LPDIRECTSOUNDBUFFER lpdsb_ = nullptr;
   LPDIRECTSOUNDNOTIFY lpnotify_ = nullptr;
 
-  uint32_t buffer_length_ = 0;
+  uint32_t buffer_length_ms_ = 0;
   HANDLE hevent_ = nullptr;
   uint32_t nextwrite_ = 0;
 };

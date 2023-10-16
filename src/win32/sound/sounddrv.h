@@ -24,14 +24,14 @@ class Driver {
   Driver() {}
   virtual ~Driver() {}
 
-  virtual bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) = 0;
+  virtual bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms) = 0;
   virtual bool CleanUp() = 0;
   void MixAlways(bool yes) { mixalways = yes; }
 
  protected:
-  SoundSource* src;
-  uint32_t buffersize;
-  uint32_t sampleshift;
+  SoundSource* src_;
+  uint32_t buffer_size_;
+  uint32_t sample_shift_;
   std::atomic<bool> playing_;
   bool mixalways;
 };

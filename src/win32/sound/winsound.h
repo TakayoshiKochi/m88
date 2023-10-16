@@ -74,23 +74,23 @@ class WinSound : public Sound {
   bool DumpEnd();
   bool IsDumping() { return dumper.IsDumping(); }
 
-  void SetSoundMonitor(OPNMonitor* mon) { soundmon = mon; }
+  void SetSoundMonitor(OPNMonitor* mon) { sound_mon_ = mon; }
 
  private:
   bool InitSoundBuffer(LPDIRECTSOUND lpds, uint32_t rate);
   void CleanUp();
   //  int Get(Sample* dest, int samples);
 
-  WinSoundDriver::Driver* driver;
+  WinSoundDriver::Driver* driver_ = nullptr;
 
-  HWND hwnd;
-  uint32_t currentrate;
-  uint32_t currentbuflen;
-  uint32_t samprate;
+  HWND hwnd_ = nullptr;
+  uint32_t current_rate_ = 0;
+  uint32_t current_buffer_len_ = 0;
+  uint32_t sample_rate_ = 0;
 
-  OPNMonitor* soundmon;
-  bool wodrv;
-  bool useds2;
+  OPNMonitor* sound_mon_ = nullptr;
+  bool use_waveout_ = false;
+  bool use_ds2_ = false;
 
   SoundDumpPipe dumper;
 };
