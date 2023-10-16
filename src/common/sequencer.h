@@ -51,7 +51,7 @@ class Sequencer : public Threadable<Sequencer> {
   bool ThreadLoop();
 
  private:
-  void ExecuteNSX(int64_t cpu_clock, int64_t length_ns, int64_t ec);
+  void ExecuteNS(int64_t cpu_clock, int64_t length_ns, int64_t ec);
   void ExecuteBurst(uint32_t clocks);
   void ExecuteNormal(uint32_t clocks);
 

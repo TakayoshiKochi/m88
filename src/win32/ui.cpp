@@ -219,8 +219,7 @@ bool WinUI::InitM88(const char* cmdline) {
   if (!keyif_.Init(hwnd_))
     return false;
   Log("%d\tcore\n", timeGetTime());
-  if (!core_.Init(this, hwnd_, &draw_, disk_manager_.get(), &keyif_, &win_config_,
-                  tape_manager_.get()))
+  if (!core_.Init(hwnd_, &keyif_, &win_config_, &draw_, disk_manager_.get(), tape_manager_.get()))
     return false;
 
   //  debug 用クラス初期化

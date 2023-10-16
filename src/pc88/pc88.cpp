@@ -43,20 +43,15 @@ using namespace PC8801;
 //  構築・破棄
 //
 PC88::PC88()
-    : scheduler_(this), cpu1_(DEV_ID('C', 'P', 'U', '1')), cpu2_(DEV_ID('C', 'P', 'U', '2')) {
+    : scheduler_(this),
+      main_cpu_(DEV_ID('C', 'P', 'U', '1')),
+      sub_cpu_(DEV_ID('C', 'P', 'U', '2')) {
   assert((1 << MemoryManager::pagebits) <= 0x400);
-  DIAGINIT(&cpu1_);
+  DIAGINIT(&main_cpu_);
 }
 
 PC88::~PC88() {
-  //  devlist.CleanUp();
-  delete screen_;
-  delete int_controller_;
-  delete fdc_;
-  delete sio_tape_;
-  delete sio_midi_;
-  delete calendar_;
-  delete joy_pad_;
+  // devlist.CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -78,22 +73,22 @@ bool PC88::Init(Draw* draw, DiskManager* disk_manager, TapeManager* tape_manager
 
   MemoryPage *read, *write;
 
-  cpu1_.GetPages(&read, &write);
-  if (!mm1_.Init(0x10000, read, write))
+  main_cpu_.GetPages(&read, &write);
+  if (!main_mm_.Init(0x10000, read, write))
     return false;
 
-  cpu2_.GetPages(&read, &write);
-  if (!mm2_.Init(0x10000, read, write))
+  sub_cpu_.GetPages(&read, &write);
+  if (!sub_mm_.Init(0x10000, read, write))
     return false;
 
-  if (!bus1_.Init(kPortEnd, &devlist_) || !bus2_.Init(kPortEnd2, &devlist_))
+  if (!main_iobus_.Init(kPortEnd, &devlist_) || !sub_iobus_.Init(kPortEnd2, &devlist_))
     return false;
 
   if (!ConnectDevices() || !ConnectDevices2())
     return false;
 
   Reset();
-  region.Reset();
+  region_.Reset();
   scheduler_.set_cpu_clock(100000);
   return true;
 }
@@ -110,7 +105,7 @@ void PC88::DeInit() {
 // ---------------------------------------------------------------------------
 //  執行
 
-int64_t PC88::ProceedNSX(int64_t ns, uint64_t cpu_clock, int64_t ecl) {
+int64_t PC88::ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t ecl) {
   scheduler_.set_cpu_clock(cpu_clock);
   effective_clocks_ = std::max(1LL, ecl);
   return scheduler_.ProceedNS(ns);
@@ -120,7 +115,7 @@ int64_t PC88::ProceedNSX(int64_t ns, uint64_t cpu_clock, int64_t ecl) {
 //  実行
 //
 int64_t SchedulerImpl::ExecuteNS(int64_t ns) {
-  int64_t clocks = std::max(1, int(cpu_clock_ * ns / 1000000000LL));
+  int64_t clocks = std::max(1LL, (int64_t)cpu_clock_ * ns / 1000000000LL);
   int64_t ns_per_clock = 1000000000LL / (int64_t)cpu_clock_;
   return ex_->Execute(clocks) * ns_per_clock;
 }
@@ -130,11 +125,11 @@ int64_t PC88::Execute(int64_t clocks) {
   int64_t ex = 0;
   if (!(cpu_mode_ & stopwhenidle) || subsys_->IsBusy() || fdc_->IsBusy()) {
     if ((cpu_mode_ & 1) == ms11)
-      ex = Z80XX::ExecDual(&cpu1_, &cpu2_, clocks);
+      ex = Z80XX::ExecDual(&main_cpu_, &sub_cpu_, clocks);
     else
-      ex = Z80XX::ExecDual2(&cpu1_, &cpu2_, clocks);
+      ex = Z80XX::ExecDual2(&main_cpu_, &sub_cpu_, clocks);
   } else {
-    ex = Z80XX::ExecSingle(&cpu1_, &cpu2_, clocks);
+    ex = Z80XX::ExecSingle(&main_cpu_, &sub_cpu_, clocks);
   }
   LOADEND("Core.CPU");
   return ex;
@@ -158,8 +153,8 @@ int64_t SchedulerImpl::GetNS() {
 void PC88::VSync() {
   g_status_display->UpdateDisplay();
   if (cfg_flags_ & Config::kWatchRegister)
-    g_status_display->Show(10, 0, "%.4X(%.2X)/%.4X", cpu1_.GetPC(), cpu1_.GetReg().ireg,
-                           cpu2_.GetPC());
+    g_status_display->Show(10, 0, "%.4X(%.2X)/%.4X", main_cpu_.GetPC(), main_cpu_.GetReg().ireg,
+                           sub_cpu_.GetPC());
 }
 
 // ---------------------------------------------------------------------------
@@ -172,7 +167,7 @@ void PC88::UpdateScreen(bool refresh) {
 
   LOADBEGIN("Screen");
 
-  if (!updated_ || refresh) {
+  if (!screen_updated_ || refresh) {
     if (!(cfg_flags_ & Config::kDrawPriorityLow) ||
         (dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) |
                   static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
@@ -183,24 +178,24 @@ void PC88::UpdateScreen(bool refresh) {
 
       //          crtc->SetSize();
       if (draw_->Lock(&image, &bpl)) {
-        Log("(%d -> %d) ", region.top, region.bottom);
-        crtc_->UpdateScreen(image, bpl, region, refresh);
-        Log("(%d -> %d) ", region.top, region.bottom);
-        screen_->UpdateScreen(image, bpl, region, refresh);
-        Log("(%d -> %d)\n", region.top, region.bottom);
+        Log("(%d -> %d) ", region_.top, region_.bottom);
+        crtc_->UpdateScreen(image, bpl, region_, refresh);
+        Log("(%d -> %d) ", region_.top, region_.bottom);
+        screen_->UpdateScreen(image, bpl, region_, refresh);
+        Log("(%d -> %d)\n", region_.top, region_.bottom);
 
         bool palchanged = screen_->UpdatePalette(draw_);
         draw_->Unlock();
-        updated_ = palchanged || region.Valid();
+        screen_updated_ = palchanged || region_.Valid();
       }
     }
   }
   LOADEND("Screen");
   if (draw_->GetStatus() & static_cast<uint32_t>(Draw::Status::kReadyToDraw)) {
-    if (updated_) {
-      updated_ = false;
-      draw_->DrawScreen(region);
-      region.Reset();
+    if (screen_updated_) {
+      screen_updated_ = false;
+      draw_->DrawScreen(region_);
+      region_.Reset();
     } else {
       Draw::Region r{};
       r.Reset();
@@ -220,14 +215,14 @@ void PC88::Reset() {
   base_->SetFDBoot(cd || disk_manager_->GetCurrentDisk(0) >= 0);
   base_->Reset();  // Switch 関係の更新
 
-  bool isv2 = (bus1_.In(0x31) & 0x40) != 0;
+  bool isv2 = (main_iobus_.In(0x31) & 0x40) != 0;
   bool isn80v2 = (base_->GetBasicMode() == BasicMode::kN80V2);
 
   if (isv2)
-    dmac_->ConnectRd(mem1_->GetTVRAM(), 0xf000, 0x1000);
+    dmac_->ConnectRd(mem_main_->GetTVRAM(), 0xf000, 0x1000);
   else
-    dmac_->ConnectRd(mem1_->GetRAM(), 0, 0x10000);
-  dmac_->ConnectWr(mem1_->GetRAM(), 0, 0x10000);
+    dmac_->ConnectRd(mem_main_->GetRAM(), 0, 0x10000);
+  dmac_->ConnectWr(mem_main_->GetRAM(), 0, 0x10000);
 
   opn1_->SetOPNMode((cfg_flags_ & Config::kEnableOPNA) != 0);
   opn1_->Enable(isv2 || !(cfg_flags2_ & Config::kDisableOPN44));
@@ -239,24 +234,24 @@ void PC88::Reset() {
   else
     opn1_->SetIMask(0x33, 0x02);
 
-  bus1_.Out(kPReset, static_cast<uint32_t>(base_->GetBasicMode()));
-  bus1_.Out(0x30, 1);
-  bus1_.Out(0x30, 0);
-  bus1_.Out(0x31, 0);
-  bus1_.Out(0x32, 0x80);
-  bus1_.Out(0x33, isn80v2 ? 0x82 : 0x02);
-  bus1_.Out(0x34, 0);
-  bus1_.Out(0x35, 0);
-  bus1_.Out(0x40, 0);
-  bus1_.Out(0x53, 0);
-  bus1_.Out(0x5f, 0);
-  bus1_.Out(0x70, 0);
-  bus1_.Out(0x99, cd ? 0x10 : 0x00);
-  bus1_.Out(0xe2, 0);
-  bus1_.Out(0xe3, 0);
-  bus1_.Out(0xe6, 0);
-  bus1_.Out(0xf1, 1);
-  bus2_.Out(kPReset2, 0);
+  main_iobus_.Out(kPReset, static_cast<uint32_t>(base_->GetBasicMode()));
+  main_iobus_.Out(0x30, 1);
+  main_iobus_.Out(0x30, 0);
+  main_iobus_.Out(0x31, 0);
+  main_iobus_.Out(0x32, 0x80);
+  main_iobus_.Out(0x33, isn80v2 ? 0x82 : 0x02);
+  main_iobus_.Out(0x34, 0);
+  main_iobus_.Out(0x35, 0);
+  main_iobus_.Out(0x40, 0);
+  main_iobus_.Out(0x53, 0);
+  main_iobus_.Out(0x5f, 0);
+  main_iobus_.Out(0x70, 0);
+  main_iobus_.Out(0x99, cd ? 0x10 : 0x00);
+  main_iobus_.Out(0xe2, 0);
+  main_iobus_.Out(0xe3, 0);
+  main_iobus_.Out(0xe6, 0);
+  main_iobus_.Out(0xf1, 1);
+  sub_iobus_.Out(kPReset2, 0);
 
   //  g_status_display->Show(10, 1000, "CPUMode = %d", cpumode);
 }
@@ -267,9 +262,9 @@ void PC88::Reset() {
 bool PC88::ConnectDevices() {
   static const IOBus::Connector c_cpu1[] = {
       {kPReset, IOBus::portout, Z80XX::reset}, {kPIRQ, IOBus::portout, Z80XX::irq}, {0, 0, 0}};
-  if (!bus1_.Connect(&cpu1_, c_cpu1))
+  if (!main_iobus_.Connect(&main_cpu_, c_cpu1))
     return false;
-  if (!cpu1_.Init(&mm1_, &bus1_, kPIAck))
+  if (!main_cpu_.Init(&main_mm_, &main_iobus_, kPIAck))
     return false;
 
   static const IOBus::Connector c_base[] = {{kPReset, IOBus::portout, Base::reset},
@@ -280,7 +275,7 @@ bool PC88::ConnectDevices() {
                                             {0x6e, IOBus::portin, Base::in6e},
                                             {0, 0, 0}};
   base_ = std::make_unique<PC8801::Base>(DEV_ID('B', 'A', 'S', 'E'));
-  if (!base_ || !bus1_.Connect(base_.get(), c_base))
+  if (!base_ || !main_iobus_.Connect(base_.get(), c_base))
     return false;
   if (!base_->Init(this))
     return false;
@@ -298,7 +293,7 @@ bool PC88::ConnectDevices() {
       {0x66, IOBus::portin, PD8257::kGetAddr},   {0x67, IOBus::portin, PD8257::kGetCount},
       {0x68, IOBus::portin, PD8257::kGetStat},   {0, 0, 0}};
   dmac_ = std::make_unique<PC8801::PD8257>(DEV_ID('D', 'M', 'A', 'C'));
-  if (!bus1_.Connect(dmac_.get(), c_dmac))
+  if (!main_iobus_.Connect(dmac_.get(), c_dmac))
     return false;
 
   static const IOBus::Connector c_crtc[] = {
@@ -308,7 +303,7 @@ bool PC88::ConnectDevices() {
       {0x01, IOBus::portout, CRTC::kPCGOut},      {0x02, IOBus::portout, CRTC::kPCGOut},
       {0x33, IOBus::portout, CRTC::kSetKanaMode}, {0, 0, 0}};
   crtc_ = std::make_unique<PC8801::CRTC>(DEV_ID('C', 'R', 'T', 'C'));
-  if (!crtc_ || !bus1_.Connect(crtc_.get(), c_crtc))
+  if (!crtc_ || !main_iobus_.Connect(crtc_.get(), c_crtc))
     return false;
 
   static const IOBus::Connector c_mem1[] = {{kPReset, IOBus::portout, Memory::reset},
@@ -338,14 +333,14 @@ bool PC88::ConnectDevices() {
                                             {0xe2, IOBus::portin, Memory::ine2},
                                             {0xe3, IOBus::portin, Memory::ine3},
                                             {0, 0, 0}};
-  mem1_ = std::make_unique<PC8801::Memory>(DEV_ID('M', 'E', 'M', '1'));
-  if (!mem1_ || !bus1_.Connect(mem1_.get(), c_mem1))
+  mem_main_ = std::make_unique<PC8801::Memory>(DEV_ID('M', 'E', 'M', '1'));
+  if (!mem_main_ || !main_iobus_.Connect(mem_main_.get(), c_mem1))
     return false;
-  if (!mem1_->Init(&mm1_, &bus1_, crtc_.get(), cpu1_.GetWaits()))
+  if (!mem_main_->Init(&main_mm_, &main_iobus_, crtc_.get(), main_cpu_.GetWaits()))
     return false;
 
   // TODO: CRTC is dependent on DMAC's object lifetime. (do not pass unique_ptr here)
-  if (!crtc_->Init(&bus1_, &scheduler_, dmac_.get()))
+  if (!crtc_->Init(&main_iobus_, &scheduler_, dmac_.get()))
     return false;
 
   static const IOBus::Connector c_knj1[] = {{0xe8, IOBus::portout, KanjiROM::setl},
@@ -353,10 +348,10 @@ bool PC88::ConnectDevices() {
                                             {0xe8, IOBus::portin, KanjiROM::readl},
                                             {0xe9, IOBus::portin, KanjiROM::readh},
                                             {0, 0, 0}};
-  knj1_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '1'));
-  if (!knj1_ || !bus1_.Connect(knj1_.get(), c_knj1))
+  kanji1_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '1'));
+  if (!kanji1_ || !main_iobus_.Connect(kanji1_.get(), c_knj1))
     return false;
-  if (!knj1_->Init("kanji1.rom"))
+  if (!kanji1_->Init("kanji1.rom"))
     return false;
 
   static const IOBus::Connector c_knj2[] = {{0xec, IOBus::portout, KanjiROM::setl},
@@ -364,10 +359,10 @@ bool PC88::ConnectDevices() {
                                             {0xec, IOBus::portin, KanjiROM::readl},
                                             {0xed, IOBus::portin, KanjiROM::readh},
                                             {0, 0, 0}};
-  knj2_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '2'));
-  if (!knj2_ || !bus1_.Connect(knj2_.get(), c_knj2))
+  kanji2_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '2'));
+  if (!kanji2_ || !main_iobus_.Connect(kanji2_.get(), c_knj2))
     return false;
-  if (!knj2_->Init("kanji2.rom"))
+  if (!kanji2_->Init("kanji2.rom"))
     return false;
 
   static const IOBus::Connector c_scrn[] = {
@@ -379,10 +374,10 @@ bool PC88::ConnectDevices() {
       {0x57, IOBus::portout, Screen::out55to5b}, {0x58, IOBus::portout, Screen::out55to5b},
       {0x59, IOBus::portout, Screen::out55to5b}, {0x5a, IOBus::portout, Screen::out55to5b},
       {0x5b, IOBus::portout, Screen::out55to5b}, {0, 0, 0}};
-  screen_ = new PC8801::Screen(DEV_ID('S', 'C', 'R', 'N'));
-  if (!screen_ || !bus1_.Connect(screen_, c_scrn))
+  screen_ = std::make_unique<PC8801::Screen>(DEV_ID('S', 'C', 'R', 'N'));
+  if (!screen_ || !main_iobus_.Connect(screen_.get(), c_scrn))
     return false;
-  if (!screen_->Init(&bus1_, mem1_.get(), crtc_.get()))
+  if (!screen_->Init(&main_iobus_, mem_main_.get(), crtc_.get()))
     return false;
 
   static const IOBus::Connector c_intc[] = {{kPReset, IOBus::portout, INTC::reset},
@@ -398,10 +393,10 @@ bool PC88::ConnectDevices() {
                                             {0xe6, IOBus::portout, INTC::setmask},
                                             {kPIAck, IOBus::portin, INTC::intack},
                                             {0, 0, 0}};
-  int_controller_ = new PC8801::INTC(DEV_ID('I', 'N', 'T', 'C'));
-  if (!int_controller_ || !bus1_.Connect(int_controller_, c_intc))
+  int_controller_ = std::make_unique<PC8801::INTC>(DEV_ID('I', 'N', 'T', 'C'));
+  if (!int_controller_ || !main_iobus_.Connect(int_controller_.get(), c_intc))
     return false;
-  if (!int_controller_->Init(&bus1_, kPIRQ, kPint0))
+  if (!int_controller_->Init(&main_iobus_, kPIRQ, kPint0))
     return false;
 
   static const IOBus::Connector c_subsys[] = {
@@ -415,7 +410,7 @@ bool PC88::ConnectDevices() {
       {0xfe, IOBus::portin | IOBus::sync, SubSystem::m_read2},
       {0, 0, 0}};
   subsys_ = std::make_unique<PC8801::SubSystem>(DEV_ID('S', 'U', 'B', ' '));
-  if (!subsys_ || !bus1_.Connect(subsys_.get(), c_subsys))
+  if (!subsys_ || !main_iobus_.Connect(subsys_.get(), c_subsys))
     return false;
 
   static const IOBus::Connector c_sio[] = {{kPReset, IOBus::portout, SIO::reset},
@@ -425,19 +420,19 @@ bool PC88::ConnectDevices() {
                                            {0x20, IOBus::portin, SIO::getdata},
                                            {0x21, IOBus::portin, SIO::getstatus},
                                            {0, 0, 0}};
-  sio_tape_ = new PC8801::SIO(DEV_ID('S', 'I', 'O', ' '));
-  if (!sio_tape_ || !bus1_.Connect(sio_tape_, c_sio))
+  sio_tape_ = std::make_unique<PC8801::SIO>(DEV_ID('S', 'I', 'O', ' '));
+  if (!sio_tape_ || !main_iobus_.Connect(sio_tape_.get(), c_sio))
     return false;
-  if (!sio_tape_->Init(&bus1_, kPint0, kPSIOReq))
+  if (!sio_tape_->Init(&main_iobus_, kPint0, kPSIOReq))
     return false;
 
   static const IOBus::Connector c_tape[] = {{kPSIOReq, IOBus::portout, TapeManager::requestdata},
                                             {0x30, IOBus::portout, TapeManager::out30},
                                             {0x40, IOBus::portin, TapeManager::in40},
                                             {0, 0, 0}};
-  if (!bus1_.Connect(tape_manager_, c_tape))
+  if (!main_iobus_.Connect(tape_manager_, c_tape))
     return false;
-  if (!tape_manager_->Init(&scheduler_, &bus1_, kPSIOin))
+  if (!tape_manager_->Init(&scheduler_, &main_iobus_, kPSIOin))
     return false;
 
   static const IOBus::Connector c_opn1[] = {
@@ -448,9 +443,9 @@ bool PC88::ConnectDevices() {
       {0x45, IOBus::portin, OPNIF::readdata0},   {0x46, IOBus::portin, OPNIF::readstatusex},
       {0x47, IOBus::portin, OPNIF::readdata1},   {0, 0, 0}};
   opn1_ = std::make_unique<PC8801::OPNIF>(DEV_ID('O', 'P', 'N', '1'));
-  if (!opn1_ || !opn1_->Init(&bus1_, kPint4, kPOPNio1, &scheduler_))
+  if (!opn1_ || !opn1_->Init(&main_iobus_, kPint4, kPOPNio1, &scheduler_))
     return false;
-  if (!bus1_.Connect(opn1_.get(), c_opn1))
+  if (!main_iobus_.Connect(opn1_.get(), c_opn1))
     return false;
   opn1_->SetIMask(0x32, 0x80);
 
@@ -466,9 +461,9 @@ bool PC88::ConnectDevices() {
                                             {0xad, IOBus::portin, OPNIF::readdata1},
                                             {0, 0, 0}};
   opn2_ = std::make_unique<PC8801::OPNIF>(DEV_ID('O', 'P', 'N', '2'));
-  if (!opn2_->Init(&bus1_, kPint4, kPOPNio1, &scheduler_))
+  if (!opn2_->Init(&main_iobus_, kPint4, kPOPNio1, &scheduler_))
     return false;
-  if (!opn2_ || !bus1_.Connect(opn2_.get(), c_opn2))
+  if (!opn2_ || !main_iobus_.Connect(opn2_.get(), c_opn2))
     return false;
   opn2_->SetIMask(0xaa, 0x80);
 
@@ -477,17 +472,17 @@ bool PC88::ConnectDevices() {
                                             {0x40, IOBus::portout, Calendar::kOut40},
                                             {0x40, IOBus::portin, Calendar::kIn40},
                                             {0, 0, 0}};
-  calendar_ = new PC8801::Calendar(DEV_ID('C', 'A', 'L', 'N'));
+  calendar_ = std::make_unique<PC8801::Calendar>(DEV_ID('C', 'A', 'L', 'N'));
   if (!calendar_ || !calendar_->Init())
     return false;
-  if (!bus1_.Connect(calendar_, c_caln))
+  if (!main_iobus_.Connect(calendar_.get(), c_caln))
     return false;
 
   static const IOBus::Connector c_beep[] = {{0x40, IOBus::portout, Beep::out40}, {0, 0, 0}};
   beep_ = std::make_unique<PC8801::Beep>(DEV_ID('B', 'E', 'E', 'P'));
   if (!beep_ || !beep_->Init())
     return false;
-  if (!bus1_.Connect(beep_.get(), c_beep))
+  if (!main_iobus_.Connect(beep_.get(), c_beep))
     return false;
 
   static const IOBus::Connector c_siom[] = {{kPReset, IOBus::portout, SIO::reset},
@@ -497,20 +492,20 @@ bool PC88::ConnectDevices() {
                                             {0xc2, IOBus::portin, SIO::getdata},
                                             {0xc3, IOBus::portin, SIO::getstatus},
                                             {0, 0, 0}};
-  sio_midi_ = new PC8801::SIO(DEV_ID('S', 'I', 'O', 'M'));
-  if (!sio_midi_ || !bus1_.Connect(sio_midi_, c_siom))
+  sio_midi_ = std::make_unique<PC8801::SIO>(DEV_ID('S', 'I', 'O', 'M'));
+  if (!sio_midi_ || !main_iobus_.Connect(sio_midi_.get(), c_siom))
     return false;
-  if (!sio_midi_->Init(&bus1_, 0, kPSIOReq))
+  if (!sio_midi_->Init(&main_iobus_, 0, kPSIOReq))
     return false;
 
   static const IOBus::Connector c_joy[] = {{kPOPNio1, IOBus::portin, JoyPad::getdir},
                                            {kPOPNio2, IOBus::portin, JoyPad::getbutton},
                                            {kVrtc, IOBus::portout, JoyPad::vsync},
                                            {0, 0, 0}};
-  joy_pad_ = new PC8801::JoyPad();  // DEV_ID('J', 'O', 'Y', ' '));
+  joy_pad_ = std::make_unique<PC8801::JoyPad>();  // DEV_ID('J', 'O', 'Y', ' '));
   if (!joy_pad_)
     return false;
-  if (!bus1_.Connect(joy_pad_, c_joy))
+  if (!main_iobus_.Connect(joy_pad_.get(), c_joy))
     return false;
 
   return true;
@@ -522,9 +517,9 @@ bool PC88::ConnectDevices() {
 bool PC88::ConnectDevices2() {
   static const IOBus::Connector c_cpu2[] = {
       {kPReset2, IOBus::portout, Z80XX::reset}, {kPIRQ2, IOBus::portout, Z80XX::irq}, {0, 0, 0}};
-  if (!bus2_.Connect(&cpu2_, c_cpu2))
+  if (!sub_iobus_.Connect(&sub_cpu_, c_cpu2))
     return false;
-  if (!cpu2_.Init(&mm2_, &bus2_, kPIAck2))
+  if (!sub_cpu_.Init(&sub_mm_, &sub_iobus_, kPIAck2))
     return false;
 
   static const IOBus::Connector c_mem2[] = {
@@ -537,9 +532,9 @@ bool PC88::ConnectDevices2() {
       {0xfd, IOBus::portin | IOBus::sync, SubSystem::s_read1},
       {0xfe, IOBus::portin | IOBus::sync, SubSystem::s_read2},
       {0, 0, 0}};
-  if (!subsys_ || !bus2_.Connect(subsys_.get(), c_mem2))
+  if (!subsys_ || !sub_iobus_.Connect(subsys_.get(), c_mem2))
     return false;
-  if (!subsys_->Init(&mm2_))
+  if (!subsys_->Init(&sub_mm_))
     return false;
 
   static const IOBus::Connector c_fdc[] = {
@@ -547,10 +542,10 @@ bool PC88::ConnectDevices2() {
       {0xf4, IOBus::portout, FDC::drivecontrol}, {0xf8, IOBus::portout, FDC::motorcontrol},
       {0xf8, IOBus::portin, FDC::tcin},          {0xfa, IOBus::portin, FDC::getstatus},
       {0xfb, IOBus::portin, FDC::getdata},       {0, 0, 0}};
-  fdc_ = new PC8801::FDC(DEV_ID('F', 'D', 'C', ' '));
-  if (!bus2_.Connect(fdc_, c_fdc))
+  fdc_ = std::make_unique<PC8801::FDC>(DEV_ID('F', 'D', 'C', ' '));
+  if (!sub_iobus_.Connect(fdc_.get(), c_fdc))
     return false;
-  if (!fdc_->Init(disk_manager_, &scheduler_, &bus2_, kPIRQ2, kPFDStat))
+  if (!fdc_->Init(disk_manager_, &scheduler_, &sub_iobus_, kPIRQ2, kPFDStat))
     return false;
 
   return true;
@@ -565,7 +560,7 @@ void PC88::ApplyConfig(Config* cfg) {
 
   base_->SetSwitch(cfg);
   screen_->ApplyConfig(cfg);
-  mem1_->ApplyConfig(cfg);
+  mem_main_->ApplyConfig(cfg);
   crtc_->ApplyConfig(cfg);
   fdc_->ApplyConfig(cfg);
   beep_->EnableSING(!(cfg->flags & Config::kDisableSing));
@@ -613,13 +608,13 @@ uint64_t PC88::GetFramePeriodNS() {
 //  仮想時間と現実時間の同期を取ったときに呼ばれる
 //
 void PC88::TimeSync() {
-  bus1_.Out(kPTimeSync, 0);
+  main_iobus_.Out(kPTimeSync, 0);
 }
 
 bool PC88::IsN80Supported() {
-  return mem1_->IsN80Ready();
+  return mem_main_->IsN80Ready();
 }
 
 bool PC88::IsN80V2Supported() {
-  return mem1_->IsN80V2Ready();
+  return mem_main_->IsN80V2Ready();
 }

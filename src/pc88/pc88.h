@@ -23,23 +23,23 @@ class TapeManager;
 class SchedulerImpl;
 
 namespace PC8801 {
-class Config;
-class Memory;
-class PD8257;
-class KanjiROM;
-class Screen;
-class INTC;
-class CRTC;
 class Base;
-class FDC;
-class SubSystem;
-class SIO;
-class CDIF;
-class OPNIF;
-class Calendar;
-class DiskIO;
 class Beep;
+class CDIF;
+class CRTC;
+class Calendar;
+class Config;
+class DiskIO;
+class FDC;
+class INTC;
 class JoyPad;
+class KanjiROM;
+class Memory;
+class OPNIF;
+class PD8257;
+class SIO;
+class Screen;
+class SubSystem;
 }  // namespace PC8801
 
 class SchedulerExecutable {
@@ -63,7 +63,6 @@ class SchedulerImpl : public Scheduler {
   void ShortenNS(int64_t ns) override;
   int64_t GetNS() override;
 
- public:
   void set_cpu_clock(uint64_t cpu_clock) { cpu_clock_ = cpu_clock; }
   [[nodiscard]] int64_t cpu_clock() const { return cpu_clock_; }
 
@@ -87,7 +86,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   void DeInit();
 
   void Reset();
-  int64_t ProceedNSX(int64_t ns, uint64_t cpu_clock, int64_t ecl);
+  int64_t ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t ecl);
   void ApplyConfig(PC8801::Config*);
   void SetVolume(PC8801::Config*);
 
@@ -96,7 +95,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
   // Overrides ICPUTime
   // Returns CPU clock cycles executed
-  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1_.GetClocks(); }
+  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return main_cpu_.GetClocks(); }
   // Returns CPU clock cycles per tick
   [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override {
     return (scheduler_.cpu_clock() + 50000) / 100000;
@@ -114,19 +113,19 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   PC8801::Base* GetBase() { return base_.get(); }
 
   // TODO: Usages of these getters should be cleaned up.
-  PC8801::Memory* GetMem1() { return mem1_.get(); }
+  PC8801::Memory* GetMem1() { return mem_main_.get(); }
   PC8801::SubSystem* GetMem2() { return subsys_.get(); }
   PC8801::OPNIF* GetOPN1() { return opn1_.get(); }
   PC8801::OPNIF* GetOPN2() { return opn2_.get(); }
-  Z80XX* GetCPU1() { return &cpu1_; }
-  Z80XX* GetCPU2() { return &cpu2_; }
-  IOBus* GetBus1() { return &bus1_; }
-  IOBus* GetBus2() { return &bus2_; }
-  MemoryManager* GetMM1() { return &mm1_; }
-  MemoryManager* GetMM2() { return &mm2_; }
+  Z80XX* GetCPU1() { return &main_cpu_; }
+  Z80XX* GetCPU2() { return &sub_cpu_; }
+  IOBus* GetBus1() { return &main_iobus_; }
+  IOBus* GetBus2() { return &sub_iobus_; }
+  MemoryManager* GetMM1() { return &main_mm_; }
+  MemoryManager* GetMM2() { return &sub_mm_; }
   PC8801::PD8257* GetDMAC() { return dmac_.get(); }
   PC8801::Beep* GetBEEP() { return beep_.get(); }
-  PC8801::JoyPad* GetJoyPad() { return joy_pad_; }
+  PC8801::JoyPad* GetJoyPad() { return joy_pad_.get(); }
   DeviceList* GetDeviceList() { return &devlist_; }
   DiskManager* GetDiskManager() { return disk_manager_; }
 
@@ -176,66 +175,63 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   };
 
  private:
-  void VSync();
+  friend class PC8801::Base;
 
-  bool ConnectDevices();
-  bool ConnectDevices2();
-
- private:
-  enum CPUMode {
+  enum CPUMode : uint8_t {
     ms11 = 0,
     ms21 = 1,          // bit 0
     stopwhenidle = 4,  // bit 2
   };
 
+  void VSync();
+
+  bool ConnectDevices();
+  bool ConnectDevices2();
+
   SchedulerImpl scheduler_;
+  Z80XX main_cpu_;
+  Z80XX sub_cpu_;
 
-  Draw::Region region{};
+  MemoryManager main_mm_;
+  MemoryManager sub_mm_;
+  IOBus main_iobus_;
+  IOBus sub_iobus_;
+  DeviceList devlist_;
 
-  int cpu_mode_ = 0;
+  std::unique_ptr<PC8801::Memory> mem_main_;
+  std::unique_ptr<PC8801::KanjiROM> kanji1_;
+  std::unique_ptr<PC8801::KanjiROM> kanji2_;
+  std::unique_ptr<PC8801::Screen> screen_;
+  std::unique_ptr<PC8801::INTC> int_controller_;
+  std::unique_ptr<PC8801::CRTC> crtc_;
+  std::unique_ptr<PC8801::Base> base_;
+  std::unique_ptr<PC8801::FDC> fdc_;
+  std::unique_ptr<PC8801::SubSystem> subsys_;
+  std::unique_ptr<PC8801::SIO> sio_tape_;
+  std::unique_ptr<PC8801::SIO> sio_midi_;
+  std::unique_ptr<PC8801::OPNIF> opn1_;
+  std::unique_ptr<PC8801::OPNIF> opn2_;
+  std::unique_ptr<PC8801::Calendar> calendar_;
+  std::unique_ptr<PC8801::Beep> beep_;
+  std::unique_ptr<PC8801::PD8257> dmac_;
+  std::unique_ptr<PC8801::JoyPad> joy_pad_;
+
+  uint8_t cpu_mode_ = 0;
   // 実効速度 (単位はclock)
   int64_t effective_clocks_ = 1;
 
   uint32_t cfg_flags_ = 0;
   uint32_t cfg_flags2_ = 0;
-  bool updated_ = false;
 
-  std::unique_ptr<PC8801::Memory> mem1_;
-  std::unique_ptr<PC8801::KanjiROM> knj1_;
-  std::unique_ptr<PC8801::KanjiROM> knj2_;
-  PC8801::Screen* screen_ = nullptr;
-  PC8801::INTC* int_controller_ = nullptr;
-  std::unique_ptr<PC8801::CRTC> crtc_;
-  std::unique_ptr<PC8801::Base> base_;
-  PC8801::FDC* fdc_ = nullptr;
-  std::unique_ptr<PC8801::SubSystem> subsys_;
-  PC8801::SIO* sio_tape_ = nullptr;
-  PC8801::SIO* sio_midi_ = nullptr;
-  std::unique_ptr<PC8801::OPNIF> opn1_;
-  std::unique_ptr<PC8801::OPNIF> opn2_;
-  PC8801::Calendar* calendar_ = nullptr;
-  std::unique_ptr<PC8801::Beep> beep_;
-  std::unique_ptr<PC8801::PD8257> dmac_;
+  bool screen_updated_ = false;
 
- protected:
   Draw* draw_ = nullptr;
+  Draw::Region region_{};
+
   DiskManager* disk_manager_ = nullptr;
   TapeManager* tape_manager_ = nullptr;
-  PC8801::JoyPad* joy_pad_ = nullptr;
-
-  MemoryManager mm1_;
-  MemoryManager mm2_;
-  IOBus bus1_;
-  IOBus bus2_;
-  DeviceList devlist_;
-
- private:
-  Z80XX cpu1_;
-  Z80XX cpu2_;
-
-  friend class PC8801::Base;
 };
 
 inline bool PC88::IsCDSupported() {
-  return devlist_.Find(DEV_ID('c', 'd', 'i', 'f')) != 0;
+  return devlist_.Find(DEV_ID('c', 'd', 'i', 'f')) != nullptr;
 }
