@@ -95,7 +95,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
 
   // Overrides ICPUTime
   // Returns CPU clock cycles executed
-  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return cpu1_.GetClocks(); }
+  [[nodiscard]] uint32_t IFCALL GetCPUTick() const override { return main_cpu_.GetClocks(); }
   // Returns CPU clock cycles per tick
   [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override {
     return (scheduler_.cpu_clock() + 50000) / 100000;
@@ -117,12 +117,12 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   PC8801::SubSystem* GetMem2() { return subsys_.get(); }
   PC8801::OPNIF* GetOPN1() { return opn1_.get(); }
   PC8801::OPNIF* GetOPN2() { return opn2_.get(); }
-  Z80XX* GetCPU1() { return &cpu1_; }
-  Z80XX* GetCPU2() { return &cpu2_; }
-  IOBus* GetBus1() { return &bus1_; }
-  IOBus* GetBus2() { return &bus2_; }
-  MemoryManager* GetMM1() { return &mm1_; }
-  MemoryManager* GetMM2() { return &mm2_; }
+  Z80XX* GetCPU1() { return &main_cpu_; }
+  Z80XX* GetCPU2() { return &sub_cpu_; }
+  IOBus* GetBus1() { return &main_iobus_; }
+  IOBus* GetBus2() { return &sub_iobus_; }
+  MemoryManager* GetMM1() { return &main_mm_; }
+  MemoryManager* GetMM2() { return &sub_mm_; }
   PC8801::PD8257* GetDMAC() { return dmac_.get(); }
   PC8801::Beep* GetBEEP() { return beep_.get(); }
   PC8801::JoyPad* GetJoyPad() { return joy_pad_.get(); }
@@ -189,13 +189,13 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   bool ConnectDevices2();
 
   SchedulerImpl scheduler_;
-  Z80XX cpu1_;
-  Z80XX cpu2_;
+  Z80XX main_cpu_;
+  Z80XX sub_cpu_;
 
-  MemoryManager mm1_;
-  MemoryManager mm2_;
-  IOBus bus1_;
-  IOBus bus2_;
+  MemoryManager main_mm_;
+  MemoryManager sub_mm_;
+  IOBus main_iobus_;
+  IOBus sub_iobus_;
   DeviceList devlist_;
 
   std::unique_ptr<PC8801::Memory> mem_main_;

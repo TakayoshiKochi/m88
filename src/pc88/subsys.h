@@ -10,6 +10,8 @@
 #include "pc88/fdc.h"
 #include "pc88/pio.h"
 
+#include <memory>
+
 class MemoryManager;
 
 namespace PC8801 {
@@ -34,13 +36,15 @@ class SubSystem : public Device {
   ~SubSystem() override;
 
   bool Init(MemoryManager* mmgr);
+
+  // Overrides Device
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
   uint32_t IFCALL GetStatusSize() override;
   bool IFCALL SaveStatus(uint8_t* status) override;
   bool IFCALL LoadStatus(const uint8_t* status) override;
 
-  uint8_t* GetRAM() { return ram; }
-  uint8_t* GetROM() { return rom; }
+  uint8_t* GetRAM() { return ram_; }
+  uint8_t* GetROM() { return rom_.get(); }
 
   bool IsBusy();
 
@@ -79,14 +83,16 @@ class SubSystem : public Device {
   bool LoadROM();
   void PatchROM();
 
-  MemoryManager* mm;
-  int mid;
-  uint8_t* rom;
-  uint8_t* ram;
-  uint8_t* dummy;
-  PIO piom, pios;
-  uint32_t cw_m, cw_s;
-  uint32_t idlecount;
+  MemoryManager* mm_ = nullptr;
+  int mid_;
+  std::unique_ptr<uint8_t[]> rom_;
+  uint8_t* ram_ = nullptr;
+  uint8_t* dummy_ = nullptr;
+  PIO pio_main_;
+  PIO pio_sub_;
+  uint32_t cw_main_ = 0;
+  uint32_t cw_sub_ = 0;
+  uint32_t idle_count_ = 0;
 
  private:
   static const Descriptor descriptor;
