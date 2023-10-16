@@ -49,14 +49,7 @@ PC88::PC88()
 }
 
 PC88::~PC88() {
-  //  devlist.CleanUp();
-  delete screen_;
-  delete int_controller_;
-  delete fdc_;
-  delete sio_tape_;
-  delete sio_midi_;
-  delete calendar_;
-  delete joy_pad_;
+  // devlist.CleanUp();
 }
 
 // ---------------------------------------------------------------------------
@@ -379,8 +372,8 @@ bool PC88::ConnectDevices() {
       {0x57, IOBus::portout, Screen::out55to5b}, {0x58, IOBus::portout, Screen::out55to5b},
       {0x59, IOBus::portout, Screen::out55to5b}, {0x5a, IOBus::portout, Screen::out55to5b},
       {0x5b, IOBus::portout, Screen::out55to5b}, {0, 0, 0}};
-  screen_ = new PC8801::Screen(DEV_ID('S', 'C', 'R', 'N'));
-  if (!screen_ || !bus1_.Connect(screen_, c_scrn))
+  screen_ = std::make_unique<PC8801::Screen>(DEV_ID('S', 'C', 'R', 'N'));
+  if (!screen_ || !bus1_.Connect(screen_.get(), c_scrn))
     return false;
   if (!screen_->Init(&bus1_, mem1_.get(), crtc_.get()))
     return false;
@@ -398,8 +391,8 @@ bool PC88::ConnectDevices() {
                                             {0xe6, IOBus::portout, INTC::setmask},
                                             {kPIAck, IOBus::portin, INTC::intack},
                                             {0, 0, 0}};
-  int_controller_ = new PC8801::INTC(DEV_ID('I', 'N', 'T', 'C'));
-  if (!int_controller_ || !bus1_.Connect(int_controller_, c_intc))
+  int_controller_ = std::make_unique<PC8801::INTC>(DEV_ID('I', 'N', 'T', 'C'));
+  if (!int_controller_ || !bus1_.Connect(int_controller_.get(), c_intc))
     return false;
   if (!int_controller_->Init(&bus1_, kPIRQ, kPint0))
     return false;
@@ -425,8 +418,8 @@ bool PC88::ConnectDevices() {
                                            {0x20, IOBus::portin, SIO::getdata},
                                            {0x21, IOBus::portin, SIO::getstatus},
                                            {0, 0, 0}};
-  sio_tape_ = new PC8801::SIO(DEV_ID('S', 'I', 'O', ' '));
-  if (!sio_tape_ || !bus1_.Connect(sio_tape_, c_sio))
+  sio_tape_ = std::make_unique<PC8801::SIO>(DEV_ID('S', 'I', 'O', ' '));
+  if (!sio_tape_ || !bus1_.Connect(sio_tape_.get(), c_sio))
     return false;
   if (!sio_tape_->Init(&bus1_, kPint0, kPSIOReq))
     return false;
@@ -477,10 +470,10 @@ bool PC88::ConnectDevices() {
                                             {0x40, IOBus::portout, Calendar::kOut40},
                                             {0x40, IOBus::portin, Calendar::kIn40},
                                             {0, 0, 0}};
-  calendar_ = new PC8801::Calendar(DEV_ID('C', 'A', 'L', 'N'));
+  calendar_ = std::make_unique<PC8801::Calendar>(DEV_ID('C', 'A', 'L', 'N'));
   if (!calendar_ || !calendar_->Init())
     return false;
-  if (!bus1_.Connect(calendar_, c_caln))
+  if (!bus1_.Connect(calendar_.get(), c_caln))
     return false;
 
   static const IOBus::Connector c_beep[] = {{0x40, IOBus::portout, Beep::out40}, {0, 0, 0}};
@@ -497,8 +490,8 @@ bool PC88::ConnectDevices() {
                                             {0xc2, IOBus::portin, SIO::getdata},
                                             {0xc3, IOBus::portin, SIO::getstatus},
                                             {0, 0, 0}};
-  sio_midi_ = new PC8801::SIO(DEV_ID('S', 'I', 'O', 'M'));
-  if (!sio_midi_ || !bus1_.Connect(sio_midi_, c_siom))
+  sio_midi_ = std::make_unique<PC8801::SIO>(DEV_ID('S', 'I', 'O', 'M'));
+  if (!sio_midi_ || !bus1_.Connect(sio_midi_.get(), c_siom))
     return false;
   if (!sio_midi_->Init(&bus1_, 0, kPSIOReq))
     return false;
@@ -507,10 +500,10 @@ bool PC88::ConnectDevices() {
                                            {kPOPNio2, IOBus::portin, JoyPad::getbutton},
                                            {kVrtc, IOBus::portout, JoyPad::vsync},
                                            {0, 0, 0}};
-  joy_pad_ = new PC8801::JoyPad();  // DEV_ID('J', 'O', 'Y', ' '));
+  joy_pad_ = std::make_unique<PC8801::JoyPad>();  // DEV_ID('J', 'O', 'Y', ' '));
   if (!joy_pad_)
     return false;
-  if (!bus1_.Connect(joy_pad_, c_joy))
+  if (!bus1_.Connect(joy_pad_.get(), c_joy))
     return false;
 
   return true;
@@ -547,8 +540,8 @@ bool PC88::ConnectDevices2() {
       {0xf4, IOBus::portout, FDC::drivecontrol}, {0xf8, IOBus::portout, FDC::motorcontrol},
       {0xf8, IOBus::portin, FDC::tcin},          {0xfa, IOBus::portin, FDC::getstatus},
       {0xfb, IOBus::portin, FDC::getdata},       {0, 0, 0}};
-  fdc_ = new PC8801::FDC(DEV_ID('F', 'D', 'C', ' '));
-  if (!bus2_.Connect(fdc_, c_fdc))
+  fdc_ = std::make_unique<PC8801::FDC>(DEV_ID('F', 'D', 'C', ' '));
+  if (!bus2_.Connect(fdc_.get(), c_fdc))
     return false;
   if (!fdc_->Init(disk_manager_, &scheduler_, &bus2_, kPIRQ2, kPFDStat))
     return false;

@@ -126,7 +126,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   MemoryManager* GetMM2() { return &mm2_; }
   PC8801::PD8257* GetDMAC() { return dmac_.get(); }
   PC8801::Beep* GetBEEP() { return beep_.get(); }
-  PC8801::JoyPad* GetJoyPad() { return joy_pad_; }
+  PC8801::JoyPad* GetJoyPad() { return joy_pad_.get(); }
   DeviceList* GetDeviceList() { return &devlist_; }
   DiskManager* GetDiskManager() { return disk_manager_; }
 
@@ -203,17 +203,18 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   std::unique_ptr<PC8801::Memory> mem1_;
   std::unique_ptr<PC8801::KanjiROM> knj1_;
   std::unique_ptr<PC8801::KanjiROM> knj2_;
-  PC8801::Screen* screen_ = nullptr;
-  PC8801::INTC* int_controller_ = nullptr;
+  std::unique_ptr<PC8801::Screen> screen_;
+  std::unique_ptr<PC8801::INTC> int_controller_;
   std::unique_ptr<PC8801::CRTC> crtc_;
   std::unique_ptr<PC8801::Base> base_;
-  PC8801::FDC* fdc_ = nullptr;
+  std::unique_ptr<PC8801::FDC> fdc_;
   std::unique_ptr<PC8801::SubSystem> subsys_;
-  PC8801::SIO* sio_tape_ = nullptr;
-  PC8801::SIO* sio_midi_ = nullptr;
+  std::unique_ptr<PC8801::SIO> sio_tape_;
+  std::unique_ptr<PC8801::SIO> sio_midi_;
+  ;
   std::unique_ptr<PC8801::OPNIF> opn1_;
   std::unique_ptr<PC8801::OPNIF> opn2_;
-  PC8801::Calendar* calendar_ = nullptr;
+  std::unique_ptr<PC8801::Calendar> calendar_;
   std::unique_ptr<PC8801::Beep> beep_;
   std::unique_ptr<PC8801::PD8257> dmac_;
 
@@ -221,7 +222,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   Draw* draw_ = nullptr;
   DiskManager* disk_manager_ = nullptr;
   TapeManager* tape_manager_ = nullptr;
-  PC8801::JoyPad* joy_pad_ = nullptr;
+  std::unique_ptr<PC8801::JoyPad> joy_pad_;
 
   MemoryManager mm1_;
   MemoryManager mm2_;
