@@ -132,22 +132,6 @@ bool DriverDS2::CleanUp() {
 
   if (lpdsb_)
     lpdsb_->Stop();
-  if (lpnotify_) {
-    lpnotify_->Release();
-    lpnotify_ = nullptr;
-  }
-  if (lpdsb_) {
-    lpdsb_->Release();
-    lpdsb_ = nullptr;
-  }
-  if (lpdsb_primary_) {
-    lpdsb_primary_->Release();
-    lpdsb_primary_ = nullptr;
-  }
-  if (lpds_) {
-    lpds_->Release();
-    lpds_ = nullptr;
-  }
 
   if (hevent_)
     CloseHandle(hevent_), hevent_ = nullptr;
