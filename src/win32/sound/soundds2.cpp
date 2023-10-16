@@ -61,7 +61,7 @@ bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint
   DSBUFFERDESC dsbd{};
   dsbd.dwSize = sizeof(DSBUFFERDESC);
   dsbd.dwFlags = DSBCAPS_PRIMARYBUFFER;
-  dsbd.dwBufferBytes = 32768;
+  dsbd.dwBufferBytes = 0;
   dsbd.lpwfxFormat = nullptr;
   hr = lpds_->CreateSoundBuffer(&dsbd, &lpdsb_primary_, nullptr);
   if (hr != DS_OK)
