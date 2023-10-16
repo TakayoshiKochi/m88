@@ -81,12 +81,12 @@ bool IOBus::Disconnect(IDevice* device) {
 
   for (uint32_t i = 0; i < bank_size_; ++i) {
     InBank& v = ins_[i];
-    for (auto in : v) {
+    while (true) {
       auto it = find_if(v.begin(), v.end(),
                         [device](const InBankEntry& ib) { return ib.device == device; });
-      if (it != v.end()) {
-        v.erase(it);
-      }
+      if (it == v.end())
+        break;
+      v.erase(it);
     }
     if (v.empty()) {
       // このアイテムが唯一のアイテムだった場合
@@ -96,12 +96,13 @@ bool IOBus::Disconnect(IDevice* device) {
 
   for (uint32_t i = 0; i < bank_size_; ++i) {
     OutBank& v = outs_[i];
-    for (auto in : v) {
+    while (true) {
       auto it = find_if(v.begin(), v.end(),
                         [device](const OutBankEntry& ib) { return ib.device == device; });
-      if (it != v.end()) {
-        v.erase(it);
-      }
+      if (it == v.end())
+        break;
+
+      it = v.erase(it);
     }
     if (v.empty()) {
       // このアイテムが唯一のアイテムだった場合
