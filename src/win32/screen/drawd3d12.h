@@ -63,8 +63,8 @@ class WinDrawD3D12 : public WinDrawSub {
   bool SetUpTexturePipeline();
 
   bool ClearScreen();
-  bool DrawTexture();
-  bool RenderTexture();
+  bool DrawTexture(const RECT& rect);
+  bool RenderTexture(const RECT& rect);
 
   scoped_comptr<ID3D12Device> dev_;
   scoped_comptr<IDXGIFactory6> dxgi_factory_;
@@ -101,6 +101,9 @@ class WinDrawD3D12 : public WinDrawSub {
   scoped_comptr<ID3D12Resource> vert_buffer_;
   scoped_comptr<ID3D12Resource> index_buffer_;
   scoped_comptr<ID3D12DescriptorHeap> tex_desc_heap_;
+
+  // texture data buffer for rendering
+  std::vector<TexRGBA> texturedata_;
 
   bool update_palette_ = false;
   // parent
