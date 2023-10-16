@@ -74,9 +74,9 @@ bool Sequencer::ThreadLoop() {
 //  clock   ＣＰＵのクロック (Hz)
 //  length_ns  実行する時間 (nanoseconds)
 //  eff     実効クロック
-inline void Sequencer::ExecuteNSX(int64_t cpu_clock, int64_t length_ns, int64_t ec) {
+inline void Sequencer::ExecuteNS(int64_t cpu_clock, int64_t length_ns, int64_t ec) {
   std::lock_guard<std::mutex> lock(mtx_);
-  exec_clocks_ += cpu_clock * vm_->ProceedNSX(length_ns, cpu_clock, ec) / 1000000000LL;
+  exec_clocks_ += cpu_clock * vm_->ProceedNS(cpu_clock, length_ns, ec) / 1000000000LL;
 }
 
 void Sequencer::ExecuteBurst(uint32_t clocks) {
@@ -89,10 +89,10 @@ void Sequencer::ExecuteBurst(uint32_t clocks) {
     // Try executing 1ms
     if (clocks == 0) {
       // Full speed
-      ExecuteNSX(effective_clock_, 10000 * speed_, effective_clock_);
+      ExecuteNS(effective_clock_, 10000 * speed_, effective_clock_);
     } else {
       // Burst mode
-      ExecuteNSX(cpu_clock_, 1000000, effective_clock_);
+      ExecuteNS(cpu_clock_, 1000000, effective_clock_);
     }
     ns = keeper_.GetTimeNS() - relatime_lastsync_ns_;
   } while (ns < 10000000);
@@ -110,7 +110,7 @@ void Sequencer::ExecuteNormal(uint32_t clocks) {
   // TODO: timing?
   vm_->TimeSync();
   // Execute CPU
-  ExecuteNSX(cpu_clock_, texec_ns, clocks * speed_ / 100);
+  ExecuteNS(cpu_clock_, texec_ns, clocks * speed_ / 100);
 
   // Time used for CPU execution
   int64_t tcpu_ns = keeper_.GetTimeNS() - relatime_lastsync_ns_;

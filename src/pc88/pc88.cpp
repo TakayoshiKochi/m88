@@ -86,7 +86,7 @@ bool PC88::Init(Draw* draw, DiskManager* disk_manager, TapeManager* tape_manager
     return false;
 
   Reset();
-  region.Reset();
+  region_.Reset();
   scheduler_.set_cpu_clock(100000);
   return true;
 }
@@ -103,7 +103,7 @@ void PC88::DeInit() {
 // ---------------------------------------------------------------------------
 //  執行
 
-int64_t PC88::ProceedNSX(int64_t ns, uint64_t cpu_clock, int64_t ecl) {
+int64_t PC88::ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t ecl) {
   scheduler_.set_cpu_clock(cpu_clock);
   effective_clocks_ = std::max(1LL, ecl);
   return scheduler_.ProceedNS(ns);
@@ -165,7 +165,7 @@ void PC88::UpdateScreen(bool refresh) {
 
   LOADBEGIN("Screen");
 
-  if (!updated_ || refresh) {
+  if (!screen_updated_ || refresh) {
     if (!(cfg_flags_ & Config::kDrawPriorityLow) ||
         (dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) |
                   static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
@@ -176,24 +176,24 @@ void PC88::UpdateScreen(bool refresh) {
 
       //          crtc->SetSize();
       if (draw_->Lock(&image, &bpl)) {
-        Log("(%d -> %d) ", region.top, region.bottom);
-        crtc_->UpdateScreen(image, bpl, region, refresh);
-        Log("(%d -> %d) ", region.top, region.bottom);
-        screen_->UpdateScreen(image, bpl, region, refresh);
-        Log("(%d -> %d)\n", region.top, region.bottom);
+        Log("(%d -> %d) ", region_.top, region_.bottom);
+        crtc_->UpdateScreen(image, bpl, region_, refresh);
+        Log("(%d -> %d) ", region_.top, region_.bottom);
+        screen_->UpdateScreen(image, bpl, region_, refresh);
+        Log("(%d -> %d)\n", region_.top, region_.bottom);
 
         bool palchanged = screen_->UpdatePalette(draw_);
         draw_->Unlock();
-        updated_ = palchanged || region.Valid();
+        screen_updated_ = palchanged || region_.Valid();
       }
     }
   }
   LOADEND("Screen");
   if (draw_->GetStatus() & static_cast<uint32_t>(Draw::Status::kReadyToDraw)) {
-    if (updated_) {
-      updated_ = false;
-      draw_->DrawScreen(region);
-      region.Reset();
+    if (screen_updated_) {
+      screen_updated_ = false;
+      draw_->DrawScreen(region_);
+      region_.Reset();
     } else {
       Draw::Region r{};
       r.Reset();
@@ -217,10 +217,10 @@ void PC88::Reset() {
   bool isn80v2 = (base_->GetBasicMode() == BasicMode::kN80V2);
 
   if (isv2)
-    dmac_->ConnectRd(mem1_->GetTVRAM(), 0xf000, 0x1000);
+    dmac_->ConnectRd(mem_main_->GetTVRAM(), 0xf000, 0x1000);
   else
-    dmac_->ConnectRd(mem1_->GetRAM(), 0, 0x10000);
-  dmac_->ConnectWr(mem1_->GetRAM(), 0, 0x10000);
+    dmac_->ConnectRd(mem_main_->GetRAM(), 0, 0x10000);
+  dmac_->ConnectWr(mem_main_->GetRAM(), 0, 0x10000);
 
   opn1_->SetOPNMode((cfg_flags_ & Config::kEnableOPNA) != 0);
   opn1_->Enable(isv2 || !(cfg_flags2_ & Config::kDisableOPN44));
@@ -331,10 +331,10 @@ bool PC88::ConnectDevices() {
                                             {0xe2, IOBus::portin, Memory::ine2},
                                             {0xe3, IOBus::portin, Memory::ine3},
                                             {0, 0, 0}};
-  mem1_ = std::make_unique<PC8801::Memory>(DEV_ID('M', 'E', 'M', '1'));
-  if (!mem1_ || !bus1_.Connect(mem1_.get(), c_mem1))
+  mem_main_ = std::make_unique<PC8801::Memory>(DEV_ID('M', 'E', 'M', '1'));
+  if (!mem_main_ || !bus1_.Connect(mem_main_.get(), c_mem1))
     return false;
-  if (!mem1_->Init(&mm1_, &bus1_, crtc_.get(), cpu1_.GetWaits()))
+  if (!mem_main_->Init(&mm1_, &bus1_, crtc_.get(), cpu1_.GetWaits()))
     return false;
 
   // TODO: CRTC is dependent on DMAC's object lifetime. (do not pass unique_ptr here)
@@ -346,10 +346,10 @@ bool PC88::ConnectDevices() {
                                             {0xe8, IOBus::portin, KanjiROM::readl},
                                             {0xe9, IOBus::portin, KanjiROM::readh},
                                             {0, 0, 0}};
-  knj1_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '1'));
-  if (!knj1_ || !bus1_.Connect(knj1_.get(), c_knj1))
+  kanji1_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '1'));
+  if (!kanji1_ || !bus1_.Connect(kanji1_.get(), c_knj1))
     return false;
-  if (!knj1_->Init("kanji1.rom"))
+  if (!kanji1_->Init("kanji1.rom"))
     return false;
 
   static const IOBus::Connector c_knj2[] = {{0xec, IOBus::portout, KanjiROM::setl},
@@ -357,10 +357,10 @@ bool PC88::ConnectDevices() {
                                             {0xec, IOBus::portin, KanjiROM::readl},
                                             {0xed, IOBus::portin, KanjiROM::readh},
                                             {0, 0, 0}};
-  knj2_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '2'));
-  if (!knj2_ || !bus1_.Connect(knj2_.get(), c_knj2))
+  kanji2_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '2'));
+  if (!kanji2_ || !bus1_.Connect(kanji2_.get(), c_knj2))
     return false;
-  if (!knj2_->Init("kanji2.rom"))
+  if (!kanji2_->Init("kanji2.rom"))
     return false;
 
   static const IOBus::Connector c_scrn[] = {
@@ -375,7 +375,7 @@ bool PC88::ConnectDevices() {
   screen_ = std::make_unique<PC8801::Screen>(DEV_ID('S', 'C', 'R', 'N'));
   if (!screen_ || !bus1_.Connect(screen_.get(), c_scrn))
     return false;
-  if (!screen_->Init(&bus1_, mem1_.get(), crtc_.get()))
+  if (!screen_->Init(&bus1_, mem_main_.get(), crtc_.get()))
     return false;
 
   static const IOBus::Connector c_intc[] = {{kPReset, IOBus::portout, INTC::reset},
@@ -558,7 +558,7 @@ void PC88::ApplyConfig(Config* cfg) {
 
   base_->SetSwitch(cfg);
   screen_->ApplyConfig(cfg);
-  mem1_->ApplyConfig(cfg);
+  mem_main_->ApplyConfig(cfg);
   crtc_->ApplyConfig(cfg);
   fdc_->ApplyConfig(cfg);
   beep_->EnableSING(!(cfg->flags & Config::kDisableSing));
@@ -610,9 +610,9 @@ void PC88::TimeSync() {
 }
 
 bool PC88::IsN80Supported() {
-  return mem1_->IsN80Ready();
+  return mem_main_->IsN80Ready();
 }
 
 bool PC88::IsN80V2Supported() {
-  return mem1_->IsN80V2Ready();
+  return mem_main_->IsN80V2Ready();
 }
