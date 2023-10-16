@@ -13,6 +13,7 @@
 #include <mmsystem.h>
 #include <dsound.h>
 
+#include "common/scoped_comptr.h"
 #include "common/threadable.h"
 #include "win32/sound/sounddrv.h"
 
@@ -39,10 +40,10 @@ class DriverDS2 : public Driver, public Threadable<DriverDS2> {
  private:
   void Send();
 
-  LPDIRECTSOUND8 lpds_ = nullptr;
-  LPDIRECTSOUNDBUFFER lpdsb_primary_ = nullptr;
-  LPDIRECTSOUNDBUFFER lpdsb_ = nullptr;
-  LPDIRECTSOUNDNOTIFY lpnotify_ = nullptr;
+  scoped_comptr<IDirectSound8> lpds_;
+  scoped_comptr<IDirectSoundBuffer> lpdsb_primary_;
+  scoped_comptr<IDirectSoundBuffer> lpdsb_;
+  scoped_comptr<IDirectSoundNotify> lpnotify_;
 
   uint32_t buffer_length_ms_ = 0;
   HANDLE hevent_ = nullptr;

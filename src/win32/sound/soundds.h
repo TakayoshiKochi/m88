@@ -13,6 +13,7 @@
 #include <mmsystem.h>
 #include <dsound.h>
 
+#include "common/scoped_comptr.h"
 #include "win32/sound/sounddrv.h"
 
 // ---------------------------------------------------------------------------
@@ -34,9 +35,9 @@ class DriverDS : public Driver {
   static void CALLBACK TimeProc(UINT, UINT, DWORD_PTR, DWORD_PTR, DWORD_PTR);
   void Send();
 
-  LPDIRECTSOUND8 lpds_ = nullptr;
-  LPDIRECTSOUNDBUFFER lpdsb_primary_ = nullptr;
-  LPDIRECTSOUNDBUFFER lpdsb_ = nullptr;
+  scoped_comptr<IDirectSound8> lpds_;
+  scoped_comptr<IDirectSoundBuffer> lpdsb_primary_;
+  scoped_comptr<IDirectSoundBuffer> lpdsb_;
 
   UINT timer_id_ = 0;
   LONG sending_ = 0;
