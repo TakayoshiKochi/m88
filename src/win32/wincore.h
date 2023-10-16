@@ -32,12 +32,11 @@ class WinCore : public ISystem, public ILockCore {
  public:
   WinCore() = default;
   ~WinCore();
-  bool Init(WinUI* ui,
-            HWND hwnd,
-            Draw* draw,
-            DiskManager* diskmgr,
+  bool Init(HWND hwnd,
             PC8801::WinKeyIF* keyb,
             IConfigPropBase* cpb,
+            Draw* draw,
+            DiskManager* diskmgr,
             TapeManager* tapemgr);
   bool CleanUp();
 
@@ -92,7 +91,6 @@ class WinCore : public ISystem, public ILockCore {
   bool ConnectDevices(PC8801::WinKeyIF* keyb);
   bool ConnectExternalDevices();
 
-  WinUI* ui_ = nullptr;
   PC88 pc88_;
   IConfigPropBase* cfg_prop_ = nullptr;
 

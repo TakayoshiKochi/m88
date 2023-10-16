@@ -43,14 +43,12 @@ WinCore::~WinCore() {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool WinCore::Init(WinUI* ui,
-                   HWND hwnd,
-                   Draw* draw,
-                   DiskManager* disk,
+bool WinCore::Init(HWND hwnd,
                    WinKeyIF* keyb,
                    IConfigPropBase* cp,
+                   Draw* draw,
+                   DiskManager* disk,
                    TapeManager* tape) {
-  ui_ = ui;
   cfg_prop_ = cp;
 
   if (!pc88_.Init(draw, disk, tape))
