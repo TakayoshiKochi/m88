@@ -13,6 +13,8 @@
 // #define LOGNAME "soundds2"
 #include "common/diag.h"
 
+#pragma comment(lib, "dsound.lib")
+
 using namespace WinSoundDriver;
 
 // ---------------------------------------------------------------------------
@@ -42,13 +44,8 @@ bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint
   buffer_size_ = (rate * ch * sizeof(Sample) * buffer_length_ms_ / 1000) & ~7;
 
   // DirectSound object 作成
-  if (FAILED(CoCreateInstance(CLSID_DirectSound, nullptr, CLSCTX_ALL, IID_IDirectSound,
-                              (void **)&lpds_)))
+  if (FAILED(DirectSoundCreate8(nullptr, &lpds_, nullptr)))
     return false;
-  if (FAILED(lpds_->Initialize(nullptr)))
-    return false;
-  //  if (FAILED(DirectSoundCreate(0, &lpds, 0)))
-  //      return false;
 
   // 協調レベル設定
   HRESULT hr = lpds_->SetCooperativeLevel(hwnd, DSSCL_PRIORITY);
@@ -82,7 +79,6 @@ bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint
   memset(&dsbd, 0, sizeof(DSBUFFERDESC));
   dsbd.dwSize = sizeof(DSBUFFERDESC);
   dsbd.dwFlags = DSBCAPS_STICKYFOCUS | DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY;
-
   dsbd.dwBufferBytes = buffer_size_;
   dsbd.lpwfxFormat = &wf;
 
@@ -103,7 +99,7 @@ bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint
 
   DSBPOSITIONNOTIFY pn[nblocks];
 
-  for (int i = 0; i < nblocks; i++) {
+  for (int i = 0; i < nblocks; ++i) {
     pn[i].dwOffset = buffer_size_ * i / nblocks;
     pn[i].hEventNotify = hevent_;
   }
@@ -136,14 +132,22 @@ bool DriverDS2::CleanUp() {
 
   if (lpdsb_)
     lpdsb_->Stop();
-  if (lpnotify_)
-    lpnotify_->Release(), lpnotify_ = nullptr;
-  if (lpdsb_)
-    lpdsb_->Release(), lpdsb_ = nullptr;
-  if (lpdsb_primary_)
-    lpdsb_primary_->Release(), lpdsb_primary_ = nullptr;
-  if (lpds_)
-    lpds_->Release(), lpds_ = nullptr;
+  if (lpnotify_) {
+    lpnotify_->Release();
+    lpnotify_ = nullptr;
+  }
+  if (lpdsb_) {
+    lpdsb_->Release();
+    lpdsb_ = nullptr;
+  }
+  if (lpdsb_primary_) {
+    lpdsb_primary_->Release();
+    lpdsb_primary_ = nullptr;
+  }
+  if (lpds_) {
+    lpds_->Release();
+    lpds_ = nullptr;
+  }
 
   if (hevent_)
     CloseHandle(hevent_), hevent_ = nullptr;

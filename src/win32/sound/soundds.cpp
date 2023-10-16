@@ -11,6 +11,8 @@
 // #define LOGNAME "soundds"
 #include "common/diag.h"
 
+#pragma comment(lib, "dsound.lib")
+
 using namespace WinSoundDriver;
 
 // ---------------------------------------------------------------------------
@@ -21,15 +23,7 @@ const uint32_t DriverDS::timer_resolution = 20;
 // ---------------------------------------------------------------------------
 //  構築・破棄 ---------------------------------------------------------------
 
-DriverDS::DriverDS() {
-  playing_ = false;
-  mixalways = false;
-  lpds_ = 0;
-  lpdsb_ = 0;
-  lpdsb_primary_ = 0;
-  timer_id_ = 0;
-  sending_ = false;
-}
+DriverDS::DriverDS() = default;
 
 DriverDS::~DriverDS() {
   CleanUp();
@@ -51,12 +45,8 @@ bool DriverDS::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint3
   buffer_size_ = (rate * ch * sizeof(Sample) * buffer_length_ms_ / 1000) & ~7;
 
   // DirectSound object 作成
-  if (FAILED(CoCreateInstance(CLSID_DirectSound, 0, CLSCTX_ALL, IID_IDirectSound, (void**)&lpds_)))
+  if (FAILED(DirectSoundCreate8(nullptr, &lpds_, nullptr)))
     return false;
-  if (FAILED(lpds_->Initialize(0)))
-    return false;
-  //  if (FAILED(DirectSoundCreate(0, &lpds, 0)))
-  //      return false;
 
   // 協調レベル設定
   if (DS_OK != lpds_->SetCooperativeLevel(hwnd, DSSCL_PRIORITY)) {
@@ -99,7 +89,7 @@ bool DriverDS::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint3
 
   // 再生
   lpdsb_->Play(0, 0, DSBPLAY_LOOPING);
-  //  lpdsb_primary->Play(0, 0, DSBPLAY_LOOPING);
+  // lpdsb_primary_->Play(0, 0, DSBPLAY_LOOPING);
 
   // タイマー作成
   timeBeginPeriod(buffer_length_ms_ / num_blocks);
@@ -126,16 +116,23 @@ bool DriverDS::CleanUp() {
     timeEndPeriod(buffer_length_ms_ / num_blocks);
     timer_id_ = 0;
   }
-  for (int i = 0; i < 300 && sending_; i++)
+
+  for (int i = 0; i < 300 && sending_; ++i)
     Sleep(10);
+
   if (lpdsb_) {
     lpdsb_->Stop();
-    lpdsb_->Release(), lpdsb_ = 0;
+    lpdsb_->Release();
+    lpdsb_ = nullptr;
   }
-  if (lpdsb_primary_)
-    lpdsb_primary_->Release(), lpdsb_primary_ = 0;
-  if (lpds_)
-    lpds_->Release(), lpds_ = 0;
+  if (lpdsb_primary_) {
+    lpdsb_primary_->Release();
+    lpdsb_primary_ = nullptr;
+  }
+  if (lpds_) {
+    lpds_->Release();
+    lpds_ = nullptr;
+  }
   return true;
 }
 
