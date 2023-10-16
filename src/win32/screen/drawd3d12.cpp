@@ -90,7 +90,7 @@ void WinDrawD3D12::DrawScreen(const RECT& rect, bool refresh) {
     if (::IsRectEmpty(&rc))
       return;
   }
-  DrawTexture();
+  DrawTexture(rc);
 }
 
 RECT WinDrawD3D12::GetFullScreenRect() {
@@ -670,7 +670,7 @@ bool WinDrawD3D12::ClearScreen() {
   return true;
 }
 
-bool WinDrawD3D12::DrawTexture() {
+bool WinDrawD3D12::DrawTexture(const RECT& rect) {
   auto rtv_h = PrepareCommandList();
 
   PrepareVerticesForTexture();
@@ -679,7 +679,7 @@ bool WinDrawD3D12::DrawTexture() {
   cmd_list_->SetPipelineState(pipeline_state_.get());
   cmd_list_->SetGraphicsRootSignature(root_signature_.get());
 
-  if (!RenderTexture())
+  if (!RenderTexture(rect))
     return false;
 
   SetUpViewPort();
@@ -692,9 +692,9 @@ bool WinDrawD3D12::DrawTexture() {
   return true;
 }
 
-bool WinDrawD3D12::RenderTexture() {
-  for (int y = 0; y < kTextureHeight; ++y) {
-    for (int x = 0; x < kTextureWidth; ++x) {
+bool WinDrawD3D12::RenderTexture(const RECT& rect) {
+  for (int y = rect.top; y < rect.bottom; ++y) {
+    for (int x = rect.left; x < rect.right; ++x) {
       auto& rgba = texturedata_[y * kTextureWidth + x];
       uint8_t col = image_[y * bpl_ + x];
       Palette pal = pal_[col];
