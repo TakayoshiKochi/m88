@@ -34,7 +34,7 @@ class DriverDS : public Driver {
   static void CALLBACK TimeProc(UINT, UINT, DWORD_PTR, DWORD_PTR, DWORD_PTR);
   void Send();
 
-  LPDIRECTSOUND lpds_ = nullptr;
+  LPDIRECTSOUND8 lpds_ = nullptr;
   LPDIRECTSOUNDBUFFER lpdsb_primary_ = nullptr;
   LPDIRECTSOUNDBUFFER lpdsb_ = nullptr;
 

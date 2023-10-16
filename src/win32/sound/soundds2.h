@@ -39,7 +39,7 @@ class DriverDS2 : public Driver, public Threadable<DriverDS2> {
  private:
   void Send();
 
-  LPDIRECTSOUND lpds_ = nullptr;
+  LPDIRECTSOUND8 lpds_ = nullptr;
   LPDIRECTSOUNDBUFFER lpdsb_primary_ = nullptr;
   LPDIRECTSOUNDBUFFER lpdsb_ = nullptr;
   LPDIRECTSOUNDNOTIFY lpnotify_ = nullptr;
