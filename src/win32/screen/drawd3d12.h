@@ -102,6 +102,9 @@ class WinDrawD3D12 : public WinDrawSub {
   scoped_comptr<ID3D12Resource> index_buffer_;
   scoped_comptr<ID3D12DescriptorHeap> tex_desc_heap_;
 
+  // texture data buffer for rendering
+  std::vector<TexRGBA> texturedata_;
+
   bool update_palette_ = false;
   // parent
   HWND hwnd_ = nullptr;

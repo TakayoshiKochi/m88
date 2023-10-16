@@ -42,6 +42,9 @@ bool WinDrawD3D12::Init(HWND hwnd, uint32_t width, uint32_t height, GUID*) {
   if (!CreateD3D())
     return false;
 
+  // texture size is fixed.
+  texturedata_.resize(kTextureWidth * kTextureHeight);
+
   Resize(width, height);
   return true;
 }
@@ -690,11 +693,9 @@ bool WinDrawD3D12::DrawTexture() {
 }
 
 bool WinDrawD3D12::RenderTexture() {
-  std::vector<TexRGBA> texturedata(kTextureWidth * kTextureHeight);
-
   for (int y = 0; y < kTextureHeight; ++y) {
     for (int x = 0; x < kTextureWidth; ++x) {
-      auto& rgba = texturedata[y * kTextureWidth + x];
+      auto& rgba = texturedata_[y * kTextureWidth + x];
       uint8_t col = image_[y * bpl_ + x];
       Palette pal = pal_[col];
       rgba.R = pal.red;
@@ -718,7 +719,7 @@ bool WinDrawD3D12::RenderTexture() {
                                             tex_desc_heap_->GetGPUDescriptorHandleForHeapStart());
 
   HRESULT hr =
-      texture_->WriteToSubresource(0, nullptr, texturedata.data(), kTextureWidth * sizeof(TexRGBA),
-                                   texturedata.size() * sizeof(TexRGBA));
+      texture_->WriteToSubresource(0, nullptr, texturedata_.data(), kTextureWidth * sizeof(TexRGBA),
+                                   texturedata_.size() * sizeof(TexRGBA));
   return SUCCEEDED(hr);
 }
