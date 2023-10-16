@@ -29,9 +29,9 @@ class Driver {
   void MixAlways(bool yes) { mixalways = yes; }
 
  protected:
-  SoundSource* src;
-  uint32_t buffersize;
-  uint32_t sampleshift;
+  SoundSource* src_;
+  uint32_t buffer_size_;
+  uint32_t sample_shift_;
   std::atomic<bool> playing_;
   bool mixalways;
 };

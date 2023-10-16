@@ -81,16 +81,16 @@ class WinSound : public Sound {
   void CleanUp();
   //  int Get(Sample* dest, int samples);
 
-  WinSoundDriver::Driver* driver;
+  WinSoundDriver::Driver* driver_ = nullptr;
 
-  HWND hwnd;
-  uint32_t currentrate;
-  uint32_t currentbuflen;
-  uint32_t samprate;
+  HWND hwnd_ = nullptr;
+  uint32_t current_rate_ = 0;
+  uint32_t current_buffer_len_ = 0;
+  uint32_t sample_rate_ = 0;
 
   OPNMonitor* soundmon;
-  bool wodrv;
-  bool useds2;
+  bool wodrv_ = false;
+  bool use_ds2_ = false;
 
   SoundDumpPipe dumper;
 };

@@ -30,23 +30,20 @@ DriverDS2::~DriverDS2() {
 // ---------------------------------------------------------------------------
 //  初期化 -------------------------------------------------------------------
 
-bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) {
-  int i;
-  HRESULT hr;
-
+bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen) {
   if (playing_)
     return false;
 
-  src = s;
+  src_ = s;
   buffer_length_ = buflen;
-  sampleshift = 1 + (ch == 2 ? 1 : 0);
+  sample_shift_ = 1 + (ch == 2 ? 1 : 0);
 
   // 計算
-  buffersize = (rate * ch * sizeof(Sample) * buffer_length_ / 1000) & ~7;
+  buffer_size_ = (rate * ch * sizeof(Sample) * buffer_length_ / 1000) & ~7;
 
   // DirectSound object 作成
   if (FAILED(CoCreateInstance(CLSID_DirectSound, nullptr, CLSCTX_ALL, IID_IDirectSound,
-                              (void**)&lpds_)))
+                              (void **)&lpds_)))
     return false;
   if (FAILED(lpds_->Initialize(nullptr)))
     return false;
@@ -54,15 +51,14 @@ bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint
   //      return false;
 
   // 協調レベル設定
-  hr = lpds_->SetCooperativeLevel(hwnd, DSSCL_PRIORITY);
+  HRESULT hr = lpds_->SetCooperativeLevel(hwnd, DSSCL_PRIORITY);
   if (hr != DS_OK) {
     hr = lpds_->SetCooperativeLevel(hwnd, DSSCL_NORMAL);
     if (hr != DS_OK)
       return false;
   }
 
-  DSBUFFERDESC dsbd;
-  memset(&dsbd, 0, sizeof(DSBUFFERDESC));
+  DSBUFFERDESC dsbd{};
   dsbd.dwSize = sizeof(DSBUFFERDESC);
   dsbd.dwFlags = DSBCAPS_PRIMARYBUFFER;
   dsbd.dwBufferBytes = 0;
@@ -72,8 +68,7 @@ bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint
     return false;
 
   // Primary buffer の再生フォーマット設定
-  WAVEFORMATEX wf;
-  memset(&wf, 0, sizeof(WAVEFORMATEX));
+  WAVEFORMATEX wf{};
   wf.wFormatTag = WAVE_FORMAT_PCM;
   wf.nChannels = ch;
   wf.nSamplesPerSec = rate;
@@ -88,7 +83,7 @@ bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint
   dsbd.dwSize = sizeof(DSBUFFERDESC);
   dsbd.dwFlags = DSBCAPS_STICKYFOCUS | DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY;
 
-  dsbd.dwBufferBytes = buffersize;
+  dsbd.dwBufferBytes = buffer_size_;
   dsbd.lpwfxFormat = &wf;
 
   hr = lpds_->CreateSoundBuffer(&dsbd, &lpdsb_, nullptr);
@@ -97,7 +92,7 @@ bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint
 
   // 通知オブジェクト作成
 
-  hr = lpdsb_->QueryInterface(IID_IDirectSoundNotify, (LPVOID*)&lpnotify_);
+  hr = lpdsb_->QueryInterface(IID_IDirectSoundNotify, (LPVOID *)&lpnotify_);
   if (hr != DS_OK)
     return false;
 
@@ -108,8 +103,8 @@ bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint
 
   DSBPOSITIONNOTIFY pn[nblocks];
 
-  for (i = 0; i < nblocks; i++) {
-    pn[i].dwOffset = buffersize * i / nblocks;
+  for (int i = 0; i < nblocks; i++) {
+    pn[i].dwOffset = buffer_size_ * i / nblocks;
     pn[i].hEventNotify = hevent_;
   }
 
@@ -118,7 +113,7 @@ bool DriverDS2::Init(SoundSource* s, HWND hwnd, uint32_t rate, uint32_t ch, uint
     return false;
 
   playing_ = true;
-  nextwrite_ = 1 << sampleshift;
+  nextwrite_ = 1 << sample_shift_;
 
   // スレッド起動
   StartThread();
@@ -183,7 +178,7 @@ void DriverDS2::Send() {
     return;
 
   // Buffer Lost ?
-  DWORD status;
+  DWORD status = 0;
   lpdsb_->GetStatus(&status);
   if (DSBSTATUS_BUFFERLOST & status) {
     if (DS_OK != lpdsb_->Restore())
@@ -192,7 +187,8 @@ void DriverDS2::Send() {
   }
 
   // 位置取得
-  DWORD cplay, cwrite;
+  DWORD cplay = 0;
+  DWORD cwrite = 0;
   lpdsb_->GetCurrentPosition(&cplay, &cwrite);
 
   if (cplay == nextwrite_ && !restored)
@@ -201,35 +197,37 @@ void DriverDS2::Send() {
   // 書きこみサイズ計算
   int writelength;
   if (cplay < nextwrite_)
-    writelength = cplay + buffersize - nextwrite_;
+    writelength = cplay + buffer_size_ - nextwrite_;
   else
     writelength = cplay - nextwrite_;
 
-  writelength &= -1 << sampleshift;
+  writelength &= -1 << sample_shift_;
 
   if (writelength <= 0)
     return;
 
-  void *a1, *a2;
-  DWORD al1, al2;
+  void *a1 = nullptr;
+  void *a2 = nullptr;
+  DWORD al1 = 0;
+  DWORD al2 = 0;
 
   // Lock
-  if (DS_OK == lpdsb_->Lock(nextwrite_, writelength, (void**)&a1, &al1, (void**)&a2, &al2, 0)) {
+  if (DS_OK == lpdsb_->Lock(nextwrite_, writelength, &a1, &al1, &a2, &al2, 0)) {
     // 書きこみ
     //      if (mixalways || !src->IsEmpty())
     {
       if (a1)
-        src->Get((Sample*)a1, al1 >> sampleshift);
+        src_->Get((Sample *)a1, al1 >> sample_shift_);
       if (a2)
-        src->Get((Sample*)a2, al2 >> sampleshift);
+        src_->Get((Sample *)a2, al2 >> sample_shift_);
     }
 
     // Unlock
     lpdsb_->Unlock(a1, al1, a2, al2);
 
     nextwrite_ += writelength;
-    if (nextwrite_ >= buffersize)
-      nextwrite_ -= buffersize;
+    if (nextwrite_ >= buffer_size_)
+      nextwrite_ -= buffer_size_;
 
     if (restored)
       lpdsb_->Play(0, 0, DSBPLAY_LOOPING);

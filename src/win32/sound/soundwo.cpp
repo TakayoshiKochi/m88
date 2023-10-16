@@ -19,13 +19,13 @@ using namespace WinSoundDriver;
 //  構築・破棄
 //
 DriverWO::DriverWO() {
-  src = 0;
+  src_ = 0;
   playing_ = false;
-  hthread = 0;
-  hwo = 0;
+  hthread_ = 0;
+  hwo_ = 0;
   mixalways = false;
-  wavehdr = 0;
-  numblocks = 4;
+  wavehdr_ = 0;
+  num_blocks_ = 4;
 }
 
 DriverWO::~DriverWO() {
@@ -45,37 +45,37 @@ bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t b
   if (playing_)
     return false;
 
-  src = s;
-  sampleshift = 1 + (ch == 2 ? 1 : 0);
+  src_ = s;
+  sample_shift_ = 1 + (ch == 2 ? 1 : 0);
 
   DeleteBuffers();
 
   // バッファ作成
-  buffersize = (rate * ch * sizeof(Sample) * buflen / 1000 / 4) & ~7;
-  wavehdr = new WAVEHDR[numblocks];
-  if (!wavehdr)
+  buffer_size_ = (rate * ch * sizeof(Sample) * buflen / 1000 / 4) & ~7;
+  wavehdr_ = new WAVEHDR[num_blocks_];
+  if (!wavehdr_)
     return false;
 
-  memset(wavehdr, 0, sizeof(wavehdr) * numblocks);
-  for (i = 0; i < numblocks; i++) {
-    wavehdr[i].lpData = new char[buffersize];
-    if (!wavehdr[i].lpData) {
+  memset(wavehdr_, 0, sizeof(wavehdr_) * num_blocks_);
+  for (i = 0; i < num_blocks_; i++) {
+    wavehdr_[i].lpData = new char[buffer_size_];
+    if (!wavehdr_[i].lpData) {
       DeleteBuffers();
       return false;
     }
-    memset(wavehdr[i].lpData, 0, buffersize);
-    wavehdr[i].dwBufferLength = buffersize;
+    memset(wavehdr_[i].lpData, 0, buffer_size_);
+    wavehdr_[i].dwBufferLength = buffer_size_;
   }
 
   // スレッド起動
-  if (!hthread) {
-    hthread =
-        HANDLE(_beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &idthread));
-    if (!hthread) {
+  if (!hthread_) {
+    hthread_ =
+        HANDLE(_beginthreadex(NULL, 0, ThreadEntry, reinterpret_cast<void*>(this), 0, &thread_id_));
+    if (!hthread_) {
       DeleteBuffers();
       return false;
     }
-    SetThreadPriority(hthread, THREAD_PRIORITY_ABOVE_NORMAL);
+    SetThreadPriority(hthread_, THREAD_PRIORITY_ABOVE_NORMAL);
   }
 
   // 再生フォーマット設定
@@ -88,21 +88,21 @@ bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t b
   wf.nBlockAlign = wf.nChannels * wf.wBitsPerSample / 8;
   wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
 
-  if (waveOutOpen(&hwo, WAVE_MAPPER, &wf, idthread, reinterpret_cast<DWORD>(this),
+  if (waveOutOpen(&hwo_, WAVE_MAPPER, &wf, thread_id_, reinterpret_cast<DWORD>(this),
                   CALLBACK_THREAD) != MMSYSERR_NOERROR) {
-    hwo = 0;
+    hwo_ = 0;
     DeleteBuffers();
     return false;
   }
 
   playing_ = true;
-  dontmix = true;
+  dont_mix_ = true;
 
   // wavehdr の準備
-  for (i = 0; i < numblocks; i++)
-    SendBlock(&wavehdr[i]);
+  for (i = 0; i < num_blocks_; i++)
+    SendBlock(&wavehdr_[i]);
 
-  dontmix = false;
+  dont_mix_ = false;
   return true;
 }
 
@@ -110,25 +110,25 @@ bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t b
 //  後片付け
 //
 bool DriverWO::CleanUp() {
-  if (hthread) {
-    PostThreadMessage(idthread, WM_QUIT, 0, 0);
-    if (WAIT_TIMEOUT == WaitForSingleObject(hthread, 3000))
-      TerminateThread(hthread, 0);
-    CloseHandle(hthread);
-    hthread = 0;
+  if (hthread_) {
+    PostThreadMessage(thread_id_, WM_QUIT, 0, 0);
+    if (WAIT_TIMEOUT == WaitForSingleObject(hthread_, 3000))
+      TerminateThread(hthread_, 0);
+    CloseHandle(hthread_);
+    hthread_ = 0;
   }
   if (playing_) {
     playing_ = false;
-    if (hwo) {
-      while (waveOutReset(hwo) == MMSYSERR_HANDLEBUSY)
+    if (hwo_) {
+      while (waveOutReset(hwo_) == MMSYSERR_HANDLEBUSY)
         Sleep(10);
-      for (int i = 0; i < numblocks; i++) {
-        if (wavehdr[i].dwFlags & WHDR_PREPARED)
-          waveOutUnprepareHeader(hwo, wavehdr + i, sizeof(WAVEHDR));
+      for (int i = 0; i < num_blocks_; i++) {
+        if (wavehdr_[i].dwFlags & WHDR_PREPARED)
+          waveOutUnprepareHeader(hwo_, wavehdr_ + i, sizeof(WAVEHDR));
       }
-      while (waveOutClose(hwo) == MMSYSERR_HANDLEBUSY)
+      while (waveOutClose(hwo_) == MMSYSERR_HANDLEBUSY)
         Sleep(10);
-      hwo = 0;
+      hwo_ = 0;
     }
   }
   DeleteBuffers();
@@ -139,11 +139,11 @@ bool DriverWO::CleanUp() {
 //  バッファを削除
 //
 void DriverWO::DeleteBuffers() {
-  if (wavehdr) {
-    for (int i = 0; i < numblocks; i++)
-      delete[] wavehdr[i].lpData;
-    delete[] wavehdr;
-    wavehdr = 0;
+  if (wavehdr_) {
+    for (int i = 0; i < num_blocks_; i++)
+      delete[] wavehdr_[i].lpData;
+    delete[] wavehdr_;
+    wavehdr_ = 0;
   }
 }
 
@@ -161,17 +161,17 @@ bool DriverWO::SendBlock(WAVEHDR* whdr) {
     whdr->lpNext = NULL;
     whdr->reserved = 0;
 
-    if (!dontmix)  // && (mixalways || !src->IsEmpty()))
-      src->Get((Sample*)whdr->lpData, buffersize >> sampleshift);
+    if (!dont_mix_)  // && (mixalways || !src->IsEmpty()))
+      src_->Get((Sample*)whdr->lpData, buffer_size_ >> sample_shift_);
     else
-      memset(whdr->lpData, 0, buffersize);
+      memset(whdr->lpData, 0, buffer_size_);
 
-    if (!waveOutPrepareHeader(hwo, whdr, sizeof(WAVEHDR))) {
-      if (!waveOutWrite(hwo, whdr, sizeof(WAVEHDR)))
+    if (!waveOutPrepareHeader(hwo_, whdr, sizeof(WAVEHDR))) {
+      if (!waveOutWrite(hwo_, whdr, sizeof(WAVEHDR)))
         return true;
 
       // 失敗
-      waveOutUnprepareHeader(hwo, whdr, sizeof(WAVEHDR));
+      waveOutUnprepareHeader(hwo_, whdr, sizeof(WAVEHDR));
     }
     whdr->dwFlags = 0;
     return false;
@@ -185,7 +185,7 @@ bool DriverWO::SendBlock(WAVEHDR* whdr) {
 //
 void DriverWO::BlockDone(WAVEHDR* whdr) {
   if (whdr) {
-    waveOutUnprepareHeader(hwo, whdr, sizeof(WAVEHDR));
+    waveOutUnprepareHeader(hwo_, whdr, sizeof(WAVEHDR));
     whdr->dwFlags = 0;
 
     // ブロックを送る．2 回試す

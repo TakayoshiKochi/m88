@@ -34,14 +34,15 @@ class DriverDS : public Driver {
   static void CALLBACK TimeProc(UINT, UINT, DWORD_PTR, DWORD_PTR, DWORD_PTR);
   void Send();
 
-  LPDIRECTSOUND lpds;
-  LPDIRECTSOUNDBUFFER lpdsb_primary;
-  LPDIRECTSOUNDBUFFER lpdsb;
-  UINT timerid;
-  LONG sending;
+  LPDIRECTSOUND lpds_ = nullptr;
+  LPDIRECTSOUNDBUFFER lpdsb_primary_ = nullptr;
+  LPDIRECTSOUNDBUFFER lpdsb_ = nullptr;
 
-  uint32_t nextwrite;
-  uint32_t buffer_length;
+  UINT timer_id_ = 0;
+  LONG sending_ = 0;
+
+  uint32_t next_write_ = 0;
+  uint32_t buffer_length_ = 0;
 };
 
 }  // namespace WinSoundDriver

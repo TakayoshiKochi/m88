@@ -24,9 +24,9 @@ using namespace WinSoundDriver;
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-WinSound::WinSound() : driver(0) {
+WinSound::WinSound() : driver_(0) {
   soundmon = 0;
-  useds2 = true;
+  use_ds2_ = true;
 }
 
 WinSound::~WinSound() {
@@ -38,9 +38,9 @@ WinSound::~WinSound() {
 //  初期化
 //
 bool WinSound::Init(PC88* pc, HWND hwindow, uint32_t rate, uint32_t buflen) {
-  currentrate = 100;
-  currentbuflen = 0;
-  hwnd = hwindow;
+  current_rate_ = 100;
+  current_buffer_len_ = 0;
+  hwnd_ = hwindow;
 
   dumper.SetSource(GetSoundSource());
 
@@ -53,10 +53,10 @@ bool WinSound::Init(PC88* pc, HWND hwindow, uint32_t rate, uint32_t buflen) {
 //  後処理
 //
 void WinSound::CleanUp() {
-  if (driver) {
-    driver->CleanUp();
-    delete driver;
-    driver = 0;
+  if (driver_) {
+    driver_->CleanUp();
+    delete driver_;
+    driver_ = 0;
   }
   Sound::CleanUp();
 }
@@ -65,34 +65,34 @@ void WinSound::CleanUp() {
 //  合成・再生レート変更
 //
 bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
-  if (currentrate != rate || currentbuflen != buflen || wodrv != waveout) {
+  if (current_rate_ != rate || current_buffer_len_ != buflen || wodrv_ != waveout) {
     if (IsDumping()) {
       statusdisplay.Show(70, 3000, "wav 書き出し時の音設定の変更はできません");
       return false;
     }
 
-    samprate = rate;
-    currentrate = rate;
-    currentbuflen = buflen;
-    wodrv = waveout;
+    sample_rate_ = rate;
+    current_rate_ = rate;
+    current_buffer_len_ = buflen;
+    wodrv_ = waveout;
 
     if (rate < 8000) {
       rate = 100;
-      samprate = 0;
+      sample_rate_ = 0;
     }
 
     // DirectSound: サンプリングレート * バッファ長 / 2
     // waveOut:     サンプリングレート * バッファ長 * 2
     int bufsize;
-    if (wodrv)
-      bufsize = (samprate * buflen / 1000 * 1) & ~15;
+    if (wodrv_)
+      bufsize = (sample_rate_ * buflen / 1000 * 1) & ~15;
     else
-      bufsize = (samprate * buflen / 1000 / 2) & ~15;
+      bufsize = (sample_rate_ * buflen / 1000 / 2) & ~15;
 
-    if (driver) {
-      driver->CleanUp();
-      delete driver;
-      driver = 0;
+    if (driver_) {
+      driver_->CleanUp();
+      delete driver_;
+      driver_ = 0;
     }
 
     if (rate < 1000)
@@ -103,27 +103,27 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
 
     if (bufsize > 0) {
       for (int i = 0; i < 1; i++) {
-        if (wodrv) {
-          driver = new DriverWO;
-        } else if (useds2) {
-          driver = new DriverDS2;
+        if (wodrv_) {
+          driver_ = new DriverWO;
+        } else if (use_ds2_) {
+          driver_ = new DriverDS2;
           statusdisplay.Show(200, 8000, "sounddrv: using Notify driven driver");
         } else {
-          driver = new DriverDS;
+          driver_ = new DriverDS;
           statusdisplay.Show(200, 8000, "sounddrv: using timer driven driver");
         }
 
-        if (!driver || !driver->Init(&dumper, hwnd, samprate, 2, buflen)) {
-          delete driver;
-          driver = 0;
-          if (!wodrv && useds2) {
-            useds2 = false;
+        if (!driver_ || !driver_->Init(&dumper, hwnd_, sample_rate_, 2, buflen)) {
+          delete driver_;
+          driver_ = 0;
+          if (!wodrv_ && use_ds2_) {
+            use_ds2_ = false;
             statusdisplay.Show(100, 3000, "IDirectSoundNotify は使用できないようです");
             i = -1;
           }
         }
       }
-      if (!driver) {
+      if (!driver_) {
         SetRate(rate, 0);
         statusdisplay.Show(70, 3000, "オーディオデバイスを使用できません");
       }
@@ -136,13 +136,13 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
 //  設定更新
 //
 void WinSound::ApplyConfig(const Config* config) {
-  useds2 = !!(config->flag2 & Config::kUseDSNotify);
+  use_ds2_ = !!(config->flag2 & Config::kUseDSNotify);
 
   bool wo = (config->flag2 & Config::kUseWaveOutDrv) != 0;
   ChangeRate(config->sound, config->soundbuffer, wo);
 
-  if (driver)
-    driver->MixAlways(0 != (config->flags & Config::kMixSoundAlways));
+  if (driver_)
+    driver_->MixAlways(0 != (config->flags & Config::kMixSoundAlways));
 
   Sound::ApplyConfig(config);
 }
