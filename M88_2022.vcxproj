@@ -827,6 +827,12 @@
     <ClCompile Include="third_party\Z80\sources\Z80.c">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(RelativeDir)</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(RelativeDir)</ObjectFileName>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">WIN64;WIN32;_DEBUG;_WINDOWS;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;Z80_STATIC;Z80_WITH_EXECUTE;Z80_WITH_FULL_IM0;Z80_WITH_IM0_RETX_NOTIFICATIONS;Z80_WITH_Q;Z80_WITH_ZILOG_NMOS_LD_A_IR_BUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">WIN32;NDEBUG;_WINDOWS;ISOLATION_AWARE_ENABLED;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;Z80_STATIC;Z80_WITH_EXECUTE;Z80_WITH_FULL_IM0;Z80_WITH_IM0_RETX_NOTIFICATIONS;Z80_WITH_Q;Z80_WITH_ZILOG_NMOS_LD_A_IR_BUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;_WINDOWS;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;Z80_STATIC;Z80_WITH_EXECUTE;Z80_WITH_FULL_IM0;Z80_WITH_IM0_RETX_NOTIFICATIONS;Z80_WITH_Q;Z80_WITH_ZILOG_NMOS_LD_A_IR_BUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">WIN64;WIN32;NDEBUG;_WINDOWS;ISOLATION_AWARE_ENABLED;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;Z80_STATIC;Z80_WITH_EXECUTE;Z80_WITH_FULL_IM0;Z80_WITH_IM0_RETX_NOTIFICATIONS;Z80_WITH_Q;Z80_WITH_ZILOG_NMOS_LD_A_IR_BUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
