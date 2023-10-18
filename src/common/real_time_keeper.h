@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 // ---------------------------------------------------------------------------
-//  TimeKeeper
+//  RealTimeKeeper
 //  現在の時間を数値(1/unit ミリ秒単位)で与えるクラス．
 //  GetTime() で与えられる値自体は特別な意味を持っておらず，
 //  連続した呼び出しを行うとき，返される値の差分が，
@@ -17,18 +17,18 @@
 //  即ち，GetTime() を呼んでから N (1/unit ミリ秒) 後に GetTime() を呼ぶと，
 //  2度目に返される値は最初に返される値より N 増える．
 //
-class TimeKeeper {
+class RealTimeKeeper {
  public:
   enum {
     unit = 100,  // 最低 1 ということで．
   };
 
  public:
-  TimeKeeper();
-  ~TimeKeeper();
+  RealTimeKeeper();
+  ~RealTimeKeeper();
 
-  uint32_t GetTime();
-  uint64_t GetTimeNS();
+  uint32_t GetRealTime();
+  uint64_t GetRealTimeNS();
 
  private:
   uint32_t freq_ = 0;  // ソースクロックの周期

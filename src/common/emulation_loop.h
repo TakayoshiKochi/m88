@@ -16,20 +16,20 @@
 #include <mutex>
 
 #include "common/threadable.h"
-#include "common/time_keeper.h"
+#include "common/real_time_keeper.h"
 
 class PC88;
 
 // ---------------------------------------------------------------------------
-//  Sequencer
+//  EmulationLoop
 //
 //  VM 進行と画面更新のタイミングを調整し
 //  VM 時間と実時間の同期をとるクラス
 //
-class Sequencer : public Threadable<Sequencer> {
+class EmulationLoop : public Threadable<EmulationLoop> {
  public:
-  Sequencer();
-  ~Sequencer();
+  EmulationLoop();
+  ~EmulationLoop();
 
   bool Init(PC88* vm);
   bool CleanUp();
@@ -42,8 +42,8 @@ class Sequencer : public Threadable<Sequencer> {
   void Unlock() { mtx_.unlock(); }
 
   void SetLegacyClock(int clock) { legacy_clocks_per_tick_ = clock; }
-  void SetCPUClock(uint64_t cpu_clock) { cpu_clock_ = effective_clock_ = cpu_clock; }
-  void SetSpeed(int speed) { speed_ = std::min(std::max(speed, 10), 10000); }
+  void SetCPUClock(uint64_t cpu_clock) { cpu_hz_ = effective_clock_ = cpu_clock; }
+  void SetSpeed(int speed) { speed_pct_ = std::min(std::max(speed, 10), 10000); }
   void SetRefreshTiming(uint32_t refresh_timing) { refresh_timing_ = refresh_timing; }
 
   // thread loop
@@ -57,14 +57,15 @@ class Sequencer : public Threadable<Sequencer> {
 
   PC88* vm_ = nullptr;
 
-  TimeKeeper keeper_;
+  RealTimeKeeper real_time_;
 
   std::mutex mtx_;
 
   // 1Tick (=10us) あたりのクロック数 (e.g. 4MHz のとき 40)
   int32_t legacy_clocks_per_tick_ = 40;
-  uint64_t cpu_clock_ = 3993600;
-  int speed_ = 100;  // percent, 10%~10000%
+  uint64_t cpu_hz_ = 3993600;
+  // percent, 10%~10000%
+  int speed_pct_ = 100;
   int64_t exec_clocks_ = 0;
   int64_t effective_clock_ = 3993600;
   int64_t relatime_lastsync_ns_ = 0;

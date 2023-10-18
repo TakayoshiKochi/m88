@@ -160,7 +160,7 @@ bool Piccolo::SetMaximumLatency(uint32_t microsec) {
 }
 
 uint32_t Piccolo::GetCurrentTimeUS() {
-  return static_cast<uint32_t>(keeper_.GetTimeNS() / 1000);
+  return static_cast<uint32_t>(keeper_.GetRealTimeNS() / 1000);
 }
 
 // ---------------------------------------------------------------------------

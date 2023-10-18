@@ -105,7 +105,7 @@ void IOCALL Mouse::Strobe(uint32_t, uint32_t data) {
       }
       return;
     }
-    Log("[%d]", pc->GetTime() - triggertime);
+    Log("[%d]", pc->GetRealTime() - triggertime);
 
     phase = (phase + 1) & 3;
   }

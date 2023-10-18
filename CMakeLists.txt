@@ -46,6 +46,8 @@ add_library(common ${LIB_TYPE}
         src/common/diag.h
         src/common/diag.cpp
         src/common/draw.h
+        src/common/emulation_loop.h
+        src/common/emulation_loop.cpp
         src/common/error.h
         src/common/error.cpp
         src/common/file.h
@@ -63,10 +65,10 @@ add_library(common ${LIB_TYPE}
         src/common/misc.h
         src/common/png_codec.h
         src/common/png_codec.cpp
+        src/common/real_time_keeper.h
+        src/common/real_time_keeper.cpp
         src/common/scheduler.h
         src/common/scheduler.cpp
-        src/common/sequencer.h
-        src/common/sequencer.cpp
         src/common/scoped_comptr.h
         src/common/scoped_handle.h
         src/common/soundsrc.h
@@ -74,9 +76,7 @@ add_library(common ${LIB_TYPE}
         src/common/srcbuf.cpp
         src/common/status.h
         src/common/status.cpp
-        src/common/threadable.h
-        src/common/time_keeper.h
-        src/common/time_keeper.cpp)
+        src/common/threadable.h)
 
 target_include_directories(common
         PUBLIC ${CMAKE_SOURCE_DIR}/src

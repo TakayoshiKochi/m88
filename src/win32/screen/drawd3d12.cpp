@@ -726,5 +726,4 @@ void WinDrawD3D12::WaitForGPU() {
     WaitForSingleObject(event, INFINITE);
     CloseHandle(event);
   }
-
 }

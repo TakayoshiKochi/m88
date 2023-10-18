@@ -14,7 +14,7 @@
 
 #include "pc88/config.h"
 #include "pc88/pc88.h"
-#include "common/sequencer.h"
+#include "common/emulation_loop.h"
 #include "win32/winjoy.h"
 #include "win32/sound/winsound.h"
 
@@ -94,7 +94,7 @@ class WinCore : public ISystem, public ILockCore {
   PC88 pc88_;
   IConfigPropBase* cfg_prop_ = nullptr;
 
-  Sequencer seq_;
+  EmulationLoop seq_;
   WinPadIF pad_if_;
 
   using ExtendModules = std::vector<PC8801::ExtendModule*>;
