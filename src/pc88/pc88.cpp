@@ -71,7 +71,8 @@ bool PC88::Init(Draw* draw, DiskManager* disk_manager, TapeManager* tape_manager
   if (!tape_manager_->Init(&scheduler_, nullptr, 0))
     return false;
 
-  MemoryPage *read, *write;
+  MemoryPage* read = nullptr;
+  MemoryPage* write = nullptr;
 
   main_cpu_.GetPages(&read, &write);
   if (!main_mm_.Init(0x10000, read, write))
@@ -117,7 +118,7 @@ int64_t PC88::ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t ecl) {
 int64_t SchedulerImpl::ExecuteNS(int64_t ns) {
   int64_t clocks = std::max(1LL, (int64_t)cpu_clock_ * ns / 1000000000LL);
   int64_t ns_per_clock = 1000000000LL / (int64_t)cpu_clock_;
-  return ex_->Execute(clocks) * ns_per_clock;
+  return pc_->Execute(clocks) * ns_per_clock;
 }
 
 int64_t PC88::Execute(int64_t clocks) {
