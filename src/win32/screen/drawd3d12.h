@@ -66,6 +66,8 @@ class WinDrawD3D12 : public WinDrawSub {
   bool DrawTexture(const RECT& rect);
   bool RenderTexture(const RECT& rect);
 
+  void WaitForGPU();
+
   scoped_comptr<ID3D12Device> dev_;
   scoped_comptr<IDXGIFactory6> dxgi_factory_;
   scoped_comptr<IDXGISwapChain4> swap_chain_;

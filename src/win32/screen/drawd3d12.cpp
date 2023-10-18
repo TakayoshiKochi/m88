@@ -436,13 +436,7 @@ void WinDrawD3D12::CommitCommandList() {
 
   cmd_queue_->ExecuteCommandLists(1, cmd_list);
 
-  cmd_queue_->Signal(fence_.get(), ++fence_val_);
-  if (fence_->GetCompletedValue() != fence_val_) {
-    auto event = ::CreateEvent(nullptr, false, false, nullptr);
-    fence_->SetEventOnCompletion(fence_val_, event);
-    WaitForSingleObject(event, INFINITE);
-    CloseHandle(event);
-  }
+  WaitForGPU();
 
   cmd_allocator_->Reset();
   cmd_list_->Reset(cmd_allocator_.get(), nullptr);
@@ -722,4 +716,15 @@ bool WinDrawD3D12::RenderTexture(const RECT& rect) {
       texture_->WriteToSubresource(0, nullptr, texturedata_.data(), kTextureWidth * sizeof(TexRGBA),
                                    texturedata_.size() * sizeof(TexRGBA));
   return SUCCEEDED(hr);
+}
+
+void WinDrawD3D12::WaitForGPU() {
+  cmd_queue_->Signal(fence_.get(), ++fence_val_);
+  if (fence_->GetCompletedValue() != fence_val_) {
+    auto event = ::CreateEvent(nullptr, false, false, nullptr);
+    fence_->SetEventOnCompletion(fence_val_, event);
+    WaitForSingleObject(event, INFINITE);
+    CloseHandle(event);
+  }
+
 }
