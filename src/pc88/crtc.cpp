@@ -146,8 +146,8 @@ void CRTC::HotReset() {
   height_ = 25;
 
   // line_time_ = line200_ ? int(6.258 * 8) : int(4.028 * 16);
-  line_time_ns_ = line200_ ? static_cast<uint64_t>(kNanoSecsPerSec / kHSync24K) * 8
-                           : static_cast<uint64_t>(kNanoSecsPerSec / kHSync15K) * 16;
+  line_time_ns_ = line200_ ? static_cast<uint64_t>(kNanoSecsPerSec / kHSync15K) * 8
+                           : static_cast<uint64_t>(kNanoSecsPerSec / kHSync24K) * 16;
   // TODO: when in 20 line mode, 7 : 3 should be 6 : 2
   v_retrace_ = line200_ ? 7 : 3;
 
@@ -242,8 +242,8 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
 
           // line_time_ = (line200_ ? int(6.258 * 1024) : int(4.028 * 1024)) * lines_per_char_ /
           // 1024;
-          line_time_ns_ = (line200_ ? static_cast<uint64_t>(kNanoSecsPerSec / kHSync24K)
-                                    : static_cast<uint64_t>(kNanoSecsPerSec / kHSync15K)) *
+          line_time_ns_ = (line200_ ? static_cast<uint64_t>(kNanoSecsPerSec / kHSync15K)
+                                    : static_cast<uint64_t>(kNanoSecsPerSec / kHSync24K)) *
                           lines_per_char_;
           if (data & 0x80)
             SetFlag(kSkipline);
