@@ -45,7 +45,7 @@ class CDControl : public Threadable<CDControl> {
   ~CDControl();
 
   bool Init(CDROM* cd, Device* dev, DONEFUNC func);
-  bool SendCommand(uint32_t cmd, uint32_t arg1 = 0, uint32_t arg2 = 0);
+  bool SendCommand(uint32_t cmd, WPARAM arg1 = 0, LPARAM arg2 = 0);
   uint32_t GetTime();
 
   // For Threadable
@@ -53,7 +53,7 @@ class CDControl : public Threadable<CDControl> {
   bool ThreadLoop();
 
  private:
-  void ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2);
+  void ExecCommand(uint32_t cmd, WPARAM wp, LPARAM lp);
   void CleanUp();
 
   int vel_ = 0;

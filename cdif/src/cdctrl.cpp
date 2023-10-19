@@ -55,7 +55,7 @@ void CDControl::CleanUp() {
 // ---------------------------------------------------------------------------
 //  コマンドを実行
 //
-void CDControl::ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
+void CDControl::ExecCommand(uint32_t cmd, WPARAM wp, LPARAM lp) {
   int ret = 0;
   switch (cmd) {
     case kReadTOC:
@@ -66,19 +66,19 @@ void CDControl::ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
       break;
 
     case kPlayAudio:
-      ret = cdrom_->PlayAudio(arg1, arg2);
-      Log("Play Audio(%d, %d) - %d\n", arg1, arg2, ret);
+      ret = cdrom_->PlayAudio(wp, lp);
+      Log("Play Audio(%d, %d) - %d\n", wp, lp, ret);
       break;
 
     case kPlayTrack:
-      ret = cdrom_->PlayTrack(arg1);
-      Log("Play Track(%d) - %d\n", arg1, ret);
+      ret = cdrom_->PlayTrack(static_cast<int>(wp));
+      Log("Play Track(%d) - %d\n", wp, ret);
       break;
 
     case kStop:
       ret = cdrom_->Stop();
       Log("Stop - %d\n", ret);
-      if (arg1)
+      if (wp)
         return;
       break;
 
@@ -104,15 +104,15 @@ void CDControl::ExecCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
       break;
 
     case kReadSubCodeq:
-      ret = cdrom_->ReadSubCh((uint8_t*)arg1, true);
+      ret = cdrom_->ReadSubCh(reinterpret_cast<uint8_t*>(wp), true);
       break;
 
     case kRead1:
-      ret = cdrom_->Read(arg1, (uint8_t*)arg2, 2048);
+      ret = cdrom_->Read(wp, reinterpret_cast<uint8_t*>(lp), 2048);
       break;
 
     case kRead2:
-      ret = cdrom_->Read2(arg1, (uint8_t*)arg2, 2340);
+      ret = cdrom_->Read2(wp, reinterpret_cast<uint8_t*>(lp), 2340);
       break;
 
     default:
@@ -138,7 +138,7 @@ uint32_t CDControl::GetTime() {
 // ---------------------------------------------------------------------------
 //  コマンドを送る
 //
-bool CDControl::SendCommand(uint32_t cmd, uint32_t arg1, uint32_t arg2) {
+bool CDControl::SendCommand(uint32_t cmd, WPARAM arg1, LPARAM arg2) {
   return !!PostThreadMessage(thread_id_, UM_CDCONTROL + cmd, arg1, arg2);
 }
 
