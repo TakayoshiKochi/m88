@@ -34,7 +34,8 @@ constexpr uint8_t GVRAMM_SET = 0x20;
 constexpr uint8_t GVRAMM_ODD = 0x40;
 constexpr uint8_t GVRAMM_EVEN = 0x80;
 
-packed BETable0[1 << sizeof(packed)] = {-1};
+bool tables_initialized = false;
+packed BETable0[1 << sizeof(packed)];
 packed BETable1[1 << sizeof(packed)];
 packed BETable2[1 << sizeof(packed)];
 packed E80Table[1 << sizeof(packed)];
@@ -1453,50 +1454,52 @@ void Screen::ApplyConfig(const Config* config) {
 
 // static
 void Screen::CreateTable() {
-  if (BETable0[0] == -1) {
-    int i;
-    for (i = 0; i < (1 << sizeof(packed)); ++i) {
-      int j;
-      packed p = 0, q = 0, r = 0;
+  if (tables_initialized)
+    return;
 
-      for (j = 0; j < sizeof(packed); ++j) {
-        bool chkbit = CHKBIT(i, j) != 0;
-        p = (p << 8) | (chkbit ? GVRAM0_SET : GVRAM0_RES);
-        q = (q << 8) | (chkbit ? GVRAM1_SET : GVRAM1_RES);
-        r = (r << 8) | (chkbit ? GVRAM2_SET : GVRAM2_RES);
-      }
-      BETable0[i] = p;
-      BETable1[i] = q;
-      BETable2[i] = r;
+  for (int i = 0; i < (1 << sizeof(packed)); ++i) {
+    int j;
+    packed p = 0, q = 0, r = 0;
+
+    for (j = 0; j < sizeof(packed); ++j) {
+      bool chkbit = CHKBIT(i, j) != 0;
+      p = (p << 8) | (chkbit ? GVRAM0_SET : GVRAM0_RES);
+      q = (q << 8) | (chkbit ? GVRAM1_SET : GVRAM1_RES);
+      r = (r << 8) | (chkbit ? GVRAM2_SET : GVRAM2_RES);
     }
-
-    for (i = 0; i < (1 << sizeof(packed)); ++i) {
-      E80Table[i] = BETable0[(i & 0x05) | ((i & 0x05) << 1)] |
-                    BETable1[(i & 0x0a) | ((i & 0x0a) >> 1)] | PACK(GVRAM2_RES);
-    }
-
-    for (i = 0; i < 64; ++i) {
-      packed p;
-
-      p = (i & 0x01) ? GVRAM0_SET : GVRAM0_RES;
-      p |= (i & 0x04) ? GVRAM1_SET : GVRAM1_RES;
-      p |= (i & 0x10) ? GVRAM2_SET : GVRAM2_RES;
-      E80SRTable[i] = p << (16 * BIT80SR);
-      p = (i & 0x02) ? GVRAM0_SET : GVRAM0_RES;
-      p |= (i & 0x08) ? GVRAM1_SET : GVRAM1_RES;
-      p |= (i & 0x20) ? GVRAM2_SET : GVRAM2_RES;
-      E80SRTable[i] |= p << (16 * (1 - BIT80SR));
-      E80SRTable[i] |= E80SRTable[i] << 8;
-    }
-
-    for (i = 0; i < 4; ++i) {
-      E80SRMask[i] = ((i & 1) ? 0xffff : 0x0000) << (16 * BIT80SR);
-      E80SRMask[i] |= ((i & 2) ? 0xffff : 0x0000) << (16 * (1 - BIT80SR));
-      BE80Table[i] = ((i & 1) ? GVRAM1_SET : GVRAM1_RES) << (16 * BIT80SR);
-      BE80Table[i] |= ((i & 2) ? GVRAM1_SET : GVRAM1_RES) << (16 * (1 - BIT80SR));
-      BE80Table[i] |= BE80Table[i] << 8;
-    }
+    BETable0[i] = p;
+    BETable1[i] = q;
+    BETable2[i] = r;
   }
+
+  for (int i = 0; i < (1 << sizeof(packed)); ++i) {
+    E80Table[i] = BETable0[(i & 0x05) | ((i & 0x05) << 1)] |
+                  BETable1[(i & 0x0a) | ((i & 0x0a) >> 1)] | PACK(GVRAM2_RES);
+  }
+
+  for (int i = 0; i < 64; ++i) {
+    packed p;
+
+    p = (i & 0x01) ? GVRAM0_SET : GVRAM0_RES;
+    p |= (i & 0x04) ? GVRAM1_SET : GVRAM1_RES;
+    p |= (i & 0x10) ? GVRAM2_SET : GVRAM2_RES;
+    E80SRTable[i] = p << (16 * BIT80SR);
+    p = (i & 0x02) ? GVRAM0_SET : GVRAM0_RES;
+    p |= (i & 0x08) ? GVRAM1_SET : GVRAM1_RES;
+    p |= (i & 0x20) ? GVRAM2_SET : GVRAM2_RES;
+    E80SRTable[i] |= p << (16 * (1 - BIT80SR));
+    E80SRTable[i] |= E80SRTable[i] << 8;
+  }
+
+  for (int i = 0; i < 4; ++i) {
+    E80SRMask[i] = ((i & 1) ? 0xffff : 0x0000) << (16 * BIT80SR);
+    E80SRMask[i] |= ((i & 2) ? 0xffff : 0x0000) << (16 * (1 - BIT80SR));
+    BE80Table[i] = ((i & 1) ? GVRAM1_SET : GVRAM1_RES) << (16 * BIT80SR);
+    BE80Table[i] |= ((i & 2) ? GVRAM1_SET : GVRAM1_RES) << (16 * (1 - BIT80SR));
+    BE80Table[i] |= BE80Table[i] << 8;
+  }
+
+  tables_initialized = true;
 }
 
 // ---------------------------------------------------------------------------
