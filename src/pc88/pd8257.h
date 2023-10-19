@@ -35,6 +35,9 @@ class PD8257 : public Device, public IDMAAccess {
   uint32_t IOCALL GetCount(uint32_t port);
   [[nodiscard]] uint32_t IOCALL GetStatus(uint32_t);
 
+  // when autoinit = true, reload address and counter from bank 3 to bank 2.
+  void Reload();
+
   // Implements Device
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
   uint32_t IFCALL GetStatusSize() override;
@@ -42,7 +45,7 @@ class PD8257 : public Device, public IDMAAccess {
   bool IFCALL LoadStatus(const uint8_t* status) override;
 
   // Implements IDMAAccess
-  uint32_t IFCALL RequestRead(uint32_t bank, uint8_t* data, uint32_t nbytes) override;
+  uint32_t IFCALL RequestRead(uint32_t bank, uint8_t* dest, uint32_t nbytes) override;
   uint32_t IFCALL RequestWrite(uint32_t bank, uint8_t* data, uint32_t nbytes) override;
 
  private:

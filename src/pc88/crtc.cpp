@@ -25,10 +25,20 @@
 using namespace PC8801;
 
 namespace {
+constexpr uint32_t kHSync24K = 24830;
+constexpr uint32_t kHSync15K = 15980;
 
 const packed kColorPattern[8] = {PACK(0), PACK(1), PACK(2), PACK(3),
                                  PACK(4), PACK(5), PACK(6), PACK(7)};
 
+constexpr uint8_t TEXT_BIT = 0b00001111;
+constexpr uint8_t TEXT_SET = 0b00001000;
+constexpr uint8_t TEXT_RES = 0b00000000;
+constexpr uint8_t COLOR_BIT = 0b00000111;
+
+constexpr packed TEXT_BITP = PACK(TEXT_BIT);
+constexpr packed TEXT_SETP = PACK(TEXT_SET);
+constexpr packed TEXT_RESP = PACK(TEXT_RES);
 }  // namespace
 
 // ---------------------------------------------------------------------------
@@ -55,14 +65,6 @@ const packed kColorPattern[8] = {PACK(0), PACK(1), PACK(2), PACK(3),
 //  15kHz   256 lines(25)
 //          260 lines(20)
 //
-#define TEXT_BIT 0x0f
-#define TEXT_SET 0x08
-#define TEXT_RES 0x00
-#define COLOR_BIT 0x07
-
-#define TEXT_BITP PACK(TEXT_BIT)
-#define TEXT_SETP PACK(TEXT_SET)
-#define TEXT_RESP PACK(TEXT_RES)
 
 CRTC::CRTC(const ID& id) : Device(id) {}
 
@@ -95,7 +97,8 @@ bool CRTC::Init(IOBus* bus, Scheduler* sched, PD8257* dmac) {
 
   bank_ = 0;
   flags_ = 0;
-  column_ = 0;
+
+  row_ = 0;
   SetTextMode(true);
   EnablePCG(true);
 
@@ -143,7 +146,8 @@ void CRTC::HotReset() {
   height_ = 25;
 
   // line_time_ = line200_ ? int(6.258 * 8) : int(4.028 * 16);
-  line_time_ns_ = line200_ ? uint64_t(1.0e9 / 15980) * 8 : uint64_t(1.0e9 / 24830) * 16;
+  line_time_ns_ = line200_ ? static_cast<uint64_t>(kNanoSecsPerSec / kHSync24K) * 8
+                           : static_cast<uint64_t>(kNanoSecsPerSec / kHSync15K) * 16;
   // TODO: when in 20 line mode, 7 : 3 should be 6 : 2
   v_retrace_ = line200_ ? 7 : 3;
 
@@ -238,8 +242,9 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
 
           // line_time_ = (line200_ ? int(6.258 * 1024) : int(4.028 * 1024)) * lines_per_char_ /
           // 1024;
-          line_time_ns_ =
-              (line200_ ? uint64_t(1.0e9 / 15980) : uint64_t(1.0e9 / 24830)) * lines_per_char_;
+          line_time_ns_ = (line200_ ? static_cast<uint64_t>(kNanoSecsPerSec / kHSync24K)
+                                    : static_cast<uint64_t>(kNanoSecsPerSec / kHSync15K)) *
+                          lines_per_char_;
           if (data & 0x80)
             SetFlag(kSkipline);
           if (line200_)
@@ -251,7 +256,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
         //  b0-b4   Horizontal Retrace-2 (char)
         //  b5-b7   Vertical Retrace-1 (char)
         case 4:
-          v_retrace_ = ((data >> 5) & 0b00000111) + 1;
+          v_retrace_ = ((data & 0b1110000) >> 5) + 1;
           h_retrace_ = (data & 0b00011111) + 2;
           //          linetime = 1667 / (height+vretrace-1);
           break;
@@ -445,7 +450,7 @@ void CRTC::CreateGFont() {
 //
 void IOCALL CRTC::StartDisplay(uint32_t) {
   sev_ = nullptr;
-  column_ = 0;
+  row_ = 0;
   ResetFlag(kSuppressDisplay);
   //  Log("DisplayStart\n");
   bus_->Out(PC88::kVrtc, 0);
@@ -464,7 +469,7 @@ void IOCALL CRTC::ExpandLine(uint32_t) {
     sev_ = scheduler_->AddEventNS(line_time_ns_ * e, this,
                                   static_cast<TimeFunc>(&CRTC::ExpandLineEnd), 0, false);
   } else {
-    if (++column_ < height_) {
+    if (++row_ < height_) {
       event_ = 1;
       sev_ = scheduler_->AddEventNS(line_time_ns_, this, static_cast<TimeFunc>(&CRTC::ExpandLine),
                                     0, false);
@@ -474,11 +479,10 @@ void IOCALL CRTC::ExpandLine(uint32_t) {
 }
 
 int CRTC::ExpandLineSub() {
-  uint8_t* dest = nullptr;
-  dest = vram_ptr_[bank_] + line_size_ * column_;
-  if (!IsSet(kSkipline) || !(column_ & 1)) {
+  uint8_t* dest = vram_ptr_[bank_] + line_size_ * row_;
+  if (!IsSet(kSkipline) || !(row_ & 1)) {
     if (status_ & 0x10) {
-      if (line_size_ > dmac_->RequestRead(kDMABank, dest, line_size_)) {
+      if (dmac_->RequestRead(kDMABank, dest, line_size_) < line_size_) {
         // DMA アンダーラン
         flags_ = (flags_ & ~(kEnable)) | kClear;
         status_ = (status_ & ~0x10) | 0x08;
@@ -491,34 +495,40 @@ int CRTC::ExpandLineSub() {
         if (IsSet(kControl)) {
           bool docontrol = false;
 #if 0  // XXX: 要検証
-                    for (int i=1; i<=attrperline; i++)
-                    {
-                        if ((dest[linesize-i*2] & 0x7f) == 0x60)
-                        {
-                            docontrol = true;
-                            break;
-                        }
-                    }
+          for (int i = 1; i <= attrperline; ++i) {
+            if ((dest[linesize-i*2] & 0x7f) == 0x60) {
+              docontrol = true;
+              break;
+            }
+          }
 #else
           docontrol = (dest[line_size_ - 2] & 0x7f) == 0x60;
 #endif
           if (docontrol) {
             // 特殊制御文字
             int sc = dest[line_size_ - 1];
-            if (sc & 1) {
-              int skip = height_ - column_ - 1;
+            // bit0: D
+            if (sc & 0b00000001) {
+              // skip DMA till the last line.
+              int skip = height_ - (row_ + 1);
               if (skip) {
                 memset(dest + line_size_, 0, line_size_ * skip);
+                // XXX
+                dmac_->Reload();
                 return skip;
               }
             }
-            if (sc & 2)
+            // bit1: V
+            if (sc & 0b00000010) {
+              // TODO: actually this means blinking?
               SetFlag(kSuppressDisplay);
+            }
           }
         }
       }
-    } else
+    } else {
       memset(dest, 0, line_size_);
+    }
   }
   return 0;
 }
@@ -1058,7 +1068,7 @@ bool IFCALL CRTC::SaveStatus(uint8_t* s) {
   st->cursor_y = cursor_y_;
   st->cursor_t = cursor_type;
   st->attr = attr_;
-  st->column = column_;
+  st->row = row_;
   // Note: uint32_t -> uint8_t narrowing
   st->flags = flags_;
   st->status = status_;
@@ -1083,7 +1093,7 @@ bool IFCALL CRTC::LoadStatus(const uint8_t* s) {
   cursor_y_ = st->cursor_y;
   cursor_type = st->cursor_t;
   attr_ = st->attr;
-  column_ = st->column;
+  row_ = st->row;
   flags_ = st->flags;
   status_ = st->status | kClear;
   event_ = st->event;

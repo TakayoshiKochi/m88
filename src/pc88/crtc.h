@@ -39,7 +39,7 @@ class CRTC : public Device {
   bool Init(IOBus* bus, Scheduler* sched, PD8257* dmac);
 
   void ApplyConfig(const Config* config);
-  //  1 フレーム分に相当する時間を求める
+  // 1 フレーム分に相当する時間を求める
   [[nodiscard]] uint64_t GetFramePeriodNS() const { return line_time_ns_ * (height_ + v_retrace_); }
 
   // rendering
@@ -112,7 +112,8 @@ class CRTC : public Device {
     // Note: |flags_| is uint32_t.
     uint8_t flags;
     uint8_t status;
-    uint8_t column;
+    // Note: used to be |column| but actually means the current line number
+    uint8_t row;
     uint8_t attr;
     uint8_t event;
     bool color;
@@ -182,7 +183,8 @@ class CRTC : public Device {
   // b0:blink, b1:underline (-1=none)
   int cursor_type = 0;
   uint8_t attr_ = 0;
-  uint32_t column_ = 0;
+  // current target of rendering line number
+  uint32_t row_ = 0;
   uint32_t flags_ = 0;
   // CRTC status (status return value)
   //  Status Bit

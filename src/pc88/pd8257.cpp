@@ -170,7 +170,7 @@ inline uint32_t IOCALL PD8257::GetStatus(uint32_t) {
 //      nbytes  転送サイズ
 //  ret:        転送できたサイズ
 //
-uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* data, uint32_t nbytes) {
+uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* dest, uint32_t nbytes) {
   uint32_t n = nbytes;
   Log("Request ");
   if ((stat_.enabled & (1 << bank)) && !(stat_.mode[bank] & 0x40)) {
@@ -182,7 +182,7 @@ uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* data, uint32_t nbyte
       if (mread_ && mrbegin_ <= stat_.ptr[bank] && stat_.ptr[bank] < mrend_) {
         // 存在するメモリのアクセス
         size = std::min(size, mrend_ - stat_.ptr[bank]);
-        memcpy(data, mread_ + stat_.ptr[bank] - mrbegin_, size);
+        memcpy(dest, mread_ + stat_.ptr[bank] - mrbegin_, size);
         Log("READ ch[%d] (%.4x - %.4x bytes)\n", bank, stat_.ptr[bank], size);
       } else {
         // 存在しないメモリへのアクセス
@@ -191,19 +191,18 @@ uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* data, uint32_t nbyte
         else
           size = std::min(size, 0x10000 - stat_.ptr[bank]);
 
-        memset(data, 0xff, size);
+        memset(dest, 0xff, size);
       }
 
       stat_.ptr[bank] = (stat_.ptr[bank] + size) & 0xffff;
       stat_.count[bank] -= size;
       if (stat_.count[bank] < 0) {
         if (bank == 2 && stat_.autoinit) {
-          stat_.ptr[2] = stat_.ptr[3];
-          stat_.count[2] = stat_.count[3];
+          Reload();
           Log("DMA READ: Bank%d auto init (%.4x:%.4x).\n", bank, stat_.ptr[2], stat_.count[2] + 1);
         } else {
           stat_.status |= 1 << bank;  // TC
-          Log("DMA READ: Bank%d end transmittion.\n", bank);
+          Log("DMA READ: Bank%d end transmission.\n", bank);
         }
       }
       n -= size;
@@ -212,6 +211,11 @@ uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* data, uint32_t nbyte
     Log("\n");
 
   return nbytes - n;
+}
+
+void PD8257::Reload() {
+  stat_.ptr[2] = stat_.ptr[3];
+  stat_.count[2] = stat_.count[3];
 }
 
 // ---------------------------------------------------------------------------
