@@ -86,9 +86,9 @@ bool DriverWO::Init(SoundSource* s, HWND, uint32_t rate, uint32_t ch, uint32_t b
   wf.nBlockAlign = wf.nChannels * wf.wBitsPerSample / 8;
   wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
 
-  if (waveOutOpen(&hwo_, WAVE_MAPPER, &wf, thread_id_, reinterpret_cast<DWORD>(this),
+  if (waveOutOpen(&hwo_, WAVE_MAPPER, &wf, thread_id_, reinterpret_cast<DWORD_PTR>(this),
                   CALLBACK_THREAD) != MMSYSERR_NOERROR) {
-    hwo_ = 0;
+    hwo_ = nullptr;
     DeleteBuffers();
     return false;
   }
