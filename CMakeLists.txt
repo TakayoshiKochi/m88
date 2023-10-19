@@ -76,7 +76,8 @@ add_library(common ${LIB_TYPE}
         src/common/srcbuf.cpp
         src/common/status.h
         src/common/status.cpp
-        src/common/threadable.h)
+        src/common/threadable.h
+        src/common/time_constants.h)
 
 target_include_directories(common
         PUBLIC ${CMAKE_SOURCE_DIR}/src
