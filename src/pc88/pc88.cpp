@@ -104,15 +104,6 @@ void PC88::DeInit() {
 }
 
 // ---------------------------------------------------------------------------
-//  執行
-
-int64_t PC88::ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t ecl) {
-  scheduler_.set_cpu_clock(cpu_clock);
-  effective_clocks_ = std::max(1LL, ecl);
-  return scheduler_.ProceedNS(ns);
-}
-
-// ---------------------------------------------------------------------------
 //  実行
 //
 int64_t SchedulerImpl::ExecuteNS(int64_t ns) {
@@ -156,6 +147,22 @@ void PC88::VSync() {
   if (cfg_flags_ & Config::kWatchRegister)
     g_status_display->Show(10, 0, "%.4X(%.2X)/%.4X", main_cpu_.GetPC(), main_cpu_.GetReg().ireg,
                            sub_cpu_.GetPC());
+}
+
+// ---------------------------------------------------------------------------
+//  執行
+
+int64_t PC88::ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t ecl) {
+  scheduler_.set_cpu_clock(cpu_clock);
+  effective_clocks_ = std::max(1LL, ecl);
+  return scheduler_.ProceedNS(ns);
+}
+
+// ---------------------------------------------------------------------------
+//  仮想時間と現実時間の同期を取ったときに呼ばれる
+//
+void PC88::TimeSync() {
+  main_iobus_.Out(kPTimeSync, 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -203,6 +210,13 @@ void PC88::UpdateScreen(bool refresh) {
       draw_->DrawScreen(r);
     }
   }
+}
+
+// ---------------------------------------------------------------------------
+//  1 フレーム分の時間を求める．
+//
+uint64_t PC88::GetFramePeriodNS() {
+  return crtc_ ? crtc_->GetFramePeriodNS() : kNanoSecsPerSec / 60;
 }
 
 // ---------------------------------------------------------------------------
@@ -596,20 +610,6 @@ void PC88::ApplyConfig(Config* cfg) {
 void PC88::SetVolume(PC8801::Config* cfg) {
   opn1_->SetVolume(cfg);
   opn2_->SetVolume(cfg);
-}
-
-// ---------------------------------------------------------------------------
-//  1 フレーム分の時間を求める．
-//
-uint64_t PC88::GetFramePeriodNS() {
-  return crtc_ ? crtc_->GetFramePeriodNS() : 1000000000ULL / 60;
-}
-
-// ---------------------------------------------------------------------------
-//  仮想時間と現実時間の同期を取ったときに呼ばれる
-//
-void PC88::TimeSync() {
-  main_iobus_.Out(kPTimeSync, 0);
 }
 
 bool PC88::IsN80Supported() {

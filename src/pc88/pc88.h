@@ -79,9 +79,14 @@ class PC88 : public ICPUTime {
   void DeInit();
 
   void Reset();
-  int64_t ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t ecl);
   void ApplyConfig(PC8801::Config*);
   void SetVolume(PC8801::Config*);
+
+  // Callback for EmulationLoop
+  int64_t ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t ecl);
+  void TimeSync();
+  void UpdateScreen(bool refresh = false);
+  uint64_t GetFramePeriodNS();
 
   // Overrides SchedulerExecutor
   int64_t Execute(int64_t clocks);
@@ -95,9 +100,7 @@ class PC88 : public ICPUTime {
   }
 
   [[nodiscard]] uint32_t GetEffectiveSpeed() const { return effective_clocks_; }
-  void TimeSync();
 
-  void UpdateScreen(bool refresh = false);
   bool IsCDSupported();
   bool IsN80Supported();
   bool IsN80V2Supported();
@@ -127,8 +130,6 @@ class PC88 : public ICPUTime {
   // TODO: make these only create snapshot data, and delegate saving to file outside.
   // bool SaveSnapshot(const char* filename);
   // bool LoadSnapshot(const char* filename);
-
-  uint64_t GetFramePeriodNS();
 
  public:
   enum SpecialPort {

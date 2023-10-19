@@ -25,10 +25,20 @@
 using namespace PC8801;
 
 namespace {
+constexpr uint32_t kHSync24K = 24830;
+constexpr uint32_t kHSync15K = 15980;
 
 const packed kColorPattern[8] = {PACK(0), PACK(1), PACK(2), PACK(3),
                                  PACK(4), PACK(5), PACK(6), PACK(7)};
 
+constexpr uint8_t TEXT_BIT = 0b00001111;
+constexpr uint8_t TEXT_SET = 0b00001000;
+constexpr uint8_t TEXT_RES = 0b00000000;
+constexpr uint8_t COLOR_BIT = 0b00000111;
+
+constexpr packed TEXT_BITP = PACK(TEXT_BIT);
+constexpr packed TEXT_SETP = PACK(TEXT_SET);
+constexpr packed TEXT_RESP = PACK(TEXT_RES);
 }  // namespace
 
 // ---------------------------------------------------------------------------
@@ -55,14 +65,6 @@ const packed kColorPattern[8] = {PACK(0), PACK(1), PACK(2), PACK(3),
 //  15kHz   256 lines(25)
 //          260 lines(20)
 //
-#define TEXT_BIT 0x0f
-#define TEXT_SET 0x08
-#define TEXT_RES 0x00
-#define COLOR_BIT 0x07
-
-#define TEXT_BITP PACK(TEXT_BIT)
-#define TEXT_SETP PACK(TEXT_SET)
-#define TEXT_RESP PACK(TEXT_RES)
 
 CRTC::CRTC(const ID& id) : Device(id) {}
 
@@ -143,7 +145,8 @@ void CRTC::HotReset() {
   height_ = 25;
 
   // line_time_ = line200_ ? int(6.258 * 8) : int(4.028 * 16);
-  line_time_ns_ = line200_ ? uint64_t(1.0e9 / 15980) * 8 : uint64_t(1.0e9 / 24830) * 16;
+  line_time_ns_ = line200_ ? static_cast<uint64_t>(kNanoSecsPerSec / kHSync24K * 8)
+                           : static_cast<uint64_t>(kNanoSecsPerSec / kHSync15K * 16);
   // TODO: when in 20 line mode, 7 : 3 should be 6 : 2
   v_retrace_ = line200_ ? 7 : 3;
 
@@ -238,8 +241,9 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
 
           // line_time_ = (line200_ ? int(6.258 * 1024) : int(4.028 * 1024)) * lines_per_char_ /
           // 1024;
-          line_time_ns_ =
-              (line200_ ? uint64_t(1.0e9 / 15980) : uint64_t(1.0e9 / 24830)) * lines_per_char_;
+          line_time_ns_ = (line200_ ? static_cast<uint64_t>(kNanoSecsPerSec / kHSync24K)
+                                    : static_cast<uint64_t>(kNanoSecsPerSec / kHSync15K)) *
+                          lines_per_char_;
           if (data & 0x80)
             SetFlag(kSkipline);
           if (line200_)

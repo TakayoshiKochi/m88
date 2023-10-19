@@ -39,7 +39,7 @@ class CRTC : public Device {
   bool Init(IOBus* bus, Scheduler* sched, PD8257* dmac);
 
   void ApplyConfig(const Config* config);
-  //  1 フレーム分に相当する時間を求める
+  // 1 フレーム分に相当する時間を求める
   [[nodiscard]] uint64_t GetFramePeriodNS() const { return line_time_ns_ * (height_ + v_retrace_); }
 
   // rendering
