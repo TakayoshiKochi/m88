@@ -159,7 +159,7 @@ inline void MemStrategy::PCDec(uint32_t dec) {
   if (inst_ >= instpage_) {
     return;
   }
-  SetPC(inst_ - instbase_);
+  SetPC(static_cast<uint32_t>(inst_ - instbase_));
 }
 
 inline void MemStrategy::Jump(uint32_t dest) {
@@ -176,7 +176,7 @@ inline void MemStrategy::JumpR(uint32_t rel) {
   if (inst_ >= instpage_) {
     return;
   }
-  SetPC(inst_ - instbase_);
+  SetPC(static_cast<uint32_t>(inst_ - instbase_));
 }
 
 // ---------------------------------------------------------------------------

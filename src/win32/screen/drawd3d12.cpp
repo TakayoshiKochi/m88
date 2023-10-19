@@ -248,7 +248,7 @@ bool WinDrawD3D12::CreateRenderTargetView() {
     return false;
 
   back_buffers_.resize(swc_desc.BufferCount);
-  for (int i = 0; i < swc_desc.BufferCount; ++i) {
+  for (uint32_t i = 0; i < swc_desc.BufferCount; ++i) {
     hr = swap_chain_->GetBuffer(i, IID_PPV_ARGS(&back_buffers_[i]));
     if (FAILED(hr))
       return false;

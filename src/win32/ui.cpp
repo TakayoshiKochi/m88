@@ -863,8 +863,8 @@ void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
 
   dpi_ = GetDpiForWindow(hwnd_);
   double ratio = dpi_ / 96.0;
-  width *= ratio;
-  height *= ratio;
+  width = static_cast<uint32_t>(width * ratio);
+  height = static_cast<uint32_t>(height * ratio);
 
   RECT rect;
   rect.left = 0;
