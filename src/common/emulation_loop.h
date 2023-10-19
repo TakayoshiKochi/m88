@@ -8,8 +8,6 @@
 
 // ---------------------------------------------------------------------------
 
-#include <windows.h>
-
 #include <stdint.h>
 
 #include <atomic>
@@ -19,7 +17,15 @@
 #include "common/threadable.h"
 #include "common/time_constants.h"
 
-class PC88;
+class EmulationLoopDelegate {
+ public:
+  virtual ~EmulationLoopDelegate() = default;
+
+  virtual int64_t ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t effective_clock) = 0;
+  virtual void TimeSync() = 0;
+  virtual void UpdateScreen(bool refresh) = 0;
+  virtual uint64_t GetFramePeriodNS() = 0;
+};
 
 // ---------------------------------------------------------------------------
 //  EmulationLoop
@@ -32,7 +38,7 @@ class EmulationLoop : public Threadable<EmulationLoop> {
   EmulationLoop();
   ~EmulationLoop();
 
-  bool Init(PC88* vm);
+  bool Init(EmulationLoopDelegate* vm);
   bool CleanUp();
 
   int64_t GetExecClocks();
@@ -56,7 +62,7 @@ class EmulationLoop : public Threadable<EmulationLoop> {
   void ExecuteBurst(uint32_t clocks);
   void ExecuteNormal(uint32_t clocks);
 
-  PC88* vm_ = nullptr;
+  EmulationLoopDelegate* delegate_ = nullptr;
 
   RealTimeKeeper real_time_;
 

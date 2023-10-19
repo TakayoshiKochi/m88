@@ -8,6 +8,7 @@
 
 #include "common/device.h"
 #include "common/draw.h"
+#include "common/emulation_loop.h"
 #include "common/io_bus.h"
 #include "common/scheduler.h"
 #include "devices/z80c.h"
@@ -68,12 +69,12 @@ class SchedulerImpl : public Scheduler {
 // ---------------------------------------------------------------------------
 //  PC8801 クラス
 //
-class PC88 : public ICPUTime {
+class PC88 : public ICPUTime, public EmulationLoopDelegate {
  public:
   using Z80XX = SchedulerImpl::Z80XX;
 
   PC88();
-  ~PC88();
+  ~PC88() override;
 
   bool Init(Draw* draw, DiskManager* disk_manager, TapeManager* tape_manager);
   void DeInit();
@@ -82,11 +83,11 @@ class PC88 : public ICPUTime {
   void ApplyConfig(PC8801::Config*);
   void SetVolume(PC8801::Config*);
 
-  // Callback for EmulationLoop
-  int64_t ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t ecl);
-  void TimeSync();
-  void UpdateScreen(bool refresh = false);
-  uint64_t GetFramePeriodNS();
+  // Override EmulationLoopDelegate
+  int64_t ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t effective_clock) override;
+  void TimeSync() override;
+  void UpdateScreen(bool refresh) override;
+  uint64_t GetFramePeriodNS() override;
 
   // Overrides SchedulerExecutor
   int64_t Execute(int64_t clocks);
