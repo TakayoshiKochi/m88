@@ -21,11 +21,11 @@ struct PCIDRV {
   PCIMEMRD32 in32;
 };
 
-#define ROMEO_TPTR(member) (int)&(((PCIDRV *)NULL)->member)
+#define ROMEO_TPTR(member) ((intptr_t) & (((PCIDRV *)NULL)->member))
 
 struct DLLPROCESS {
   const char *symbol;
-  int addr;
+  intptr_t addr;
 };
 
 static const DLLPROCESS dllproc[] = {
@@ -35,7 +35,7 @@ static const DLLPROCESS dllproc[] = {
     {FN_PCIMEMRD16, ROMEO_TPTR(in16)},    {FN_PCIMEMRD32, ROMEO_TPTR(in32)}};
 
 static PCIDRV pcidrv = {
-    0,
+    nullptr,
 };
 
 class ChipIF : public PiccoloChip {
@@ -80,7 +80,7 @@ static bool LoadDLL() {
     FARPROC proc;
     for (auto i : dllproc) {
       proc = GetProcAddress(pcidrv.mod, i.symbol);
-      *(DWORD *)(((BYTE *)&pcidrv) + i.addr) = (DWORD)proc;
+      *(DWORD_PTR *)(((BYTE *)&pcidrv) + i.addr) = (DWORD_PTR)proc;
       if (!proc)
         break;
     }
@@ -89,13 +89,13 @@ static bool LoadDLL() {
       pcidrv.mod = nullptr;
     }
   }
-  return !!pcidrv.mod;
+  return pcidrv.mod != nullptr;
 }
 
 static void FreeDLL() {
   if (pcidrv.mod) {
     ::FreeLibrary(pcidrv.mod);
-    pcidrv.mod = 0;
+    pcidrv.mod = nullptr;
   }
 }
 
