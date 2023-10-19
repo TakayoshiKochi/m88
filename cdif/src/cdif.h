@@ -96,7 +96,7 @@ class CDIF : public Device {
   void ResultPhase(int r, int s);
   void SendPhase(int b, int r, int s);
   void RecvPhase(int b);
-  void SendCommand(uint32_t c, uint32_t a1 = 0, uint32_t a2 = 0);
+  void SendCommand(uint32_t a, WPARAM b = 0, LPARAM c = 0);
   void Done(int ret);
 
   void CheckDriveStatus();

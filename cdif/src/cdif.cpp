@@ -170,7 +170,7 @@ void CDIF::ResultPhase(int res, int st) {
 // ----------------------------------------------------------------------------
 //
 //
-void CDIF::SendCommand(uint32_t a, uint32_t b, uint32_t c) {
+void CDIF::SendCommand(uint32_t a, WPARAM b, LPARAM c) {
   phase_ = kWaitPhase;
   cd_.SendCommand(a, b, c);
 }
@@ -239,7 +239,7 @@ void CDIF::ReadSector() {
         if (length_-- > 0) {
           Log("(%2d) Read#%d\n", rslt_, retry_count_ - length_ + 1);
           SendCommand(read_mode_ ? CDControl::kRead2 : CDControl::kRead1, sector_,
-                      (uint32_t)tmpbuf_);
+                      reinterpret_cast<LPARAM>(tmpbuf_));
           break;
         }
         ResultPhase(0, 0);
@@ -347,7 +347,7 @@ void CDIF::ReadSubcodeQ() {
   switch (phase_) {
     case kExecPhase:
       Log("Read Subcode-Q\n");
-      SendCommand(CDControl::kReadSubCodeq, (uint32_t)tmpbuf_);
+      SendCommand(CDControl::kReadSubCodeq, reinterpret_cast<LPARAM>(tmpbuf_));
       break;
 
     case kWaitPhase:
