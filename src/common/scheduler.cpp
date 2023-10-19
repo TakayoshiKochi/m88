@@ -143,7 +143,8 @@ int64_t Scheduler::ProceedNS(int64_t ns) {
     // 以前に終了して 帰ってくる可能性がある。
     // TODO: skip if ptime_ns is too small to execute anything
     int64_t xtime_ns = ExecuteNS(ptime_ns);
-    endtime_ns_ = time_ns_ += xtime_ns;
+    time_ns_ += xtime_ns;
+    endtime_ns_ = time_ns_;
     t_ns -= xtime_ns;
 
     // イベントを発火する
