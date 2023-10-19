@@ -6,11 +6,11 @@
 
 class PNGCodec : public ImageCodec {
  public:
-  PNGCodec() {}
-  ~PNGCodec() {}
+  PNGCodec() = default;
+  ~PNGCodec() override {}
 
   // Implements ImageCodec
-  void Encode(uint8_t* src, const PALETTEENTRY* palette) override;
+  void Encode(uint8_t* src, const Draw::Palette* palette) override;
 
  private:
   void Append(uint8_t* data, size_t size);

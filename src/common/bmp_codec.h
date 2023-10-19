@@ -7,8 +7,8 @@
 class BMPCodec : public ImageCodec {
  public:
   BMPCodec() = default;
-  ~BMPCodec() override {}
+  ~BMPCodec() override = default;
 
   // Implements ImageCodec
-  void Encode(uint8_t* src, const PALETTEENTRY* palette) override;
+  void Encode(uint8_t* src, const Draw::Palette* palette) override;
 };

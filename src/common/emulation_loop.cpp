@@ -8,16 +8,14 @@
 
 #include <algorithm>
 
-#include "pc88/pc88.h"
-
 EmulationLoop::EmulationLoop() = default;
 
 EmulationLoop::~EmulationLoop() {
   CleanUp();
 }
 
-bool EmulationLoop::Init(PC88* vm) {
-  vm_ = vm;
+bool EmulationLoop::Init(EmulationLoopDelegate* delegate) {
+  delegate_ = delegate;
 
   active_ = false;
   exec_clocks_ = 0;
@@ -74,11 +72,11 @@ bool EmulationLoop::ThreadLoop() {
 //  eff     実効クロック
 inline void EmulationLoop::ExecuteNS(int64_t cpu_clock, int64_t length_ns, int64_t ec) {
   std::lock_guard<std::mutex> lock(mtx_);
-  exec_clocks_ += cpu_clock * vm_->ProceedNS(cpu_clock, length_ns, ec) / kNanoSecsPerSec;
+  exec_clocks_ += cpu_clock * delegate_->ProceedNS(cpu_clock, length_ns, ec) / kNanoSecsPerSec;
 }
 
 void EmulationLoop::ExecuteBurst(uint32_t clocks) {
-  vm_->TimeSync();
+  delegate_->TimeSync();
   int64_t ns = 0;
   relatime_lastsync_ns_ = real_time_.GetRealTimeNS();
   // Execute up to 16ms (16_666_667ns = 1/60sec for 60fps)
@@ -95,19 +93,19 @@ void EmulationLoop::ExecuteBurst(uint32_t clocks) {
     }
     ns = real_time_.GetRealTimeNS() - relatime_lastsync_ns_;
   } while (ns < (kNanoSecsPerSec / 60));
-  vm_->UpdateScreen();
+  delegate_->UpdateScreen(false);
   int64_t clock_per_ns = std::max(1LL, ns / (exec_clocks_ - orig_exec_clocks));
   effective_clock_ = kNanoSecsPerSec / clock_per_ns;
 }
 
 void EmulationLoop::ExecuteNormal(uint32_t clocks) {
   // virtual time to execute in nanoseconds
-  int64_t texec_ns = vm_->GetFramePeriodNS();
+  int64_t texec_ns = delegate_->GetFramePeriodNS();
 
   // actual virtual time expected to spend for this amount of work
   int64_t twork_ns = texec_ns * 100 / speed_pct_;
   // TODO: timing?
-  vm_->TimeSync();
+  delegate_->TimeSync();
   // Execute CPU
   ExecuteNS(cpu_hz_, texec_ns, clocks * speed_pct_ / 100);
 
@@ -117,7 +115,7 @@ void EmulationLoop::ExecuteNormal(uint32_t clocks) {
   if (tcpu_ns < twork_ns) {
     // Emulation is faster than real time
     if (draw_next_frame_ && ++refresh_count_ >= refresh_timing_) {
-      vm_->UpdateScreen();
+      delegate_->UpdateScreen(false);
       skipped_frames_ = 0;
       refresh_count_ = 0;
     }
@@ -139,7 +137,7 @@ void EmulationLoop::ExecuteNormal(uint32_t clocks) {
     // Emulation is slower than real time
     relatime_lastsync_ns_ += twork_ns;
     if (++skipped_frames_ >= 20) {
-      vm_->UpdateScreen();
+      delegate_->UpdateScreen(false);
       skipped_frames_ = 0;
       relatime_lastsync_ns_ = real_time_.GetRealTimeNS();
     }

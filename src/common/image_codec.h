@@ -1,7 +1,8 @@
 #pragma once
 
 #include <stdint.h>
-#include <windows.h>
+
+#include "common/draw.h"
 
 #include <memory>
 #include <string>
@@ -14,7 +15,7 @@ class ImageCodec {
   static ImageCodec* GetCodec(const std::string& type);
   static std::string GenerateFileName(const std::string& extension);
 
-  virtual void Encode(uint8_t* src, const PALETTEENTRY* palette) = 0;
+  virtual void Encode(uint8_t* src, const Draw::Palette* palette) = 0;
   void Save(const std::string& filename);
   [[nodiscard]] uint8_t* data() const { return buf_.get(); }
   [[nodiscard]] int size() const { return size_; }

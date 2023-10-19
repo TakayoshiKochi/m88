@@ -152,9 +152,9 @@ void PC88::VSync() {
 // ---------------------------------------------------------------------------
 //  執行
 
-int64_t PC88::ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t ecl) {
+int64_t PC88::ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t effective_clock) {
   scheduler_.set_cpu_clock(cpu_clock);
-  effective_clocks_ = std::max(1LL, ecl);
+  effective_clocks_ = std::max(1LL, effective_clock);
   return scheduler_.ProceedNS(ns);
 }
 

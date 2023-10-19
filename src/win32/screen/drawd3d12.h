@@ -30,7 +30,7 @@ class WinDrawD3D12 : public WinDrawSub {
   bool Init(HWND hwnd, uint32_t width, uint32_t height, GUID*) override;
   bool Resize(uint32_t width, uint32_t height) override;
   bool CleanUp() override { return true; }
-  void SetPalette(PALETTEENTRY* pe, int index, int nentries) override;
+  void SetPalette(Draw::Palette* pe, int index, int nentries) override;
   void SetGUIMode(bool fullscreen) override;
   void DrawScreen(const RECT& rect, bool refresh) override;
   RECT GetFullScreenRect() override;
