@@ -335,8 +335,8 @@ void OPNIF::UpdateTimer() {
   next_count_ = opn_.GetNextEvent();
   if (next_count_) {
     next_count_ = (next_count_ + 9) / 10;
-    scheduler_->AddEventNS(next_count_ * 10000ULL, this, static_cast<TimeFunc>(&OPNIF::TimeEvent),
-                           1, false);
+    scheduler_->AddEventNS(next_count_ * kNanoSecsPerTick, this,
+                           static_cast<TimeFunc>(&OPNIF::TimeEvent), 1, false);
   }
 }
 
