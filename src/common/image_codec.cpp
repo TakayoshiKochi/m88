@@ -2,8 +2,6 @@
 
 #include <windows.h>
 
-#include <string.h>
-
 #include "common/bmp_codec.h"
 #include "common/file.h"
 #include "common/png_codec.h"

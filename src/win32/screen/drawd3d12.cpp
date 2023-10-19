@@ -58,11 +58,11 @@ bool WinDrawD3D12::Resize(uint32_t screen_width, uint32_t screen_height) {
   return true;
 }
 
-void WinDrawD3D12::SetPalette(PALETTEENTRY* pe, int index, int nentries) {
+void WinDrawD3D12::SetPalette(Draw::Palette* pe, int index, int nentries) {
   for (; nentries > 0; nentries--) {
-    pal_[index].red = pe->peRed;
-    pal_[index].green = pe->peGreen;
-    pal_[index].blue = pe->peBlue;
+    pal_[index].red = pe->red;
+    pal_[index].green = pe->green;
+    pal_[index].blue = pe->blue;
     index++;
     pe++;
   }

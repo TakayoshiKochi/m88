@@ -20,6 +20,7 @@ constexpr packed PACK(uint8_t p) {
 
 class Draw {
  public:
+  // compatible with PALETTEENTRY
   struct Palette {
     uint8_t red, green, blue, rsvd;
   };

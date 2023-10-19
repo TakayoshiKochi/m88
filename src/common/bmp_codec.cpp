@@ -1,8 +1,10 @@
 #include "common/bmp_codec.h"
 
+#include <windows.h>
+
 #include <memory>
 
-void BMPCodec::Encode(uint8_t* src, const PALETTEENTRY* palette) {
+void BMPCodec::Encode(uint8_t* src, const Draw::Palette* palette) {
   size_ = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFO) + 15 * sizeof(RGBQUAD) + 640 * 400 / 2;
   buf_.reset(new uint8_t[size_]);
   uint8_t* dest = buf_.get();
@@ -38,9 +40,9 @@ void BMPCodec::Encode(uint8_t* src, const PALETTEENTRY* palette) {
   int colors = 0;
   for (int index = 0; index < 144; index++) {
     RGBQUAD rgb;
-    rgb.rgbBlue = palette[0x40 + index].peBlue;
-    rgb.rgbRed = palette[0x40 + index].peRed;
-    rgb.rgbGreen = palette[0x40 + index].peGreen;
+    rgb.rgbRed = palette[0x40 + index].red;
+    rgb.rgbBlue = palette[0x40 + index].blue;
+    rgb.rgbGreen = palette[0x40 + index].green;
     // Log("c[%.2x] = G:%.2x R:%.2x B:%.2x\n", index, rgb.rgbGreen, rgb.rgbRed, rgb.rgbBlue);
     uint32_t entry = *((uint32_t*)&rgb);
 

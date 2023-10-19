@@ -17,22 +17,22 @@ void PNGCodec::Append(uint8_t* data, size_t size) {
   encoded_size_ += size;
 }
 
-void PNGCodec::Encode(uint8_t* src, const PALETTEENTRY* palette) {
-  png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+void PNGCodec::Encode(uint8_t* src, const Draw::Palette* palette) {
+  png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
   png_infop info = png_create_info_struct(png);
   png_byte type = PNG_COLOR_TYPE_PALETTE;
 
   size_ = 640 * 400 + 4096;
   buf_.reset(new uint8_t[size_]);
   encoded_size_ = 0;
-  png_set_write_fn(png, this, WriteCallback, NULL);
+  png_set_write_fn(png, this, WriteCallback, nullptr);
 
   // bit_depth = 4 => 16 color palette
   png_set_IHDR(png, info, 640, 400, 4, type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
                PNG_FILTER_TYPE_DEFAULT);
 
   // Palette
-  png_colorp png_palette = (png_colorp)png_malloc(png, sizeof(png_color) * 16);
+  auto png_palette = (png_colorp)png_malloc(png, sizeof(png_color) * 16);
 
   uint8_t ctable[144];
   memset(ctable, 0, sizeof(ctable));
@@ -40,9 +40,9 @@ void PNGCodec::Encode(uint8_t* src, const PALETTEENTRY* palette) {
   int colors = 0;
   for (int i = 0; i < 144; ++i) {
     png_color rgb;
-    rgb.red = palette[i + 0x40].peRed;
-    rgb.green = palette[i + 0x40].peGreen;
-    rgb.blue = palette[i + 0x40].peBlue;
+    rgb.red = palette[i + 0x40].red;
+    rgb.green = palette[i + 0x40].green;
+    rgb.blue = palette[i + 0x40].blue;
 
     int k;
     for (k = 0; k < colors; k++) {
@@ -62,18 +62,18 @@ void PNGCodec::Encode(uint8_t* src, const PALETTEENTRY* palette) {
   png_free(png, png_palette);
 
   // Encode image data
-  png_bytepp datap = (png_bytepp)png_malloc(png, sizeof(png_bytep) * 400);
+  auto datap = (png_bytepp)png_malloc(png, sizeof(png_bytep) * 400);
   png_set_rows(png, info, datap);
   uint8_t* s = src;
   for (int i = 0; i < 400; ++i) {
     datap[i] = (png_byte*)png_malloc(png, 640 / 2);
-    uint8_t* d = (uint8_t*)datap[i];
+    auto* d = (uint8_t*)datap[i];
     for (int j = 0; j < 640 / 2; ++j) {
       *d++ = ctable[s[0] - 0x40] * 16 + ctable[s[1] - 0x40];
       s += 2;
     }
   }
-  png_write_png(png, info, PNG_TRANSFORM_IDENTITY, NULL);
+  png_write_png(png, info, PNG_TRANSFORM_IDENTITY, nullptr);
 
   // Clean up
   for (int i = 0; i < 400; ++i) {

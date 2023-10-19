@@ -30,10 +30,10 @@ class WinDrawSub {
   virtual bool Init(HWND hwnd, uint32_t w, uint32_t h, GUID* display) = 0;
   virtual bool Resize(uint32_t screen_width, uint32_t screen_height) { return false; }
   virtual bool CleanUp() = 0;
-  virtual void SetPalette(PALETTEENTRY* pal, int index, int nentries) {}
+  virtual void SetPalette(Draw::Palette* pal, int index, int nentries) {}
   virtual void QueryNewPalette() {}
   virtual void DrawScreen(const RECT& rect, bool refresh) = 0;
-  virtual RECT GetFullScreenRect() { return RECT(); }
+  virtual RECT GetFullScreenRect() { return {}; }
 
   virtual bool Lock(uint8_t** pimage, int* pbpl) { return false; }
   virtual bool Unlock() { return true; }
@@ -68,7 +68,7 @@ class WinDraw : public Draw, public Threadable<WinDraw> {
   void DrawScreen(const Region& region) override;
   RECT GetFullScreenRect() { return drawsub_->GetFullScreenRect(); }
 
-  const PALETTEENTRY* GetPalette() const { return palette_; }
+  const Draw::Palette* GetPalette() const { return palette_; }
 
   uint32_t GetStatus() override;
   void Flip() override;
@@ -134,7 +134,7 @@ class WinDraw : public Draw, public Threadable<WinDraw> {
   bool flipmode_ = false;
 
   HMONITOR hmonitor_ = nullptr;  // 探索中の hmonitor
-  GUID gmonitor_;                // hmonitor に対応する GUID
+  GUID gmonitor_{};              // hmonitor に対応する GUID
 
-  PALETTEENTRY palette_[0x100]{};
+  Draw::Palette palette_[0x100]{};
 };
