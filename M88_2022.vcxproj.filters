@@ -237,12 +237,6 @@
     <ClCompile Include="src\common\file_.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\sequencer.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="src\common\time_keeper.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\monitor\basmon.cpp">
       <Filter>win32\monitor</Filter>
     </ClCompile>
@@ -377,6 +371,12 @@
     </ClCompile>
     <ClCompile Include="third_party\Z80\sources\Z80.c">
       <Filter>Z80</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\real_time_keeper.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\emulation_loop.cpp">
+      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -620,12 +620,6 @@
     <ClInclude Include="src\common\scoped_comptr.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\sequencer.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\time_keeper.h">
-      <Filter>common</Filter>
-    </ClInclude>
     <ClInclude Include="src\win32\monitor\basmon.h">
       <Filter>win32\monitor</Filter>
     </ClInclude>
@@ -742,6 +736,15 @@
     </ClInclude>
     <ClInclude Include="src\devices\z80x.h">
       <Filter>devices</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\time_constants.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\real_time_keeper.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\emulation_loop.h">
+      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

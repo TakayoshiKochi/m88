@@ -108,7 +108,7 @@ void CPUExecutor::Init() {
 // 命令遂行
 //
 // static
-int64_t CPUExecutor::ExecSingle(Z80C* first, Z80C* second, int clocks) {
+int64_t CPUExecutor::ExecSingle(Z80C* first, Z80C* second, int64_t clocks) {
   int64_t c = first->GetClocks();
 
   currentcpu = first;
@@ -130,7 +130,7 @@ int64_t CPUExecutor::ExecSingle(Z80C* first, Z80C* second, int clocks) {
 // 2CPU 実行
 //
 // static
-int64_t CPUExecutor::ExecDual(Z80C* first, Z80C* second, int count) {
+int64_t CPUExecutor::ExecDual(Z80C* first, Z80C* second, int64_t count) {
   currentcpu = second;
   second->start_count_ = second->delay_count_ = first->GetClocks();
   second->SingleStep();
@@ -157,7 +157,7 @@ int64_t CPUExecutor::ExecDual(Z80C* first, Z80C* second, int count) {
 // 2CPU 実行
 //
 // static
-int64_t CPUExecutor::ExecDual2(Z80C* first, Z80C* second, int count) {
+int64_t CPUExecutor::ExecDual2(Z80C* first, Z80C* second, int64_t count) {
   currentcpu = second;
   second->start_count_ = second->delay_count_ = first->GetClocks();
   second->SingleStep();

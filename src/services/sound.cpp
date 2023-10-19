@@ -41,7 +41,7 @@ bool Sound::Init(PC88* pc88, uint32_t rate, int bufsize) {
     return false;
 
   // 時間カウンタが一周しないように定期的に更新する
-  pc88->GetScheduler()->AddEventNS(5000 * 10000LL, this,
+  pc88->GetScheduler()->AddEventNS(5000 * kNanoSecsPerTick, this,
                                    static_cast<TimeFunc>(&Sound::UpdateCounter), 0, true);
   return true;
 }

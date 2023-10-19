@@ -4,7 +4,7 @@
 // 命令遂行
 //
 // static
-int64_t Z80X::ExecSingle(Z80X* first, Z80X* second, int clocks) {
+int64_t Z80X::ExecSingle(Z80X* first, Z80X* second, int64_t clocks) {
   return ExecDual(first, second, clocks);
 }
 
@@ -12,7 +12,7 @@ int64_t Z80X::ExecSingle(Z80X* first, Z80X* second, int clocks) {
 // 2CPU 実行 (main:sub = 1:1)
 //
 // static
-int64_t Z80X::ExecDual(Z80X* first, Z80X* second, int clocks) {
+int64_t Z80X::ExecDual(Z80X* first, Z80X* second, int64_t clocks) {
   int64_t start = std::min(first->GetClocks(), second->GetClocks());
   int64_t target = start + clocks;
   while (first->GetClocks() < target || second->GetClocks() < target) {
@@ -34,7 +34,7 @@ int64_t Z80X::ExecDual(Z80X* first, Z80X* second, int clocks) {
 // 2CPU 実行 (main:sub = 2:1)
 //
 // static
-int64_t Z80X::ExecDual2(Z80X* first, Z80X* second, int clocks) {
+int64_t Z80X::ExecDual2(Z80X* first, Z80X* second, int64_t clocks) {
   currentcpu = first;
   int64_t start = std::min(first->GetClocks(), second->GetClocks() * 2);
   int64_t target = start + clocks;

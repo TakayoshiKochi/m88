@@ -35,9 +35,9 @@ class Z80X : public Device, private IOStrategy, public MemStrategy {
   void Wait(bool flag);
 
   // Execution
-  static int64_t ExecSingle(Z80X* first, Z80X* second, int clocks);
-  static int64_t ExecDual(Z80X* first, Z80X* second, int clocks);
-  static int64_t ExecDual2(Z80X* first, Z80X* second, int clocks);
+  static int64_t ExecSingle(Z80X* first, Z80X* second, int64_t clocks);
+  static int64_t ExecDual(Z80X* first, Z80X* second, int64_t clocks);
+  static int64_t ExecDual2(Z80X* first, Z80X* second, int64_t clocks);
 
   void Stop(int count);
   static void StopDual(int count);

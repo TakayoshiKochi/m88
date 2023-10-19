@@ -7,6 +7,7 @@
 #pragma once
 
 #include "common/device.h"
+#include "common/time_constants.h"
 
 // ---------------------------------------------------------------------------
 
@@ -61,7 +62,7 @@ class Scheduler : public IScheduler, public ITime {
   // Overrides ITime
   // Returns current virtual time.
   // 1 tick = 10μs (≒ 40clocks at 4MHz)
-  int IFCALL GetTime() override { return int(GetTimeNS() / 10000); }
+  int IFCALL GetTime() override { return int(GetTimeNS() / kNanoSecsPerTick); }
   int64_t GetTimeNS() { return time_ns_ + GetNS(); }
 
  private:

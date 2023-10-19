@@ -5,7 +5,7 @@
 #include <windows.h>
 
 #include "common/threadable.h"
-#include "common/time_keeper.h"
+#include "common/real_time_keeper.h"
 
 #include <stdint.h>
 #include <mutex>
@@ -82,7 +82,7 @@ class Piccolo : public Threadable<Piccolo> {
   virtual int Init();
   void CleanUp();
 
-  TimeKeeper keeper_;
+  RealTimeKeeper keeper_;
   std::mutex mtx_;
 
   bool Push(Event&);

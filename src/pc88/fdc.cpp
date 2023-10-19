@@ -415,7 +415,7 @@ void FDC::SetTimer(Phase p, int ticks) {
   t_phase_ = p;
   if (!disk_wait_)
     ticks = (ticks + 127) / 128;
-  timer_handle_ = scheduler_->AddEventNS(ticks * 10000LL, this,
+  timer_handle_ = scheduler_->AddEventNS(ticks * kNanoSecsPerTick, this,
                                          static_cast<TimeFunc>(&FDC::PhaseTimer), p, false);
 }
 
@@ -669,8 +669,8 @@ void FDC::Seek(uint32_t dr, uint32_t cy) {
     Log("Seek: %d -> %d (%d)\n", drive_[dr].cyrinder, cy, seekcount);
     drive_[dr].cyrinder = cy;
     seek_time_ = seekcount && disk_wait_ ? (400 * abs(seekcount) + 500) : 10;
-    scheduler_->AddEventNS(seek_time_ * 10000LL, this, static_cast<TimeFunc>(&FDC::SeekEvent), dr,
-                           false);
+    scheduler_->AddEventNS(seek_time_ * kNanoSecsPerTick, this,
+                           static_cast<TimeFunc>(&FDC::SeekEvent), dr, false);
     seek_state_ |= 1 << dr;
 
     if (seek_time_ > 10) {
@@ -1237,7 +1237,7 @@ bool IFCALL FDC::LoadStatus(const uint8_t* s) {
   scheduler_->DelEvent(this);
   if (st->t_phase != idlephase)
     timer_handle_ =
-        scheduler_->AddEventNS((disk_wait_ ? 100 : 10) * 10000LL, this,
+        scheduler_->AddEventNS((disk_wait_ ? 100 : 10) * kNanoSecsPerTick, this,
                                static_cast<TimeFunc>(&FDC::PhaseTimer), st->t_phase, false);
 
   fd_stat_ = 0;
@@ -1245,7 +1245,7 @@ bool IFCALL FDC::LoadStatus(const uint8_t* s) {
     drive_[d] = st->dr[d];
     diskmgr_->GetFDU(d)->Seek(drive_[d].cyrinder);
     if (seek_state_ & (1 << d)) {
-      scheduler_->AddEventNS((disk_wait_ ? 100 : 10) * 10000LL, this,
+      scheduler_->AddEventNS((disk_wait_ ? 100 : 10) * kNanoSecsPerTick, this,
                              static_cast<TimeFunc>(&FDC::SeekEvent), d, false);
       fd_stat_ |= 0x10;
     }

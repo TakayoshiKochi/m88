@@ -341,6 +341,7 @@
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
     <ClCompile Include="src\common\diag.cpp" />
+    <ClCompile Include="src\common\emulation_loop.cpp" />
     <ClCompile Include="src\common\error.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -359,8 +360,8 @@
     </ClCompile>
     <ClCompile Include="src\common\memory_bus.cpp" />
     <ClCompile Include="src\common\png_codec.cpp" />
+    <ClCompile Include="src\common\real_time_keeper.cpp" />
     <ClCompile Include="src\common\scheduler.cpp" />
-    <ClCompile Include="src\common\sequencer.cpp" />
     <ClCompile Include="src\common\srcbuf.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -368,7 +369,6 @@
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
     <ClCompile Include="src\common\status.cpp" />
-    <ClCompile Include="src\common\time_keeper.cpp" />
     <ClCompile Include="src\devices\fmgen.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -840,6 +840,7 @@
     <ClInclude Include="src\common\device.h" />
     <ClInclude Include="src\common\diag.h" />
     <ClInclude Include="src\common\draw.h" />
+    <ClInclude Include="src\common\emulation_loop.h" />
     <ClInclude Include="src\common\error.h" />
     <ClInclude Include="src\common\file.h" />
     <ClInclude Include="src\common\floppy.h" />
@@ -849,14 +850,14 @@
     <ClInclude Include="src\common\memory_bus.h" />
     <ClInclude Include="src\common\misc.h" />
     <ClInclude Include="src\common\png_codec.h" />
+    <ClInclude Include="src\common\real_time_keeper.h" />
     <ClInclude Include="src\common\scheduler.h" />
     <ClInclude Include="src\common\scoped_comptr.h" />
     <ClInclude Include="src\common\scoped_handle.h" />
-    <ClInclude Include="src\common\sequencer.h" />
     <ClInclude Include="src\common\soundsrc.h" />
     <ClInclude Include="src\common\srcbuf.h" />
     <ClInclude Include="src\common\status.h" />
-    <ClInclude Include="src\common\time_keeper.h" />
+    <ClInclude Include="src\common\time_constants.h" />
     <ClInclude Include="src\devices\fmgen.h" />
     <ClInclude Include="src\devices\fmtimer.h" />
     <ClInclude Include="src\devices\opm.h" />

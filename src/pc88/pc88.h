@@ -42,20 +42,13 @@ class Screen;
 class SubSystem;
 }  // namespace PC8801
 
-class SchedulerExecutable {
- public:
-  SchedulerExecutable() = default;
-  virtual ~SchedulerExecutable() = default;
-
-  // Note: parameter is clocks, not ticks.
-  virtual int64_t Execute(int64_t clocks) = 0;
-};
+class PC88;
 
 class SchedulerImpl : public Scheduler {
  public:
   using Z80XX = Z80X;
 
-  explicit SchedulerImpl(SchedulerExecutable* ex) : ex_(ex) {}
+  explicit SchedulerImpl(PC88* pc) : pc_(pc) {}
   ~SchedulerImpl() override = default;
 
   // Overrides Scheduler
@@ -67,7 +60,7 @@ class SchedulerImpl : public Scheduler {
   [[nodiscard]] int64_t cpu_clock() const { return cpu_clock_; }
 
  private:
-  SchedulerExecutable* ex_;
+  PC88* pc_;
   // CPU clock (Hz)
   uint64_t cpu_clock_ = 3993600;
 };
@@ -75,12 +68,12 @@ class SchedulerImpl : public Scheduler {
 // ---------------------------------------------------------------------------
 //  PC8801 クラス
 //
-class PC88 : public SchedulerExecutable, public ICPUTime {
+class PC88 : public ICPUTime {
  public:
   using Z80XX = SchedulerImpl::Z80XX;
 
   PC88();
-  ~PC88() override;
+  ~PC88();
 
   bool Init(Draw* draw, DiskManager* disk_manager, TapeManager* tape_manager);
   void DeInit();
@@ -91,7 +84,7 @@ class PC88 : public SchedulerExecutable, public ICPUTime {
   void SetVolume(PC8801::Config*);
 
   // Overrides SchedulerExecutor
-  int64_t Execute(int64_t clocks) override;
+  int64_t Execute(int64_t clocks);
 
   // Overrides ICPUTime
   // Returns CPU clock cycles executed

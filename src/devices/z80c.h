@@ -72,9 +72,9 @@ class CPUExecutor {
   void Init();
   void Reset();
 
-  static int64_t ExecSingle(Z80C* first, Z80C* second, int clocks);
-  static int64_t ExecDual(Z80C* first, Z80C* second, int count);
-  static int64_t ExecDual2(Z80C* first, Z80C* second, int count);
+  static int64_t ExecSingle(Z80C* first, Z80C* second, int64_t clocks);
+  static int64_t ExecDual(Z80C* first, Z80C* second, int64_t count);
+  static int64_t ExecDual2(Z80C* first, Z80C* second, int64_t count);
 
   void Stop(int count);
   static void StopDual(int count);
