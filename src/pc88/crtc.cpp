@@ -251,7 +251,7 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
         //  b0-b4   Horizontal Retrace-2 (char)
         //  b5-b7   Vertical Retrace-1 (char)
         case 4:
-          v_retrace_ = ((data >> 5) & 0x00000111) + 1;
+          v_retrace_ = ((data >> 5) & 0b00000111) + 1;
           h_retrace_ = (data & 0b00011111) + 2;
           //          linetime = 1667 / (height+vretrace-1);
           break;
