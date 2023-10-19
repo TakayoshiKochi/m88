@@ -27,7 +27,7 @@ Scheduler::Event* IFCALL
 Scheduler::AddEvent(int count, IDevice* inst, IDevice::TimeFunc func, int arg, bool repeat) {
   assert(inst && func);
   assert(count > 0);
-  return AddEventNS(count * 10000LL, inst, func, arg, repeat);
+  return AddEventNS(count * kNanoSecsPerTick, inst, func, arg, repeat);
 }
 
 Scheduler::Event* Scheduler::AddEventNS(int64_t ns,
@@ -65,7 +65,7 @@ void IFCALL Scheduler::SetEvent(Event* ev,
                                 bool repeat) {
   assert(inst && func);
   assert(count > 0);
-  SetEventNS(ev, count * 10000LL, inst, func, arg, repeat);
+  SetEventNS(ev, count * kNanoSecsPerTick, inst, func, arg, repeat);
 }
 
 void Scheduler::SetEventNS(Event* ev,
@@ -74,7 +74,7 @@ void Scheduler::SetEventNS(Event* ev,
                            IDevice::TimeFunc func,
                            int arg,
                            bool repeat) {
-  int ticks = int(ns / int64_t(10000));
+  int ticks = int(ns / kNanoSecsPerTick);
   if (ticks == 0)
     ticks = 1;
   // SetEvent(ev, ticks, inst, func, arg, repeat);
@@ -121,7 +121,7 @@ bool IFCALL Scheduler::DelEvent(Event* ev) {
 
 // For testing purpose only
 int Scheduler::Proceed(int ticks) {
-  return int(ProceedNS(ticks * 10000LL) / 10000);
+  return int(ProceedNS(ticks * kNanoSecsPerTick) / kNanoSecsPerTick);
 }
 
 int64_t Scheduler::ProceedNS(int64_t ns) {

@@ -1,8 +1,10 @@
-//
-// Created by tkoch on 2023/10/19.
-//
+#pragma once
 
-#ifndef M88_TIME_CONSTANTS_H
-#define M88_TIME_CONSTANTS_H
+#include <stdint.h>
 
-#endif //M88_TIME_CONSTANTS_H
+namespace {
+constexpr int64_t kNanoSecsPerTick = 10000LL;
+constexpr int64_t kNanoSecsPerMilliSec = 1000000LL;
+constexpr int64_t kNanoSecsPerSec = 1000000000LL;
+}  // namespace
+

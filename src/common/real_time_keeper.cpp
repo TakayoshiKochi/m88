@@ -11,16 +11,14 @@
 #include <assert.h>
 
 RealTimeKeeper::RealTimeKeeper() {
-  assert(unit > 0);
-
   LARGE_INTEGER li;
   if (!QueryPerformanceFrequency(&li)) {
     // abort
   }
   freq_ns_ = li.QuadPart;
   // TODO: support 1GHz+ frequency
-  ns_per_freq_ = 1000000000ULL / freq_ns_;
-  freq_ = (li.LowPart + unit * 500) / (unit * 1000);
+  ns_per_freq_ = kNanoSecsPerSec / freq_ns_;
+  freq_ = freq_ns_ / kNanoSecsPerTick;
   QueryPerformanceCounter(&li);
   base_ = li.LowPart;
   base_ns_ = li.QuadPart;

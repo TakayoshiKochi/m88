@@ -8,6 +8,8 @@
 
 #include <stdint.h>
 
+#include "common/time_constants.h"
+
 // ---------------------------------------------------------------------------
 //  RealTimeKeeper
 //  現在の時間を数値(1/unit ミリ秒単位)で与えるクラス．
@@ -18,11 +20,6 @@
 //  2度目に返される値は最初に返される値より N 増える．
 //
 class RealTimeKeeper {
- public:
-  enum {
-    unit = 100,  // 最低 1 ということで．
-  };
-
  public:
   RealTimeKeeper();
   ~RealTimeKeeper();

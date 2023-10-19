@@ -6,8 +6,6 @@
 
 #include "common/emulation_loop.h"
 
-#include <process.h>
-
 #include <algorithm>
 
 #include "pc88/pc88.h"
@@ -76,29 +74,30 @@ bool EmulationLoop::ThreadLoop() {
 //  eff     実効クロック
 inline void EmulationLoop::ExecuteNS(int64_t cpu_clock, int64_t length_ns, int64_t ec) {
   std::lock_guard<std::mutex> lock(mtx_);
-  exec_clocks_ += cpu_clock * vm_->ProceedNS(cpu_clock, length_ns, ec) / 1000000000LL;
+  exec_clocks_ += cpu_clock * vm_->ProceedNS(cpu_clock, length_ns, ec) / kNanoSecsPerSec;
 }
 
 void EmulationLoop::ExecuteBurst(uint32_t clocks) {
   vm_->TimeSync();
   int64_t ns = 0;
   relatime_lastsync_ns_ = real_time_.GetRealTimeNS();
-  // Execute up to 16ms (16_666_667ns)
+  // Execute up to 16ms (16_666_667ns = 1/60sec for 60fps)
   int64_t orig_exec_clocks = exec_clocks_;
   do {
     // Try executing 1ms
     if (clocks == 0) {
       // Full speed
-      ExecuteNS(effective_clock_, 10000 * speed_pct_, effective_clock_);
+      ExecuteNS(effective_clock_, kNanoSecsPerMilliSec * speed_pct_ / 100, effective_clock_);
     } else {
       // Burst mode
-      ExecuteNS(cpu_hz_, 1000000, effective_clock_);
+      int64_t target_duration = kNanoSecsPerMilliSec * effective_clock_ / cpu_hz_;
+      ExecuteNS(cpu_hz_, target_duration, effective_clock_);
     }
     ns = real_time_.GetRealTimeNS() - relatime_lastsync_ns_;
-  } while (ns < 16666667);
+  } while (ns < (kNanoSecsPerSec / 60));
   vm_->UpdateScreen();
   int64_t clock_per_ns = std::max(1LL, ns / (exec_clocks_ - orig_exec_clocks));
-  effective_clock_ = 1000000000LL / clock_per_ns;
+  effective_clock_ = kNanoSecsPerSec / clock_per_ns;
 }
 
 void EmulationLoop::ExecuteNormal(uint32_t clocks) {
@@ -130,7 +129,7 @@ void EmulationLoop::ExecuteNormal(uint32_t clocks) {
     } else {
       // TODO: sleep for nanoseconds-resolution?
       int64_t it_ns = twork_ns - tdraw_ns;
-      int sleep_ms = (int)(it_ns / 1000000);
+      int sleep_ms = (int)(it_ns / kNanoSecsPerMilliSec);
       if (sleep_ms > 0)
         Sleep(sleep_ms);
       draw_next_frame_ = true;
