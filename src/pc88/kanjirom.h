@@ -14,15 +14,15 @@ namespace PC8801 {
 
 class KanjiROM : public Device {
  public:
+  enum { kJis1 = 0, kJis2 };
   enum { setl = 0, seth };
-
   enum { readl = 0, readh };
 
  public:
   explicit KanjiROM(const ID& id);
   ~KanjiROM() override;
 
-  bool Init(const char* filename);
+  bool Init(int jis);
 
   void IOCALL SetL(uint32_t p, uint32_t d);
   void IOCALL SetH(uint32_t p, uint32_t d);
@@ -31,19 +31,19 @@ class KanjiROM : public Device {
 
   uint32_t IFCALL GetStatusSize() override { return sizeof(uint32_t); }
   bool IFCALL SaveStatus(uint8_t* status) override {
-    *(uint32_t*)status = adr;
+    *(uint32_t*)status = adr_;
     return true;
   }
   bool IFCALL LoadStatus(const uint8_t* status) override {
-    adr = *(const uint32_t*)status;
+    adr_ = *(const uint32_t*)status;
     return true;
   }
 
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
-  uint32_t adr;
-  uint8_t* image;
+  uint32_t adr_ = 0;
+  uint8_t* image_ = nullptr;
 
   static const Descriptor descriptor;
   static const InFuncPtr indef[];

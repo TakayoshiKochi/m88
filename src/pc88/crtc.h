@@ -227,11 +227,11 @@ class CRTC : public Device {
   // 0x8000-0x17fff: wide font (16x8)
   std::unique_ptr<uint8_t[]> font_;
   // raw font rom data, 8bytes per character * 256 characters (2048bytes total)
-  std::unique_ptr<uint8_t[]> fontrom_;
+  uint8_t* fontrom_;
   // Area for PCG font image
   std::unique_ptr<uint8_t[]> pcgram_;
   // PC-8001mkIISR CGROM
-  std::unique_ptr<uint8_t[]> cg80rom_;
+  uint8_t* cg80rom_;
   std::unique_ptr<uint8_t[]> vram_;
   uint8_t* vram_ptr_[2] = {nullptr, nullptr};
   uint8_t* attrcache_ = nullptr;

@@ -95,7 +95,7 @@ class Memory : public Device, public IGetMemoryBank {
   Quadbyte* GetGVRAM() { return gvram_.get(); }
   uint8_t* GetROM() { return rom_.get(); }
   [[nodiscard]] bool HasEROM(int b) const { return (erom_mask_ & (1 << b)) == 0; }
-  uint8_t* GetEROM(int b) { return erom_[b].get(); }
+  uint8_t* GetEROM(int b) { return erom_[b]; }
   uint8_t* GetDirtyFlag() { return dirty_.get(); }
 
   // Overrides for class IGetMemoryBank
@@ -159,8 +159,6 @@ class Memory : public Device, public IGetMemoryBank {
 
   bool InitMemory();
   bool LoadROM();
-  bool LoadROMImage(uint8_t* at, const char* file, int length);
-  bool LoadOptROM(const char* file, std::unique_ptr<uint8_t[]>& rom, int length);
   void SetWait();
   void SetWaits(uint32_t, uint32_t, uint32_t);
   void SelectJisyo();
@@ -190,11 +188,11 @@ class Memory : public Device, public IGetMemoryBank {
   std::unique_ptr<uint8_t[]> ram_;
   std::unique_ptr<uint8_t[]> eram_;
   std::unique_ptr<uint8_t[]> tvram_;
-  std::unique_ptr<uint8_t[]> dicrom_;       // 辞書ROM
-  std::unique_ptr<uint8_t[]> cdbios_;       // CD-ROM BIOS ROM
-  std::unique_ptr<uint8_t[]> n80rom_;       // N80-BASIC ROM
-  std::unique_ptr<uint8_t[]> n80v2rom_;     // N80SR
-  std::unique_ptr<uint8_t[]> erom_[8 + 1];  // 拡張 ROM
+  uint8_t* dicrom_ = nullptr;    // 辞書ROM
+  uint8_t* cdbios_ = nullptr;    // CD-ROM BIOS ROM
+  uint8_t* n80rom_ = nullptr;    // N80-BASIC ROM
+  uint8_t* n80v2rom_ = nullptr;  // N80SR
+  uint8_t* erom_[8 + 1]{};       // 拡張 ROM
 
   uint32_t port31 = 0;
   uint32_t port32 = 0;

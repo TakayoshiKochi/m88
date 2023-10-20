@@ -378,6 +378,9 @@
     <ClCompile Include="src\common\emulation_loop.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="src\services\rom_loader.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -745,6 +748,9 @@
     </ClInclude>
     <ClInclude Include="src\common\emulation_loop.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\rom_loader.h">
+      <Filter>services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
