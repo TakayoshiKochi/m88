@@ -12,12 +12,12 @@
 
 #include "common/draw.h"
 #include "common/error.h"
-#include "common/file.h"
 #include "common/scheduler.h"
 #include "common/status.h"
 #include "pc88/config.h"
 #include "pc88/pc88.h"
 #include "pc88/pd8257.h"
+#include "services/rom_loader.h"
 
 // #define LOGNAME "crtc"
 #include "common/diag.h"
@@ -74,11 +74,11 @@ bool CRTC::Init(IOBus* bus, Scheduler* sched, PD8257* dmac) {
   dmac_ = dmac;
 
   font_ = std::make_unique<uint8_t[]>(0x8000 + 0x10000);
-  fontrom_ = std::make_unique<uint8_t[]>(0x800);
+  fontrom_ = nullptr;
   pcgram_ = std::make_unique<uint8_t[]>(0x400);
   vram_ = std::make_unique<uint8_t[]>(0x1e00 + 0x1e00 + 0x1400);
 
-  if (!font_ || !fontrom_ || !vram_ || !pcgram_) {
+  if (!font_ || !vram_ || !pcgram_) {
     Error::SetError(Error::OutOfMemory);
     return false;
   }
@@ -126,7 +126,7 @@ uint32_t IOCALL CRTC::GetStatus(uint32_t) {
 //
 void IOCALL CRTC::Reset(uint32_t, uint32_t) {
   line200_ = (bus_->In(0x40) & 2) != 0;
-  memcpy(pcgram_.get(), fontrom_.get() + 0x400, 0x400);
+  memcpy(pcgram_.get(), fontrom_ + 0x400, 0x400);
   kana_mode_ = 0;
   CreateTFont();
   HotReset();
@@ -352,25 +352,9 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
 //  フォントファイル読み込み
 //
 bool CRTC::LoadFontFile() {
-  FileIODummy file;
-
-  if (file.Open("FONT80SR.ROM", FileIO::readonly)) {
-    cg80rom_ = std::make_unique<uint8_t[]>(0x2000);
-    file.Seek(0, FileIO::begin);
-    file.Read(cg80rom_.get(), 0x2000);
-  }
-
-  if (file.Open("FONT.ROM", FileIO::readonly)) {
-    file.Seek(0, FileIO::begin);
-    file.Read(fontrom_.get(), 0x800);
-    return true;
-  }
-  if (file.Open("KANJI1.ROM", FileIO::readonly)) {
-    file.Seek(0x1000, FileIO::begin);
-    file.Read(fontrom_.get(), 0x800);
-    return true;
-  }
-  return false;
+  fontrom_ = RomLoader::GetInstance()->Get(RomType::kFontRom);
+  cg80rom_ = RomLoader::GetInstance()->Get(RomType::kFont80SRRom);
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -378,16 +362,16 @@ bool CRTC::LoadFontFile() {
 //  src     フォント ROM
 //
 void CRTC::CreateTFont() {
-  CreateTFontSub(fontrom_.get(), 0, 0xa0);
+  CreateTFontSub(fontrom_, 0, 0xa0);
   CreateKanaFont();
-  CreateTFontSub(fontrom_.get() + 8 * 0xe0, 0xe0, 0x20);
+  CreateTFontSub(fontrom_ + 8 * 0xe0, 0xe0, 0x20);
 }
 
 void CRTC::CreateKanaFont() {
   if (kana_enable_ && cg80rom_) {
-    CreateTFontSub(cg80rom_.get() + 0x800 * (kana_mode_ >> 4), 0x00, 0x100);
+    CreateTFontSub(cg80rom_ + 0x800 * (kana_mode_ >> 4), 0x00, 0x100);
   } else {
-    CreateTFontSub(fontrom_.get() + 8 * 0xa0, 0xa0, 0x40);
+    CreateTFontSub(fontrom_ + 8 * 0xa0, 0xa0, 0x40);
   }
 }
 

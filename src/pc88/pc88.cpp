@@ -366,7 +366,7 @@ bool PC88::ConnectDevices() {
   kanji1_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '1'));
   if (!kanji1_ || !main_iobus_.Connect(kanji1_.get(), c_knj1))
     return false;
-  if (!kanji1_->Init("kanji1.rom"))
+  if (!kanji1_->Init(KanjiROM::kJis1))
     return false;
 
   static const IOBus::Connector c_knj2[] = {{0xec, IOBus::portout, KanjiROM::setl},
@@ -377,7 +377,7 @@ bool PC88::ConnectDevices() {
   kanji2_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '2'));
   if (!kanji2_ || !main_iobus_.Connect(kanji2_.get(), c_knj2))
     return false;
-  if (!kanji2_->Init("kanji2.rom"))
+  if (!kanji2_->Init(KanjiROM::kJis2))
     return false;
 
   static const IOBus::Connector c_scrn[] = {

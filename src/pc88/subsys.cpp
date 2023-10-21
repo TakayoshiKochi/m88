@@ -7,9 +7,9 @@
 #include "pc88/subsys.h"
 
 #include "common/device.h"
-#include "common/file.h"
 #include "common/memory_manager.h"
 #include "common/status.h"
+#include "services/rom_loader.h"
 
 // #define LOGNAME "subsys"
 #include "common/diag.h"
@@ -19,10 +19,7 @@ using namespace PC8801;
 // ---------------------------------------------------------------------------
 //  構築・破棄
 //
-SubSystem::SubSystem(const ID& id) : Device(id), mm_(0), mid_(-1), rom_(0) {
-  cw_main_ = 0x80;
-  cw_sub_ = 0x80;
-}
+SubSystem::SubSystem(const ID& id) : Device(id) {}
 
 SubSystem::~SubSystem() {
   if (mid_ != -1)
@@ -82,15 +79,8 @@ bool SubSystem::InitMemory() {
 bool SubSystem::LoadROM() {
   memset(rom_.get(), 0xff, 0x2000);
 
-  FileIODummy fio;
-  if (fio.Open("PC88.ROM", FileIO::readonly)) {
-    fio.Seek(0x14000, FileIO::begin);
-    fio.Read(rom_.get(), 0x2000);
-    return true;
-  }
-  if (fio.Open("DISK.ROM", FileIO::readonly)) {
-    fio.Seek(0, FileIO::begin);
-    fio.Read(rom_.get(), 0x2000);
+  if (uint8_t* rom = RomLoader::GetInstance()->Get(RomType::kSubSystemRom)) {
+    memcpy(rom_.get(), rom, 0x2000);
     return true;
   }
 
@@ -108,6 +98,7 @@ bool SubSystem::LoadROM() {
 //
 void SubSystem::PatchROM() {
   if (rom_[0xfb] == 0xcd && rom_[0xfc] == 0xb4 && rom_[0xfd] == 0x02) {
+    // CALL 02B4H => NOP
     rom_[0xfb] = rom_[0xfc] = rom_[0xfd] = 0;
     rom_[0x105] = rom_[0x106] = rom_[0x107] = 0;
   }

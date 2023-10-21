@@ -35,6 +35,7 @@ bool FileIODummy::Reopen(uint32_t flg) {
 void FileIODummy::Close() {
   if (fp_ != nullptr)
     fclose(fp_);
+  fp_ = nullptr;
 }
 
 int32_t FileIODummy::Read(void* dest, int32_t len) {

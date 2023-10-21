@@ -84,14 +84,14 @@ class SubSystem : public Device {
   void PatchROM();
 
   MemoryManager* mm_ = nullptr;
-  int mid_;
+  int mid_ = -1;
   std::unique_ptr<uint8_t[]> rom_;
   uint8_t* ram_ = nullptr;
   uint8_t* dummy_ = nullptr;
   PIO pio_main_;
   PIO pio_sub_;
-  uint32_t cw_main_ = 0;
-  uint32_t cw_sub_ = 0;
+  uint32_t cw_main_ = 0x80;
+  uint32_t cw_sub_ = 0x80;
   uint32_t idle_count_ = 0;
 
  private:

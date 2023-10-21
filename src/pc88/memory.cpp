@@ -14,12 +14,12 @@
 
 #include "common/device.h"
 #include "common/error.h"
-#include "common/file.h"
 #include "common/io_bus.h"
 #include "common/memory_bus.h"
 #include "common/memory_manager.h"
 #include "pc88/config.h"
 #include "pc88/crtc.h"
+#include "services/rom_loader.h"
 
 // using namespace std;
 using namespace PC8801;
@@ -84,7 +84,7 @@ void Memory::Reset(uint32_t, uint32_t newmode) {
 
   //  port33 = 0;
 
-  n80mode = (newmode & 2) && (port33 & 0x80 ? n80v2rom_.get() : n80rom_.get());
+  n80mode = (newmode & 2) && (port33 & 0x80 ? n80v2rom_ : n80rom_);
   n80srmode = (newmode == static_cast<uint32_t>(BasicMode::kN80V2));
 
   waitmode = ((sw31 & 0x40) || (n80mode && n80srmode) ? 12 : 0) + (high ? 24 : 0);
@@ -376,7 +376,7 @@ void IOCALL Memory::Out78(uint32_t, uint32_t) {
 //  b0      CD-EROM
 //
 void IOCALL Memory::Out99(uint32_t, uint32_t data) {
-  if (cdbios_.get() && !n80mode) {
+  if (cdbios_ && !n80mode) {
     port99 = data & 0x11;
     Update00R();
     Update60R();
@@ -422,7 +422,7 @@ void IOCALL Memory::Oute3(uint32_t, uint32_t data) {
 //
 void IOCALL Memory::Outf0(uint32_t, uint32_t data) {
   portf0 = data;
-  if (dicrom_.get() && !n80mode) {
+  if (dicrom_ && !n80mode) {
     UpdateC0();
     UpdateF0();
   }
@@ -432,7 +432,7 @@ void IOCALL Memory::Outf0(uint32_t, uint32_t data) {
 //  Port F0 辞書ROMバンク選択
 //
 void IOCALL Memory::Outf1(uint32_t, uint32_t data) {
-  if (dicrom_.get() && !n80mode) {
+  if (dicrom_ && !n80mode) {
     seldic = !(data & 1);
     UpdateC0();
     UpdateF0();
@@ -511,11 +511,11 @@ void Memory::UpdateN80R() {
     read60 = read + kOffset;
   } else {
     if (port33 & 0x80) {
-      read = n80v2rom_.get();
+      read = n80v2rom_;
       read60 = read + (port71 & 1 ? kOffset : 0x8000);
     } else {
-      read = n80rom_.get();
-      read60 = ((port31 | (erom_mask_ >> 8)) & 1) ? read + kOffset : erom_[8].get();
+      read = n80rom_;
+      read60 = ((port31 | (erom_mask_ >> 8)) & 1) ? read + kOffset : erom_[8];
     }
   }
   if (r00_ != read) {
@@ -551,7 +551,7 @@ void Memory::Update60R() {
           if (port71 & 1) {
             for (int i = 7; i > 0; i--) {
               if (~port71 & (1 << i)) {
-                read = erom_[i].get();
+                read = erom_[i];
                 break;
               }
             }
@@ -896,72 +896,54 @@ bool Memory::InitMemory() {
 }
 
 // ----------------------------------------------------------------------------
-//  必須でない ROM を読み込む
-//
-bool Memory::LoadOptROM(const char* name, std::unique_ptr<uint8_t[]>& rom, int size) {
-  FileIODummy file;
-  if (file.Open(name, FileIO::readonly)) {
-    file.Seek(0, FileIO::begin);
-    rom = std::make_unique<uint8_t[]>(size);
-    ;
-    if (rom) {
-      int r = file.Read(rom.get(), size);
-      memset(rom.get() + r, 0xff, size - r);
-      if (r > 0)
-        return true;
-    }
-  }
-  rom.reset();
-  return false;
-}
-
-// ----------------------------------------------------------------------------
 //  ROM を読み込む
 //
 bool Memory::LoadROM() {
-  FileIODummy file;
+  auto loader = RomLoader::GetInstance();
 
-  LoadOptROM("jisyo.rom", dicrom_, 512 * 1024);
-  LoadOptROM("cdbios.rom", cdbios_, 0x10000);
-  LoadOptROM("n80_2.rom", n80rom_, 0x8000);
-  LoadOptROM("n80_3.rom", n80v2rom_, 0xa000);
-  char name[] = "e0.rom";
+  // Jisyo - 88MH+, 512KB
+  dicrom_ = loader->Get(RomType::kJisyoRom);
+  // CDBios - 88MC, 64KB
+  cdbios_ = loader->Get(RomType::kCDBiosRom);
+  n80rom_ = loader->Get(RomType::kN80Rom);
+  n80rom_ = loader->Get(RomType::kN80SRRom);
 
+  // Ext ROM 1-7, N80 Ext ROM
   erom_mask_ = ~1;
-  for (int i = 1; i < 9; i++) {
-    name[1] = '0' + i;
-    if (LoadOptROM(name, erom_[i], 0x2000)) {
+  for (int i = 1; i < 9; ++i) {
+    auto type = static_cast<RomType>(static_cast<int>(RomType::kExtRom1) + i - 1);
+    erom_[i] = loader->Get(type);
+    if (erom_[i]) {
       erom_mask_ &= ~(1 << i);
     }
   }
 
-  if (file.Open("pc88.rom", FileIO::readonly)) {
-    file.Seek(0, FileIO::begin);
-    file.Read(rom_.get() + n88, 0x8000);
-    file.Read(rom_.get() + n80 + 0x6000, 0x2000);
-    file.Seek(0x2000, FileIO::current);
-    file.Read(rom_.get() + n88e, 0x8000);
-    file.Seek(0x2000, FileIO::current);
-    file.Read(rom_.get() + n80, 0x6000);
-    return true;
-  }
-
-  if (!LoadROMImage(rom_.get() + n88, "n88.rom", 0x8000))
+  // TODO: split rom_ into uint8_t* pointers.
+  uint8_t* ptr = loader->Get(RomType::kN88Rom);
+  if (!ptr)
     return false;
-  LoadROMImage(rom_.get() + n80, "n80.rom", 0x8000);
-  LoadROMImage(rom_.get() + n88e, "n88_0.rom", 0x2000);
-  LoadROMImage(rom_.get() + n88e + 0x2000, "n88_1.rom", 0x2000);
-  LoadROMImage(rom_.get() + n88e + 0x4000, "n88_2.rom", 0x2000);
-  LoadROMImage(rom_.get() + n88e + 0x6000, "n88_3.rom", 0x2000);
-
-  return true;
-}
-
-bool Memory::LoadROMImage(uint8_t* dest, const char* filename, int size) {
-  FileIODummy file;
-  if (!file.Open(filename, FileIO::readonly))
+  memcpy(rom_.get(), ptr, 0x8000);
+  ptr = loader->Get(RomType::kNRom);
+  if (!ptr)
     return false;
-  file.Read(dest, size);
+  memcpy(rom_.get() + n80, ptr, 0x8000);
+  ptr = loader->Get(RomType::kN88ERom0);
+  if (!ptr)
+    return false;
+  memcpy(rom_.get() + n88e, ptr, 0x2000);
+  ptr = loader->Get(RomType::kN88ERom1);
+  if (!ptr)
+    return false;
+  memcpy(rom_.get() + n88e + 0x2000, ptr, 0x2000);
+  ptr = loader->Get(RomType::kN88ERom2);
+  if (!ptr)
+    return false;
+  memcpy(rom_.get() + n88e + 0x4000, ptr, 0x2000);
+  ptr = loader->Get(RomType::kN88ERom3);
+  if (!ptr)
+    return false;
+  memcpy(rom_.get() + n88e + 0x6000, ptr, 0x2000);
+
   return true;
 }
 
