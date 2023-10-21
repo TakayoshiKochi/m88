@@ -42,15 +42,22 @@ class WinKeyIF : public Device {
 
   void LockGrph(bool lock);
   void LockKana(bool lock);
+  void LockCaps(bool lock);
+  void UseCursorForTen(bool use);
 
   [[nodiscard]] bool IsGrphLocked() const { return grph_locked_ || keystate_[VK_MENU] != 0; }
   [[nodiscard]] bool IsKanaLocked() const {
     return kana_locked_ || (keyboard_[VK_SCROLL] & 0x01) != 0;
   }
+  [[nodiscard]] bool IsCapsLocked() const {
+    return caps_locked_ || (keyboard_[VK_CAPITAL] & 0x01) != 0;
+  }
+  [[nodiscard]] bool CursorForTen() const { return use_arrow_; }
 
   void SyncLockState() {
     grph_locked_ = keystate_[VK_MENU] != 0;
     kana_locked_ = (keyboard_[VK_SCROLL] & 0x01) != 0;
+    caps_locked_ = (keyboard_[VK_CAPITAL] & 0x01) != 0;
   }
 
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
@@ -83,17 +90,18 @@ class WinKeyIF : public Device {
   const Key* keytable_ = nullptr;
   // int keyboardtype;
 
-  bool active_;
-  bool disabled_;
-  bool usearrow_;
-  bool pc80mode_;
+  bool active_ = false;
+  bool disabled_ = false;
+  bool use_arrow_ = false;
+  bool pc80mode_ = false;
 
-  HWND hwnd_;
-  HANDLE hevent_;
-  BasicMode basicmode_;
+  HWND hwnd_ = nullptr;
+  HANDLE hevent_ = nullptr;
+  BasicMode basicmode_ = BasicMode::kN88V2;
 
   bool grph_locked_ = false;
   bool kana_locked_ = false;
+  bool caps_locked_ = false;
 
   // I/O port return value cache.
   // Reset once VRTC happens, and recalculated from |keystate_| etc.

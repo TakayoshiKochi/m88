@@ -29,7 +29,7 @@ WinKeyIF::WinKeyIF() : Device(0) {
   }
   memset(keyboard_, 0, 256);
   memset(keystate_, 0, 512);
-  usearrow_ = false;
+  use_arrow_ = false;
 
   disabled_ = false;
 }
@@ -61,7 +61,7 @@ void IOCALL WinKeyIF::Reset(uint32_t, uint32_t) {
 //  設定反映
 //
 void WinKeyIF::ApplyConfig(const Config* config) {
-  usearrow_ = 0 != (config->flags & Config::kUseArrowFor10);
+  use_arrow_ = 0 != (config->flags & Config::kUseArrowFor10);
   basicmode_ = config->basicmode;
 
   switch (config->keytype) {
@@ -169,6 +169,22 @@ void WinKeyIF::LockKana(bool lock) {
   }
   kana_locked_ = lock;
 }
+
+void WinKeyIF::LockCaps(bool lock) {
+  if (caps_locked_ == lock)
+    return;
+  if (lock) {
+    KeyDown(VK_CAPITAL, 1);
+  } else {
+    KeyUp(VK_CAPITAL, 0xc0000001);
+  }
+  caps_locked_ = lock;
+}
+
+void WinKeyIF::UseCursorForTen(bool use) {
+  use_arrow_ = use;
+}
+
 // ---------------------------------------------------------------------------
 //  Key
 //  keyboard によるキーチェックは反応が鈍いかも知れず
@@ -199,17 +215,17 @@ uint32_t WinKeyIF::GetKey(const Key* key) {
         break;
 
       case arrowten:
-        if (usearrow_ && (keyboard_[key->k] & 0x80))
+        if (use_arrow_ && (keyboard_[key->k] & 0x80))
           return 0;
         break;
 
       case noarrowten:
-        if (!usearrow_ && (keyboard_[key->k] & 0x80))
+        if (!use_arrow_ && (keyboard_[key->k] & 0x80))
           return 0;
         break;
 
       case noarrowtenex:
-        if (!usearrow_ && keystate_[key->k | 0x100])
+        if (!use_arrow_ && keystate_[key->k | 0x100])
           return 0;
         break;
 
@@ -486,7 +502,8 @@ const WinKeyIF::Key WinKeyIF::KeyTable106[16 * 8][8] = {
     {KEY(VK_F12), TERM},                      // COPY
     {KEY(0x6d), TERM},                        // -
     {KEY(0x6f), TERM},                        // /
-    {KEYF(VK_CAPITAL, lock), TERM},           // CAPS LOCK
+    // The second VK_CAPITAL is for emulating kana lock from menu.
+    {KEYF(VK_CAPITAL, lock), KEY(VK_CAPITAL), TERM},  // CAPS LOCK
 
     // 0b
     {KEYF(VK_NEXT, ext), TERM},   // ROLL DOWN
@@ -727,7 +744,8 @@ const WinKeyIF::Key WinKeyIF::KeyTable101[16 * 8][8] = {
     {KEY(VK_F12), TERM},                      // COPY
     {KEY(0x6d), TERM},                        // -
     {KEY(0x6f), TERM},                        // /
-    {KEYF(VK_CAPITAL, lock), TERM},           // CAPS LOCK
+    // The second VK_CAPITAL is for emulating kana lock from menu.
+    {KEYF(VK_CAPITAL, lock), KEY(VK_CAPITAL), TERM},  // CAPS LOCK
 
     // I/O port 0bH
     {KEYF(VK_NEXT, ext), TERM},   // ROLL DOWN

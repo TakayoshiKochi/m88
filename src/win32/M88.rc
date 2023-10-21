@@ -96,6 +96,8 @@ BEGIN
     BEGIN
         MENUITEM "GRPH",                        IDM_KEY_GRPH
         MENUITEM "Kana",                        IDM_KEY_KANA
+        MENUITEM "Caps",                        IDM_KEY_CAPS
+        MENUITEM "Cursor->Tenkey",              IDM_KEY_CURSOR
     END
     POPUP "D&ebug"
     BEGIN

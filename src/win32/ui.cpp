@@ -1357,6 +1357,16 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       keyif_.LockKana(!keyif_.IsKanaLocked());
       break;
 
+    case IDM_KEY_CAPS:
+      keyif_.LockCaps(!keyif_.IsCapsLocked());
+      break;
+
+    case IDM_KEY_CURSOR:
+      keyif_.CursorForTen() ? config_.flags &= ~Config::kUseArrowFor10
+                            : config_.flags |= Config::kUseArrowFor10;
+      keyif_.UseCursorForTen(!keyif_.CursorForTen());
+      break;
+
     case IDM_DEBUG_TEXT:
       config_.flags ^= PC8801::Config::kSpecialPalette;
       ApplyConfig();
@@ -1751,6 +1761,8 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
 
   CheckMenuItem(hmenu_, IDM_KEY_GRPH, keyif_.IsGrphLocked() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_KEY_KANA, keyif_.IsKanaLocked() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_KEY_CAPS, keyif_.IsCapsLocked() ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_KEY_CURSOR, keyif_.CursorForTen() ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu_, IDM_WATCHREGISTER,
                 (config_.dipsw != 1 && reg_mon_.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
