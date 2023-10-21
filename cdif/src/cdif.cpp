@@ -347,7 +347,7 @@ void CDIF::ReadSubcodeQ() {
   switch (phase_) {
     case kExecPhase:
       Log("Read Subcode-Q\n");
-      SendCommand(CDControl::kReadSubCodeq, reinterpret_cast<LPARAM>(tmpbuf_));
+      SendCommand(CDControl::kReadSubCodeq, reinterpret_cast<WPARAM>(tmpbuf_));
       break;
 
     case kWaitPhase:
