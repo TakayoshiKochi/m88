@@ -5,7 +5,17 @@
 //
 // static
 int64_t Z80X::ExecSingle(Z80X* first, Z80X* second, int64_t clocks) {
-  return ExecDual(first, second, clocks);
+  int64_t start = first->GetClocks();
+  int64_t target = start + clocks;
+  while (first->GetClocks() < target) {
+    currentcpu = first;
+    first->SingleStep();
+  }
+  int64_t cycles = first->GetClocks() - start;
+  first->SyncCycles();
+  second->exec_cycles_ = first->exec_cycles_;
+  second->cycles_ = first->cycles_;
+  return cycles;
 }
 
 // ---------------------------------------------------------------------------
