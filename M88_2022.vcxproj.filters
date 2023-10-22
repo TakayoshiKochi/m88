@@ -381,6 +381,12 @@
     <ClCompile Include="src\services\rom_loader.cpp">
       <Filter>services</Filter>
     </ClCompile>
+    <ClCompile Include="src\devices\opn.cpp">
+      <Filter>devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\opnb.cpp">
+      <Filter>devices</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
