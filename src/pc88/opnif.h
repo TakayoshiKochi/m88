@@ -9,13 +9,11 @@
 #include "common/device.h"
 #include "devices/opna.h"
 
-// ---------------------------------------------------------------------------
-
 class IOBus;
 class PC88;
-class Scheduler;
 class Piccolo;
 class PiccoloChip;
+class Scheduler;
 
 // #define USE_OPN
 

@@ -37,8 +37,8 @@ class SamplingRateConverter : public SoundSource {
   void MakeFilter(uint32_t outrate);
   int Avail();
 
-  SoundSourceL* source;
-  SampleL* buffer;
+  SoundSourceL* source_ = nullptr;
+  SampleL* buffer_ = nullptr;
   float* h2;
 
   int buffersize;  // バッファのサイズ (in samples)
@@ -65,11 +65,11 @@ inline void SamplingRateConverter::FillWhenEmpty(bool f) {
 }
 
 inline uint32_t SamplingRateConverter::GetRate() {
-  return source ? outputrate : 0;
+  return source_ ? outputrate : 0;
 }
 
 inline int SamplingRateConverter::GetChannels() {
-  return source ? ch : 0;
+  return source_ ? ch : 0;
 }
 
 // ---------------------------------------------------------------------------

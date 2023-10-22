@@ -45,7 +45,7 @@ T bessel0(T x) {
 //  Sound Buffer
 //
 SamplingRateConverter::SamplingRateConverter()
-    : source(0), buffer(0), buffersize(0), h2(0), outputrate(0) {
+    : source_(nullptr), buffer_(nullptr), buffersize(0), h2(nullptr), outputrate(0) {
   fillwhenempty = true;
 }
 
@@ -56,10 +56,10 @@ SamplingRateConverter::~SamplingRateConverter() {
 bool SamplingRateConverter::Init(SoundSourceL* _source, int _buffersize, uint32_t outrate) {
   std::lock_guard<std::mutex> lock(mtx_);
 
-  delete[] buffer;
-  buffer = 0;
+  delete[] buffer_;
+  buffer_ = nullptr;
 
-  source = 0;
+  source_ = nullptr;
   if (!_source)
     return true;
 
@@ -73,12 +73,12 @@ bool SamplingRateConverter::Init(SoundSourceL* _source, int _buffersize, uint32_
   if (!ch || buffersize <= 0)
     return false;
 
-  buffer = new SampleL[ch * buffersize];
-  if (!buffer)
+  buffer_ = new SampleL[ch * buffersize];
+  if (!buffer_)
     return false;
 
-  memset(buffer, 0, ch * buffersize * sizeof(SampleL));
-  source = _source;
+  memset(buffer_, 0, ch * buffersize * sizeof(SampleL));
+  source_ = _source;
 
   outputrate = outrate;
 
@@ -90,8 +90,8 @@ bool SamplingRateConverter::Init(SoundSourceL* _source, int _buffersize, uint32_
 void SamplingRateConverter::CleanUp() {
   std::lock_guard<std::mutex> lock(mtx_);
 
-  delete[] buffer;
-  buffer = 0;
+  delete[] buffer_;
+  buffer_ = 0;
   delete[] h2;
   h2 = 0;
 }
@@ -101,7 +101,7 @@ void SamplingRateConverter::CleanUp() {
 //
 int SamplingRateConverter::Fill(int samples) {
   std::lock_guard<std::mutex> lock(mtx_);
-  if (source)
+  if (source_)
     return FillMain(samples);
   return 0;
 }
@@ -124,11 +124,11 @@ int SamplingRateConverter::FillMain(int samples) {
     // 書きこむ
     if (buffersize - write >= samples) {
       // 一度で書ける場合
-      source->Get(buffer + write * ch, samples);
+      source_->Get(buffer_ + write * ch, samples);
     } else {
       // ２度に分けて書く場合
-      source->Get(buffer + write * ch, buffersize - write);
-      source->Get(buffer, samples - (buffersize - write));
+      source_->Get(buffer_ + write * ch, buffersize - write);
+      source_->Get(buffer_, samples - (buffersize - write));
     }
     write += samples;
     if (write >= buffersize)
@@ -141,7 +141,7 @@ int SamplingRateConverter::FillMain(int samples) {
 //  フィルタを構築
 //
 void SamplingRateConverter::MakeFilter(uint32_t out) {
-  uint32_t in = source->GetRate();
+  uint32_t in = source_->GetRate();
 
   // 変換前、変換後レートの比を求める
   // ソースを ic 倍アップサンプリングして LPF を掛けた後
@@ -205,7 +205,7 @@ void SamplingRateConverter::MakeFilter(uint32_t out) {
 //
 int SamplingRateConverter::Get(Sample* dest, int samples) {
   std::lock_guard<std::mutex> lock(mtx_);
-  if (!buffer)
+  if (!buffer_)
     return 0;
 
   int count;
@@ -220,8 +220,8 @@ int SamplingRateConverter::Get(Sample* dest, int samples) {
 
     h = &h2[(ic - oo) * (M + 1) + (M)];
     for (i = -M; i <= 0; i++) {
-      z0 += *h * buffer[p * 2];
-      z1 += *h * buffer[p * 2 + 1];
+      z0 += *h * buffer_[p * 2];
+      z1 += *h * buffer_[p * 2 + 1];
       h--;
       p++;
       if (p == buffersize)
@@ -230,8 +230,8 @@ int SamplingRateConverter::Get(Sample* dest, int samples) {
 
     h = &h2[oo * (M + 1)];
     for (; i <= M; i++) {
-      z0 += *h * buffer[p * 2];
-      z1 += *h * buffer[p * 2 + 1];
+      z0 += *h * buffer_[p * 2];
+      z1 += *h * buffer_[p * 2 + 1];
       h++;
       p++;
       if (p == buffersize)

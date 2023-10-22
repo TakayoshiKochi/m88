@@ -372,7 +372,7 @@ uint32_t IFCALL OPNIF::GetStatusSize() {
 //  状態保存
 //
 bool IFCALL OPNIF::SaveStatus(uint8_t* s) {
-  Status* st = (Status*)s;
+  auto* st = (Status*)s;
   st->rev = ssrev;
   st->i0 = index0_;
   st->i1 = index1_;
@@ -390,7 +390,7 @@ bool IFCALL OPNIF::SaveStatus(uint8_t* s) {
 //  状態復帰
 //
 bool IFCALL OPNIF::LoadStatus(const uint8_t* s) {
-  const Status* st = (const Status*)s;
+  const auto* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;
 

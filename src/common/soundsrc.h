@@ -4,22 +4,16 @@
 
 #include <stdint.h>
 
-typedef int16_t Sample;
-
-class SoundSource {
+template <class T>
+class SoundSource_ {
  public:
-  virtual int Get(Sample* dest, int size) = 0;
+  virtual int Get(T* dest, int size) = 0;
   virtual uint32_t GetRate() = 0;
   virtual int GetChannels() = 0;
   virtual int GetAvail() = 0;
 };
 
-typedef int32_t SampleL;
-
-class SoundSourceL {
- public:
-  virtual int Get(SampleL* dest, int size) = 0;
-  virtual uint32_t GetRate() = 0;
-  virtual int GetChannels() = 0;
-  virtual int GetAvail() = 0;
-};
+using Sample = int16_t;
+using SampleL = int32_t;
+using SoundSource = SoundSource_<Sample>;
+using SoundSourceL = SoundSource_<SampleL>;
