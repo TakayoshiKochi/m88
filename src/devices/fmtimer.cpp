@@ -6,6 +6,8 @@
 
 #include "devices/fmtimer.h"
 
+#include <algorithm>
+
 using namespace FM;
 
 // ---------------------------------------------------------------------------
@@ -92,7 +94,7 @@ bool Timer::Count(int32_t us) {
 int32_t Timer::GetNextEvent() {
   uint32_t ta = ((timera_count_ + 0xffff) >> 16) - 1;
   uint32_t tb = ((timerb_count_ + 0xfff) >> 12) - 1;
-  return (ta < tb ? ta : tb) + 1;
+  return (int32_t)std::min(ta, tb) + 1;
 }
 
 // ---------------------------------------------------------------------------

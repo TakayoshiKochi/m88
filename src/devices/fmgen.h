@@ -100,23 +100,24 @@ class Operator {
   }
 
  private:
-  typedef uint32_t Counter;
+  using Counter = uint32_t;
 
-  Chip* chip_;
-  ISample out_, out2_;
-  ISample in2_;
+  Chip* chip_ = nullptr;
+  ISample out_ = 0;
+  ISample out2_ = 0;
+  ISample in2_ = 0;
 
   //  Phase Generator ------------------------------------------------------
   uint32_t PGCalc();
   uint32_t PGCalcL();
 
-  uint32_t dp_;          // ΔP
-  uint32_t detune_;      // Detune
-  uint32_t detune2_;     // DT2
-  uint32_t multiple_;    // Multiple
-  uint32_t pg_count_;    // Phase 現在値
-  uint32_t pg_diff_;     // Phase 差分値
-  int32_t pg_diff_lfo_;  // Phase 差分値 >> x
+  uint32_t dp_ = 0;          // ΔP
+  uint32_t detune_ = 0;      // Detune
+  uint32_t detune2_ = 0;     // DT2
+  uint32_t multiple_ = 0;    // Multiple
+  uint32_t pg_count_ = 0;    // Phase 現在値
+  uint32_t pg_diff_ = 0;     // Phase 差分値
+  int32_t pg_diff_lfo_ = 0;  // Phase 差分値 >> x
 
   //  Envelop Generator ---------------------------------------------------
   enum EGPhase { next, attack, decay, sustain, release, off, hold };
@@ -130,41 +131,41 @@ class Operator {
   // int FBCalc(int fb);
   ISample LogToLin(uint32_t a);
 
-  OpType type_;                 // OP の種類 (M, N...)
-  uint32_t bn_;                 // Block/Note
-  int eg_level_;                // EG の出力値
-  int eg_level_on_next_phase_;  // 次の eg_phase_ に移る値
-  int eg_count_;                // EG の次の変移までの時間
-  int eg_count_diff_;           // eg_count_ の差分
-  int eg_out_;                  // EG+TL を合わせた出力値
-  int tl_out_;                  // TL 分の出力値
-                                // int pm_depth_;  // PM depth
-                                // int am_depth_;  // AM depth
-  int eg_rate_;
-  int eg_curve_count_;
-  int ssg_offset_;
-  int ssg_vector_;
+  OpType type_ = OpType::typeN;     // OP の種類 (M, N...)
+  uint32_t bn_ = 0;                 // Block/Note
+  int eg_level_ = 0;                // EG の出力値
+  int eg_level_on_next_phase_ = 0;  // 次の eg_phase_ に移る値
+  int eg_count_ = 0;                // EG の次の変移までの時間
+  int eg_count_diff_ = 0;           // eg_count_ の差分
+  int eg_out_ = 0;                  // EG+TL を合わせた出力値
+  int tl_out_ = 0;                  // TL 分の出力値
+                                    // int pm_depth_;  // PM depth
+                                    // int am_depth_;  // AM depth
+  int eg_rate_ = 0;
+  int eg_curve_count_ = 0;
+  int ssg_offset_ = 0;
+  int ssg_vector_ = 0;
 
-  uint32_t key_scale_rate_;  // key scale rate
-  EGPhase eg_phase_;
-  uint32_t* ams_;
-  uint32_t ms_;
+  uint32_t key_scale_rate_ = 0;  // key scale rate
+  EGPhase eg_phase_ = off;       // EG の現在の状態
+  uint32_t* ams_ = nullptr;
+  uint32_t ms_ = 0;
 
-  uint32_t tl_;        // Total Level   (0-127)
-  uint32_t tl_latch_;  // Total Level Latch (for CSM mode)
-  uint32_t ar_;        // Attack Rate   (0-63)
-  uint32_t dr_;        // Decay Rate    (0-63)
-  uint32_t sr_;        // Sustain Rate  (0-63)
-  uint32_t sl_;        // Sustain Level (0-127)
-  uint32_t rr_;        // Release Rate  (0-63)
-  uint32_t ks_;        // Keyscale      (0-3)
-  uint32_t ssg_type_;  // SSG-Type Envelope Control
+  uint32_t tl_ = 0;        // Total Level   (0-127)
+  uint32_t tl_latch_ = 0;  // Total Level Latch (for CSM mode)
+  uint32_t ar_ = 0;        // Attack Rate   (0-63)
+  uint32_t dr_ = 0;        // Decay Rate    (0-63)
+  uint32_t sr_ = 0;        // Sustain Rate  (0-63)
+  uint32_t sl_ = 0;        // Sustain Level (0-127)
+  uint32_t rr_ = 0;        // Release Rate  (0-63)
+  uint32_t ks_ = 0;        // Keyscale      (0-3)
+  uint32_t ssg_type_ = 0;  // SSG-Type Envelope Control
 
-  bool keyon_;
-  bool csmkeyon_;
-  bool amon_;           // enable Amplitude Modulation
-  bool param_changed_;  // パラメータが更新された
-  bool mute_;
+  bool keyon_ = false;
+  bool csmkeyon_ = false;
+  bool amon_ = false;           // enable Amplitude Modulation
+  bool param_changed_ = false;  // パラメータが更新された
+  bool mute_ = false;
 
   //  Tables ---------------------------------------------------------------
 
@@ -187,8 +188,8 @@ class Operator {
   friend class Channel4;
 
  public:
-  int dbgopout_;
-  int dbgpgout_;
+  int dbgopout_ = 0;
+  int dbgpgout_ = 0;
   // static const int32_t* dbgGetClTable() { return cltable; }
   // static const uint32_t* dbgGetSineTable() { return sinetable; }
 };
@@ -230,13 +231,13 @@ class Channel4 {
 
  private:
   static const uint8_t fbtable[8];
-  uint32_t fb_;
-  int buf_[4];
-  int* in_[3];   // 各 OP の入力ポインタ
-  int* out_[3];  // 各 OP の出力ポインタ
-  int* pms_;
-  int algo_;
-  Chip* chip_;
+  uint32_t fb_ = 0;
+  int buf_[4]{};
+  int* in_[3]{};   // 各 OP の入力ポインタ
+  int* out_[3]{};  // 各 OP の出力ポインタ
+  int* pms_ = nullptr;
+  int algo_ = 0;
+  Chip* chip_ = nullptr;
 
   static void MakeTable();
 

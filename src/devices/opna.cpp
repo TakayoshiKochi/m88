@@ -162,7 +162,7 @@ OPN::OPN() {
 
   csm_ch_ = &ch_[2];
 
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; ++i) {
     ch_[i].SetChip(&chip_);
     ch_[i].SetType(typeN);
   }
@@ -391,13 +391,13 @@ OPNABase::OPNABase() {
 
   MakeTable2();
   BuildLFOTable();
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; ++i) {
     ch_[i].SetChip(&chip_);
     ch_[i].SetType(typeN);
   }
 }
 
-OPNABase::~OPNABase() {}
+OPNABase::~OPNABase() = default;
 
 // ---------------------------------------------------------------------------
 //  初期化
@@ -416,6 +416,7 @@ bool OPNABase::Init(uint32_t c, uint32_t r, bool) {
 // ---------------------------------------------------------------------------
 //  テーブル作成
 //
+// static
 void OPNABase::MakeTable2() {
   if (!tablehasmade) {
     for (int i = -FM_TLPOS; i < FM_TLENTS; i++) {
@@ -1161,7 +1162,7 @@ void OPNABase::Mix6(Sample* buffer, int nsamples, int activech) {
 //  構築
 //
 OPNA::OPNA() {
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; ++i) {
     rhythm_[i].sample = 0;
     rhythm_[i].pos = 0;
     rhythm_[i].size = 0;
@@ -1179,7 +1180,7 @@ OPNA::OPNA() {
 
 OPNA::~OPNA() {
   delete[] adpcm_buf_;
-  for (int i = 0; i < 6; i++)
+  for (int i = 0; i < 6; ++i)
     delete[] rhythm_[i].sample;
 }
 
@@ -1460,9 +1461,9 @@ void OPNA::Mix(Sample* buffer, int nsamples) {
 //  構築
 //
 OPNB::OPNB() {
-  adpcmabuf = 0;
+  adpcmabuf = nullptr;
   adpcmasize = 0;
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; ++i) {
     adpcma[i].pan = 0;
     adpcma[i].level = 0;
     adpcma[i].volume = 0;
@@ -1485,7 +1486,7 @@ OPNB::OPNB() {
   InitADPCMATable();
 }
 
-OPNB::~OPNB() {}
+OPNB::~OPNB() = default;
 
 // ---------------------------------------------------------------------------
 //  初期化
@@ -1540,7 +1541,7 @@ void OPNB::Reset() {
   adpcmakey = 0;
   reg29_ = ~0;
 
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; ++i) {
     adpcma[i].pan = 0;
     adpcma[i].level = 0;
     adpcma[i].volume = 0;
