@@ -12,6 +12,7 @@
 #include "common/srcbuf.h"
 
 #include <mutex>
+#include <vector>
 
 // ---------------------------------------------------------------------------
 
@@ -59,11 +60,6 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
   uint32_t rate50_ = 0;         // samplingrate / 50
 
  private:
-  struct SSNode {
-    ISoundSource* sound_source;
-    SSNode* next;
-  };
-
   SamplingRateConverter soundbuf_;
 
   PC88* pc_ = nullptr;
@@ -78,7 +74,7 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
 
   bool enabled_ = false;
 
-  SSNode* sslist_ = nullptr;
+  std::vector<ISoundSource*> sslist_;
   std::mutex mtx_;
 };
 
