@@ -128,8 +128,10 @@ add_library(fmgen ${LIB_TYPE}
         src/devices/fmtimer.cpp
         src/devices/opm.h
         src/devices/opm.cpp
+        src/devices/opn.cpp
         src/devices/opna.h
         src/devices/opna.cpp
+        src/devices/opnb.cpp
         src/devices/psg.h
         src/devices/psg.cpp)
 

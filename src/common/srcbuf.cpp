@@ -44,56 +44,48 @@ T bessel0(T x) {
 // ---------------------------------------------------------------------------
 //  Sound Buffer
 //
-SamplingRateConverter::SamplingRateConverter()
-    : source(0), buffer(0), buffersize(0), h2(0), outputrate(0) {
-  fillwhenempty = true;
-}
+SamplingRateConverter::SamplingRateConverter() = default;
 
 SamplingRateConverter::~SamplingRateConverter() {
   CleanUp();
 }
 
-bool SamplingRateConverter::Init(SoundSourceL* _source, int _buffersize, uint32_t outrate) {
+bool SamplingRateConverter::Init(SoundSourceL* _source, int buffer_size, uint32_t outrate) {
   std::lock_guard<std::mutex> lock(mtx_);
 
-  delete[] buffer;
-  buffer = 0;
+  buffer_.reset();
 
-  source = 0;
+  source_ = nullptr;
   if (!_source)
     return true;
 
-  buffersize = _buffersize;
-  assert(buffersize > (2 * M + 1));
+  buffer_size_ = buffer_size;
+  assert(buffer_size_ > (2 * M + 1));
 
-  ch = _source->GetChannels();
-  read = 0;
-  write = 0;
+  ch_ = _source->GetChannels();
+  read_ptr_ = 0;
+  write_ptr_ = 0;
 
-  if (!ch || buffersize <= 0)
+  if (!ch_ || buffer_size_ <= 0)
     return false;
 
-  buffer = new SampleL[ch * buffersize];
-  if (!buffer)
+  buffer_ = std::make_unique<SampleL[]>(ch_ * buffer_size_);
+  if (!buffer_)
     return false;
 
-  memset(buffer, 0, ch * buffersize * sizeof(SampleL));
-  source = _source;
+  memset(buffer_.get(), 0, ch_ * buffer_size_ * sizeof(SampleL));
+  source_ = _source;
 
-  outputrate = outrate;
+  output_rate_ = outrate;
 
   MakeFilter(outrate);
-  read = 2 * M + 1;  // zero fill
+  read_ptr_ = 2 * M + 1;  // zero fill
   return true;
 }
 
 void SamplingRateConverter::CleanUp() {
   std::lock_guard<std::mutex> lock(mtx_);
-
-  delete[] buffer;
-  buffer = 0;
-  delete[] h2;
-  h2 = 0;
+  // nop
 }
 
 // ---------------------------------------------------------------------------
@@ -101,38 +93,38 @@ void SamplingRateConverter::CleanUp() {
 //
 int SamplingRateConverter::Fill(int samples) {
   std::lock_guard<std::mutex> lock(mtx_);
-  if (source)
+  if (source_)
     return FillMain(samples);
   return 0;
 }
 
 int SamplingRateConverter::FillMain(int samples) {
   // リングバッファの空きを計算
-  int free = buffersize - Avail();
+  int free = buffer_size_ - Avail();
 
-  if (!fillwhenempty && (samples > free - 1)) {
-    int skip = std::min(samples - free + 1, buffersize - free);
+  if (!fill_when_empty_ && (samples > free - 1)) {
+    int skip = std::min(samples - free + 1, buffer_size_ - free);
     free += skip;
-    read += skip;
-    if (read > buffersize)
-      read -= buffersize;
+    read_ptr_ += skip;
+    if (read_ptr_ > buffer_size_)
+      read_ptr_ -= buffer_size_;
   }
 
   // 書きこむべきデータ量を計算
   samples = std::min(samples, free - 1);
   if (samples > 0) {
     // 書きこむ
-    if (buffersize - write >= samples) {
+    if (buffer_size_ - write_ptr_ >= samples) {
       // 一度で書ける場合
-      source->Get(buffer + write * ch, samples);
+      source_->Get(buffer_.get() + write_ptr_ * ch_, samples);
     } else {
       // ２度に分けて書く場合
-      source->Get(buffer + write * ch, buffersize - write);
-      source->Get(buffer, samples - (buffersize - write));
+      source_->Get(buffer_.get() + write_ptr_ * ch_, buffer_size_ - write_ptr_);
+      source_->Get(buffer_.get(), samples - (buffer_size_ - write_ptr_));
     }
-    write += samples;
-    if (write >= buffersize)
-      write -= buffersize;
+    write_ptr_ += samples;
+    if (write_ptr_ >= buffer_size_)
+      write_ptr_ -= buffer_size_;
   }
   return samples;
 }
@@ -141,7 +133,7 @@ int SamplingRateConverter::FillMain(int samples) {
 //  フィルタを構築
 //
 void SamplingRateConverter::MakeFilter(uint32_t out) {
-  uint32_t in = source->GetRate();
+  uint32_t in = source_->GetRate();
 
   // 変換前、変換後レートの比を求める
   // ソースを ic 倍アップサンプリングして LPF を掛けた後
@@ -153,51 +145,50 @@ void SamplingRateConverter::MakeFilter(uint32_t out) {
     out *= 3;
   }
   int32_t g = gcd(in, out);
-  ic = out / g;
-  oc = in / g;
+  ic_ = out / g;
+  oc_ = in / g;
 
   // あまり次元を高くしすぎると、係数テーブルが巨大になってしまうのでてけとうに精度を落とす
-  while (ic > osmax && oc >= osmin) {
-    ic = (ic + 1) / 2;
-    oc = (oc + 1) / 2;
+  while (ic_ > osmax && oc_ >= osmin) {
+    ic_ = (ic_ + 1) / 2;
+    oc_ = (oc_ + 1) / 2;
   }
 
-  double r = ic * in;  // r = lpf かける時のレート
+  double r = ic_ * in;  // r = lpf かける時のレート
 
   // カットオフ 周波数
-  double c = .95 * PI / std::max(ic, oc);  // c = カットオフ
+  double c = .95 * PI / std::max(ic_, oc_);  // c = カットオフ
   double fc = c * r / (2 * PI);
 
   // フィルタを作ってみる
   // FIR LPF (窓関数はカイザー窓)
-  n = (M + 1) * ic;  // n = フィルタの次数
+  n_ = (M + 1) * ic_;  // n = フィルタの次数
 
-  delete[] h2;
-  h2 = new float[(ic + 1) * (M + 1)];
+  h2_ = std::make_unique<float[]>((ic_ + 1) * (M + 1));
 
-  double gain = 2 * ic * fc / r;
+  double gain = 2 * ic_ * fc / r;
   double a = 10.;  // a = 阻止域での減衰量を決める
   double d = bessel0(a);
 
   int j = 0;
-  for (int i = 0; i <= ic; i++) {
+  for (int i = 0; i <= ic_; i++) {
     int ii = i;
     for (int o = 0; o <= M; o++) {
       if (ii > 0) {
-        double x = (double)ii / (double)(n);
+        double x = (double)ii / (double)(n_);
         double x2 = x * x;
         double w = bessel0(sqrt(1.0 - x2) * a) / d;
         double g = c * (double)ii;
         double z = sin(g) / g * w;
-        h2[j] = gain * z;
+        h2_[j] = gain * z;
       } else {
-        h2[j] = gain;
+        h2_[j] = gain;
       }
       j++;
-      ii += ic;
+      ii += ic_;
     }
   }
-  oo = 0;
+  oo_ = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -205,50 +196,47 @@ void SamplingRateConverter::MakeFilter(uint32_t out) {
 //
 int SamplingRateConverter::Get(Sample* dest, int samples) {
   std::lock_guard<std::mutex> lock(mtx_);
-  if (!buffer)
+  if (!buffer_)
     return 0;
 
-  int count;
   int ss = samples;
-  for (count = samples; count > 0; count--) {
-    int p = read;
+  for (int count = samples; count > 0; count--) {
+    int i = 0;
+    float z0 = 0.f;
+    float z1 = 0.f;
 
-    int i;
-    float* h;
-
-    float z0 = 0.f, z1 = 0.f;
-
-    h = &h2[(ic - oo) * (M + 1) + (M)];
+    int p = read_ptr_;
+    float* h = &h2_[(ic_ - oo_) * (M + 1) + (M)];
     for (i = -M; i <= 0; i++) {
-      z0 += *h * buffer[p * 2];
-      z1 += *h * buffer[p * 2 + 1];
+      z0 += *h * buffer_[p * 2];
+      z1 += *h * buffer_[p * 2 + 1];
       h--;
       p++;
-      if (p == buffersize)
+      if (p == buffer_size_)
         p = 0;
     }
 
-    h = &h2[oo * (M + 1)];
+    h = &h2_[oo_ * (M + 1)];
     for (; i <= M; i++) {
-      z0 += *h * buffer[p * 2];
-      z1 += *h * buffer[p * 2 + 1];
+      z0 += *h * buffer_[p * 2];
+      z1 += *h * buffer_[p * 2 + 1];
       h++;
       p++;
-      if (p == buffersize)
+      if (p == buffer_size_)
         p = 0;
     }
     *dest++ = Limit(z0, 32767, -32768);
     *dest++ = Limit(z1, 32767, -32768);
 
-    oo -= oc;
-    while (oo < 0) {
-      read++;
-      if (read == buffersize)
-        read = 0;
+    oo_ -= oc_;
+    while (oo_ < 0) {
+      read_ptr_++;
+      if (read_ptr_ == buffer_size_)
+        read_ptr_ = 0;
       if (Avail() < 2 * M + 1)
         FillMain(std::max(ss, count));
       ss = 0;
-      oo += ic;
+      oo_ += ic_;
     }
   }
   return samples;

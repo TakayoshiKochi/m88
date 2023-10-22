@@ -12,6 +12,7 @@
 #include "common/srcbuf.h"
 
 #include <mutex>
+#include <vector>
 
 // ---------------------------------------------------------------------------
 
@@ -59,16 +60,11 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
   uint32_t rate50_ = 0;         // samplingrate / 50
 
  private:
-  struct SSNode {
-    ISoundSource* ss;
-    SSNode* next;
-  };
-
   SamplingRateConverter soundbuf_;
 
   PC88* pc_ = nullptr;
 
-  int32_t* mixing_buf_ = nullptr;
+  std::unique_ptr<int32_t[]> mixing_buf_;
   int buffer_size_ = 0;
 
   uint32_t prev_time_ = 0;
@@ -78,7 +74,7 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
 
   bool enabled_ = false;
 
-  SSNode* sslist_ = nullptr;
+  std::vector<ISoundSource*> sslist_;
   std::mutex mtx_;
 };
 

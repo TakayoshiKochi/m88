@@ -26,18 +26,18 @@ class Timer {
   void SetTimerB(uint32_t data);
   void SetTimerControl(uint32_t data);
 
-  uint8_t status_;
-  uint8_t reg_tc_;
+  uint8_t status_ = 0;
+  uint8_t reg_tc_ = 0;
 
  private:
   virtual void TimerA() {}
   uint8_t regta[2];
 
-  int32_t timera_;
+  int32_t timera_ = 0;
   int32_t timera_count_ = 0;
-  int32_t timerb_;
+  int32_t timerb_ = 0;
   int32_t timerb_count_ = 0;
-  int32_t timer_step_;
+  int32_t timer_step_ = 0;
 };
 
 // ---------------------------------------------------------------------------
