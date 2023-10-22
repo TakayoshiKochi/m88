@@ -60,7 +60,7 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
 
  private:
   struct SSNode {
-    ISoundSource* ss;
+    ISoundSource* sound_source;
     SSNode* next;
   };
 
@@ -68,7 +68,7 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
 
   PC88* pc_ = nullptr;
 
-  int32_t* mixing_buf_ = nullptr;
+  std::unique_ptr<int32_t[]> mixing_buf_;
   int buffer_size_ = 0;
 
   uint32_t prev_time_ = 0;

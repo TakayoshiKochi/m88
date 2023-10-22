@@ -56,14 +56,12 @@ bool Sound::SetRate(uint32_t rate, int bufsize) {
 
   // 各音源のレート設定を変更
   for (SSNode* n = sslist_; n; n = n->next)
-    n->ss->SetRate(mix_rate_);
+    n->sound_source->SetRate(mix_rate_);
 
   enabled_ = false;
 
   // 古いバッファを削除
   soundbuf_.CleanUp();
-  delete[] mixing_buf_;
-  mixing_buf_ = 0;
 
   // 新しいバッファを用意
   sampling_rate_ = rate;
@@ -74,7 +72,7 @@ bool Sound::SetRate(uint32_t rate, int bufsize) {
     if (!soundbuf_.Init(this, bufsize, rate))
       return false;
 
-    mixing_buf_ = new int32_t[2 * bufsize];
+    mixing_buf_ = std::make_unique<int32_t[]>(2 * bufsize);
     if (!mixing_buf_)
       return false;
 
@@ -99,8 +97,6 @@ void Sound::CleanUp() {
 
   // バッファを開放
   soundbuf_.CleanUp();
-  delete[] mixing_buf_;
-  mixing_buf_ = nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -111,13 +107,13 @@ int Sound::Get(Sample* dest, int nsamples) {
   if (mixsamples > 0) {
     // 合成
     {
-      memset(mixing_buf_, 0, mixsamples * 2 * sizeof(int32_t));
+      memset(mixing_buf_.get(), 0, mixsamples * 2 * sizeof(int32_t));
       std::lock_guard<std::mutex> lock(mtx_);
       for (SSNode* s = sslist_; s; s = s->next)
-        s->ss->Mix(mixing_buf_, mixsamples);
+        s->sound_source->Mix(mixing_buf_.get(), mixsamples);
     }
 
-    int32_t* src = mixing_buf_;
+    int32_t* src = mixing_buf_.get();
     for (int n = mixsamples; n > 0; n--) {
       *dest++ = Limit(*src++, 32767, -32768);
       *dest++ = Limit(*src++, 32767, -32768);
@@ -134,7 +130,7 @@ int Sound::Get(SampleL* dest, int nsamples) {
   memset(dest, 0, nsamples * 2 * sizeof(int32_t));
   std::lock_guard<std::mutex> lock(mtx_);
   for (SSNode* s = sslist_; s; s = s->next)
-    s->ss->Mix(dest, nsamples);
+    s->sound_source->Mix(dest, nsamples);
   return nsamples;
 }
 
@@ -159,7 +155,7 @@ bool Sound::Connect(ISoundSource* ss) {
   // 音源は既に登録済みか？;
   SSNode** n;
   for (n = &sslist_; *n; n = &((*n)->next)) {
-    if ((*n)->ss == ss)
+    if ((*n)->sound_source == ss)
       return false;
   }
 
@@ -169,7 +165,7 @@ bool Sound::Connect(ISoundSource* ss) {
 
   *n = nn;
   nn->next = 0;
-  nn->ss = ss;
+  nn->sound_source = ss;
   ss->SetRate(mix_rate_);
   return true;
 }
@@ -184,7 +180,7 @@ bool Sound::Disconnect(ISoundSource* ss) {
   std::lock_guard<std::mutex> lock(mtx_);
 
   for (SSNode** r = &sslist_; *r; r = &((*r)->next)) {
-    if ((*r)->ss == ss) {
+    if ((*r)->sound_source == ss) {
       SSNode* d = *r;
       *r = d->next;
       delete d;

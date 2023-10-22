@@ -4,6 +4,7 @@
 
 #include "common/soundsrc.h"
 
+#include <memory>
 #include <mutex>
 
 // ---------------------------------------------------------------------------
@@ -14,13 +15,14 @@ class SamplingRateConverter : public SoundSource {
   SamplingRateConverter();
   ~SamplingRateConverter();
 
-  bool Init(SoundSourceL* source, int bufsize, uint32_t outrate);  // bufsize はサンプル単位
+  bool Init(SoundSourceL* source, int buffer_size, uint32_t outrate);  // bufsize はサンプル単位
   void CleanUp();
 
-  int Get(Sample* dest, int size);
-  uint32_t GetRate();
-  int GetChannels();
-  int GetAvail();
+  // Overrides SoundSource
+  int Get(Sample* dest, int size) override;
+  uint32_t GetRate() override;
+  int GetChannels() override;
+  int GetAvail() override;
 
   int Fill(int samples);  // バッファに最大 sample 分データを追加
   bool IsEmpty();
@@ -35,25 +37,25 @@ class SamplingRateConverter : public SoundSource {
 
   int FillMain(int samples);
   void MakeFilter(uint32_t outrate);
-  int Avail();
+  [[nodiscard]] int Avail() const;
 
   SoundSourceL* source_ = nullptr;
-  SampleL* buffer_ = nullptr;
-  float* h2;
+  std::unique_ptr<SampleL[]> buffer_;
+  std::unique_ptr<float[]> h2_;
 
-  int buffersize;  // バッファのサイズ (in samples)
-  int read;        // 読込位置 (in samples)
-  int write;       // 書き込み位置 (in samples)
-  int ch;          // チャネル数(1sample = ch*Sample)
-  bool fillwhenempty;
+  int buffer_size_ = 0;  // バッファのサイズ (in samples)
+  int read_ptr_ = 0;     // 読込位置 (in samples)
+  int write_ptr_ = 0;    // 書き込み位置 (in samples)
+  int ch_ = 2;           // チャネル数(1sample = ch*Sample)
+  bool fill_when_empty_ = true;
 
-  int n;
-  int nch;
-  int oo;
-  int ic;
-  int oc;
+  int n_ = 0;
+  // int nch = 0;
+  int oo_ = 0;
+  int ic_ = 0;
+  int oc_ = 0;
 
-  int outputrate;
+  int output_rate_ = 0;
 
   std::mutex mtx_;
 };
@@ -61,25 +63,25 @@ class SamplingRateConverter : public SoundSource {
 // ---------------------------------------------------------------------------
 
 inline void SamplingRateConverter::FillWhenEmpty(bool f) {
-  fillwhenempty = f;
+  fill_when_empty_ = f;
 }
 
 inline uint32_t SamplingRateConverter::GetRate() {
-  return source_ ? outputrate : 0;
+  return source_ ? output_rate_ : 0;
 }
 
 inline int SamplingRateConverter::GetChannels() {
-  return source_ ? ch : 0;
+  return source_ ? ch_ : 0;
 }
 
 // ---------------------------------------------------------------------------
 //  バッファが空か，空に近い状態か?
 //
-inline int SamplingRateConverter::Avail() {
-  if (write >= read)
-    return write - read;
+inline int SamplingRateConverter::Avail() const {
+  if (write_ptr_ >= read_ptr_)
+    return write_ptr_ - read_ptr_;
   else
-    return buffersize + write - read;
+    return buffer_size_ + write_ptr_ - read_ptr_;
 }
 
 inline int SamplingRateConverter::GetAvail() {

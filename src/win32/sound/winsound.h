@@ -63,7 +63,7 @@ class Config;
 class WinSound : public Sound {
  public:
   WinSound();
-  ~WinSound();
+  ~WinSound() override;
 
   bool Init(PC88* pc, HWND hwnd, uint32_t rate, uint32_t buflen);
   bool ChangeRate(uint32_t rate, uint32_t buflen, bool wo);
