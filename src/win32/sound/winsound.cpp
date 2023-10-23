@@ -117,6 +117,12 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
         break;
 
       driver_.reset();
+      if (use_asio_) {
+        use_asio_ = false;
+        use_ds2_ = true;
+        statusdisplay.Show(100, 3000, "ASIO は使用できないようです");
+        continue;
+      }
       if (!use_waveout_ && use_ds2_) {
         use_ds2_ = false;
         statusdisplay.Show(100, 3000, "IDirectSoundNotify は使用できないようです");
