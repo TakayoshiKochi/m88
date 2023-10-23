@@ -183,7 +183,7 @@ void DriverDS2::Send() {
     return;
 
   // 書きこみサイズ計算
-  int writelength;
+  int writelength = 0;
   if (cplay < nextwrite_)
     writelength = cplay + buffer_size_ - nextwrite_;
   else

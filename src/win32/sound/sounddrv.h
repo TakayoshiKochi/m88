@@ -21,8 +21,8 @@ class Driver {
  public:
   //  typedef SoundBuffer::Sample Sample;
 
-  Driver() {}
-  virtual ~Driver() {}
+  Driver() = default;
+  virtual ~Driver() = default;
 
   virtual bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms) = 0;
   virtual bool CleanUp() = 0;
@@ -30,10 +30,10 @@ class Driver {
 
  protected:
   SoundSource* src_ = nullptr;
-  uint32_t buffer_size_;
-  uint32_t sample_shift_;
-  std::atomic<bool> playing_;
-  bool mixalways;
+  uint32_t buffer_size_ = 0;
+  uint32_t sample_shift_ = 0;
+  std::atomic<bool> playing_ = false;
+  bool mixalways = false;
 };
 
 }  // namespace WinSoundDriver
