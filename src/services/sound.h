@@ -57,7 +57,6 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
  protected:
   uint32_t mix_rate_ = 0;
   uint32_t sampling_rate_ = 0;  // サンプリングレート
-  uint32_t rate50_ = 0;         // samplingrate / 50
 
  private:
   SamplingRateConverter soundbuf_;
@@ -67,10 +66,10 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
   std::unique_ptr<int32_t[]> mixing_buf_;
   int buffer_size_ = 0;
 
-  uint32_t prev_time_ = 0;
+  int64_t prev_clock_ = 0;
+  int64_t mix_threshold_ = 2000;
+  int64_t clock_remainder_ = 0;
   // uint32_t cfgflg = 0;
-  int tdiff_ = 0;
-  uint32_t mix_threshold_ = 0;
 
   bool enabled_ = false;
 
