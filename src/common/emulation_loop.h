@@ -50,7 +50,10 @@ class EmulationLoop : public Threadable<EmulationLoop> {
 
   void SetLegacyClock(int clock) { legacy_clocks_per_tick_ = clock; }
   void SetCPUClock(uint64_t cpu_clock) { cpu_hz_ = effective_clock_ = cpu_clock; }
-  void SetSpeed(int speed) { speed_pct_ = std::min(std::max(speed, 10), 10000); }
+  void SetSpeed(int speed) {
+    speed_pct_ = std::min(std::max(speed, 10), 10000);
+    effective_clock_ = cpu_hz_ * speed_pct_ / 100;
+  }
   void SetRefreshTiming(uint32_t refresh_timing) { refresh_timing_ = refresh_timing; }
 
   // thread loop

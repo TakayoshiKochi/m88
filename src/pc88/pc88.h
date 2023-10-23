@@ -97,6 +97,7 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   [[nodiscard]] uint32_t IFCALL GetCPUTick() const override {
     return static_cast<uint32_t>(main_cpu_.GetClocks());
   }
+  [[nodiscard]] int64_t IFCALL GetCPUClocks64() const { return main_cpu_.GetClocks(); }
   // Returns CPU clock cycles per tick
   [[nodiscard]] uint32_t IFCALL GetCPUSpeed() const override {
     return static_cast<uint32_t>((scheduler_.cpu_clock() + 50000) / 100000);

@@ -33,9 +33,9 @@ Sound::~Sound() {
 //
 bool Sound::Init(PC88* pc88, uint32_t rate, int bufsize) {
   pc_ = pc88;
-  prev_time_ = pc_->GetCPUTick();
+  prev_clock_ = pc_->GetCPUClocks64();
   enabled_ = false;
-  mix_threshold_ = 16;
+  mix_threshold_ = 2000;
 
   if (!SetRate(rate, bufsize))
     return false;
@@ -76,8 +76,7 @@ bool Sound::SetRate(uint32_t rate, int bufsize) {
     if (!mixing_buf_)
       return false;
 
-    rate50_ = mix_rate_ / 50;
-    tdiff_ = 0;
+    clock_remainder_ = 0;
     enabled_ = true;
   }
   return true;
@@ -180,23 +179,14 @@ bool Sound::Disconnect(ISoundSource* ss) {
 //  arg:    src     更新する音源を指定(今の実装では無視されます)
 //
 bool Sound::Update(ISoundSource* /*src*/) {
-  uint32_t currenttime = pc_->GetCPUTick();
-
-  uint32_t time = currenttime - prev_time_;
-  if (enabled_ && time > mix_threshold_) {
-    prev_time_ = currenttime;
-    // nsamples = 経過時間(s) * サンプリングレート
-    // sample = ticks * rate / clock / 100000
-    // sample = ticks * (rate/50) / clock / 2000
-
-    // MulDiv(a, b, c) = (int64) a * b / c
-    int a = MulDiv(time, rate50_, static_cast<int>(pc_->GetEffectiveSpeed())) + tdiff_;
-    //      a = MulDiv(a, mixrate, samplingrate);
-    int samples = a / 2000;
-    tdiff_ = a % 2000;
-
+  int64_t current_clock = pc_->GetCPUClocks64();
+  int64_t clocks = current_clock - prev_clock_ + clock_remainder_;
+  if (enabled_ && clocks > mix_threshold_) {
+    int samples = mix_rate_ * clocks / pc_->GetEffectiveSpeed();
+    clock_remainder_ = clocks - (pc_->GetEffectiveSpeed() * samples / mix_rate_);
     Log("Store = %5d samples\n", samples);
     soundbuf_.Fill(samples);
+    prev_clock_ = current_clock;
   }
   return true;
 }
@@ -205,15 +195,15 @@ bool Sound::Update(ISoundSource* /*src*/) {
 //  今まで合成された時間の，1サンプル未満の端数(0-1999)を求める
 //
 int IFCALL Sound::GetSubsampleTime(ISoundSource* /*src*/) {
-  return tdiff_;
+  return clock_remainder_;
 }
 
 // ---------------------------------------------------------------------------
 //  定期的に内部カウンタを更新
-//
+//  called per 50ms (via timer callback)
 void IOCALL Sound::UpdateCounter(uint32_t) {
-  if ((pc_->GetCPUTick() - prev_time_) > 40000) {
+  if ((pc_->GetCPUClocks64() - prev_clock_) > 2000000) {
     Log("Update Counter\n");
-    Update(0);
+    Update(nullptr);
   }
 }

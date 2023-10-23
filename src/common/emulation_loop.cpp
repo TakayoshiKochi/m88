@@ -94,7 +94,7 @@ void EmulationLoop::ExecuteBurst(uint32_t clocks) {
     ns = real_time_.GetRealTimeNS() - relatime_lastsync_ns_;
   } while (ns < (kNanoSecsPerSec / 60));
   delegate_->UpdateScreen(false);
-  int64_t clock_per_ns = std::max(1LL, ns / (exec_clocks_ - orig_exec_clocks));
+  int64_t clock_per_ns = std::max(1LL, (exec_clocks_ - orig_exec_clocks) / ns);
   effective_clock_ = kNanoSecsPerSec / clock_per_ns;
 }
 
@@ -107,7 +107,7 @@ void EmulationLoop::ExecuteNormal(uint32_t clocks) {
   // TODO: timing?
   delegate_->TimeSync();
   // Execute CPU
-  ExecuteNS(cpu_hz_, texec_ns, clocks * speed_pct_ / 100);
+  ExecuteNS(cpu_hz_, texec_ns, effective_clock_);
 
   // Time used for CPU execution
   int64_t tcpu_ns = real_time_.GetRealTimeNS() - relatime_lastsync_ns_;
