@@ -626,6 +626,12 @@
     <ClCompile Include="src\win32\sound\soundds.cpp" />
     <ClCompile Include="src\win32\sound\soundds2.cpp" />
     <ClCompile Include="src\win32\sound\soundwo.cpp" />
+    <ClCompile Include="src\win32\sound\sound_asio.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="src\win32\sound\winsound.cpp" />
     <ClCompile Include="src\win32\status_win.cpp" />
     <ClCompile Include="src\win32\ui.cpp">
@@ -812,6 +818,24 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="third_party\asio\common\asio.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="third_party\asio\host\asiodrivers.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="third_party\asio\host\pc\asiolist.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="third_party\libpng\png.c" />
     <ClCompile Include="third_party\libpng\pngerror.c" />
     <ClCompile Include="third_party\libpng\pngget.c" />
@@ -935,6 +959,7 @@
     <ClInclude Include="src\win32\sound\soundds.h" />
     <ClInclude Include="src\win32\sound\soundds2.h" />
     <ClInclude Include="src\win32\sound\soundwo.h" />
+    <ClInclude Include="src\win32\sound\sound_asio.h" />
     <ClInclude Include="src\win32\sound\winsound.h" />
     <ClInclude Include="src\win32\status_win.h" />
     <ClInclude Include="src\win32\ui.h" />
@@ -953,6 +978,10 @@
     <ClInclude Include="src\zlib\zconf.h" />
     <ClInclude Include="src\zlib\zlib.h" />
     <ClInclude Include="src\zlib\zutil.h" />
+    <ClInclude Include="third_party\asio\common\asio.h" />
+    <ClInclude Include="third_party\asio\host\asiodrivers.h" />
+    <ClInclude Include="third_party\asio\host\ginclude.h" />
+    <ClInclude Include="third_party\asio\host\pc\asiolist.h" />
     <ClInclude Include="third_party\libpng\png.h" />
     <ClInclude Include="third_party\libpng\pngconf.h" />
     <ClInclude Include="third_party\libpng\pngdebug.h" />

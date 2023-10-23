@@ -13,6 +13,7 @@
 #include <mmsystem.h>
 #include <dsound.h>
 
+#include <memory>
 #include <mutex>
 #include <string>
 
@@ -81,7 +82,7 @@ class WinSound : public Sound {
   void CleanUp();
   //  int Get(Sample* dest, int samples);
 
-  WinSoundDriver::Driver* driver_ = nullptr;
+  std::unique_ptr<WinSoundDriver::Driver> driver_;
 
   HWND hwnd_ = nullptr;
   uint32_t current_rate_ = 0;
@@ -90,6 +91,7 @@ class WinSound : public Sound {
 
   OPNMonitor* sound_mon_ = nullptr;
   bool use_waveout_ = false;
+  bool use_asio_ = true;
   bool use_ds2_ = false;
 
   SoundDumpPipe dumper;

@@ -40,6 +40,9 @@
     <Filter Include="Z80">
       <UniqueIdentifier>{a52fd16b-9396-4c63-958e-b1d213839132}</UniqueIdentifier>
     </Filter>
+    <Filter Include="asio">
+      <UniqueIdentifier>{fc4b0869-0c27-41da-926c-22be36b2db66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\device.cpp">
@@ -386,6 +389,18 @@
     </ClCompile>
     <ClCompile Include="src\devices\opnb.cpp">
       <Filter>devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win32\sound\sound_asio.cpp">
+      <Filter>win32\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\asio\common\asio.cpp">
+      <Filter>asio</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\asio\host\asiodrivers.cpp">
+      <Filter>asio</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\asio\host\pc\asiolist.cpp">
+      <Filter>asio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -757,6 +772,21 @@
     </ClInclude>
     <ClInclude Include="src\services\rom_loader.h">
       <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win32\sound\sound_asio.h">
+      <Filter>win32\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\asio\common\asio.h">
+      <Filter>asio</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\asio\host\asiodrivers.h">
+      <Filter>asio</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\asio\host\ginclude.h">
+      <Filter>asio</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\asio\host\pc\asiolist.h">
+      <Filter>asio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

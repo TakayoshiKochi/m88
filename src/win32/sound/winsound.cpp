@@ -10,6 +10,7 @@
 
 #include "pc88/config.h"
 #include "win32/monitor/soundmon.h"
+#include "win32/sound/sound_asio.h"
 #include "win32/sound/soundds.h"
 #include "win32/sound/soundds2.h"
 #include "win32/sound/soundwo.h"
@@ -24,10 +25,7 @@ using namespace WinSoundDriver;
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-WinSound::WinSound() : driver_(0) {
-  sound_mon_ = 0;
-  use_ds2_ = true;
-}
+WinSound::WinSound() = default;
 
 WinSound::~WinSound() {
   DumpEnd();
@@ -55,8 +53,7 @@ bool WinSound::Init(PC88* pc, HWND hwindow, uint32_t rate, uint32_t buflen) {
 void WinSound::CleanUp() {
   if (driver_) {
     driver_->CleanUp();
-    delete driver_;
-    driver_ = 0;
+    driver_.reset();
   }
   Sound::CleanUp();
 }
@@ -93,8 +90,6 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
 
   if (driver_) {
     driver_->CleanUp();
-    delete driver_;
-    driver_ = nullptr;
   }
 
   if (rate < 1000)
@@ -103,23 +98,25 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
   if (!SetRate(rate, bufsize))
     return false;
 
-  if (bufsize > 0) {
+  if (!driver_ && bufsize > 0) {
     while (true) {
       if (use_waveout_) {
-        driver_ = new DriverWO;
+        driver_ = std::make_unique<DriverWO>();
+      } else if (use_asio_) {
+        driver_ = std::make_unique<DriverASIO>();
+        statusdisplay.Show(200, 8000, "sounddrv: using ASIO driver");
       } else if (use_ds2_) {
-        driver_ = new DriverDS2;
+        driver_ = std::make_unique<DriverDS2>();
         statusdisplay.Show(200, 8000, "sounddrv: using Notify driven driver");
       } else {
-        driver_ = new DriverDS;
+        driver_ = std::make_unique<DriverDS>();
         statusdisplay.Show(200, 8000, "sounddrv: using timer driven driver");
       }
 
       if (driver_ && driver_->Init(&dumper, hwnd_, sample_rate_, 2, buflen))
         break;
 
-      delete driver_;
-      driver_ = nullptr;
+      driver_.reset();
       if (!use_waveout_ && use_ds2_) {
         use_ds2_ = false;
         statusdisplay.Show(100, 3000, "IDirectSoundNotify は使用できないようです");
@@ -176,7 +173,7 @@ bool WinSound::DumpEnd() {
 //  return samples;
 //}
 
-SoundDumpPipe::SoundDumpPipe() : source_(0), dumpstate_(IDLE), hmmio_(0) {}
+SoundDumpPipe::SoundDumpPipe() : source_(nullptr), dumpstate_(IDLE), hmmio_(nullptr) {}
 
 bool SoundDumpPipe::DumpStart(char* filename) {
   if (hmmio_)

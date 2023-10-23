@@ -217,6 +217,20 @@ target_include_directories(pc88shell
 
 target_link_libraries(pc88shell devices)
 
+add_library(asio ${LIB_TYPE}
+        third_party/asio/common/asio.h
+        third_party/asio/common/asio.cpp
+        third_party/asio/host/asiodrivers.h
+        third_party/asio/host/asiodrivers.cpp
+        third_party/asio/host/pc/asiolist.h
+        third_party/asio/host/pc/asiolist.cpp
+        third_party/asio/host/ginclude.h)
+
+target_include_directories(asio
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/common
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/host
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/host/pc)
+
 add_library(win32 ${LIB_TYPE}
         src/win32/88config.h
         src/win32/88config.cpp
@@ -242,6 +256,8 @@ add_library(win32 ${LIB_TYPE}
         src/win32/screen/windraw.h
         src/win32/screen/windraw.cpp
         src/win32/sound/sounddrv.h
+        src/win32/sound/sound_asio.h
+        src/win32/sound/sound_asio.cpp
         src/win32/sound/soundds.h
         src/win32/sound/soundds.cpp
         src/win32/sound/soundds2.h
@@ -271,7 +287,7 @@ target_include_directories(win32
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
-target_link_libraries(win32 devices)
+target_link_libraries(win32 devices asio)
 
 add_executable(win32_unittests
         src/pc88/pc88_test.cc)
