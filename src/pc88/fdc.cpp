@@ -771,7 +771,7 @@ void FDC::CmdSenceIntStatus() {
 void FDC::CmdSenceDeviceStatus() {
   switch (phase_) {
     case idlephase:
-      Log("SenceDeviceStatus ");
+      Log("SenseDeviceStatus ");
       ShiftToCommandPhase(1);
       return;
 
@@ -791,7 +791,7 @@ uint32_t FDC::GetDeviceStatus(uint32_t dr) {
   std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
   hdu_ = (hdu_ & ~3) | (dr & 3);
   if (dr < num_drives)
-    return diskmgr_->GetFDU(dr)->SenceDeviceStatus() | dr;
+    return diskmgr_->GetFDU(dr)->SenseDeviceStatus() | dr;
   else
     return 0x80 | dr;
 }

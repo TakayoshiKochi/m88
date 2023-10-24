@@ -47,7 +47,7 @@ class FDU {
   uint32_t ReadSector(uint32_t flags, IDR id, uint8_t* data);
   uint32_t WriteSector(uint32_t flags, IDR id, const uint8_t* data, bool deleted);
   uint32_t Seek(uint32_t cyrinder);
-  uint32_t SenceDeviceStatus();
+  uint32_t SenseDeviceStatus();
   uint32_t ReadID(uint32_t flags, IDR* id);
   uint32_t WriteID(uint32_t flags, WIDDESC* wid);
   uint32_t FindID(uint32_t flags, IDR id);

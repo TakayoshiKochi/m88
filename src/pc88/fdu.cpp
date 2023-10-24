@@ -197,7 +197,7 @@ uint32_t FDU::WriteSector(uint32_t flags, IDR id, const uint8_t* data, bool dele
 //  FDU::SenceDeviceStatus
 //  デバイス・スタータスを得る
 //
-uint32_t FDU::SenceDeviceStatus() {
+uint32_t FDU::SenseDeviceStatus() {
   uint32_t result = 0x20 | (cyrinder ? 0 : 0x10) | (head ? 4 : 0);
   if (disk_)
     result |= disk_->IsReadOnly() ? 0x48 : 8;

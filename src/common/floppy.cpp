@@ -12,12 +12,7 @@
 //  構築
 //
 FloppyDisk::FloppyDisk() {
-  ntracks_ = 0;
-  cur_track_ = nullptr;
-  cur_sector_ = nullptr;
-  cur_tracknum_ = ~0;
-  readonly_ = false;
-  type_ = kMD2D;
+  tracks_.resize(168);
 }
 
 FloppyDisk::~FloppyDisk() = default;
@@ -25,11 +20,11 @@ FloppyDisk::~FloppyDisk() = default;
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool FloppyDisk::Init(DiskType _type, bool _readonly) {
+bool FloppyDisk::Init(DiskType type, bool readonly) {
   static const int trtbl[] = {84, 164, 164};
 
-  type_ = _type;
-  readonly_ = _readonly;
+  type_ = type;
+  readonly_ = readonly;
   ntracks_ = trtbl[type_];
 
   cur_track_ = nullptr;
@@ -44,7 +39,7 @@ bool FloppyDisk::Init(DiskType _type, bool _readonly) {
 void FloppyDisk::Seek(uint32_t tr) {
   if (tr != cur_tracknum_) {
     cur_tracknum_ = tr;
-    cur_track_ = tr < 168 ? tracks_ + tr : nullptr;
+    cur_track_ = tr < 168 ? &tracks_[tr] : nullptr;
     cur_sector_ = nullptr;
   }
 }
@@ -98,7 +93,7 @@ uint32_t FloppyDisk::GetNumSectors() {
     Sector* sec = cur_track_->sector_;
     while (sec) {
       sec = sec->next;
-      n++;
+      ++n;
     }
   }
   return n;
@@ -186,8 +181,8 @@ bool FloppyDisk::FormatTrack(int nsec, int secsize) {
 
   if (nsec) {
     // セクタを作成
-    cur_sector_ = 0;
-    for (int i = 0; i < nsec; i++) {
+    cur_sector_ = nullptr;
+    for (int i = 0; i < nsec; ++i) {
       auto* newsector = new Sector;
       if (!newsector)
         return false;

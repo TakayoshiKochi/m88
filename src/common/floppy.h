@@ -8,12 +8,14 @@
 
 #include <stdint.h>
 
+#include <vector>
+
 // ---------------------------------------------------------------------------
 //  フロッピーディスク
 //
 class FloppyDisk {
  public:
-  enum SectorFlags : uint32_t {
+  enum SectorFlags : uint8_t {
     kDeleted = 1,
     kDataCRC = 2,
     kIDCRC = 4,
@@ -76,12 +78,12 @@ class FloppyDisk {
   void IndexHole() { cur_sector_ = nullptr; }
 
  private:
-  Track tracks_[168]{};
+  std::vector<Track> tracks_;
   int ntracks_ = 0;
   DiskType type_ = kMD2D;
   bool readonly_ = false;
 
   Track* cur_track_ = nullptr;
   Sector* cur_sector_ = nullptr;
-  uint32_t cur_tracknum_ = 0;
+  uint32_t cur_tracknum_ = ~0;
 };
