@@ -196,6 +196,8 @@ target_link_libraries(pc88core_unittests
         common devices fmgen pc88core pc88shell win32mon)
 
 add_library(pc88shell ${LIB_TYPE}
+        src/services/88config.h
+        src/services/88config.cpp
         src/services/disk_image_holder.h
         src/services/disk_image_holder.cpp
         src/services/diskmgr.h
@@ -232,8 +234,6 @@ target_include_directories(asio
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/host/pc)
 
 add_library(win32 ${LIB_TYPE}
-        src/win32/88config.h
-        src/win32/88config.cpp
         src/win32/about.h
         src/win32/about.cpp
         src/win32/cfgpage.h

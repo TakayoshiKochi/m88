@@ -14,7 +14,7 @@
 #include <memory>
 
 #include "common/scoped_handle.h"
-#include "win32/88config.h"
+#include "services/88config.h"
 #include "win32/monitor/basmon.h"
 #include "win32/monitor/codemon.h"
 #include "win32/monitor/iomon.h"
