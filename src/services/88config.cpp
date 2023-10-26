@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: 88config.cpp,v 1.28 2003/09/28 14:35:35 cisc Exp $
 
-#include "win32/88config.h"
+#include "services/88config.h"
 
 #include "common/misc.h"
 

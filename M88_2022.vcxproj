@@ -524,6 +524,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
+    <ClCompile Include="src\services\88config.cpp" />
     <ClCompile Include="src\services\diskmgr.cpp" />
     <ClCompile Include="src\services\disk_image_holder.cpp" />
     <ClCompile Include="src\services\ioview.cpp" />
@@ -531,12 +532,6 @@
     <ClCompile Include="src\services\rom_loader.cpp" />
     <ClCompile Include="src\services\sound.cpp" />
     <ClCompile Include="src\services\tapemgr.cpp" />
-    <ClCompile Include="src\win32\88config.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-    </ClCompile>
     <ClCompile Include="src\win32\about.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -918,6 +913,7 @@
     <ClInclude Include="src\pc88\screen.h" />
     <ClInclude Include="src\pc88\sio.h" />
     <ClInclude Include="src\pc88\subsys.h" />
+    <ClInclude Include="src\services\88config.h" />
     <ClInclude Include="src\services\diskmgr.h" />
     <ClInclude Include="src\services\disk_image_holder.h" />
     <ClInclude Include="src\services\ioview.h" />
@@ -925,7 +921,6 @@
     <ClInclude Include="src\services\rom_loader.h" />
     <ClInclude Include="src\services\sound.h" />
     <ClInclude Include="src\services\tapemgr.h" />
-    <ClInclude Include="src\win32\88config.h" />
     <ClInclude Include="src\win32\about.h" />
     <ClInclude Include="src\win32\cfgpage.h" />
     <ClInclude Include="src\win32\extdev.h" />

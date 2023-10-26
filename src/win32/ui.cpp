@@ -19,7 +19,6 @@
 #include "pc88/opnif.h"
 #include "services/diskmgr.h"
 #include "services/tapemgr.h"
-#include "win32/88config.h"
 #include "win32/about.h"
 #include "win32/file.h"
 #include "win32/filetest.h"

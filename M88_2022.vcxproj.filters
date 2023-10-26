@@ -129,9 +129,6 @@
     <ClCompile Include="src\pc88\subsys.cpp">
       <Filter>PC88</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\88config.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32\about.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
@@ -402,6 +399,9 @@
     <ClCompile Include="third_party\asio\host\pc\asiolist.cpp">
       <Filter>asio</Filter>
     </ClCompile>
+    <ClCompile Include="src\services\88config.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -505,9 +505,6 @@
     </ClInclude>
     <ClInclude Include="src\pc88\subsys.h">
       <Filter>PC88</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32\88config.h">
-      <Filter>Win32</Filter>
     </ClInclude>
     <ClInclude Include="src\win32\about.h">
       <Filter>Win32</Filter>
@@ -787,6 +784,9 @@
     </ClInclude>
     <ClInclude Include="third_party\asio\host\pc\asiolist.h">
       <Filter>asio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\88config.h">
+      <Filter>services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
