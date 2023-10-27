@@ -60,8 +60,9 @@ class SoundDumpPipe : public SoundSource {
 
 namespace pc8801 {
 class Config;
+}  // namespace pc8801
 
-class WinSound : public Sound {
+class WinSound : public pc8801::Sound {
  public:
   WinSound();
   ~WinSound() override;
@@ -69,7 +70,7 @@ class WinSound : public Sound {
   bool Init(PC88* pc, HWND hwnd, uint32_t rate, uint32_t buflen);
   bool ChangeRate(uint32_t rate, uint32_t buflen, bool wo);
 
-  void ApplyConfig(const Config* config);
+  void ApplyConfig(const pc8801::Config* config);
 
   bool DumpBegin(char* filename);
   bool DumpEnd();
@@ -96,5 +97,3 @@ class WinSound : public Sound {
 
   SoundDumpPipe dumper;
 };
-
-}  // namespace pc8801

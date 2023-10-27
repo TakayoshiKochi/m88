@@ -47,7 +47,7 @@ class WinCore : public ISystem, public ILockCore {
   bool LoadSnapshot(const std::string_view filename, const std::string_view diskname);
 
   PC88* GetPC88() { return &pc88_; }
-  pc8801::WinSound* GetSound() { return &sound_; }
+  WinSound* GetSound() { return &sound_; }
 
   int64_t GetExecClocks() { return seq_.GetExecClocks(); }
   void Wait(bool dowait) { dowait ? seq_.Deactivate() : seq_.Activate(); }
@@ -100,7 +100,7 @@ class WinCore : public ISystem, public ILockCore {
   using ExtendModules = std::vector<ExtendModule*>;
   ExtendModules ext_modules_;
 
-  pc8801::WinSound sound_;
+  WinSound sound_;
   pc8801::Config config_;
 
   using ExternalDevices = std::vector<ExternalDevice*>;
