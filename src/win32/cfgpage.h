@@ -9,11 +9,9 @@
 #include "if/ifcommon.h"
 #include "pc88/config.h"
 
-namespace pc8801 {
-
 class ConfigPage : public IConfigPropSheet {
  public:
-  ConfigPage(Config& c, Config& oc);
+  ConfigPage(pc8801::Config& c, pc8801::Config& oc);
   bool Init(HINSTANCE _hinst);
   bool IFCALL Setup(IConfigPropBase*, PROPSHEETPAGE* psp) override;
 
@@ -34,13 +32,13 @@ class ConfigPage : public IConfigPropSheet {
 
  protected:
   IConfigPropBase* base_ = nullptr;
-  Config& config_;
-  Config& org_config_;
+  pc8801::Config& config_;
+  pc8801::Config& org_config_;
 };
 
 class ConfigCPU : public ConfigPage {
  public:
-  ConfigCPU(Config& c, Config& oc) : ConfigPage(c, oc) {}
+  ConfigCPU(pc8801::Config& c, pc8801::Config& oc) : ConfigPage(c, oc) {}
 
  private:
   LPCSTR GetTemplate() final;
@@ -54,7 +52,7 @@ class ConfigCPU : public ConfigPage {
 
 class ConfigScreen final : public ConfigPage {
  public:
-  ConfigScreen(Config& c, Config& oc) : ConfigPage(c, oc) {}
+  ConfigScreen(pc8801::Config& c, pc8801::Config& oc) : ConfigPage(c, oc) {}
 
  private:
   LPCSTR GetTemplate() final;
@@ -64,7 +62,7 @@ class ConfigScreen final : public ConfigPage {
 
 class ConfigSound final : public ConfigPage {
  public:
-  ConfigSound(Config& c, Config& oc) : ConfigPage(c, oc) {}
+  ConfigSound(pc8801::Config& c, pc8801::Config& oc) : ConfigPage(c, oc) {}
 
  private:
   LPCSTR GetTemplate() final;
@@ -77,7 +75,7 @@ class ConfigSound final : public ConfigPage {
 
 class ConfigVolume final : public ConfigPage {
  public:
-  ConfigVolume(Config& c, Config& oc) : ConfigPage(c, oc) {}
+  ConfigVolume(pc8801::Config& c, pc8801::Config& oc) : ConfigPage(c, oc) {}
 
  private:
   LPCSTR GetTemplate() final;
@@ -93,7 +91,7 @@ class ConfigVolume final : public ConfigPage {
 
 class ConfigFunction final : public ConfigPage {
  public:
-  ConfigFunction(Config& c, Config& oc) : ConfigPage(c, oc) {}
+  ConfigFunction(pc8801::Config& c, pc8801::Config& oc) : ConfigPage(c, oc) {}
 
  private:
   LPCSTR GetTemplate() final;
@@ -106,7 +104,7 @@ class ConfigFunction final : public ConfigPage {
 
 class ConfigSwitch final : public ConfigPage {
  public:
-  ConfigSwitch(Config& c, Config& oc) : ConfigPage(c, oc) {}
+  ConfigSwitch(pc8801::Config& c, pc8801::Config& oc) : ConfigPage(c, oc) {}
 
  private:
   LPCSTR GetTemplate() final;
@@ -116,7 +114,7 @@ class ConfigSwitch final : public ConfigPage {
 
 class ConfigEnv final : public ConfigPage {
  public:
-  ConfigEnv(Config& c, Config& oc) : ConfigPage(c, oc) {}
+  ConfigEnv(pc8801::Config& c, pc8801::Config& oc) : ConfigPage(c, oc) {}
 
  private:
   LPCSTR GetTemplate() final;
@@ -126,7 +124,7 @@ class ConfigEnv final : public ConfigPage {
 
 class ConfigROMEO final : public ConfigPage {
  public:
-  ConfigROMEO(Config& c, Config& oc) : ConfigPage(c, oc) {}
+  ConfigROMEO(pc8801::Config& c, pc8801::Config& oc) : ConfigPage(c, oc) {}
 
  private:
   LPCSTR GetTemplate() final;
@@ -139,5 +137,3 @@ class ConfigROMEO final : public ConfigPage {
   static void InitSlider(HWND hdlg, UINT id, int val);
   static void SetText(HWND hdlg, int id, int val);
 };
-
-}  // namespace pc8801
