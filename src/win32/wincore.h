@@ -18,12 +18,9 @@
 #include "win32/winjoy.h"
 #include "win32/sound/winsound.h"
 
-namespace pc8801 {
-class WinKeyIF;
-}  // namespace pc8801
-
 class ExtendModule;
 class ExternalDevice;
+class WinKeyIF;
 class WinUI;
 
 // ---------------------------------------------------------------------------
@@ -33,7 +30,7 @@ class WinCore : public ISystem, public ILockCore {
   WinCore() = default;
   ~WinCore();
   bool Init(HWND hwnd,
-            pc8801::WinKeyIF* keyb,
+            WinKeyIF* keyb,
             IConfigPropBase* cpb,
             Draw* draw,
             DiskManager* diskmgr,
@@ -88,7 +85,7 @@ class WinCore : public ISystem, public ILockCore {
   };
 
  private:
-  bool ConnectDevices(pc8801::WinKeyIF* keyb);
+  bool ConnectDevices(WinKeyIF* keyb);
   bool ConnectExternalDevices();
 
   PC88 pc88_;

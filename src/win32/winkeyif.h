@@ -11,10 +11,9 @@
 #include "common/device.h"
 #include "pc88/config.h"
 
-// ---------------------------------------------------------------------------
 namespace pc8801 {
-
 class Config;
+}  // namespace pc8801
 
 class WinKeyIF : public Device {
  public:
@@ -29,7 +28,7 @@ class WinKeyIF : public Device {
   ~WinKeyIF() override;
 
   bool Init(HWND);
-  void ApplyConfig(const Config* config);
+  void ApplyConfig(const pc8801::Config* config);
 
   uint32_t IOCALL In(uint32_t port);
   void IOCALL Reset(uint32_t, uint32_t);
@@ -97,7 +96,7 @@ class WinKeyIF : public Device {
 
   HWND hwnd_ = nullptr;
   HANDLE hevent_ = nullptr;
-  BasicMode basicmode_ = BasicMode::kN88V2;
+  pc8801::BasicMode basicmode_ = pc8801::BasicMode::kN88V2;
 
   bool grph_locked_ = false;
   bool kana_locked_ = false;
@@ -118,5 +117,3 @@ class WinKeyIF : public Device {
   static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];
 };
-
-}  // namespace pc8801
