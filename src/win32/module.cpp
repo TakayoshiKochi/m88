@@ -6,8 +6,6 @@
 
 #include "win32/module.h"
 
-using namespace pc8801;
-
 ExtendModule::ExtendModule() = default;
 
 ExtendModule::~ExtendModule() {

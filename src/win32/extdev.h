@@ -14,11 +14,8 @@ class IOBus;
 class Scheduler;
 
 namespace pc8801 {
-class Memory;
 class PD8257;
 }  // namespace pc8801
-
-namespace pc8801 {
 
 class ExternalDevice : public Device, public ISoundSource {
  public:
@@ -28,7 +25,7 @@ class ExternalDevice : public Device, public ISoundSource {
   bool Init(const char* dllname,
             Scheduler* sched,
             IOBus* bus,
-            PD8257* dmac,
+            pc8801::PD8257* dmac,
             ISoundControl* sound,
             IMemoryManager* mm);
   bool CleanUp();
@@ -55,7 +52,7 @@ class ExternalDevice : public Device, public ISoundSource {
 
   HMODULE hdll;
   IOBus* bus;
-  PD8257* dmac;
+  pc8801::PD8257* dmac;
   Scheduler* sched_;
   ISoundControl* sound;
   IMemoryManager* mm;
@@ -84,5 +81,3 @@ class ExternalDevice : public Device, public ISoundSource {
   static uint32_t S_GetTime(void*);
   static void S_SoundUpdate(void*);
 };
-
-}  // namespace pc8801

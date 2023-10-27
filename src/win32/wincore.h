@@ -20,10 +20,10 @@
 
 namespace pc8801 {
 class WinKeyIF;
-class ExternalDevice;
-class ExtendModule;
 }  // namespace pc8801
 
+class ExtendModule;
+class ExternalDevice;
 class WinUI;
 
 // ---------------------------------------------------------------------------
@@ -97,12 +97,12 @@ class WinCore : public ISystem, public ILockCore {
   EmulationLoop seq_;
   WinPadIF pad_if_;
 
-  using ExtendModules = std::vector<pc8801::ExtendModule*>;
+  using ExtendModules = std::vector<ExtendModule*>;
   ExtendModules ext_modules_;
 
   pc8801::WinSound sound_;
   pc8801::Config config_;
 
-  using ExternalDevices = std::vector<pc8801::ExternalDevice*>;
+  using ExternalDevices = std::vector<ExternalDevice*>;
   ExternalDevices ext_devices_;
 };
