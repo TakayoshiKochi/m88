@@ -8,7 +8,7 @@
 #include "common/floppy.h"
 #include "common/status.h"
 
-namespace D88 {
+namespace d88 {
 struct ImageHeader {
   char title[17];
   uint8_t reserved[9];
@@ -27,7 +27,7 @@ struct SectorHeader {
   uint8_t reserved[5];
   uint16_t length;
 };
-}  // namespace D88
+}  // namespace d88
 
 class DiskImageHolder {
  public:
@@ -59,7 +59,7 @@ class DiskImageHolder {
   };
   bool ReadHeaders();
   void Close();
-  bool IsValidHeader(D88::ImageHeader&);
+  bool IsValidHeader(d88::ImageHeader&);
 
   FileIODummy fio_;
   int ndisks_ = 0;

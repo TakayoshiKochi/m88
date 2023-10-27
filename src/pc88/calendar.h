@@ -10,7 +10,7 @@
 
 #include "common/device.h"
 
-namespace PC8801 {
+namespace pc8801 {
 
 class Calendar : public Device {
  public:
@@ -71,4 +71,4 @@ class Calendar : public Device {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

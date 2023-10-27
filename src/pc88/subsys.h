@@ -14,7 +14,7 @@
 
 class MemoryManager;
 
-namespace PC8801 {
+namespace pc8801 {
 
 class SubSystem : public Device {
  public:
@@ -100,4 +100,4 @@ class SubSystem : public Device {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

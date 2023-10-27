@@ -9,7 +9,7 @@
 
 struct ASIOTime;
 
-namespace WinSoundDriver {
+namespace win32sound {
 
 class DriverASIO : public Driver, public Threadable<DriverASIO> {
  private:
@@ -41,4 +41,4 @@ class DriverASIO : public Driver, public Threadable<DriverASIO> {
   void Send();
 };
 
-}  // namespace WinSoundDriver
+}  // namespace win32sound

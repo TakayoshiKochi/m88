@@ -3,7 +3,7 @@
 #include "common/io_bus.h"
 #include "gtest/gtest.h"
 
-namespace PC8801 {
+namespace pc8801 {
 
 TEST(CalendarTest, BasicTest) {
   Calendar cal(DEV_ID('C', 'A', 'L', 'N'));
@@ -14,4 +14,4 @@ TEST(CalendarTest, BasicTest) {
   // TODO: write test for shift register
 }
 
-}  // namespace PC8801
+}  // namespace pc8801

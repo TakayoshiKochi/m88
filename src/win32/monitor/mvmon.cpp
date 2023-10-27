@@ -11,7 +11,7 @@
 #include "pc88/pc88.h"
 #include "win32/resource.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 // ---------------------------------------------------------------------------
 //  構築/消滅

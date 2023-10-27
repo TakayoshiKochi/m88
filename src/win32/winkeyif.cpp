@@ -16,8 +16,6 @@
 // #define LOGNAME "keyif"
 #include "common/diag.h"
 
-using namespace PC8801;
-
 // ---------------------------------------------------------------------------
 //  Construct/Destruct
 //
@@ -60,16 +58,16 @@ void IOCALL WinKeyIF::Reset(uint32_t, uint32_t) {
 // ---------------------------------------------------------------------------
 //  設定反映
 //
-void WinKeyIF::ApplyConfig(const Config* config) {
-  use_arrow_ = 0 != (config->flags & Config::kUseArrowFor10);
+void WinKeyIF::ApplyConfig(const pc8801::Config* config) {
+  use_arrow_ = 0 != (config->flags & pc8801::Config::kUseArrowFor10);
   basicmode_ = config->basicmode;
 
   switch (config->keytype) {
-    case KeyboardType::kAT101:
+    case pc8801::KeyboardType::kAT101:
       keytable_ = KeyTable101[0];
       break;
 
-    case KeyboardType::kAT106:
+    case pc8801::KeyboardType::kAT106:
     default:
       keytable_ = KeyTable106[0];
       break;

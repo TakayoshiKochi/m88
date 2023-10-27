@@ -16,7 +16,7 @@
 // #define LOGNAME "screen"
 #include "common/diag.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 namespace {
 constexpr uint8_t GVRAMC_BIT = 0xf0;

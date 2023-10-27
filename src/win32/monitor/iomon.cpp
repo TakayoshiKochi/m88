@@ -13,7 +13,7 @@
 #include "win32/file.h"
 #include "win32/resource.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 COLORREF IOMonitor::ctbl[0x100] = {0};
 

@@ -28,7 +28,7 @@
 #include "common/file.h"
 #endif
 
-namespace FM {
+namespace fmgen {
 
 // ---------------------------------------------------------------------------
 //  YM2608/2610 common part
@@ -1115,4 +1115,4 @@ void OPNA::Mix(Sample* buffer, int nsamples) {
 
 #endif  // BUILD_OPNA
 
-}  // namespace FM
+}  // namespace fmgen

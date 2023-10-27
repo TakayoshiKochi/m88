@@ -13,7 +13,7 @@
 
 #include <string>
 
-namespace PC8801 {
+namespace pc8801 {
 
 // ---------------------------------------------------------------------------
 
@@ -75,4 +75,4 @@ class DiskIO : public Device {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

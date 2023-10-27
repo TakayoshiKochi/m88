@@ -147,17 +147,17 @@ class WinUI {
 
   WinCore core_;
   WinDraw draw_;
-  PC8801::WinKeyIF keyif_;
-  PC8801::Config config_;
-  PC8801::WinConfig win_config_;
+  WinKeyIF keyif_;
+  pc8801::Config config_;
+  WinConfig win_config_;
   WinNewDisk new_disk_;
 
   // Monitors
   OPNMonitor opn_mon_;
-  PC8801::MemoryMonitor mem_mon_;
-  PC8801::CodeMonitor code_mon_;
-  PC8801::BasicMonitor bas_mon_;
-  PC8801::IOMonitor io_mon_;
+  pc8801::MemoryMonitor mem_mon_;
+  pc8801::CodeMonitor code_mon_;
+  pc8801::BasicMonitor bas_mon_;
+  pc8801::IOMonitor io_mon_;
   Z80RegMonitor reg_mon_;
   LoadMonitor load_mon_;
 

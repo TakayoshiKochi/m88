@@ -10,10 +10,7 @@
 
 #include <mmsystem.h>
 
-#include "pc88/config.h"
 #include "win32/status_win.h"
-
-using namespace PC8801;
 
 // ---------------------------------------------------------------------------
 //  構築/消滅

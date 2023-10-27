@@ -18,12 +18,9 @@
 #include "win32/winjoy.h"
 #include "win32/sound/winsound.h"
 
-namespace PC8801 {
-class WinKeyIF;
-class ExternalDevice;
 class ExtendModule;
-}  // namespace PC8801
-
+class ExternalDevice;
+class WinKeyIF;
 class WinUI;
 
 // ---------------------------------------------------------------------------
@@ -33,7 +30,7 @@ class WinCore : public ISystem, public ILockCore {
   WinCore() = default;
   ~WinCore();
   bool Init(HWND hwnd,
-            PC8801::WinKeyIF* keyb,
+            WinKeyIF* keyb,
             IConfigPropBase* cpb,
             Draw* draw,
             DiskManager* diskmgr,
@@ -41,13 +38,13 @@ class WinCore : public ISystem, public ILockCore {
   bool CleanUp();
 
   void Reset();
-  void ApplyConfig(PC8801::Config* config);
+  void ApplyConfig(pc8801::Config* config);
 
   bool SaveSnapshot(const std::string_view filename);
   bool LoadSnapshot(const std::string_view filename, const std::string_view diskname);
 
   PC88* GetPC88() { return &pc88_; }
-  PC8801::WinSound* GetSound() { return &sound_; }
+  WinSound* GetSound() { return &sound_; }
 
   int64_t GetExecClocks() { return seq_.GetExecClocks(); }
   void Wait(bool dowait) { dowait ? seq_.Deactivate() : seq_.Activate(); }
@@ -68,7 +65,7 @@ class WinCore : public ISystem, public ILockCore {
 
     int8_t disk[2];
     int datasize;
-    PC8801::BasicMode basicmode;
+    pc8801::BasicMode basicmode;
     int16_t legacy_clock;
     uint16_t erambanks;
     uint16_t cpumode;
@@ -88,7 +85,7 @@ class WinCore : public ISystem, public ILockCore {
   };
 
  private:
-  bool ConnectDevices(PC8801::WinKeyIF* keyb);
+  bool ConnectDevices(WinKeyIF* keyb);
   bool ConnectExternalDevices();
 
   PC88 pc88_;
@@ -97,12 +94,12 @@ class WinCore : public ISystem, public ILockCore {
   EmulationLoop seq_;
   WinPadIF pad_if_;
 
-  using ExtendModules = std::vector<PC8801::ExtendModule*>;
+  using ExtendModules = std::vector<ExtendModule*>;
   ExtendModules ext_modules_;
 
-  PC8801::WinSound sound_;
-  PC8801::Config config_;
+  WinSound sound_;
+  pc8801::Config config_;
 
-  using ExternalDevices = std::vector<PC8801::ExternalDevice*>;
+  using ExternalDevices = std::vector<ExternalDevice*>;
   ExternalDevices ext_devices_;
 };

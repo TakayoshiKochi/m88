@@ -26,11 +26,11 @@ uint32_t Piccolo::GetCurrentTimeUS() {
   return 0;
 }
 
-namespace PC8801 {
+namespace pc8801 {
 
 TEST(PC88Test, Test1) {
   ::PC88 pc88;
   EXPECT_EQ(1, 1);
 }
 
-}  // namespace PC8801
+}  // namespace pc8801

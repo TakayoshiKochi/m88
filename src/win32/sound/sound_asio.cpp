@@ -19,7 +19,7 @@ enum {
 
 // internal data storage
 struct DriverInfo {
-  WinSoundDriver::DriverASIO* self;
+  win32sound::DriverASIO* self;
 
   // ASIOInit()
   ASIODriverInfo driver_info;
@@ -210,7 +210,7 @@ ASIOError CreateASIOBuffers(DriverInfo* asioDriverInfo) {
 extern AsioDrivers* asioDrivers;
 bool loadAsioDriver(char* name);
 
-using namespace WinSoundDriver;
+using namespace win32sound;
 
 DriverASIO::DriverASIO() {
   playing_ = false;

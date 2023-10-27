@@ -11,8 +11,6 @@
 #include "win32/messages.h"
 #include "win32/resource.h"
 
-using namespace PC8801;
-
 WinConfig* WinConfig::instance = nullptr;
 
 // ---------------------------------------------------------------------------
@@ -50,7 +48,7 @@ WinConfig::~WinConfig() {
 // ---------------------------------------------------------------------------
 //  設定ダイアログの実行
 //
-bool WinConfig::Show(HINSTANCE hinstance, HWND hwnd, Config* conf) {
+bool WinConfig::Show(HINSTANCE hinstance, HWND hwnd, pc8801::Config* conf) {
   if (!hwndps_) {
     orgconfig_ = config_ = *conf;
     hinst_ = hinstance;

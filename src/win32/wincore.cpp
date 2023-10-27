@@ -27,8 +27,6 @@
 // #define LOGNAME "wincore"
 #include "common/diag.h"
 
-using namespace PC8801;
-
 //                   0123456789abcdef
 #define SNAPSHOT_ID "M88 SnapshotData"
 
@@ -100,7 +98,7 @@ void WinCore::Reset() {
 // ---------------------------------------------------------------------------
 //  設定を反映する
 //
-void WinCore::ApplyConfig(PC8801::Config* cfg) {
+void WinCore::ApplyConfig(pc8801::Config* cfg) {
   config_ = *cfg;
 
   int c = cfg->legacy_clock;
@@ -110,9 +108,9 @@ void WinCore::ApplyConfig(PC8801::Config* cfg) {
   } else if (c == 80) {
     cpu_clock = 7987200;
   }
-  if (cfg->flags & PC8801::Config::kFullSpeed)
+  if (cfg->flags & pc8801::Config::kFullSpeed)
     c = 0;
-  if (cfg->flags & PC8801::Config::kCPUBurst)
+  if (cfg->flags & pc8801::Config::kCPUBurst)
     c = -c;
   seq_.SetLegacyClock(c);
   seq_.SetCPUClock(cpu_clock);
@@ -168,7 +166,7 @@ bool WinCore::ConnectDevices(WinKeyIF* keyb) {
 bool WinCore::SaveSnapshot(const std::string_view filename) {
   LockObj lock(this);
 
-  bool docomp = !!(config_.flag2 & Config::kCompressSnapshot);
+  bool docomp = !!(config_.flag2 & pc8801::Config::kCompressSnapshot);
 
   uint32_t size = pc88_.GetDeviceList()->GetStatusSize();
   std::unique_ptr<uint8_t[]> buf =
@@ -234,11 +232,12 @@ bool WinCore::LoadSnapshot(const std::string_view filename, const std::string_vi
     return false;
 
   // applyconfig
-  const uint32_t fl1a = Config::kSubCPUControl | Config::kFullSpeed | Config::kEnableOPNA |
-                        Config::kEnablePCG | Config::kFv15k | Config::kCPUBurst |
-                        Config::kCPUClockMode | Config::kDigitalPalette | Config::kOPNonA8 |
-                        Config::kOPNAonA8 | Config::kEnableWait;
-  const uint32_t fl2a = Config::kDisableOPN44;
+  const uint32_t fl1a =
+      pc8801::Config::kSubCPUControl | pc8801::Config::kFullSpeed | pc8801::Config::kEnableOPNA |
+      pc8801::Config::kEnablePCG | pc8801::Config::kFv15k | pc8801::Config::kCPUBurst |
+      pc8801::Config::kCPUClockMode | pc8801::Config::kDigitalPalette | pc8801::Config::kOPNonA8 |
+      pc8801::Config::kOPNAonA8 | pc8801::Config::kEnableWait;
+  const uint32_t fl2a = pc8801::Config::kDisableOPN44;
 
   config_.flags = (config_.flags & ~fl1a) | (ssh.flags & fl1a);
   config_.flag2 = (config_.flag2 & ~fl2a) | (ssh.flag2 & fl2a);

@@ -10,7 +10,7 @@
 
 #include "common/device.h"
 
-namespace PC8801 {
+namespace pc8801 {
 // ----------------------------------------------------------------------------
 //  0   N88 N80 RAM ERAM             SUB
 //  60  N88 N80 RAM ERAM E0 E1 E2 E3 SUB
@@ -51,4 +51,4 @@ class IOViewer : public Device {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

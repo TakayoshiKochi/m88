@@ -11,7 +11,7 @@
 
 #include "common/status.h"
 
-using namespace D88;
+using namespace d88;
 
 // ---------------------------------------------------------------------------
 //  構築・破棄

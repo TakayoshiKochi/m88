@@ -10,7 +10,7 @@
 
 class DiskManager;
 
-namespace PC8801 {
+namespace pc8801 {
 
 // ---------------------------------------------------------------------------
 //  FDU
@@ -71,4 +71,4 @@ class FDU {
   int track = 0;
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

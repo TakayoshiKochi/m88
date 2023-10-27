@@ -17,7 +17,7 @@
 class IOBus;
 class Scheduler;
 
-namespace PC8801 {
+namespace pc8801 {
 class Config;
 class PD8257;
 
@@ -277,4 +277,4 @@ class CRTC : public Device {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

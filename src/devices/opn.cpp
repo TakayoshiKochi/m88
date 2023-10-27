@@ -15,7 +15,7 @@
 #define BUILD_OPNA
 #define BUILD_OPNB
 
-namespace FM {
+namespace fmgen {
 
 // ---------------------------------------------------------------------------
 //  OPNBase
@@ -352,4 +352,4 @@ void OPN::Mix(Sample* buffer, int nsamples) {
 
 #endif  // BUILD_OPN
 
-}  // namespace FM
+}  // namespace fmgen

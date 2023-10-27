@@ -58,10 +58,11 @@ class SoundDumpPipe : public SoundSource {
   std::mutex mtx_;
 };
 
-namespace PC8801 {
+namespace pc8801 {
 class Config;
+}  // namespace pc8801
 
-class WinSound : public Sound {
+class WinSound : public pc8801::Sound {
  public:
   WinSound();
   ~WinSound() override;
@@ -69,7 +70,7 @@ class WinSound : public Sound {
   bool Init(PC88* pc, HWND hwnd, uint32_t rate, uint32_t buflen);
   bool ChangeRate(uint32_t rate, uint32_t buflen, bool wo);
 
-  void ApplyConfig(const Config* config);
+  void ApplyConfig(const pc8801::Config* config);
 
   bool DumpBegin(char* filename);
   bool DumpEnd();
@@ -82,7 +83,7 @@ class WinSound : public Sound {
   void CleanUp();
   //  int Get(Sample* dest, int samples);
 
-  std::unique_ptr<WinSoundDriver::Driver> driver_;
+  std::unique_ptr<win32sound::Driver> driver_;
 
   HWND hwnd_ = nullptr;
   uint32_t current_rate_ = 0;
@@ -96,5 +97,3 @@ class WinSound : public Sound {
 
   SoundDumpPipe dumper;
 };
-
-}  // namespace PC8801

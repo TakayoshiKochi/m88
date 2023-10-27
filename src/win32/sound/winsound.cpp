@@ -19,8 +19,7 @@
 // #define LOGNAME "winsound"
 #include "common/diag.h"
 
-using namespace PC8801;
-using namespace WinSoundDriver;
+using namespace win32sound;
 
 // ---------------------------------------------------------------------------
 //  構築/消滅
@@ -143,14 +142,14 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
 // ---------------------------------------------------------------------------
 //  設定更新
 //
-void WinSound::ApplyConfig(const Config* config) {
-  use_ds2_ = !!(config->flag2 & Config::kUseDSNotify);
+void WinSound::ApplyConfig(const pc8801::Config* config) {
+  use_ds2_ = !!(config->flag2 & pc8801::Config::kUseDSNotify);
 
-  bool wo = (config->flag2 & Config::kUseWaveOutDrv) != 0;
+  bool wo = (config->flag2 & pc8801::Config::kUseWaveOutDrv) != 0;
   ChangeRate(config->sound, config->soundbuffer, wo);
 
   if (driver_)
-    driver_->MixAlways(0 != (config->flags & Config::kMixSoundAlways));
+    driver_->MixAlways(0 != (config->flags & pc8801::Config::kMixSoundAlways));
 
   Sound::ApplyConfig(config);
 }

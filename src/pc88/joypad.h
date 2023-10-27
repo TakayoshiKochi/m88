@@ -9,7 +9,7 @@
 #include "common/device.h"
 #include "if/ifui.h"
 
-namespace PC8801 {
+namespace pc8801 {
 
 class JoyPad : public Device {
  public:
@@ -50,4 +50,4 @@ class JoyPad : public Device {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

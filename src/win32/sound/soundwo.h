@@ -16,7 +16,7 @@
 
 // ---------------------------------------------------------------------------
 
-namespace WinSoundDriver {
+namespace win32sound {
 
 class DriverWO : public Driver {
  public:
@@ -41,4 +41,4 @@ class DriverWO : public Driver {
   bool dont_mix_ = false;       // WAVE を送る際に音声の合成をしない
 };
 
-}  // namespace WinSoundDriver
+}  // namespace win32sound

@@ -10,8 +10,6 @@
 
 #include <string_view>
 
-namespace PC8801 {
-
 class ExtendModule {
  public:
   ExtendModule();
@@ -35,5 +33,3 @@ class ExtendModule {
 inline void* ExtendModule::QueryIF(REFIID iid) {
   return mod_ ? mod_->QueryIF(iid) : nullptr;
 }
-
-}  // namespace PC8801

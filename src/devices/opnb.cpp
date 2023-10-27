@@ -12,7 +12,7 @@
 // #define BUILD_OPNA
 #define BUILD_OPNB
 
-namespace FM {
+namespace fmgen {
 
 // ---------------------------------------------------------------------------
 //  YM2610(OPNB)
@@ -394,4 +394,4 @@ void OPNB::Mix(Sample* buffer, int nsamples) {
 
 #endif  // BUILD_OPNB
 
-}  // namespace FM
+}  // namespace fmgen

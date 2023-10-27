@@ -18,7 +18,7 @@
 
 // ---------------------------------------------------------------------------
 
-namespace WinSoundDriver {
+namespace win32sound {
 
 class DriverDS : public Driver {
   static const uint32_t num_blocks;
@@ -47,4 +47,4 @@ class DriverDS : public Driver {
   uint32_t buffer_length_ms_ = 0;
 };
 
-}  // namespace WinSoundDriver
+}  // namespace win32sound

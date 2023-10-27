@@ -19,7 +19,7 @@
 
 // ---------------------------------------------------------------------------
 
-namespace WinSoundDriver {
+namespace win32sound {
 
 class DriverDS2 : public Driver, public Threadable<DriverDS2> {
  private:
@@ -50,4 +50,4 @@ class DriverDS2 : public Driver, public Threadable<DriverDS2> {
   uint32_t nextwrite_ = 0;
 };
 
-}  // namespace WinSoundDriver
+}  // namespace win32sound
