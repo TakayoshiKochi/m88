@@ -11,7 +11,7 @@
 
 #include "common/device.h"
 
-namespace PC8801 {
+namespace pc8801 {
 
 class PIO {
  public:
@@ -34,12 +34,12 @@ class PIO {
   PIO* partner_ = nullptr;
 };
 
-}  // namespace PC8801
+}  // namespace pc8801
 
 // ---------------------------------------------------------------------------
 //  ポートに出力
 //
-inline void PC8801::PIO::SetData(uint32_t adr, uint32_t data) {
+inline void pc8801::PIO::SetData(uint32_t adr, uint32_t data) {
   adr &= 3;
   port_[adr] = data;
 }
@@ -47,17 +47,17 @@ inline void PC8801::PIO::SetData(uint32_t adr, uint32_t data) {
 // ---------------------------------------------------------------------------
 //  ポートから入力
 //
-inline uint32_t PC8801::PIO::Read0() {
+inline uint32_t pc8801::PIO::Read0() {
   uint32_t data = partner_->Port(1);
   return (data & readmask_[0]) | (port_[1] & ~readmask_[0]);
 }
 
-inline uint32_t PC8801::PIO::Read1() {
+inline uint32_t pc8801::PIO::Read1() {
   uint32_t data = partner_->Port(0);
   return (data & readmask_[1]) | (port_[1] & ~readmask_[1]);
 }
 
-inline uint32_t PC8801::PIO::Read2() {
+inline uint32_t pc8801::PIO::Read2() {
   uint32_t data = partner_->Port(2);
   data = ((data << 4) & 0xf0) + ((data >> 4) & 0x0f);  // rotate 4 bits
   return (data & readmask_[2]) | (port_[2] & ~readmask_[2]);

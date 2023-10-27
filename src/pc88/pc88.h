@@ -23,7 +23,7 @@ class DiskManager;
 class TapeManager;
 class SchedulerImpl;
 
-namespace PC8801 {
+namespace pc8801 {
 class Base;
 class Beep;
 class CDIF;
@@ -41,7 +41,7 @@ class PD8257;
 class SIO;
 class Screen;
 class SubSystem;
-}  // namespace PC8801
+}  // namespace pc8801
 
 class PC88;
 
@@ -80,8 +80,8 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   void DeInit();
 
   void Reset();
-  void ApplyConfig(PC8801::Config*);
-  void SetVolume(PC8801::Config*);
+  void ApplyConfig(pc8801::Config*);
+  void SetVolume(pc8801::Config*);
 
   // Override EmulationLoopDelegate
   int64_t ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t effective_clock) override;
@@ -110,22 +110,22 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   bool IsN80V2Supported();
 
   // For tests
-  PC8801::Base* GetBase() { return base_.get(); }
+  pc8801::Base* GetBase() { return base_.get(); }
 
   // TODO: Usages of these getters should be cleaned up.
-  PC8801::Memory* GetMem1() { return mem_main_.get(); }
-  PC8801::SubSystem* GetMem2() { return subsys_.get(); }
-  PC8801::OPNIF* GetOPN1() { return opn1_.get(); }
-  PC8801::OPNIF* GetOPN2() { return opn2_.get(); }
+  pc8801::Memory* GetMem1() { return mem_main_.get(); }
+  pc8801::SubSystem* GetMem2() { return subsys_.get(); }
+  pc8801::OPNIF* GetOPN1() { return opn1_.get(); }
+  pc8801::OPNIF* GetOPN2() { return opn2_.get(); }
   Z80XX* GetCPU1() { return &main_cpu_; }
   Z80XX* GetCPU2() { return &sub_cpu_; }
   IOBus* GetBus1() { return &main_iobus_; }
   IOBus* GetBus2() { return &sub_iobus_; }
   MemoryManager* GetMM1() { return &main_mm_; }
   MemoryManager* GetMM2() { return &sub_mm_; }
-  PC8801::PD8257* GetDMAC() { return dmac_.get(); }
-  PC8801::Beep* GetBEEP() { return beep_.get(); }
-  PC8801::JoyPad* GetJoyPad() { return joy_pad_.get(); }
+  pc8801::PD8257* GetDMAC() { return dmac_.get(); }
+  pc8801::Beep* GetBEEP() { return beep_.get(); }
+  pc8801::JoyPad* GetJoyPad() { return joy_pad_.get(); }
   DeviceList* GetDeviceList() { return &devlist_; }
   DiskManager* GetDiskManager() { return disk_manager_; }
 
@@ -173,7 +173,7 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   };
 
  private:
-  friend class PC8801::Base;
+  friend class pc8801::Base;
 
   enum CPUMode : uint8_t {
     ms11 = 0,
@@ -196,23 +196,23 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   IOBus sub_iobus_;
   DeviceList devlist_;
 
-  std::unique_ptr<PC8801::Memory> mem_main_;
-  std::unique_ptr<PC8801::KanjiROM> kanji1_;
-  std::unique_ptr<PC8801::KanjiROM> kanji2_;
-  std::unique_ptr<PC8801::Screen> screen_;
-  std::unique_ptr<PC8801::INTC> int_controller_;
-  std::unique_ptr<PC8801::CRTC> crtc_;
-  std::unique_ptr<PC8801::Base> base_;
-  std::unique_ptr<PC8801::FDC> fdc_;
-  std::unique_ptr<PC8801::SubSystem> subsys_;
-  std::unique_ptr<PC8801::SIO> sio_tape_;
-  std::unique_ptr<PC8801::SIO> sio_midi_;
-  std::unique_ptr<PC8801::OPNIF> opn1_;
-  std::unique_ptr<PC8801::OPNIF> opn2_;
-  std::unique_ptr<PC8801::Calendar> calendar_;
-  std::unique_ptr<PC8801::Beep> beep_;
-  std::unique_ptr<PC8801::PD8257> dmac_;
-  std::unique_ptr<PC8801::JoyPad> joy_pad_;
+  std::unique_ptr<pc8801::Memory> mem_main_;
+  std::unique_ptr<pc8801::KanjiROM> kanji1_;
+  std::unique_ptr<pc8801::KanjiROM> kanji2_;
+  std::unique_ptr<pc8801::Screen> screen_;
+  std::unique_ptr<pc8801::INTC> int_controller_;
+  std::unique_ptr<pc8801::CRTC> crtc_;
+  std::unique_ptr<pc8801::Base> base_;
+  std::unique_ptr<pc8801::FDC> fdc_;
+  std::unique_ptr<pc8801::SubSystem> subsys_;
+  std::unique_ptr<pc8801::SIO> sio_tape_;
+  std::unique_ptr<pc8801::SIO> sio_midi_;
+  std::unique_ptr<pc8801::OPNIF> opn1_;
+  std::unique_ptr<pc8801::OPNIF> opn2_;
+  std::unique_ptr<pc8801::Calendar> calendar_;
+  std::unique_ptr<pc8801::Beep> beep_;
+  std::unique_ptr<pc8801::PD8257> dmac_;
+  std::unique_ptr<pc8801::JoyPad> joy_pad_;
 
   uint8_t cpu_mode_ = 0;
   // 実効速度 (単位はclock)

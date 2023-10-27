@@ -13,7 +13,7 @@
 
 // #define LOGNAME "opm"
 
-namespace FM {
+namespace fmgen {
 
 int OPM::amtable[4][OPM_LFOENTS] = {
     -1,
@@ -497,4 +497,4 @@ void OPM::Mix(Sample* buffer, int nsamples) {
 #undef IStoSample
 }
 
-}  // namespace FM
+}  // namespace fmgen

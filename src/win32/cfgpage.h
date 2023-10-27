@@ -9,7 +9,7 @@
 #include "if/ifcommon.h"
 #include "pc88/config.h"
 
-namespace PC8801 {
+namespace pc8801 {
 
 class ConfigPage : public IConfigPropSheet {
  public:
@@ -140,4 +140,4 @@ class ConfigROMEO final : public ConfigPage {
   static void SetText(HWND hdlg, int id, int val);
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

@@ -33,7 +33,7 @@
 extern char m88dir[MAX_PATH];
 extern char m88ini[MAX_PATH];
 
-using namespace PC8801;
+using namespace pc8801;
 
 namespace {
 constexpr int kPC88ScreenWidth = 640;
@@ -179,7 +179,7 @@ bool WinUI::InitM88(const char* cmdline) {
 
   //  設定読み込み
   Log("%d\tLoadConfig\n", timeGetTime());
-  PC8801::LoadConfig(&config_, m88ini, true);
+  pc8801::LoadConfig(&config_, m88ini, true);
 
   // ステータスバー初期化
   statusdisplay.Init(hwnd_);
@@ -202,7 +202,7 @@ bool WinUI::InitM88(const char* cmdline) {
   GetCurrentDirectory(MAX_PATH, path);
 
   //  デバイスの初期化
-  PC8801::LoadConfigDirectory(&config_, m88ini, "BIOSPath", true);
+  pc8801::LoadConfigDirectory(&config_, m88ini, "BIOSPath", true);
 
   Log("%d\tdiskmanager\n", timeGetTime());
   if (!disk_manager_)
@@ -257,7 +257,7 @@ bool WinUI::InitM88(const char* cmdline) {
   // あとごちゃごちゃしたもの
   Log("%d\tetc\n", timeGetTime());
   if (diskinfo[0].filename_.empty())
-    PC8801::LoadConfigDirectory(&config_, m88ini, "Directory", false);
+    pc8801::LoadConfigDirectory(&config_, m88ini, "Directory", false);
 
   Log("%d\tend initm88\n", timeGetTime());
   return true;
@@ -268,8 +268,8 @@ bool WinUI::InitM88(const char* cmdline) {
 //  M88 の後片付け
 //
 void WinUI::CleanUpM88() {
-  PC8801::Config cfg = config_;
-  PC8801::SaveConfig(&cfg, m88ini, true);
+  pc8801::Config cfg = config_;
+  pc8801::SaveConfig(&cfg, m88ini, true);
   core_.CleanUp();
   disk_manager_.reset();
   tape_manager_.reset();
@@ -837,8 +837,8 @@ void WinUI::OpenTapeImage(const char* filename) {
 void WinUI::ShowStatusWindow() {
   if (fullscreen_)
     return;
-  if (config_.flags & PC8801::Config::kShowStatusBar) {
-    statusdisplay.Enable((config_.flags & PC8801::Config::kShowFDCStatus) != 0);
+  if (config_.flags & pc8801::Config::kShowStatusBar) {
+    statusdisplay.Enable((config_.flags & pc8801::Config::kShowFDCStatus) != 0);
     // Allow window corner rounding.
     DWORD dwm_attr = DWMWCP_DEFAULT;
     DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
@@ -1129,7 +1129,7 @@ void WinUI::AllowSleep() {
 //  表示メソッドの変更
 //
 LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
-  if (!draw_.ChangeDisplayMode(fullscreen_, (config_.flags & PC8801::Config::kForce480) != 0)) {
+  if (!draw_.ChangeDisplayMode(fullscreen_, (config_.flags & pc8801::Config::kForce480) != 0)) {
     fullscreen_ = false;
   }
 
@@ -1191,7 +1191,7 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
 //
 LRESULT WinUI::M88ChangeVolume(HWND, WPARAM c, LPARAM) {
   if (c)
-    core_.GetPC88()->SetVolume((PC8801::Config*)c);
+    core_.GetPC88()->SetVolume((pc8801::Config*)c);
   return 0;
 }
 
@@ -1201,8 +1201,8 @@ LRESULT WinUI::M88ChangeVolume(HWND, WPARAM c, LPARAM) {
 LRESULT WinUI::M88ApplyConfig(HWND, WPARAM newconfig, LPARAM) {
   if (newconfig) {
     // 乱暴ですな。
-    if (memcmp(&config_, (PC8801::Config*)newconfig, sizeof(PC8801::Config)) != 0) {
-      config_ = *((PC8801::Config*)newconfig);
+    if (memcmp(&config_, (pc8801::Config*)newconfig, sizeof(pc8801::Config)) != 0) {
+      config_ = *((pc8801::Config*)newconfig);
       ApplyConfig();
     }
   }
@@ -1367,32 +1367,32 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_DEBUG_TEXT:
-      config_.flags ^= PC8801::Config::kSpecialPalette;
+      config_.flags ^= pc8801::Config::kSpecialPalette;
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM0:
-      config_.flag2 ^= PC8801::Config::kMask0;
+      config_.flag2 ^= pc8801::Config::kMask0;
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM1:
-      config_.flag2 ^= PC8801::Config::kMask1;
+      config_.flag2 ^= pc8801::Config::kMask1;
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM2:
-      config_.flag2 ^= PC8801::Config::kMask2;
+      config_.flag2 ^= pc8801::Config::kMask2;
       ApplyConfig();
       break;
 
     case IDM_STATUSBAR:
-      config_.flags ^= PC8801::Config::kShowStatusBar;
+      config_.flags ^= pc8801::Config::kShowStatusBar;
       ShowStatusWindow();
       break;
 
     case IDM_FDC_STATUS:
-      config_.flags ^= PC8801::Config::kShowFDCStatus;
+      config_.flags ^= pc8801::Config::kShowFDCStatus;
       ApplyConfig();
       break;
 
@@ -1421,7 +1421,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_WATCHREGISTER:
-      config_.flags &= ~PC8801::Config::kWatchRegister;
+      config_.flags &= ~pc8801::Config::kWatchRegister;
       reg_mon_.Show(hinst_, hwnd, !reg_mon_.IsOpen());
       break;
 

@@ -15,7 +15,7 @@
 
 #define BSTATE(b) (b ? BST_CHECKED : BST_UNCHECKED)
 
-using namespace PC8801;
+using namespace pc8801;
 
 // ---------------------------------------------------------------------------
 

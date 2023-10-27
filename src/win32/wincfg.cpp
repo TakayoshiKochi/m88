@@ -11,7 +11,7 @@
 #include "win32/messages.h"
 #include "win32/resource.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 WinConfig* WinConfig::instance = nullptr;
 

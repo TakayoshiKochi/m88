@@ -12,7 +12,7 @@ inline int Limit(int v, int max, int min) {
   return v > max ? max : (v < min ? min : v);
 }
 
-namespace FM {
+namespace fmgen {
 
 // ---------------------------------------------------------------------------
 //  出力サンプルの型
@@ -276,7 +276,7 @@ class Chip {
   OpType optype_ = typeN;
   uint32_t multable_[4][16]{};
 };
-}  // namespace FM
+}  // namespace fmgen
 
 // ---------------------------------------------------------------------------
 //  FM Sound Generator
@@ -287,7 +287,7 @@ class Chip {
 // ---------------------------------------------------------------------------
 //  定数その２
 //
-namespace FM {
+namespace fmgen {
 
 constexpr double FM_PI = 3.14159265358979323846;
 
@@ -553,4 +553,4 @@ inline void Chip::SetPML(uint32_t l) {
   pml_ = l & (FM_LFOENTS - 1);
 }
 
-}  // namespace FM
+}  // namespace fmgen

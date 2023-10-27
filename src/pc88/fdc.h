@@ -18,7 +18,7 @@
 class DiskManager;
 class IOBus;
 
-namespace PC8801 {
+namespace pc8801 {
 class Config;
 
 // ---------------------------------------------------------------------------
@@ -248,4 +248,4 @@ class FDC : public Device {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

@@ -17,7 +17,7 @@ class Scheduler;
 
 // #define USE_OPN
 
-namespace PC8801 {
+namespace pc8801 {
 class Config;
 // ---------------------------------------------------------------------------
 //  88 用の OPN Unit
@@ -80,7 +80,7 @@ class OPNIF : public Device, public ISoundSource {
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
-  class OPNUnit : public FM::OPNA {
+  class OPNUnit : public fmgen::OPNA {
    public:
     OPNUnit() = default;
     ~OPNUnit() override = default;
@@ -165,4 +165,4 @@ inline void OPNIF::SetChannelMask(uint32_t ch) {
   opn_.SetChannelMask(ch);
 }
 
-}  // namespace PC8801
+}  // namespace pc8801

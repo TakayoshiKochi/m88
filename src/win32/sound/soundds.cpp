@@ -13,7 +13,7 @@
 
 #pragma comment(lib, "dsound.lib")
 
-using namespace WinSoundDriver;
+using namespace win32sound;
 
 // ---------------------------------------------------------------------------
 

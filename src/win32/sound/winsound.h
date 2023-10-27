@@ -58,7 +58,7 @@ class SoundDumpPipe : public SoundSource {
   std::mutex mtx_;
 };
 
-namespace PC8801 {
+namespace pc8801 {
 class Config;
 
 class WinSound : public Sound {
@@ -82,7 +82,7 @@ class WinSound : public Sound {
   void CleanUp();
   //  int Get(Sample* dest, int samples);
 
-  std::unique_ptr<WinSoundDriver::Driver> driver_;
+  std::unique_ptr<win32sound::Driver> driver_;
 
   HWND hwnd_ = nullptr;
   uint32_t current_rate_ = 0;
@@ -97,4 +97,4 @@ class WinSound : public Sound {
   SoundDumpPipe dumper;
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

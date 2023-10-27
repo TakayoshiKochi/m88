@@ -13,12 +13,12 @@
 class IOBus;
 class Scheduler;
 
-namespace PC8801 {
+namespace pc8801 {
 class Memory;
 class PD8257;
-}  // namespace PC8801
+}  // namespace pc8801
 
-namespace PC8801 {
+namespace pc8801 {
 
 class ExternalDevice : public Device, public ISoundSource {
  public:
@@ -85,4 +85,4 @@ class ExternalDevice : public Device, public ISoundSource {
   static void S_SoundUpdate(void*);
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

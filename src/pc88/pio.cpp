@@ -9,7 +9,7 @@
 
 #include "pc88/pio.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 // ---------------------------------------------------------------------------
 //  Reset

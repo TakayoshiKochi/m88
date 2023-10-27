@@ -11,7 +11,7 @@
 
 class Scheduler;
 
-namespace PC8801 {
+namespace pc8801 {
 
 class Config;
 
@@ -58,4 +58,4 @@ class Mouse : public Device {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

@@ -12,7 +12,7 @@
 #include "pc88/pd8257.h"
 #include "services/sound.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 PCInfo ExternalDevice::pcinfo;
 

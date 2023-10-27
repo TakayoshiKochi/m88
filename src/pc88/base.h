@@ -14,7 +14,7 @@
 class PC88;
 class TapeManager;
 
-namespace PC8801 {
+namespace pc8801 {
 
 class Base : public Device {
  public:
@@ -60,4 +60,4 @@ class Base : public Device {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

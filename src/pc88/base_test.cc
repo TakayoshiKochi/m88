@@ -24,7 +24,7 @@ class DummyDraw : public Draw {
   bool SetFlipMode(bool) override { return true; };
 };
 
-namespace PC8801 {
+namespace pc8801 {
 
 TEST(BaseTest, PortsTest) {
   PC88 pc88;
@@ -50,4 +50,4 @@ TEST(BaseTest, PortsTest) {
   base->VRTC(0, 0);
   EXPECT_EQ(base->In40(0), port40);
 }
-}  // namespace PC8801
+}  // namespace pc8801

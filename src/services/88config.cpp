@@ -10,7 +10,7 @@
 
 static const char* AppName = "M88p2 for Windows";
 
-namespace PC8801 {
+namespace pc8801 {
 
 // ---------------------------------------------------------------------------
 //  LoadConfigEntry
@@ -213,4 +213,4 @@ void SaveConfig(Config* cfg, const std::string_view inifile, bool writedefault) 
   SaveEntry(inifile, "WinPosX", cfg->winposx, writedefault);
 }
 
-}  // namespace PC8801
+}  // namespace pc8801

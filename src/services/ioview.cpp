@@ -9,7 +9,7 @@
 #include "common/device.h"
 #include "common/io_bus.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 // ----------------------------------------------------------------------------
 //

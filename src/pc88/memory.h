@@ -16,7 +16,7 @@
 class IOBus;
 class MemoryManager;
 
-namespace PC8801 {
+namespace pc8801 {
 class CRTC;
 
 class Memory : public Device, public IGetMemoryBank {
@@ -260,4 +260,4 @@ class Memory : public Device, public IGetMemoryBank {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

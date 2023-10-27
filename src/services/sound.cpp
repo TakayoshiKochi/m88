@@ -17,7 +17,7 @@
 // #define LOGNAME "sound"
 #include "common/diag.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 // ---------------------------------------------------------------------------
 //  生成・破棄

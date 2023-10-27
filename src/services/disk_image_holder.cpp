@@ -2,7 +2,7 @@
 
 #include <memory>
 
-using namespace D88;
+using namespace d88;
 
 DiskImageHolder::~DiskImageHolder() {
   Close();

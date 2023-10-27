@@ -15,7 +15,7 @@
 
 // ---------------------------------------------------------------------------
 
-namespace WinSoundDriver {
+namespace win32sound {
 
 class Driver {
  public:
@@ -36,4 +36,4 @@ class Driver {
   bool mixalways = false;
 };
 
-}  // namespace WinSoundDriver
+}  // namespace win32sound

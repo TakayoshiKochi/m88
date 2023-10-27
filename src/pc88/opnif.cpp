@@ -17,7 +17,7 @@
 // #define LOGNAME "opnif"
 #include "common/diag.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 // OPNIF* OPNIF::romeo_user = 0;
 

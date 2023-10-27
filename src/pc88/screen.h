@@ -25,7 +25,7 @@ class IOBus;
 //  BITMAP BIT 配置       -- -- G  RE TE TG TB TR
 //  ATTR BIT 配置     G  R  B  CG UL OL SE RE
 //
-namespace PC8801 {
+namespace pc8801 {
 
 class CRTC;
 class Memory;
@@ -129,4 +129,4 @@ class Screen : public Device {
   static const OutFuncPtr outdef[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

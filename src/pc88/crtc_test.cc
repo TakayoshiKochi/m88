@@ -16,7 +16,7 @@ class MockScheduler : public Scheduler {
   int64_t GetNS() override { return 0; }
 };
 
-namespace PC8801 {
+namespace pc8801 {
 
 class CRTCTest : public ::testing::Test {
  public:
@@ -54,4 +54,4 @@ TEST_F(CRTCTest, ChangeAttrTest) {
   EXPECT_EQ(x, 0xe2);
 }
 
-}  // namespace PC8801
+}  // namespace pc8801

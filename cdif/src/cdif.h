@@ -15,7 +15,7 @@
 #include "common/device.h"
 #include "if/ifpc88.h"
 
-namespace PC8801 {
+namespace pc8801 {
 
 class CDIF : public Device {
  public:
@@ -168,4 +168,4 @@ class CDIF : public Device {
   static const OutFuncPtr outdef[];
 };
 
-};  // namespace PC8801
+};  // namespace pc8801

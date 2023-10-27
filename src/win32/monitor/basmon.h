@@ -15,7 +15,7 @@
 
 class PC88;
 
-namespace PC8801 {
+namespace pc8801 {
 
 class BasicMonitor : public WinMonitor {
  public:
@@ -45,4 +45,4 @@ class BasicMonitor : public WinMonitor {
   static const char* rsvdword[];
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

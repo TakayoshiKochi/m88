@@ -12,7 +12,7 @@
 
 // ---------------------------------------------------------------------------
 
-namespace PC8801 {
+namespace pc8801 {
 class OPNIF;
 };
 
@@ -21,7 +21,7 @@ class OPNMonitor : public WinMonitor, public ISoundSource {
   OPNMonitor();
   ~OPNMonitor();
 
-  bool Init(PC8801::OPNIF* opn, ISoundControl* soundcontrol);
+  bool Init(pc8801::OPNIF* opn, ISoundControl* soundcontrol);
 
   bool IFCALL SetRate(uint32_t rate) { return true; }
   void IFCALL Mix(int32_t* s, int length);
@@ -37,7 +37,7 @@ class OPNMonitor : public WinMonitor, public ISoundSource {
 
   bool IFCALL Connect(ISoundControl* sc);
 
-  PC8801::OPNIF* opn;
+  pc8801::OPNIF* opn;
   const uint8_t* regs;
 
   ISoundControl* soundcontrol;

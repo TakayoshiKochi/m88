@@ -15,7 +15,7 @@
 
 class PC88;
 
-namespace PC8801 {
+namespace pc8801 {
 
 class MemViewMonitor : public WinMonitor {
  public:
@@ -46,4 +46,4 @@ class MemViewMonitor : public WinMonitor {
   MemoryViewer::Type af_ = MemoryViewer::kTVRam;
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

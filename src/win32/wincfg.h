@@ -12,7 +12,7 @@
 #include "pc88/config.h"
 #include "win32/cfgpage.h"
 
-namespace PC8801 {
+namespace pc8801 {
 
 class WinConfig : public IConfigPropBase {
  public:
@@ -58,4 +58,4 @@ class WinConfig : public IConfigPropBase {
   ConfigROMEO cromeo_;
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

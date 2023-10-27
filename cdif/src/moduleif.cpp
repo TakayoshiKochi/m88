@@ -8,7 +8,7 @@
 
 #define EXTDEVAPI __declspec(dllexport)
 
-using namespace PC8801;
+using namespace pc8801;
 
 static HINSTANCE hinst = nullptr;
 

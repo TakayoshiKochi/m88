@@ -16,7 +16,7 @@
 // #define LOGNAME "keyif"
 #include "common/diag.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 // ---------------------------------------------------------------------------
 //  Construct/Destruct

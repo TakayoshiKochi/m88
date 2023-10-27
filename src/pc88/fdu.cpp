@@ -11,7 +11,7 @@
 #include "pc88/fdc.h"
 #include "services/diskmgr.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 // ---------------------------------------------------------------------------
 //  構築・破棄

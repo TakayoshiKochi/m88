@@ -10,7 +10,7 @@
 
 // ---------------------------------------------------------------------------
 
-namespace PC8801 {
+namespace pc8801 {
 
 enum class BasicMode : uint32_t {
   // bit0 H/L
@@ -120,4 +120,4 @@ class Config {
   bool IsFV15k() const { return (static_cast<uint32_t>(basicmode) & 2) || (flags & kFv15k); }
 };
 
-}  // namespace PC8801
+}  // namespace pc8801

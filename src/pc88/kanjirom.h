@@ -10,7 +10,7 @@
 
 #include "common/device.h"
 
-namespace PC8801 {
+namespace pc8801 {
 
 class KanjiROM : public Device {
  public:
@@ -50,4 +50,4 @@ class KanjiROM : public Device {
   static const OutFuncPtr outdef[];
 };
 
-};  // namespace PC8801
+};  // namespace pc8801

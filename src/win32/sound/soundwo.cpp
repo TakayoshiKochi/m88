@@ -13,7 +13,7 @@
 
 #include "win32/status_win.h"
 
-using namespace WinSoundDriver;
+using namespace win32sound;
 
 // ---------------------------------------------------------------------------
 //  構築・破棄

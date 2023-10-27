@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace FM {
+namespace fmgen {
 
 TEST(FmgenTest, TestChip) {
   Chip c;
@@ -46,4 +46,4 @@ TEST(FmgenTest, TestChannel4) {
   EXPECT_EQ(0, 0);
 }
 
-}  // namespace FM
+}  // namespace fmgen

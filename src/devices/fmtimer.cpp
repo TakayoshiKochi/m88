@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-using namespace FM;
+using namespace fmgen;
 
 // ---------------------------------------------------------------------------
 //  タイマー制御

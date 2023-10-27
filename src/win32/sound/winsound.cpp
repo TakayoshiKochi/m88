@@ -19,8 +19,8 @@
 // #define LOGNAME "winsound"
 #include "common/diag.h"
 
-using namespace PC8801;
-using namespace WinSoundDriver;
+using namespace pc8801;
+using namespace win32sound;
 
 // ---------------------------------------------------------------------------
 //  構築/消滅

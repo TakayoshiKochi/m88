@@ -27,7 +27,7 @@
 // #define LOGNAME "wincore"
 #include "common/diag.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 //                   0123456789abcdef
 #define SNAPSHOT_ID "M88 SnapshotData"
@@ -100,7 +100,7 @@ void WinCore::Reset() {
 // ---------------------------------------------------------------------------
 //  設定を反映する
 //
-void WinCore::ApplyConfig(PC8801::Config* cfg) {
+void WinCore::ApplyConfig(pc8801::Config* cfg) {
   config_ = *cfg;
 
   int c = cfg->legacy_clock;
@@ -110,9 +110,9 @@ void WinCore::ApplyConfig(PC8801::Config* cfg) {
   } else if (c == 80) {
     cpu_clock = 7987200;
   }
-  if (cfg->flags & PC8801::Config::kFullSpeed)
+  if (cfg->flags & pc8801::Config::kFullSpeed)
     c = 0;
-  if (cfg->flags & PC8801::Config::kCPUBurst)
+  if (cfg->flags & pc8801::Config::kCPUBurst)
     c = -c;
   seq_.SetLegacyClock(c);
   seq_.SetCPUClock(cpu_clock);

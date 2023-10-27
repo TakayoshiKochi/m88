@@ -22,7 +22,7 @@
 #include "services/rom_loader.h"
 
 // using namespace std;
-using namespace PC8801;
+using namespace pc8801;
 
 // ----------------------------------------------------------------------------
 //  Constructor / Destructor

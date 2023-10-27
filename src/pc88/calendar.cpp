@@ -16,7 +16,7 @@
 // #define LOGNAME "calender"
 #include "common/diag.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 inline unsigned int NtoBCD(unsigned int a) {
   return ((a / 10) << 4) + (a % 10);

@@ -3,7 +3,7 @@
 #include "common/io_bus.h"
 #include "gtest/gtest.h"
 
-namespace PC8801 {
+namespace pc8801 {
 
 TEST(BeepTest, BasicTest) {
   Beep beep(DEV_ID('B', 'E', 'E', 'P'));
@@ -12,4 +12,4 @@ TEST(BeepTest, BasicTest) {
   // TODO: nonsense
   EXPECT_EQ(beep.GetID(), DEV_ID('B', 'E', 'E', 'P'));
 }
-}  // namespace PC8801
+}  // namespace pc8801

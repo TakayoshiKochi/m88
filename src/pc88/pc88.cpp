@@ -37,7 +37,7 @@
 // #define LOGNAME "pc88"
 #include "common/diag.h"
 
-using namespace PC8801;
+using namespace pc8801;
 
 // ---------------------------------------------------------------------------
 //  構築・破棄
@@ -289,7 +289,7 @@ bool PC88::ConnectDevices() {
                                             {0x40, IOBus::portin, Base::in40},
                                             {0x6e, IOBus::portin, Base::in6e},
                                             {0, 0, 0}};
-  base_ = std::make_unique<PC8801::Base>(DEV_ID('B', 'A', 'S', 'E'));
+  base_ = std::make_unique<pc8801::Base>(DEV_ID('B', 'A', 'S', 'E'));
   if (!base_ || !main_iobus_.Connect(base_.get(), c_base))
     return false;
   if (!base_->Init(this))
@@ -307,7 +307,7 @@ bool PC88::ConnectDevices() {
       {0x64, IOBus::portin, PD8257::kGetAddr},   {0x65, IOBus::portin, PD8257::kGetCount},
       {0x66, IOBus::portin, PD8257::kGetAddr},   {0x67, IOBus::portin, PD8257::kGetCount},
       {0x68, IOBus::portin, PD8257::kGetStat},   {0, 0, 0}};
-  dmac_ = std::make_unique<PC8801::PD8257>(DEV_ID('D', 'M', 'A', 'C'));
+  dmac_ = std::make_unique<pc8801::PD8257>(DEV_ID('D', 'M', 'A', 'C'));
   if (!main_iobus_.Connect(dmac_.get(), c_dmac))
     return false;
 
@@ -317,7 +317,7 @@ bool PC88::ConnectDevices() {
       {0x51, IOBus::portin, CRTC::kIn},           {0x00, IOBus::portout, CRTC::kPCGOut},
       {0x01, IOBus::portout, CRTC::kPCGOut},      {0x02, IOBus::portout, CRTC::kPCGOut},
       {0x33, IOBus::portout, CRTC::kSetKanaMode}, {0, 0, 0}};
-  crtc_ = std::make_unique<PC8801::CRTC>(DEV_ID('C', 'R', 'T', 'C'));
+  crtc_ = std::make_unique<pc8801::CRTC>(DEV_ID('C', 'R', 'T', 'C'));
   if (!crtc_ || !main_iobus_.Connect(crtc_.get(), c_crtc))
     return false;
 
@@ -348,7 +348,7 @@ bool PC88::ConnectDevices() {
                                             {0xe2, IOBus::portin, Memory::ine2},
                                             {0xe3, IOBus::portin, Memory::ine3},
                                             {0, 0, 0}};
-  mem_main_ = std::make_unique<PC8801::Memory>(DEV_ID('M', 'E', 'M', '1'));
+  mem_main_ = std::make_unique<pc8801::Memory>(DEV_ID('M', 'E', 'M', '1'));
   if (!mem_main_ || !main_iobus_.Connect(mem_main_.get(), c_mem1))
     return false;
   if (!mem_main_->Init(&main_mm_, &main_iobus_, crtc_.get(), main_cpu_.GetWaits()))
@@ -363,7 +363,7 @@ bool PC88::ConnectDevices() {
                                             {0xe8, IOBus::portin, KanjiROM::readl},
                                             {0xe9, IOBus::portin, KanjiROM::readh},
                                             {0, 0, 0}};
-  kanji1_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '1'));
+  kanji1_ = std::make_unique<pc8801::KanjiROM>(DEV_ID('K', 'N', 'J', '1'));
   if (!kanji1_ || !main_iobus_.Connect(kanji1_.get(), c_knj1))
     return false;
   if (!kanji1_->Init(KanjiROM::kJis1))
@@ -374,7 +374,7 @@ bool PC88::ConnectDevices() {
                                             {0xec, IOBus::portin, KanjiROM::readl},
                                             {0xed, IOBus::portin, KanjiROM::readh},
                                             {0, 0, 0}};
-  kanji2_ = std::make_unique<PC8801::KanjiROM>(DEV_ID('K', 'N', 'J', '2'));
+  kanji2_ = std::make_unique<pc8801::KanjiROM>(DEV_ID('K', 'N', 'J', '2'));
   if (!kanji2_ || !main_iobus_.Connect(kanji2_.get(), c_knj2))
     return false;
   if (!kanji2_->Init(KanjiROM::kJis2))
@@ -389,7 +389,7 @@ bool PC88::ConnectDevices() {
       {0x57, IOBus::portout, Screen::out55to5b}, {0x58, IOBus::portout, Screen::out55to5b},
       {0x59, IOBus::portout, Screen::out55to5b}, {0x5a, IOBus::portout, Screen::out55to5b},
       {0x5b, IOBus::portout, Screen::out55to5b}, {0, 0, 0}};
-  screen_ = std::make_unique<PC8801::Screen>(DEV_ID('S', 'C', 'R', 'N'));
+  screen_ = std::make_unique<pc8801::Screen>(DEV_ID('S', 'C', 'R', 'N'));
   if (!screen_ || !main_iobus_.Connect(screen_.get(), c_scrn))
     return false;
   if (!screen_->Init(&main_iobus_, mem_main_.get(), crtc_.get()))
@@ -408,7 +408,7 @@ bool PC88::ConnectDevices() {
                                             {0xe6, IOBus::portout, INTC::setmask},
                                             {kPIAck, IOBus::portin, INTC::intack},
                                             {0, 0, 0}};
-  int_controller_ = std::make_unique<PC8801::INTC>(DEV_ID('I', 'N', 'T', 'C'));
+  int_controller_ = std::make_unique<pc8801::INTC>(DEV_ID('I', 'N', 'T', 'C'));
   if (!int_controller_ || !main_iobus_.Connect(int_controller_.get(), c_intc))
     return false;
   if (!int_controller_->Init(&main_iobus_, kPIRQ, kPint0))
@@ -424,7 +424,7 @@ bool PC88::ConnectDevices() {
       {0xfd, IOBus::portin | IOBus::sync, SubSystem::m_read1},
       {0xfe, IOBus::portin | IOBus::sync, SubSystem::m_read2},
       {0, 0, 0}};
-  subsys_ = std::make_unique<PC8801::SubSystem>(DEV_ID('S', 'U', 'B', ' '));
+  subsys_ = std::make_unique<pc8801::SubSystem>(DEV_ID('S', 'U', 'B', ' '));
   if (!subsys_ || !main_iobus_.Connect(subsys_.get(), c_subsys))
     return false;
 
@@ -435,7 +435,7 @@ bool PC88::ConnectDevices() {
                                            {0x20, IOBus::portin, SIO::getdata},
                                            {0x21, IOBus::portin, SIO::getstatus},
                                            {0, 0, 0}};
-  sio_tape_ = std::make_unique<PC8801::SIO>(DEV_ID('S', 'I', 'O', ' '));
+  sio_tape_ = std::make_unique<pc8801::SIO>(DEV_ID('S', 'I', 'O', ' '));
   if (!sio_tape_ || !main_iobus_.Connect(sio_tape_.get(), c_sio))
     return false;
   if (!sio_tape_->Init(&main_iobus_, kPint0, kPSIOReq))
@@ -457,7 +457,7 @@ bool PC88::ConnectDevices() {
       {kPTimeSync, IOBus::portout, OPNIF::sync}, {0x44, IOBus::portin, OPNIF::readstatus},
       {0x45, IOBus::portin, OPNIF::readdata0},   {0x46, IOBus::portin, OPNIF::readstatusex},
       {0x47, IOBus::portin, OPNIF::readdata1},   {0, 0, 0}};
-  opn1_ = std::make_unique<PC8801::OPNIF>(DEV_ID('O', 'P', 'N', '1'));
+  opn1_ = std::make_unique<pc8801::OPNIF>(DEV_ID('O', 'P', 'N', '1'));
   if (!opn1_ || !opn1_->Init(&main_iobus_, kPint4, kPOPNio1, &scheduler_))
     return false;
   if (!main_iobus_.Connect(opn1_.get(), c_opn1))
@@ -475,7 +475,7 @@ bool PC88::ConnectDevices() {
                                             {0xac, IOBus::portin, OPNIF::readstatusex},
                                             {0xad, IOBus::portin, OPNIF::readdata1},
                                             {0, 0, 0}};
-  opn2_ = std::make_unique<PC8801::OPNIF>(DEV_ID('O', 'P', 'N', '2'));
+  opn2_ = std::make_unique<pc8801::OPNIF>(DEV_ID('O', 'P', 'N', '2'));
   if (!opn2_->Init(&main_iobus_, kPint4, kPOPNio1, &scheduler_))
     return false;
   if (!opn2_ || !main_iobus_.Connect(opn2_.get(), c_opn2))
@@ -487,14 +487,14 @@ bool PC88::ConnectDevices() {
                                             {0x40, IOBus::portout, Calendar::kOut40},
                                             {0x40, IOBus::portin, Calendar::kIn40},
                                             {0, 0, 0}};
-  calendar_ = std::make_unique<PC8801::Calendar>(DEV_ID('C', 'A', 'L', 'N'));
+  calendar_ = std::make_unique<pc8801::Calendar>(DEV_ID('C', 'A', 'L', 'N'));
   if (!calendar_ || !calendar_->Init())
     return false;
   if (!main_iobus_.Connect(calendar_.get(), c_caln))
     return false;
 
   static const IOBus::Connector c_beep[] = {{0x40, IOBus::portout, Beep::out40}, {0, 0, 0}};
-  beep_ = std::make_unique<PC8801::Beep>(DEV_ID('B', 'E', 'E', 'P'));
+  beep_ = std::make_unique<pc8801::Beep>(DEV_ID('B', 'E', 'E', 'P'));
   if (!beep_ || !beep_->Init())
     return false;
   if (!main_iobus_.Connect(beep_.get(), c_beep))
@@ -507,7 +507,7 @@ bool PC88::ConnectDevices() {
                                             {0xc2, IOBus::portin, SIO::getdata},
                                             {0xc3, IOBus::portin, SIO::getstatus},
                                             {0, 0, 0}};
-  sio_midi_ = std::make_unique<PC8801::SIO>(DEV_ID('S', 'I', 'O', 'M'));
+  sio_midi_ = std::make_unique<pc8801::SIO>(DEV_ID('S', 'I', 'O', 'M'));
   if (!sio_midi_ || !main_iobus_.Connect(sio_midi_.get(), c_siom))
     return false;
   if (!sio_midi_->Init(&main_iobus_, 0, kPSIOReq))
@@ -517,7 +517,7 @@ bool PC88::ConnectDevices() {
                                            {kPOPNio2, IOBus::portin, JoyPad::getbutton},
                                            {kVrtc, IOBus::portout, JoyPad::vsync},
                                            {0, 0, 0}};
-  joy_pad_ = std::make_unique<PC8801::JoyPad>();  // DEV_ID('J', 'O', 'Y', ' '));
+  joy_pad_ = std::make_unique<pc8801::JoyPad>();  // DEV_ID('J', 'O', 'Y', ' '));
   if (!joy_pad_)
     return false;
   if (!main_iobus_.Connect(joy_pad_.get(), c_joy))
@@ -557,7 +557,7 @@ bool PC88::ConnectDevices2() {
       {0xf4, IOBus::portout, FDC::drivecontrol}, {0xf8, IOBus::portout, FDC::motorcontrol},
       {0xf8, IOBus::portin, FDC::tcin},          {0xfa, IOBus::portin, FDC::getstatus},
       {0xfb, IOBus::portin, FDC::getdata},       {0, 0, 0}};
-  fdc_ = std::make_unique<PC8801::FDC>(DEV_ID('F', 'D', 'C', ' '));
+  fdc_ = std::make_unique<pc8801::FDC>(DEV_ID('F', 'D', 'C', ' '));
   if (!sub_iobus_.Connect(fdc_.get(), c_fdc))
     return false;
   if (!fdc_->Init(disk_manager_, &scheduler_, &sub_iobus_, kPIRQ2, kPFDStat))
@@ -589,7 +589,7 @@ void PC88::ApplyConfig(Config* cfg) {
   if ((cfg->flags & Config::kSubCPUControl) != 0)
     cpu_mode_ |= stopwhenidle;
 
-  if (cfg->flags & PC8801::Config::kEnablePad) {
+  if (cfg->flags & pc8801::Config::kEnablePad) {
     joy_pad_->SetButtonMode(cfg->flags & Config::kSwappedButtons ? JoyPad::SWAPPED
                                                                  : JoyPad::NORMAL);
   } else {
@@ -607,7 +607,7 @@ void PC88::ApplyConfig(Config* cfg) {
 // ---------------------------------------------------------------------------
 //  音量変更
 //
-void PC88::SetVolume(PC8801::Config* cfg) {
+void PC88::SetVolume(pc8801::Config* cfg) {
   opn1_->SetVolume(cfg);
   opn2_->SetVolume(cfg);
 }
