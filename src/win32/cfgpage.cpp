@@ -206,7 +206,8 @@ void ConfigCPU::Update(HWND hdlg) {
   EnableWindow(GetDlgItem(hdlg, IDC_CPU_SPEED), !(config_.flags & pc8801::Config::kCPUBurst));
   EnableWindow(GetDlgItem(hdlg, IDC_CPU_SPEED_TEXT), !(config_.flags & pc8801::Config::kCPUBurst));
 
-  CheckDlgButton(hdlg, IDC_CPU_NOSUBCPUCONTROL, BSTATE(!(config_.flags & pc8801::Config::kSubCPUControl)));
+  CheckDlgButton(hdlg, IDC_CPU_NOSUBCPUCONTROL,
+                 BSTATE(!(config_.flags & pc8801::Config::kSubCPUControl)));
   CheckDlgButton(hdlg, IDC_CPU_CLOCKMODE, BSTATE(config_.flags & pc8801::Config::kCPUClockMode));
   CheckDlgButton(hdlg, IDC_CPU_BURST, BSTATE(config_.flags & pc8801::Config::kCPUBurst));
   CheckDlgButton(hdlg, IDC_CPU_FDDNOWAIT, BSTATE(!(config_.flag2 & pc8801::Config::kFDDNoWait)));
@@ -290,13 +291,15 @@ void ConfigScreen::Update(HWND hdlg) {
   // misc. option
   CheckDlgButton(hdlg, IDC_SCREEN_ENABLEPCG, BSTATE(config_.flags & pc8801::Config::kEnablePCG));
   CheckDlgButton(hdlg, IDC_SCREEN_FV15K, BSTATE(config_.flags & pc8801::Config::kFv15k));
-  CheckDlgButton(hdlg, IDC_SCREEN_DIGITALPAL, BSTATE(config_.flags & pc8801::Config::kDigitalPalette));
+  CheckDlgButton(hdlg, IDC_SCREEN_DIGITALPAL,
+                 BSTATE(config_.flags & pc8801::Config::kDigitalPalette));
   CheckDlgButton(hdlg, IDC_SCREEN_FORCE480, BSTATE(config_.flags & pc8801::Config::kForce480));
-  CheckDlgButton(hdlg, IDC_SCREEN_LOWPRIORITY, BSTATE(config_.flags & pc8801::Config::kDrawPriorityLow));
+  CheckDlgButton(hdlg, IDC_SCREEN_LOWPRIORITY,
+                 BSTATE(config_.flags & pc8801::Config::kDrawPriorityLow));
   CheckDlgButton(hdlg, IDC_SCREEN_FULLLINE, BSTATE(config_.flags & pc8801::Config::kFullline));
 
-  bool f = (config_.flags & pc8801::Config::kFullSpeed) || (config_.flags & pc8801::Config::kCPUBurst) ||
-           (config_.speed != 1000);
+  bool f = (config_.flags & pc8801::Config::kFullSpeed) ||
+           (config_.flags & pc8801::Config::kCPUBurst) || (config_.speed != 1000);
   CheckDlgButton(hdlg, IDC_SCREEN_VSYNC, BSTATE(config_.flag2 & pc8801::Config::kSyncToVsync));
   EnableWindow(GetDlgItem(hdlg, IDC_SCREEN_VSYNC), BSTATE(!f));
 }
@@ -395,8 +398,10 @@ bool ConfigSound::Clicked(HWND hdlg, HWND hwctl, UINT id) {
 
     case IDC_SOUND_LPF:
       config_.flag2 ^= pc8801::Config::kEnableLPF;
-      EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFFC), !!(config_.flag2 & pc8801::Config::kEnableLPF));
-      EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFORDER), !!(config_.flag2 & pc8801::Config::kEnableLPF));
+      EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFFC),
+                   !!(config_.flag2 & pc8801::Config::kEnableLPF));
+      EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFORDER),
+                   !!(config_.flag2 & pc8801::Config::kEnableLPF));
       return true;
   }
   return false;
@@ -404,16 +409,18 @@ bool ConfigSound::Clicked(HWND hdlg, HWND hwctl, UINT id) {
 
 void ConfigSound::InitDialog(HWND hdlg) {
   config_.soundbuffer = org_config_.soundbuffer;
-  CheckDlgButton(hdlg,
-                 config_.flag2 & pc8801::Config::kDisableOPN44
-                     ? IDC_SOUND44_NONE
-                     : (config_.flags & pc8801::Config::kEnableOPNA ? IDC_SOUND44_OPNA : IDC_SOUND44_OPN),
-                 BSTATE(true));
-  CheckDlgButton(hdlg,
-                 config_.flags & pc8801::Config::kOPNAonA8
-                     ? IDC_SOUNDA8_OPNA
-                     : (config_.flags & pc8801::Config::kOPNonA8 ? IDC_SOUNDA8_OPN : IDC_SOUNDA8_NONE),
-                 BSTATE(true));
+  CheckDlgButton(
+      hdlg,
+      config_.flag2 & pc8801::Config::kDisableOPN44
+          ? IDC_SOUND44_NONE
+          : (config_.flags & pc8801::Config::kEnableOPNA ? IDC_SOUND44_OPNA : IDC_SOUND44_OPN),
+      BSTATE(true));
+  CheckDlgButton(
+      hdlg,
+      config_.flags & pc8801::Config::kOPNAonA8
+          ? IDC_SOUNDA8_OPNA
+          : (config_.flags & pc8801::Config::kOPNonA8 ? IDC_SOUNDA8_OPN : IDC_SOUNDA8_NONE),
+      BSTATE(true));
 }
 
 void ConfigSound::SetActive(HWND hdlg) {
@@ -472,8 +479,10 @@ void ConfigSound::Update(HWND hdlg) {
   CheckDlgButton(hdlg, IDC_SOUND_96K, BSTATE(config_.sound == 96000));
 
   CheckDlgButton(hdlg, IDC_SOUND_CMDSING, BSTATE(!(config_.flags & pc8801::Config::kDisableSing)));
-  CheckDlgButton(hdlg, IDC_SOUND_MIXALWAYS, BSTATE(config_.flags & pc8801::Config::kMixSoundAlways));
-  CheckDlgButton(hdlg, IDC_SOUND_PRECISEMIX, BSTATE(config_.flags & pc8801::Config::kPreciseMixing));
+  CheckDlgButton(hdlg, IDC_SOUND_MIXALWAYS,
+                 BSTATE(config_.flags & pc8801::Config::kMixSoundAlways));
+  CheckDlgButton(hdlg, IDC_SOUND_PRECISEMIX,
+                 BSTATE(config_.flags & pc8801::Config::kPreciseMixing));
   CheckDlgButton(hdlg, IDC_SOUND_WAVEOUT, BSTATE(config_.flag2 & pc8801::Config::kUseWaveOutDrv));
   CheckDlgButton(hdlg, IDC_SOUND_FMFREQ, BSTATE(config_.flag2 & pc8801::Config::kUseFMClock));
   CheckDlgButton(hdlg, IDC_SOUND_LPF, BSTATE(config_.flag2 & pc8801::Config::kEnableLPF));
@@ -484,7 +493,8 @@ void ConfigSound::Update(HWND hdlg) {
   SetDlgItemInt(hdlg, IDC_SOUND_LPFORDER, config_.lpforder, false);
 
   EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFFC), !!(config_.flag2 & pc8801::Config::kEnableLPF));
-  EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFORDER), !!(config_.flag2 & pc8801::Config::kEnableLPF));
+  EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFORDER),
+               !!(config_.flag2 & pc8801::Config::kEnableLPF));
 }
 
 // ---------------------------------------------------------------------------
@@ -677,24 +687,33 @@ void ConfigFunction::SetActive(HWND hdlg) {
 }
 
 void ConfigFunction::Update(HWND hdlg) {
-  CheckDlgButton(hdlg, IDC_FUNCTION_SAVEDIR, BSTATE(config_.flags & pc8801::Config::kSaveDirectory));
+  CheckDlgButton(hdlg, IDC_FUNCTION_SAVEDIR,
+                 BSTATE(config_.flags & pc8801::Config::kSaveDirectory));
   CheckDlgButton(hdlg, IDC_FUNCTION_SAVEPOS, BSTATE(config_.flag2 & pc8801::Config::kSavePosition));
   CheckDlgButton(hdlg, IDC_FUNCTION_ASKBEFORERESET,
                  BSTATE(config_.flags & pc8801::Config::kAskBeforeReset));
-  CheckDlgButton(hdlg, IDC_FUNCTION_SUPPRESSMENU, BSTATE(config_.flags & pc8801::Config::kSuppressMenu));
-  CheckDlgButton(hdlg, IDC_FUNCTION_USEARROWFOR10, BSTATE(config_.flags & pc8801::Config::kUseArrowFor10));
-  CheckDlgButton(hdlg, IDC_FUNCTION_ENABLEPAD, BSTATE(config_.flags & pc8801::Config::kEnablePad) != 0);
-  EnableWindow(GetDlgItem(hdlg, IDC_FUNCTION_SWAPPADBUTTONS), (config_.flags & pc8801::Config::kEnablePad));
+  CheckDlgButton(hdlg, IDC_FUNCTION_SUPPRESSMENU,
+                 BSTATE(config_.flags & pc8801::Config::kSuppressMenu));
+  CheckDlgButton(hdlg, IDC_FUNCTION_USEARROWFOR10,
+                 BSTATE(config_.flags & pc8801::Config::kUseArrowFor10));
+  CheckDlgButton(hdlg, IDC_FUNCTION_ENABLEPAD,
+                 BSTATE(config_.flags & pc8801::Config::kEnablePad) != 0);
+  EnableWindow(GetDlgItem(hdlg, IDC_FUNCTION_SWAPPADBUTTONS),
+               (config_.flags & pc8801::Config::kEnablePad));
   CheckDlgButton(hdlg, IDC_FUNCTION_SWAPPADBUTTONS,
                  BSTATE(config_.flags & pc8801::Config::kSwappedButtons));
-  CheckDlgButton(hdlg, IDC_FUNCTION_RESETF12, BSTATE(!(config_.flags & pc8801::Config::kDisableF12Reset)));
-  CheckDlgButton(hdlg, IDC_FUNCTION_ENABLEMOUSE, BSTATE(config_.flags & pc8801::Config::kEnableMouse));
-  CheckDlgButton(hdlg, IDC_FUNCTION_MOUSEJOY, BSTATE(config_.flags & pc8801::Config::kMouseJoyMode));
+  CheckDlgButton(hdlg, IDC_FUNCTION_RESETF12,
+                 BSTATE(!(config_.flags & pc8801::Config::kDisableF12Reset)));
+  CheckDlgButton(hdlg, IDC_FUNCTION_ENABLEMOUSE,
+                 BSTATE(config_.flags & pc8801::Config::kEnableMouse));
+  CheckDlgButton(hdlg, IDC_FUNCTION_MOUSEJOY,
+                 BSTATE(config_.flags & pc8801::Config::kMouseJoyMode));
   EnableWindow(GetDlgItem(hdlg, IDC_FUNCTION_MOUSEJOY),
                (config_.flags & pc8801::Config::kEnableMouse) != 0);
   CheckDlgButton(hdlg, IDC_FUNCTION_SCREENSHOT_NAME,
                  BSTATE(config_.flag2 & pc8801::Config::kGenScrnShotName));
-  CheckDlgButton(hdlg, IDC_FUNCTION_COMPSNAP, BSTATE(config_.flag2 & pc8801::Config::kCompressSnapshot));
+  CheckDlgButton(hdlg, IDC_FUNCTION_COMPSNAP,
+                 BSTATE(config_.flag2 & pc8801::Config::kCompressSnapshot));
 }
 
 void ConfigFunction::UpdateSlider(HWND hdlg) {
