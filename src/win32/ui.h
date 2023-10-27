@@ -149,7 +149,7 @@ class WinUI {
   WinDraw draw_;
   WinKeyIF keyif_;
   pc8801::Config config_;
-  pc8801::WinConfig win_config_;
+  WinConfig win_config_;
   WinNewDisk new_disk_;
 
   // Monitors

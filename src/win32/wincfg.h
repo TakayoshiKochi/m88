@@ -12,14 +12,12 @@
 #include "pc88/config.h"
 #include "win32/cfgpage.h"
 
-namespace pc8801 {
-
 class WinConfig : public IConfigPropBase {
  public:
   WinConfig();
   ~WinConfig();
 
-  bool Show(HINSTANCE, HWND, Config* config);
+  bool Show(HINSTANCE, HWND, pc8801::Config* config);
   bool ProcMsg(MSG& msg);
   bool IsOpen() { return hwndps_ != nullptr; }
   void Close();
@@ -43,8 +41,8 @@ class WinConfig : public IConfigPropBase {
   HWND hwndparent_ = nullptr;
   HWND hwndps_ = nullptr;
   HINSTANCE hinst_ = nullptr;
-  Config config_;
-  Config orgconfig_;
+  pc8801::Config config_;
+  pc8801::Config orgconfig_;
   int page_;
   int npages_;
 
@@ -57,5 +55,3 @@ class WinConfig : public IConfigPropBase {
   ConfigEnv cenv_;
   ConfigROMEO cromeo_;
 };
-
-}  // namespace pc8801
