@@ -18,12 +18,12 @@ namespace services {
 static bool LoadConfigEntry(const std::string_view inifile,
                             const char* entry,
                             int* value,
-                            int def,
-                            bool applydefault) {
+                            int dfault_value,
+                            bool apply_default) {
   int n = GetPrivateProfileInt(AppName, entry, -1, inifile.data());
 
-  if (n == -1 && applydefault)
-    n = def;
+  if (n == -1 && apply_default)
+    n = dfault_value;
   if (n != -1) {
     *value = n;
     return true;
@@ -93,9 +93,9 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applyd
   if (LoadConfigEntry(inifile, "Sound", &n, 55467, applydefault)) {
     static const uint16_t srate[] = {0, 11025, 22050, 44100, 44100, 48000, 55467};
     if (n < 7)
-      cfg->sound = srate[n];
+      cfg->sound_output_hz = srate[n];
     else
-      cfg->sound = Limit(n, 55467 * 2, 8000);
+      cfg->sound_output_hz = Limit(n, 192000, 8000);
   }
 
   if (LoadConfigEntry(inifile, "OPNClock", &n, 3993600, applydefault))
@@ -110,8 +110,8 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applyd
   if (LoadConfigEntry(inifile, "Switches", &n, 1829, applydefault))
     cfg->dipsw = n;
 
-  if (LoadConfigEntry(inifile, "SoundBuffer", &n, 200, applydefault))
-    cfg->soundbuffer = Limit(n, 1000, 50);
+  if (LoadConfigEntry(inifile, "SoundBuffer", &n, 50, applydefault))
+    cfg->sound_buffer_ms = Limit(n, 1000, 20);
 
   if (LoadConfigEntry(inifile, "MouseSensibility", &n, 4, applydefault))
     cfg->mousesensibility = Limit(n, 10, 1);
@@ -189,9 +189,9 @@ void SaveConfig(pc8801::Config* cfg, const std::string_view inifile, bool writed
   //  SaveEntry(inifile, "Speed", cfg->speed, writedefault);
   SaveEntry(inifile, "RefreshTiming", cfg->refreshtiming, writedefault);
   SaveEntry(inifile, "BASICMode", static_cast<int>(cfg->basicmode), writedefault);
-  SaveEntry(inifile, "Sound", cfg->sound, writedefault);
+  SaveEntry(inifile, "Sound", cfg->sound_output_hz, writedefault);
   SaveEntry(inifile, "Switches", cfg->dipsw, writedefault);
-  SaveEntry(inifile, "SoundBuffer", cfg->soundbuffer, writedefault);
+  SaveEntry(inifile, "SoundBuffer", cfg->sound_buffer_ms, writedefault);
   SaveEntry(inifile, "MouseSensibility", cfg->mousesensibility, writedefault);
   SaveEntry(inifile, "CPUMode", cfg->cpumode, writedefault);
   SaveEntry(inifile, "KeyboardType", static_cast<int>(cfg->keytype), writedefault);

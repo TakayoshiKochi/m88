@@ -68,7 +68,7 @@ class WinSound : public pc8801::Sound {
   ~WinSound() override;
 
   bool Init(PC88* pc, HWND hwnd, uint32_t rate, uint32_t buflen);
-  bool ChangeRate(uint32_t rate, uint32_t buflen, bool wo);
+  bool ChangeRate(uint32_t rate, uint32_t buflen_ms, bool waveout);
 
   void ApplyConfig(const pc8801::Config* config);
 
@@ -87,7 +87,7 @@ class WinSound : public pc8801::Sound {
 
   HWND hwnd_ = nullptr;
   uint32_t current_rate_ = 0;
-  uint32_t current_buffer_len_ = 0;
+  uint32_t current_buffer_len_ms_ = 50;
   uint32_t sample_rate_ = 0;
 
   OPNMonitor* sound_mon_ = nullptr;

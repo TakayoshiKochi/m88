@@ -357,7 +357,7 @@ bool ConfigSound::Clicked(HWND hdlg, HWND hwctl, UINT id) {
       return true;
 
     case IDC_SOUND_NOSOUND:
-      config_.sound = 0;
+      config_.sound_output_hz = 0;
       return true;
 
       //  case IDC_SOUND_11K:
@@ -365,27 +365,35 @@ bool ConfigSound::Clicked(HWND hdlg, HWND hwctl, UINT id) {
       //      return true;
 
     case IDC_SOUND_22K:
-      config_.sound = 22050;
+      config_.sound_output_hz = 22050;
       return true;
 
     case IDC_SOUND_44K:
-      config_.sound = 44100;
+      config_.sound_output_hz = 44100;
       return true;
 
     case IDC_SOUND_48K:
-      config_.sound = 48000;
+      config_.sound_output_hz = 48000;
       return true;
 
     case IDC_SOUND_88K:
-      config_.sound = 88200;
+      config_.sound_output_hz = 88200;
       return true;
 
     case IDC_SOUND_96K:
-      config_.sound = 96000;
+      config_.sound_output_hz = 96000;
       return true;
 
     case IDC_SOUND_55K:
-      config_.sound = 55467;
+      config_.sound_output_hz = 55467;
+      return true;
+
+    case IDC_SOUND_176K:
+      config_.sound_output_hz = 176400;
+      return true;
+
+    case IDC_SOUND_192K:
+      config_.sound_output_hz = 192000;
       return true;
 
     case IDC_SOUND_FMFREQ:
@@ -408,7 +416,7 @@ bool ConfigSound::Clicked(HWND hdlg, HWND hwctl, UINT id) {
 }
 
 void ConfigSound::InitDialog(HWND hdlg) {
-  config_.soundbuffer = org_config_.soundbuffer;
+  config_.sound_buffer_ms = org_config_.sound_buffer_ms;
   CheckDlgButton(
       hdlg,
       config_.flag2 & pc8801::Config::kDisableOPN44
@@ -438,9 +446,9 @@ BOOL ConfigSound::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id) {
       if (nc == EN_CHANGE) {
         uint32_t buf;
         buf = Limit(GetDlgItemInt(hdlg, IDC_SOUND_BUFFER, 0, false), 1000, 50) / 10 * 10;
-        if (buf != config_.soundbuffer)
+        if (buf != config_.sound_buffer_ms)
           base_->PageChanged(hdlg);
-        config_.soundbuffer = buf;
+        config_.sound_buffer_ms = buf;
         return TRUE;
       }
       break;
@@ -469,14 +477,16 @@ BOOL ConfigSound::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id) {
 }
 
 void ConfigSound::Update(HWND hdlg) {
-  CheckDlgButton(hdlg, IDC_SOUND_NOSOUND, BSTATE(config_.sound == 0));
+  CheckDlgButton(hdlg, IDC_SOUND_NOSOUND, BSTATE(config_.sound_output_hz == 0));
   //  CheckDlgButton(hdlg, IDC_SOUND_11K,     BSTATE(config.sound == 11025));
-  CheckDlgButton(hdlg, IDC_SOUND_22K, BSTATE(config_.sound == 22050));
-  CheckDlgButton(hdlg, IDC_SOUND_44K, BSTATE(config_.sound == 44100));
-  CheckDlgButton(hdlg, IDC_SOUND_48K, BSTATE(config_.sound == 48000));
-  CheckDlgButton(hdlg, IDC_SOUND_55K, BSTATE(config_.sound == 55467));
-  CheckDlgButton(hdlg, IDC_SOUND_88K, BSTATE(config_.sound == 88200));
-  CheckDlgButton(hdlg, IDC_SOUND_96K, BSTATE(config_.sound == 96000));
+  CheckDlgButton(hdlg, IDC_SOUND_22K, BSTATE(config_.sound_output_hz == 22050));
+  CheckDlgButton(hdlg, IDC_SOUND_44K, BSTATE(config_.sound_output_hz == 44100));
+  CheckDlgButton(hdlg, IDC_SOUND_48K, BSTATE(config_.sound_output_hz == 48000));
+  CheckDlgButton(hdlg, IDC_SOUND_55K, BSTATE(config_.sound_output_hz == 55467));
+  CheckDlgButton(hdlg, IDC_SOUND_88K, BSTATE(config_.sound_output_hz == 88200));
+  CheckDlgButton(hdlg, IDC_SOUND_96K, BSTATE(config_.sound_output_hz == 96000));
+  CheckDlgButton(hdlg, IDC_SOUND_176K, BSTATE(config_.sound_output_hz == 176400));
+  CheckDlgButton(hdlg, IDC_SOUND_192K, BSTATE(config_.sound_output_hz == 192000));
 
   CheckDlgButton(hdlg, IDC_SOUND_CMDSING, BSTATE(!(config_.flags & pc8801::Config::kDisableSing)));
   CheckDlgButton(hdlg, IDC_SOUND_MIXALWAYS,
@@ -488,7 +498,7 @@ void ConfigSound::Update(HWND hdlg) {
   CheckDlgButton(hdlg, IDC_SOUND_LPF, BSTATE(config_.flag2 & pc8801::Config::kEnableLPF));
   CheckDlgButton(hdlg, IDC_SOUND_USENOTIFY, BSTATE(config_.flag2 & pc8801::Config::kUseDSNotify));
 
-  SetDlgItemInt(hdlg, IDC_SOUND_BUFFER, config_.soundbuffer, false);
+  SetDlgItemInt(hdlg, IDC_SOUND_BUFFER, config_.sound_buffer_ms, false);
   SetDlgItemInt(hdlg, IDC_SOUND_LPFFC, config_.lpffc / 1000, false);
   SetDlgItemInt(hdlg, IDC_SOUND_LPFORDER, config_.lpforder, false);
 

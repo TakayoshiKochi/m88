@@ -212,7 +212,7 @@ bool loadAsioDriver(char* name);
 
 using namespace win32sound;
 
-DriverASIO::DriverASIO() {
+DriverASIO::DriverASIO(WinSound* parent) : parent_(parent) {
   playing_ = false;
   mixalways = false;
 }
@@ -233,16 +233,28 @@ bool DriverASIO::Init(SoundSource* source,
   sample_shift_ = 1 + (ch == 2 ? 1 : 0);
 
   AsioDrivers ads;
-  char buffer[10][32] = {};
-  char* buf[10];
-  for (int i = 0; i < 10; ++i) {
-    buf[i] = buffer[i];
+  constexpr int kMaxDrivers = 10;
+  char buffer[kMaxDrivers][32] = {};
+  char* driver_name[kMaxDrivers];
+  for (int i = 0; i < kMaxDrivers; ++i) {
+    driver_name[i] = buffer[i];
   }
-  ads.getDriverNames(buf, 10);
+  long ndrivers = ads.getDriverNames(driver_name, kMaxDrivers);
 
-  // const char driver_name[] = "ASIO4ALL v2";
-  const char driver_name[] = "M-Audio AIR 192 6 ASIO";
-  if (!loadAsioDriver(const_cast<char*>(driver_name)))
+  // TODO: config should have |preferred_driver| and try it first, then fall back to find default.
+  char* preferred_driver_name = nullptr;
+  for (long i = 0; i < ndrivers; ++i) {
+    // Pick the first available driver.
+    if (loadAsioDriver(driver_name[i])) {
+      preferred_driver_name = driver_name[i];
+      break;
+    }
+  }
+
+  if (!preferred_driver_name)
+    return false;
+
+  if (!loadAsioDriver(const_cast<char*>(preferred_driver_name)))
     return false;
 
   g_asio_driver_info.self = this;
@@ -252,6 +264,10 @@ bool DriverASIO::Init(SoundSource* source,
 
   if (InitASIOStaticData(&g_asio_driver_info) != 0)
     return false;
+
+  sample_rate_ = static_cast<uint32_t>(g_asio_driver_info.sample_rate);
+  // TODO: This is overriding config setting for sample rate.
+  parent_->ChangeRate(sample_rate_, 100, false);
 
   // you might want to check whether the ASIOControlPanel() can open
   // ASIOControlPanel();
@@ -279,9 +295,11 @@ bool DriverASIO::Init(SoundSource* source,
 }
 
 bool DriverASIO::CleanUp() {
-  playing_ = false;
-  if (hthread_)
-    RequestThreadStop();
+  if (playing_) {
+    playing_ = false;
+    if (hthread_)
+      RequestThreadStop();
+  }
   return true;
 }
 

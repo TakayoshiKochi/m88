@@ -19,8 +19,6 @@ namespace win32sound {
 
 class Driver {
  public:
-  //  typedef SoundBuffer::Sample Sample;
-
   Driver() = default;
   virtual ~Driver() = default;
 
