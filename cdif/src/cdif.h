@@ -168,4 +168,4 @@ class CDIF : public Device {
   static const OutFuncPtr outdef[];
 };
 
-};  // namespace pc8801
+}  // namespace pc8801

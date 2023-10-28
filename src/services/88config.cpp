@@ -59,8 +59,7 @@ void LoadConfigDirectory(pc8801::Config* cfg,
 void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applydefault) {
   int n;
 
-  n = pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory |
-      pc8801::Config::kEnableWait;
+  n = pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory | pc8801::Config::kEnableWait;
   LoadConfigEntry(inifile, "Flags", &cfg->flags, n, applydefault);
   cfg->flags &= ~pc8801::Config::kSpecialPalette;
 

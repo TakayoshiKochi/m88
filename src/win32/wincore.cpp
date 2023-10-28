@@ -166,8 +166,7 @@ bool WinCore::SaveSnapshot(const std::string_view filename) {
   LockObj lock(this);
 
   uint32_t size = pc88_.GetDeviceList()->GetStatusSize();
-  std::unique_ptr<uint8_t[]> buf =
-      std::make_unique<uint8_t[]>(size * 129 / 64 + 20);
+  std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(size * 129 / 64 + 20);
   if (!buf)
     return false;
   memset(buf.get(), 0, size);

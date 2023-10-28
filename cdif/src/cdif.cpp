@@ -13,21 +13,11 @@
 // #define LOGNAME "cdif"
 #include "common/diag.h"
 
-using namespace pc8801;
-
-// ----------------------------------------------------------------------------
-//  構築
-//
+namespace pc8801 {
 CDIF::CDIF(const ID& id) : Device(id) {}
 
-// ----------------------------------------------------------------------------
-//  破棄
-//
 CDIF::~CDIF() = default;
 
-// ----------------------------------------------------------------------------
-//  初期化
-//
 bool CDIF::Init(IDMAAccess* dmac) {
   dmac_ = dmac;
   if (!cdrom_.Init())
@@ -659,16 +649,21 @@ bool IFCALL CDIF::LoadStatus(const uint8_t* s) {
 const Device::Descriptor CDIF::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr CDIF::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&SystemReset), static_cast<Device::OutFuncPtr>(&Out90),
-    static_cast<Device::OutFuncPtr>(&Out91),       static_cast<Device::OutFuncPtr>(&Out94),
-    static_cast<Device::OutFuncPtr>(&Out97),       static_cast<Device::OutFuncPtr>(&Out98),
-    static_cast<Device::OutFuncPtr>(&Out99),       static_cast<Device::OutFuncPtr>(&Out9f),
+    static_cast<Device::OutFuncPtr>(&CDIF::SystemReset),
+    static_cast<Device::OutFuncPtr>(&CDIF::Out90),
+    static_cast<Device::OutFuncPtr>(&CDIF::Out91),
+    static_cast<Device::OutFuncPtr>(&CDIF::Out94),
+    static_cast<Device::OutFuncPtr>(&CDIF::Out97),
+    static_cast<Device::OutFuncPtr>(&CDIF::Out98),
+    static_cast<Device::OutFuncPtr>(&CDIF::Out99),
+    static_cast<Device::OutFuncPtr>(&CDIF::Out9f),
 };
 
 const Device::InFuncPtr CDIF::indef[] = {
-    static_cast<Device::InFuncPtr>(&In90), static_cast<Device::InFuncPtr>(&In91),
-    static_cast<Device::InFuncPtr>(&In92), static_cast<Device::InFuncPtr>(&In93),
-    static_cast<Device::InFuncPtr>(&In96), static_cast<Device::InFuncPtr>(&In98),
-    static_cast<Device::InFuncPtr>(&In99), static_cast<Device::InFuncPtr>(&In9b),
-    static_cast<Device::InFuncPtr>(&In9d),
+    static_cast<Device::InFuncPtr>(&CDIF::In90), static_cast<Device::InFuncPtr>(&CDIF::In91),
+    static_cast<Device::InFuncPtr>(&CDIF::In92), static_cast<Device::InFuncPtr>(&CDIF::In93),
+    static_cast<Device::InFuncPtr>(&CDIF::In96), static_cast<Device::InFuncPtr>(&CDIF::In98),
+    static_cast<Device::InFuncPtr>(&CDIF::In99), static_cast<Device::InFuncPtr>(&CDIF::In9b),
+    static_cast<Device::InFuncPtr>(&CDIF::In9d),
 };
+}  // namespace pc8801

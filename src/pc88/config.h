@@ -66,28 +66,28 @@ class Config {
   };
 
   enum Flags {
-    kSubCPUControl = 1 << 0,     // Sub CPU の駆動を制御する
-    kSaveDirectory = 1 << 1,     // 起動時に前回終了時のディレクトリに移動
-    kFullSpeed = 1 << 2,         // 全力動作
-    kEnablePad = 1 << 3,         // パッド有効
-    kEnableOPNA = 1 << 4,        // OPNA モード (44h)
-    kWatchRegister = 1 << 5,     // レジスタ表示
-    kAskBeforeReset = 1 << 6,    // 終了・リセット時に確認
-    kEnablePCG = 1 << 7,         // PCG 系のフォント書き換えを有効
-    kFv15k = 1 << 8,             // 15KHz モニターモード
-    kCPUBurst = 1 << 9,          // ノーウェイト
-    kSuppressMenu = 1 << 10,     // ALT を GRPH に
-    kCPUClockMode = 1 << 11,     // クロック単位で切り替え
-    kUseArrowFor10 = 1 << 12,    // 方向キーをテンキーに
-    kSwappedButtons = 1 << 13,   // パッドのボタンを入れ替え
-    kDisableSing = 1 << 14,      // CMD SING 無効
-    kDigitalPalette = 1 << 15,   // ディジタルパレットモード
+    kSubCPUControl = 1 << 0,    // Sub CPU の駆動を制御する
+    kSaveDirectory = 1 << 1,    // 起動時に前回終了時のディレクトリに移動
+    kFullSpeed = 1 << 2,        // 全力動作
+    kEnablePad = 1 << 3,        // パッド有効
+    kEnableOPNA = 1 << 4,       // OPNA モード (44h)
+    kWatchRegister = 1 << 5,    // レジスタ表示
+    kAskBeforeReset = 1 << 6,   // 終了・リセット時に確認
+    kEnablePCG = 1 << 7,        // PCG 系のフォント書き換えを有効
+    kFv15k = 1 << 8,            // 15KHz モニターモード
+    kCPUBurst = 1 << 9,         // ノーウェイト
+    kSuppressMenu = 1 << 10,    // ALT を GRPH に
+    kCPUClockMode = 1 << 11,    // クロック単位で切り替え
+    kUseArrowFor10 = 1 << 12,   // 方向キーをテンキーに
+    kSwappedButtons = 1 << 13,  // パッドのボタンを入れ替え
+    kDisableSing = 1 << 14,     // CMD SING 無効
+    kDigitalPalette = 1 << 15,  // ディジタルパレットモード
     // Obsolete
     // useqpc = 1 << 16,            // QueryPerformanceCounter つかう
     // Obsolete
     // kForce480 = 1 << 17,         // 全画面を常に 640x480 で
-    kOPNonA8 = 1 << 18,          // OPN (a8h)
-    kOPNAonA8 = 1 << 19,         // OPNA (a8h)
+    kOPNonA8 = 1 << 18,   // OPN (a8h)
+    kOPNAonA8 = 1 << 19,  // OPNA (a8h)
     // Obsolete
     // kDrawPriorityLow = 1 << 20,  // 描画の優先度を落とす
     kDisableF12Reset = 1 << 21,  // F12 を RESET として使用しない(COPY キーになる)
@@ -110,14 +110,14 @@ class Config {
     kMask2 = 1 << 4,
     // Obsolete
     // kGenScrnShotName = 1 << 5,   // スクリーンショットファイル名を自動生成
-    kUseFMClock = 1 << 6,        // FM 音源の合成に本来のクロックを使用
+    kUseFMClock = 1 << 6,  // FM 音源の合成に本来のクロックを使用
     // Obsolete
     // kCompressSnapshot = 1 << 7,  // スナップショットを圧縮する
     // Obsolete
     // kSyncToVsync = 1 << 8,       // 全画面モード時 vsync と同期する
-    kShowPlaceBar = 1 << 9,      // ファイルダイアログで PLACESBAR を表示する
-    kEnableLPF = 1 << 10,        // LPF を使ってみる
-    kFDDNoWait = 1 << 11,        // FDD ノーウェイト
+    kShowPlaceBar = 1 << 9,  // ファイルダイアログで PLACESBAR を表示する
+    kEnableLPF = 1 << 10,    // LPF を使ってみる
+    kFDDNoWait = 1 << 11,    // FDD ノーウェイト
     kUseDSNotify = 1 << 12,
     // Obsolete
     // kSavePosition = 1 << 13,  // 起動時に前回終了時のウインドウ位置を復元
