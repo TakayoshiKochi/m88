@@ -8,11 +8,9 @@
 
 #define EXTDEVAPI __declspec(dllexport)
 
-using namespace pc8801;
-
 static HINSTANCE hinst = nullptr;
 
-// ---------------------------------------------------------------------------
+namespace pc8801 {
 
 enum SpecialPort {
   pint0 = 0x100,
@@ -90,12 +88,11 @@ void CDROMModule::Release() {
     pb_->Remove(&cfg_);
   delete this;
 }
-
-// ---------------------------------------------------------------------------
+}  // namespace pc8801
 
 //  Module を作成
 extern "C" EXTDEVAPI IModule* __cdecl M88CreateModule(ISystem* system) {
-  auto* module = new CDROMModule;
+  auto* module = new pc8801::CDROMModule;
 
   if (module) {
     if (module->Init(system))

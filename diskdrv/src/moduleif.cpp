@@ -63,10 +63,11 @@ void DiskDrvModule::Release() {
     bus_->Disconnect(&disk_io_);
   delete this;
 }
+}  // namespace pc8801
 
 //  Module を作成
 extern "C" EXTDEVAPI IModule* __cdecl M88CreateModule(ISystem* system) {
-  auto* module = new DiskDrvModule;
+  auto* module = new pc8801::DiskDrvModule;
 
   if (module) {
     if (module->Init(system))
@@ -87,4 +88,3 @@ BOOL APIENTRY DllMain(HANDLE, DWORD rfc, LPVOID) {
   }
   return true;
 }
-}  // namespace pc8801
