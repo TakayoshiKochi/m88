@@ -18,17 +18,25 @@ namespace services {
 static bool LoadConfigEntry(const std::string_view inifile,
                             const char* entry,
                             int* value,
-                            int dfault_value,
+                            int default_value,
                             bool apply_default) {
   int n = GetPrivateProfileInt(AppName, entry, -1, inifile.data());
 
   if (n == -1 && apply_default)
-    n = dfault_value;
+    n = default_value;
   if (n != -1) {
     *value = n;
     return true;
   }
   return false;
+}
+
+std::string LoadConfigString(const std::string_view inifile, const char* entry) {
+  char str[256];
+  if (GetPrivateProfileString(AppName, entry, "", str, 256, inifile.data())) {
+    return {str};
+  }
+  return {};
 }
 
 // ---------------------------------------------------------------------------
@@ -57,9 +65,8 @@ void LoadConfigDirectory(pc8801::Config* cfg,
     vol = n - VOLUME_BIAS;
 
 void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applydefault) {
-  int n;
-
-  n = pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory | pc8801::Config::kEnableWait;
+  int n =
+      pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory | pc8801::Config::kEnableWait;
   LoadConfigEntry(inifile, "Flags", &cfg->flags, n, applydefault);
   cfg->flags &= ~pc8801::Config::kSpecialPalette;
 
@@ -90,8 +97,15 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applyd
       cfg->basicmode = pc8801::BasicMode::kN88V2;
   }
 
+  if (LoadConfigEntry(inifile, "SoundDriverType", &n, 0, applydefault)) {
+    if (n >= pc8801::Config::SoundDriverType::kNumSoundDriverTypes)
+      cfg->sound_driver_type = pc8801::Config::SoundDriverType::kUnknown;
+  }
+
+  cfg->preferred_asio_driver = LoadConfigString(inifile, "PreferredASIODriver");
+
   if (LoadConfigEntry(inifile, "Sound", &n, 55467, applydefault)) {
-    static const uint16_t srate[] = {0, 11025, 22050, 44100, 44100, 48000, 55467};
+    static const uint32_t srate[] = {0, 11025, 22050, 44100, 44100, 48000, 55467};
     if (n < 7)
       cfg->sound_output_hz = srate[n];
     else
@@ -122,11 +136,11 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applyd
   if (LoadConfigEntry(inifile, "CPUMode", &n, pc8801::Config::kMainSubAuto, applydefault))
     cfg->cpumode = Limit(n, 2, 0);
 
-  if (LoadConfigEntry(inifile, "LPFCutoff", &n, 8000, applydefault))
-    cfg->lpffc = Limit(n, 24000, 3000);
-
-  if (LoadConfigEntry(inifile, "LPFOrder", &n, 4, applydefault))
-    cfg->lpforder = Limit(n, 16, 2);
+  //  if (LoadConfigEntry(inifile, "LPFCutoff", &n, 8000, applydefault))
+  //    cfg->lpffc = Limit(n, 24000, 3000);
+  //
+  //  if (LoadConfigEntry(inifile, "LPFOrder", &n, 4, applydefault))
+  //    cfg->lpforder = Limit(n, 16, 2);
 
   if (LoadConfigEntry(inifile, "ROMEOLatency", &n, 100, applydefault))
     cfg->romeolatency = Limit(n, 500, 0);
@@ -200,8 +214,11 @@ void SaveConfig(pc8801::Config* cfg, const std::string_view inifile, bool writed
   SaveEntry(inifile, "CPUMode", cfg->cpumode, writedefault);
   SaveEntry(inifile, "KeyboardType", static_cast<int>(cfg->keytype), writedefault);
   SaveEntry(inifile, "ERAMBank", cfg->erambanks, writedefault);
-  SaveEntry(inifile, "LPFCutoff", cfg->lpffc, writedefault);
-  SaveEntry(inifile, "LPFOrder", cfg->lpforder, writedefault);
+
+  // Obsolete
+  // SaveEntry(inifile, "LPFCutoff", cfg->lpffc, writedefault);
+  // SaveEntry(inifile, "LPFOrder", static_cast<int>(cfg->lpforder), writedefault);
+
   SaveEntry(inifile, "ROMEOLatency", cfg->romeolatency, writedefault);
 
   SaveEntry(inifile, "VolumeFM", cfg->volfm + VOLUME_BIAS, writedefault);
@@ -217,6 +234,9 @@ void SaveConfig(pc8801::Config* cfg, const std::string_view inifile, bool writed
 
   SaveEntry(inifile, "WinPosY", cfg->winposy, writedefault);
   SaveEntry(inifile, "WinPosX", cfg->winposx, writedefault);
+
+  SaveEntry(inifile, "SoundDriverType", static_cast<int>(cfg->sound_driver_type), writedefault);
+  SaveEntry(inifile, "PreferredASIODriver", cfg->preferred_asio_driver.c_str(), writedefault);
 }
 
 }  // namespace services

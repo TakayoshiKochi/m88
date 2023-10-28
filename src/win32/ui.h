@@ -166,6 +166,7 @@ class WinUI {
 
  private:
   // メッセージ関数
+  LRESULT M88ChangeSampleRate(HWND, WPARAM, LPARAM);
   LRESULT M88ChangeDisplay(HWND, WPARAM, LPARAM);
   LRESULT M88ChangeVolume(HWND, WPARAM, LPARAM);
   LRESULT M88ApplyConfig(HWND, WPARAM, LPARAM);

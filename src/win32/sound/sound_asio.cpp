@@ -212,13 +212,17 @@ bool loadAsioDriver(char* name);
 
 using namespace win32sound;
 
-DriverASIO::DriverASIO(WinSound* parent) : parent_(parent) {
+DriverASIO::DriverASIO() : Driver() {
   playing_ = false;
   mixalways = false;
 }
 
 DriverASIO::~DriverASIO() {
   CleanUp();
+
+  ASIOStop();
+  ASIODisposeBuffers();
+  ASIOExit();
 }
 
 bool DriverASIO::Init(SoundSource* source,
@@ -232,29 +236,16 @@ bool DriverASIO::Init(SoundSource* source,
   src_ = source;
   sample_shift_ = 1 + (ch == 2 ? 1 : 0);
 
-  AsioDrivers ads;
-  constexpr int kMaxDrivers = 10;
-  char buffer[kMaxDrivers][32] = {};
-  char* driver_name[kMaxDrivers];
-  for (int i = 0; i < kMaxDrivers; ++i) {
-    driver_name[i] = buffer[i];
-  }
-  long ndrivers = ads.getDriverNames(driver_name, kMaxDrivers);
-
-  // TODO: config should have |preferred_driver| and try it first, then fall back to find default.
-  char* preferred_driver_name = nullptr;
-  for (long i = 0; i < ndrivers; ++i) {
-    // Pick the first available driver.
-    if (loadAsioDriver(driver_name[i])) {
-      preferred_driver_name = driver_name[i];
-      break;
-    }
+  if (preferred_driver_.empty() || !loadAsioDriver(const_cast<char*>(preferred_driver_.c_str()))) {
+    preferred_driver_.clear();
+    FindAvailableDriver();
+    preferred_driver_ = current_driver_;
+  } else {
+    // loadAsioDriver() above succeeded.
+    current_driver_ = preferred_driver_;
   }
 
-  if (!preferred_driver_name)
-    return false;
-
-  if (!loadAsioDriver(const_cast<char*>(preferred_driver_name)))
+  if (current_driver_.empty())
     return false;
 
   g_asio_driver_info.self = this;
@@ -266,8 +257,6 @@ bool DriverASIO::Init(SoundSource* source,
     return false;
 
   sample_rate_ = static_cast<uint32_t>(g_asio_driver_info.sample_rate);
-  // TODO: This is overriding config setting for sample rate.
-  parent_->ChangeRate(sample_rate_, 100, false);
 
   // you might want to check whether the ASIOControlPanel() can open
   // ASIOControlPanel();
@@ -283,39 +272,55 @@ bool DriverASIO::Init(SoundSource* source,
     return false;
   }
 
-  if (ASIOStart() != ASE_OK)
+  if (ASIOStart() != ASE_OK) {
     ASIODisposeBuffers();
+    ASIOExit();
+    return false;
+  }
 
-  playing_ = true;
-
-  // スレッド起動
-  StartThread();
-  // SetThreadPriority(hthread_, THREAD_PRIORITY_ABOVE_NORMAL);
   return true;
 }
 
 bool DriverASIO::CleanUp() {
+  Stop();
+  return true;
+}
+
+void DriverASIO::FindAvailableDriver() {
+  // TODO: factor out this as a static function.
+  AsioDrivers ads;
+  constexpr int kMaxDrivers = 10;
+  char buffer[kMaxDrivers][32] = {};
+  char* driver_name[kMaxDrivers];
+  for (int i = 0; i < kMaxDrivers; ++i) {
+    driver_name[i] = buffer[i];
+  }
+  long ndrivers = ads.getDriverNames(driver_name, kMaxDrivers);
+
+  available_drivers_.clear();
+  for (long i = 0; i < ndrivers; ++i) {
+    available_drivers_.emplace_back(driver_name[i]);
+  }
+
+  for (auto& driver : available_drivers_) {
+    // Pick the first available driver.
+    if (loadAsioDriver(const_cast<char*>(driver.c_str()))) {
+      current_driver_ = driver;
+      break;
+    }
+  }
+}
+
+void DriverASIO::Start() {
+  if (!playing_) {
+    playing_ = true;
+  }
+}
+
+void DriverASIO::Stop() {
   if (playing_) {
     playing_ = false;
-    if (hthread_)
-      RequestThreadStop();
   }
-  return true;
-}
-
-void DriverASIO::ThreadInit() {
-  SetName(L"M88 ASIO thread");
-}
-
-bool DriverASIO::ThreadLoop() {
-  while (playing_ && !StopRequested()) {
-    Sleep(100);  // goto sleep for 100 milliseconds
-    // TODO: Do something
-  }
-  ASIOStop();
-  ASIODisposeBuffers();
-  ASIOExit();
-  return true;
 }
 
 void DriverASIO::BufferSwitch(int index) {

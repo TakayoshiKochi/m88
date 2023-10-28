@@ -7,6 +7,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <string>
 
 // ---------------------------------------------------------------------------
 
@@ -63,6 +64,15 @@ class Config {
     kMainSub11 = 0,
     kMainSub21,
     kMainSubAuto,
+  };
+
+  enum SoundDriverType : uint8_t {
+    kUnknown = 0,
+    kDirectSound,
+    kDirectSoundNotify,
+    kWaveOut,
+    kAsio,
+    kNumSoundDriverTypes,
   };
 
   enum Flags {
@@ -129,7 +139,7 @@ class Config {
   // 1000 = 100%, 10% ～ 1000% (100-10000)
   int speed;
   int mainsubratio;
-  int sound_output_hz;
+  uint32_t sound_output_hz;
   int erambanks;
   KeyboardType keytype;
   int volfm, volssg, voladpcm, volrhythm;
@@ -139,13 +149,19 @@ class Config {
   uint32_t sound_buffer_ms;
   uint32_t mousesensibility;
   int cpumode;
-  uint32_t lpffc;  // LPF のカットオフ周波数 (Hz)
-  uint32_t lpforder;
+
+  // Obsolete
+  // uint32_t lpffc;  // LPF のカットオフ周波数 (Hz)
+  // uint32_t lpforder;
+
   int romeolatency;
   int winposx;
   int winposy;
 
   BasicMode basicmode;
+
+  SoundDriverType sound_driver_type;
+  std::string preferred_asio_driver;
 
   // 15kHz モードの判定を行う．
   // (条件: option 又は N80/SR モード時)

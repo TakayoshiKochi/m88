@@ -412,26 +412,6 @@ BOOL ConfigSound::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id) {
         return TRUE;
       }
       break;
-
-    case IDC_SOUND_LPFFC:
-      if (nc == EN_CHANGE) {
-        uint32_t buf = Limit(GetDlgItemInt(hdlg, IDC_SOUND_LPFFC, 0, false), 24, 3) * 1000;
-        if (buf != config_.lpffc)
-          base_->PageChanged(hdlg);
-        config_.lpffc = buf;
-        return TRUE;
-      }
-      break;
-
-    case IDC_SOUND_LPFORDER:
-      if (nc == EN_CHANGE) {
-        uint32_t buf = Limit(GetDlgItemInt(hdlg, IDC_SOUND_LPFORDER, 0, false), 16, 2) / 2 * 2;
-        if (buf != config_.lpforder)
-          base_->PageChanged(hdlg);
-        config_.lpforder = buf;
-        return TRUE;
-      }
-      break;
   }
   return FALSE;
 }
@@ -459,12 +439,6 @@ void ConfigSound::Update(HWND hdlg) {
   CheckDlgButton(hdlg, IDC_SOUND_USENOTIFY, BSTATE(config_.flag2 & pc8801::Config::kUseDSNotify));
 
   SetDlgItemInt(hdlg, IDC_SOUND_BUFFER, config_.sound_buffer_ms, false);
-  SetDlgItemInt(hdlg, IDC_SOUND_LPFFC, config_.lpffc / 1000, false);
-  SetDlgItemInt(hdlg, IDC_SOUND_LPFORDER, config_.lpforder, false);
-
-  EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFFC), !!(config_.flag2 & pc8801::Config::kEnableLPF));
-  EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFORDER),
-               !!(config_.flag2 & pc8801::Config::kEnableLPF));
 }
 
 // ---------------------------------------------------------------------------
