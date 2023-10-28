@@ -6,20 +6,22 @@
 #include "win32/sound/sounddrv.h"
 #include "win32/sound/winsound.h"
 
+#include <string>
 #include <mutex>
+#include <vector>
 
 struct ASIOTime;
 
 namespace win32sound {
 
-class DriverASIO : public Driver, public Threadable<DriverASIO> {
+class DriverASIO : public Driver {
  private:
   enum {
     nblocks = 4,  // 2 以上
   };
 
  public:
-  explicit DriverASIO(WinSound* parent);
+  DriverASIO();
   ~DriverASIO() override;
 
   bool Init(SoundSource* source,
@@ -29,8 +31,9 @@ class DriverASIO : public Driver, public Threadable<DriverASIO> {
             uint32_t buflen_ms) override;
   bool CleanUp() override;
 
-  void ThreadInit();
-  bool ThreadLoop();
+  void SetDriverName(const std::string& name) override { preferred_driver_ = name; }
+  uint32_t GetSampleRate() override { return sample_rate_; }
+  std::string GetDriverName() override { return current_driver_; }
 
   // callback interface
   void BufferSwitch(int index);
@@ -39,7 +42,13 @@ class DriverASIO : public Driver, public Threadable<DriverASIO> {
   long AsioMessage(long selector, long value, void* message, double* opt);
 
  private:
-  WinSound* parent_;
+  void FindAvailableDriver();
+  void Start();
+  void Stop();
+
+  std::string preferred_driver_;
+  std::string current_driver_;
+  std::vector<std::string> available_drivers_;
   uint32_t sample_rate_ = 48000;
 };
 

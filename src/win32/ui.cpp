@@ -287,6 +287,7 @@ LRESULT WinUI::WinProc(HWND hwnd, UINT umsg, WPARAM wp, LPARAM lp) {
   keyif_.Disable(true);
 
   switch (umsg) {
+    PROC_MSG(WM_M88_CHANGESAMPLERATE, M88ChangeSampleRate);
     PROC_MSG(WM_M88_CHANGEDISPLAY, M88ChangeDisplay);
     PROC_MSG(WM_M88_CHANGEVOLUME, M88ChangeVolume);
     PROC_MSG(WM_M88_APPLYCONFIG, M88ApplyConfig);
@@ -1118,6 +1119,16 @@ void WinUI::AllowSleep() {
   } else {
     SetThreadExecutionState(ES_CONTINUOUS);
   }
+}
+
+LRESULT WinUI::M88ChangeSampleRate(HWND hwnd, WPARAM wp, LPARAM) {
+  auto new_sample_rate = static_cast<uint32_t>(wp);
+  if (config_.sound_output_hz != new_sample_rate) {
+    config_.sound_output_hz = new_sample_rate;
+    ApplyConfig();
+    statusdisplay.Show(80, 3000, "サンプリングレートを %d Hz に変更しました", new_sample_rate);
+  }
+  return 0;
 }
 
 // ---------------------------------------------------------------------------

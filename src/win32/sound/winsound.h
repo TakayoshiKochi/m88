@@ -17,6 +17,7 @@
 #include <mutex>
 #include <string>
 
+#include "pc88/config.h"
 #include "pc88/sound.h"
 #include "win32/sound/sounddrv.h"
 
@@ -91,9 +92,8 @@ class WinSound : public pc8801::Sound {
   uint32_t sample_rate_ = 0;
 
   OPNMonitor* sound_mon_ = nullptr;
-  bool use_waveout_ = false;
-  bool use_asio_ = true;
-  bool use_ds2_ = false;
+  pc8801::Config::SoundDriverType driver_type_ = pc8801::Config::SoundDriverType::kUnknown;
+  std::string preferred_asio_driver_;
 
   SoundDumpPipe dumper;
 };
