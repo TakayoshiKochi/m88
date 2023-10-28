@@ -10,19 +10,11 @@
 
 #include "services/rom_loader.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  構築/消滅
-// ---------------------------------------------------------------------------
-
+namespace pc8801 {
 KanjiROM::KanjiROM(const ID& id) : Device(id) {}
 
 KanjiROM::~KanjiROM() = default;
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
 bool KanjiROM::Init(int jis) {
   if (jis == kJis1) {
     image_ = services::RomLoader::GetInstance()->Get(RomType::kKanji1Rom);
@@ -65,3 +57,4 @@ const Device::InFuncPtr KanjiROM::indef[] = {
     static_cast<Device::InFuncPtr>(&KanjiROM::ReadL),
     static_cast<Device::InFuncPtr>(&KanjiROM::ReadH),
 };
+}  // namespace pc8801

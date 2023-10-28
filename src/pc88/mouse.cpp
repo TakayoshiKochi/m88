@@ -16,20 +16,13 @@
 // #define LOGNAME "mouse"
 #include "common/diag.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  構築
-//
+namespace pc8801 {
 Mouse::Mouse(const ID& id) : Device(id), ui(0) {}
 
 Mouse::~Mouse() {
   RELEASE(ui);
 }
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
 bool Mouse::Init(Scheduler* sched) {
   sched_ = sched;
   return true;
@@ -140,3 +133,4 @@ const Device::InFuncPtr Mouse::indef[] = {
     static_cast<Device::InFuncPtr>(&GetMove),
     static_cast<Device::InFuncPtr>(&GetButton),
 };
+}  // namespace pc8801

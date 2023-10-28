@@ -10,20 +10,14 @@
 
 #include "if/ifguid.h"
 
-using namespace pc8801;
+namespace pc8801 {
 
-// ---------------------------------------------------------------------------
-//  構築・破棄
-//
 JoyPad::JoyPad() : Device(0), ui(0) {
   SetButtonMode(NORMAL);
 }
 
 JoyPad::~JoyPad() {}
 
-// ---------------------------------------------------------------------------
-//
-//
 bool JoyPad::Connect(IPadInput* u) {
   ui = u;
 
@@ -95,3 +89,4 @@ const Device::InFuncPtr JoyPad::indef[] = {
     static_cast<Device::InFuncPtr>(&GetDirection),
     static_cast<Device::InFuncPtr>(&GetButton),
 };
+}  // namespace pc8801

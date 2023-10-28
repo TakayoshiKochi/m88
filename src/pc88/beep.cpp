@@ -6,20 +6,13 @@
 
 #include "pc88/beep.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  生成・破棄
-//
+namespace pc8801 {
 Beep::Beep(const ID& id) : Device(id) {}
 
 Beep::~Beep() {
   CleanUp();
 }
 
-// ---------------------------------------------------------------------------
-//  初期化とか
-//
 bool Beep::Init() {
   port40_ = 0;
   p40mask_ = 0xa0;
@@ -150,3 +143,4 @@ const Device::Descriptor Beep::descriptor = {0, outdef};
 const Device::OutFuncPtr Beep::outdef[] = {
     static_cast<Device::OutFuncPtr>(&Out40),
 };
+}  // namespace pc8801

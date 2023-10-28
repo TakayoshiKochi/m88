@@ -22,8 +22,6 @@
 // #define LOGNAME "crtc"
 #include "common/diag.h"
 
-using namespace pc8801;
-
 namespace {
 constexpr uint32_t kHSync24K = 24830;
 constexpr uint32_t kHSync15K = 15980;
@@ -41,6 +39,7 @@ constexpr packed TEXT_SETP = PACK(TEXT_SET);
 constexpr packed TEXT_RESP = PACK(TEXT_RES);
 }  // namespace
 
+namespace pc8801 {
 // ---------------------------------------------------------------------------
 //  CRTC 部の機能
 //  ・VSYNC 割り込み管理
@@ -1113,3 +1112,4 @@ const Device::InFuncPtr CRTC::indef[] = {
     static_cast<Device::InFuncPtr>(&CRTC::In),
     static_cast<Device::InFuncPtr>(&CRTC::GetStatus),
 };
+}  // namespace pc8801

@@ -2,8 +2,6 @@
 
 #include <memory>
 
-using namespace d88;
-
 namespace services {
 DiskImageHolder::~DiskImageHolder() {
   Close();
@@ -61,16 +59,16 @@ bool DiskImageHolder::AddDisk(const std::string_view title, uint32_t type) {
   }
   DiskInfo& disk = disks_[ndisks_++];
   disk.pos = diskpos;
-  disk.size = sizeof(ImageHeader);
+  disk.size = sizeof(d88::ImageHeader);
 
-  ImageHeader ih;
-  memset(&ih, 0, sizeof(ImageHeader));
+  d88::ImageHeader ih;
+  memset(&ih, 0, sizeof(d88::ImageHeader));
   strncpy(ih.title, title.data(), 16);
   ih.disktype = type * 0x10;
-  ih.disksize = sizeof(ImageHeader);
+  ih.disksize = sizeof(d88::ImageHeader);
   fio_.SetLogicalOrigin(0);
   fio_.Seek(diskpos, FileIO::begin);
-  fio_.Write(&ih, sizeof(ImageHeader));
+  fio_.Write(&ih, sizeof(d88::ImageHeader));
   return true;
 }
 
@@ -88,14 +86,14 @@ bool DiskImageHolder::ReadHeaders() {
 
   fio_.Seek(0, FileIO::begin);
 
-  ImageHeader ih;
+  d88::ImageHeader ih;
   for (ndisks_ = 0; ndisks_ < kMaxDisks; ndisks_++) {
     // ヘッダー読み込み
     DiskInfo& disk = disks_[ndisks_];
     disk.pos = fio_.Tellp();
 
     // 256+16 は Raw イメージの最小サイズ
-    if (fio_.Read(&ih, sizeof(ImageHeader)) < 256 + 16)
+    if (fio_.Read(&ih, sizeof(d88::ImageHeader)) < 256 + 16)
       break;
 
     if (memcmp(ih.title, "M88 RawDiskImage", 16)) {
@@ -159,7 +157,7 @@ bool DiskImageHolder::Disconnect() {
 // ---------------------------------------------------------------------------
 //  ヘッダーが有効かどうかを確認
 //
-bool DiskImageHolder::IsValidHeader(ImageHeader& ih) {
+bool DiskImageHolder::IsValidHeader(d88::ImageHeader& ih) {
   int i;
   // 2D イメージの場合余計な領域は見なかったことにする
   if (ih.disktype == 0)
@@ -176,7 +174,7 @@ bool DiskImageHolder::IsValidHeader(ImageHeader& ih) {
     return false;
 
   // 条件: trackptr[0-159] < disksize
-  uint32_t trackstart = sizeof(ImageHeader);
+  uint32_t trackstart = sizeof(d88::ImageHeader);
   for (int t = 0; t < 160; t++) {
     if (ih.trackptr[t] >= ih.disksize)
       break;

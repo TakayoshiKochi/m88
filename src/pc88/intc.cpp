@@ -15,16 +15,9 @@
 // #define LOGNAME "intc"
 #include "common/diag.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  構築破壊
-//
+namespace pc8801 {
 INTC::INTC(const ID& id) : Device(id) {}
 
-// ---------------------------------------------------------------------------
-//  Init
-//
 bool INTC::Init(IOBus* b, uint32_t ip, uint32_t ipbase) {
   bus_ = b;
   irq_port_ = ip;
@@ -146,3 +139,4 @@ const Device::OutFuncPtr INTC::outdef[] = {
 const Device::InFuncPtr INTC::indef[] = {
     static_cast<Device::InFuncPtr>(&INTC::IntAck),
 };
+}  // namespace pc8801

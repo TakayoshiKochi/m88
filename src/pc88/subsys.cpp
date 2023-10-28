@@ -14,11 +14,7 @@
 // #define LOGNAME "subsys"
 #include "common/diag.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  構築・破棄
-//
+namespace pc8801 {
 SubSystem::SubSystem(const ID& id) : Device(id) {}
 
 SubSystem::~SubSystem() {
@@ -26,9 +22,6 @@ SubSystem::~SubSystem() {
     mm_->Disconnect(mid_);
 }
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
 bool SubSystem::Init(MemoryManager* _mm) {
   mm_ = _mm;
   mid_ = mm_->Connect(this);
@@ -293,3 +286,4 @@ const Device::OutFuncPtr SubSystem::outdef[] = {
     static_cast<Device::OutFuncPtr>(&SubSystem::S_Set2),
     static_cast<Device::OutFuncPtr>(&SubSystem::S_SetCW),
 };
+}  // namespace pc8801

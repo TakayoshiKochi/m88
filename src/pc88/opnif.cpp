@@ -12,13 +12,10 @@
 #include "pc88/config.h"
 #include "win32/romeo/piccolo.h"
 
-// #include "romeo/juliet.h"
-
 // #define LOGNAME "opnif"
 #include "common/diag.h"
 
-using namespace pc8801;
-
+namespace pc8801 {
 // OPNIF* OPNIF::romeo_user = 0;
 
 #define ROMEO_JULIET 0
@@ -37,9 +34,6 @@ int OPNIF::prescaler = 0x2d;
 
 OPNIF::OPNIF(const ID& id) : Device(id) {}
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
 bool OPNIF::Init(IOBus* bus, int intrport, int io, Scheduler* sched) {
   bus_ = bus;
   scheduler_ = sched;
@@ -493,3 +487,4 @@ const Device::InFuncPtr OPNIF::indef[] = {
     static_cast<Device::InFuncPtr>(&OPNIF::ReadData0),
     static_cast<Device::InFuncPtr>(&OPNIF::ReadData1),
 };
+}  // namespace pc8801

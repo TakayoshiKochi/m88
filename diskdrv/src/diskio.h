@@ -14,9 +14,6 @@
 #include <string>
 
 namespace pc8801 {
-
-// ---------------------------------------------------------------------------
-
 class DiskIO : public Device {
  public:
   enum { reset = 0, setcommand, setdata, getstatus = 0, getdata };
@@ -74,5 +71,4 @@ class DiskIO : public Device {
   static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];
 };
-
 }  // namespace pc8801

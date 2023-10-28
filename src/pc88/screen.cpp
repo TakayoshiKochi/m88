@@ -16,8 +16,7 @@
 // #define LOGNAME "screen"
 #include "common/diag.h"
 
-using namespace pc8801;
-
+namespace pc8801 {
 namespace {
 constexpr uint8_t GVRAMC_BIT = 0xf0;
 constexpr uint8_t GVRAMC_CLR = 0xc0;
@@ -1555,3 +1554,4 @@ const Device::OutFuncPtr Screen::outdef[] = {
     static_cast<Device::OutFuncPtr>(&Screen::Out54),
     static_cast<Device::OutFuncPtr>(&Screen::Out55to5b),
 };
+}  // namespace pc8801

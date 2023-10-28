@@ -13,21 +13,11 @@
 // #define LOGNAME "cdif"
 #include "common/diag.h"
 
-using namespace pc8801;
-
-// ----------------------------------------------------------------------------
-//  構築
-//
+namespace pc8801 {
 CDIF::CDIF(const ID& id) : Device(id) {}
 
-// ----------------------------------------------------------------------------
-//  破棄
-//
 CDIF::~CDIF() = default;
 
-// ----------------------------------------------------------------------------
-//  初期化
-//
 bool CDIF::Init(IDMAAccess* dmac) {
   dmac_ = dmac;
   if (!cdrom_.Init())
@@ -672,3 +662,4 @@ const Device::InFuncPtr CDIF::indef[] = {
     static_cast<Device::InFuncPtr>(&In99), static_cast<Device::InFuncPtr>(&In9b),
     static_cast<Device::InFuncPtr>(&In9d),
 };
+}  // namespace pc8801

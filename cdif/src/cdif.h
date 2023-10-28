@@ -16,7 +16,6 @@
 #include "if/ifpc88.h"
 
 namespace pc8801 {
-
 class CDIF : public Device {
  public:
   enum IDIn {
@@ -167,5 +166,4 @@ class CDIF : public Device {
   static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];
 };
-
-};  // namespace pc8801
+}  // namespace pc8801
