@@ -25,9 +25,9 @@ KanjiROM::~KanjiROM() = default;
 //
 bool KanjiROM::Init(int jis) {
   if (jis == kJis1) {
-    image_ = services::RomLoader::GetInstance()->Get(services::RomType::kKanji1Rom);
+    image_ = services::RomLoader::GetInstance()->Get(RomType::kKanji1Rom);
   } else {
-    image_ = services::RomLoader::GetInstance()->Get(services::RomType::kKanji2Rom);
+    image_ = services::RomLoader::GetInstance()->Get(RomType::kKanji2Rom);
   }
   return true;
 }
