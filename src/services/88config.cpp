@@ -59,12 +59,12 @@ void LoadConfigDirectory(pc8801::Config* cfg,
 void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applydefault) {
   int n;
 
-  n = pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory | pc8801::Config::kForce480 |
+  n = pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory |
       pc8801::Config::kEnableWait;
   LoadConfigEntry(inifile, "Flags", &cfg->flags, n, applydefault);
   cfg->flags &= ~pc8801::Config::kSpecialPalette;
 
-  n = pc8801::Config::kGenScrnShotName;
+  n = 0;
   LoadConfigEntry(inifile, "Flag2", &cfg->flag2, n, applydefault);
   cfg->flag2 &= ~(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
 
@@ -75,8 +75,9 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applyd
   //      cfg->speed = Limit(n, 2000, 500);
   cfg->speed = 1000;
 
-  if (LoadConfigEntry(inifile, "RefreshTiming", &n, 1, applydefault))
-    cfg->refreshtiming = Limit(n, 4, 1);
+  // Obsolete
+  // if (LoadConfigEntry(inifile, "RefreshTiming", &n, 1, applydefault))
+  //   cfg->refreshtiming = Limit(n, 4, 1);
 
   if (LoadConfigEntry(inifile, "BASICMode", &n, static_cast<int>(pc8801::BasicMode::kN88V2),
                       applydefault)) {
@@ -98,14 +99,17 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applyd
       cfg->sound_output_hz = Limit(n, 192000, 8000);
   }
 
-  if (LoadConfigEntry(inifile, "OPNClock", &n, 3993600, applydefault))
-    cfg->opnclock = Limit(n, 10000000, 1000000);
+  // Obsolete
+  // if (LoadConfigEntry(inifile, "OPNClock", &n, 3993600, applydefault))
+  //   cfg->opnclock = Limit(n, 10000000, 1000000);
 
   if (LoadConfigEntry(inifile, "ERAMBank", &n, 4, applydefault))
     cfg->erambanks = Limit(n, 256, 0);
 
   if (LoadConfigEntry(inifile, "KeyboardType", &n, 0, applydefault))
     cfg->keytype = static_cast<pc8801::KeyboardType>(n);
+  if (cfg->keytype == pc8801::KeyboardType::kPC98_obsolete)
+    cfg->keytype = pc8801::KeyboardType::kAT106;
 
   if (LoadConfigEntry(inifile, "Switches", &n, 1829, applydefault))
     cfg->dipsw = n;
@@ -186,8 +190,9 @@ void SaveConfig(pc8801::Config* cfg, const std::string_view inifile, bool writed
   SaveEntry(inifile, "Flags", cfg->flags, writedefault);
   SaveEntry(inifile, "Flag2", cfg->flag2, writedefault);
   SaveEntry(inifile, "CPUClock", cfg->legacy_clock, writedefault);
-  //  SaveEntry(inifile, "Speed", cfg->speed, writedefault);
-  SaveEntry(inifile, "RefreshTiming", cfg->refreshtiming, writedefault);
+  // SaveEntry(inifile, "Speed", cfg->speed, writedefault);
+  // Obsolete - always refresh.
+  // SaveEntry(inifile, "RefreshTiming", cfg->refreshtiming, writedefault);
   SaveEntry(inifile, "BASICMode", static_cast<int>(cfg->basicmode), writedefault);
   SaveEntry(inifile, "Sound", cfg->sound_output_hz, writedefault);
   SaveEntry(inifile, "Switches", cfg->dipsw, writedefault);

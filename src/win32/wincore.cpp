@@ -115,7 +115,6 @@ void WinCore::ApplyConfig(pc8801::Config* cfg) {
   seq_.SetLegacyClock(c);
   seq_.SetCPUClock(cpu_clock);
   seq_.SetSpeed(cfg->speed / 10);
-  seq_.SetRefreshTiming(cfg->refreshtiming);
 
   if (pc88_.GetJoyPad())
     pc88_.GetJoyPad()->Connect(&pad_if_);
@@ -166,24 +165,20 @@ bool WinCore::ConnectDevices(WinKeyIF* keyb) {
 bool WinCore::SaveSnapshot(const std::string_view filename) {
   LockObj lock(this);
 
-  bool docomp = !!(config_.flag2 & pc8801::Config::kCompressSnapshot);
-
   uint32_t size = pc88_.GetDeviceList()->GetStatusSize();
   std::unique_ptr<uint8_t[]> buf =
-      std::make_unique<uint8_t[]>(docomp ? size * 129 / 64 + 20 : size);
+      std::make_unique<uint8_t[]>(size * 129 / 64 + 20);
   if (!buf)
     return false;
   memset(buf.get(), 0, size);
 
   if (pc88_.GetDeviceList()->SaveStatus(buf.get())) {
     uint32_t esize = size * 129 / 64 + 20 - 4;
-    if (docomp) {
-      if (Z_OK != compress(buf.get() + size + 4, (uLongf*)&esize, buf.get(), size)) {
-        return false;
-      }
-      *(int32_t*)(buf.get() + size) = -(long)esize;
-      esize += 4;
+    if (Z_OK != compress(buf.get() + size + 4, (uLongf*)&esize, buf.get(), size)) {
+      return false;
     }
+    *(int32_t*)(buf.get() + size) = -(long)esize;
+    esize += 4;
 
     SnapshotHeader ssh;
     memcpy(ssh.id, SNAPSHOT_ID, 16);

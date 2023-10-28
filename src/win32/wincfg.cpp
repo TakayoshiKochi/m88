@@ -54,7 +54,6 @@ bool WinConfig::Show(HINSTANCE hinstance, HWND hwnd, pc8801::Config* conf) {
     hinst_ = hinstance;
     hwndparent_ = hwnd;
 
-    PROPSHEETHEADER psh;
     auto* psp = new PROPSHEETPAGE[prop_sheets_.size()];
     if (!psp)
       return false;
@@ -85,12 +84,8 @@ bool WinConfig::Show(HINSTANCE hinstance, HWND hwnd, pc8801::Config* conf) {
     }
 
     if (i > 0) {
-      memset(&psh, 0, sizeof(psh));
-#if _WIN32_IE > 0x200
-      psh.dwSize = PROPSHEETHEADER_V1_SIZE;
-#else
+      PROPSHEETHEADER psh{};
       psh.dwSize = sizeof(psh);
-#endif
       psh.dwFlags = PSH_PROPSHEETPAGE | PSH_MODELESS;
       psh.hwndParent = hwndparent_;
       psh.hInstance = hinst_;

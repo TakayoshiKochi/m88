@@ -178,8 +178,7 @@ void PC88::UpdateScreen(bool refresh) {
   LOADBEGIN("Screen");
 
   if (!screen_updated_ || refresh) {
-    if (!(cfg_flags_ & Config::kDrawPriorityLow) ||
-        (dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) |
+    if ((dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) |
                   static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
     //      if (dstat & (Draw::readytodraw | Draw::shouldrefresh))
     {

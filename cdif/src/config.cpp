@@ -4,8 +4,6 @@
 
 #include "resource.h"
 
-// ---------------------------------------------------------------------------
-
 ConfigCDIF::ConfigCDIF() = default;
 
 bool ConfigCDIF::Init(HINSTANCE hinst) {

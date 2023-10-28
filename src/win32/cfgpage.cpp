@@ -236,22 +236,6 @@ LPCSTR ConfigScreen::GetTemplate() {
 
 bool ConfigScreen::Clicked(HWND hdlg, HWND hwctl, UINT id) {
   switch (id) {
-    case IDC_SCREEN_REFRESH_1:
-      config_.refreshtiming = 1;
-      return true;
-
-    case IDC_SCREEN_REFRESH_2:
-      config_.refreshtiming = 2;
-      return true;
-
-    case IDC_SCREEN_REFRESH_3:
-      config_.refreshtiming = 3;
-      return true;
-
-    case IDC_SCREEN_REFRESH_4:
-      config_.refreshtiming = 4;
-      return true;
-
     case IDC_SCREEN_ENABLEPCG:
       config_.flags ^= pc8801::Config::kEnablePCG;
       return true;
@@ -264,44 +248,20 @@ bool ConfigScreen::Clicked(HWND hdlg, HWND hwctl, UINT id) {
       config_.flags ^= pc8801::Config::kDigitalPalette;
       return true;
 
-    case IDC_SCREEN_FORCE480:
-      config_.flags ^= pc8801::Config::kForce480;
-      return true;
-
-    case IDC_SCREEN_LOWPRIORITY:
-      config_.flags ^= pc8801::Config::kDrawPriorityLow;
-      return true;
-
     case IDC_SCREEN_FULLLINE:
       config_.flags ^= pc8801::Config::kFullline;
-      return true;
-
-    case IDC_SCREEN_VSYNC:
-      config_.flag2 ^= pc8801::Config::kSyncToVsync;
       return true;
   }
   return false;
 }
 
 void ConfigScreen::Update(HWND hdlg) {
-  static const int item[4] = {IDC_SCREEN_REFRESH_1, IDC_SCREEN_REFRESH_2, IDC_SCREEN_REFRESH_3,
-                              IDC_SCREEN_REFRESH_4};
-  CheckDlgButton(hdlg, item[(config_.refreshtiming - 1) & 3], BSTATE(true));
-
   // misc. option
   CheckDlgButton(hdlg, IDC_SCREEN_ENABLEPCG, BSTATE(config_.flags & pc8801::Config::kEnablePCG));
   CheckDlgButton(hdlg, IDC_SCREEN_FV15K, BSTATE(config_.flags & pc8801::Config::kFv15k));
   CheckDlgButton(hdlg, IDC_SCREEN_DIGITALPAL,
                  BSTATE(config_.flags & pc8801::Config::kDigitalPalette));
-  CheckDlgButton(hdlg, IDC_SCREEN_FORCE480, BSTATE(config_.flags & pc8801::Config::kForce480));
-  CheckDlgButton(hdlg, IDC_SCREEN_LOWPRIORITY,
-                 BSTATE(config_.flags & pc8801::Config::kDrawPriorityLow));
   CheckDlgButton(hdlg, IDC_SCREEN_FULLLINE, BSTATE(config_.flags & pc8801::Config::kFullline));
-
-  bool f = (config_.flags & pc8801::Config::kFullSpeed) ||
-           (config_.flags & pc8801::Config::kCPUBurst) || (config_.speed != 1000);
-  CheckDlgButton(hdlg, IDC_SCREEN_VSYNC, BSTATE(config_.flag2 & pc8801::Config::kSyncToVsync));
-  EnableWindow(GetDlgItem(hdlg, IDC_SCREEN_VSYNC), BSTATE(!f));
 }
 
 // ---------------------------------------------------------------------------
@@ -628,10 +588,6 @@ bool ConfigFunction::Clicked(HWND hdlg, HWND hwctl, UINT id) {
       config_.flags ^= pc8801::Config::kSaveDirectory;
       return true;
 
-    case IDC_FUNCTION_SAVEPOS:
-      config_.flag2 ^= pc8801::Config::kSavePosition;
-      return true;
-
     case IDC_FUNCTION_ASKBEFORERESET:
       config_.flags ^= pc8801::Config::kAskBeforeReset;
       return true;
@@ -672,14 +628,6 @@ bool ConfigFunction::Clicked(HWND hdlg, HWND hwctl, UINT id) {
     case IDC_FUNCTION_MOUSEJOY:
       config_.flags ^= pc8801::Config::kMouseJoyMode;
       return true;
-
-    case IDC_FUNCTION_SCREENSHOT_NAME:
-      config_.flag2 ^= pc8801::Config::kGenScrnShotName;
-      return true;
-
-    case IDC_FUNCTION_COMPSNAP:
-      config_.flag2 ^= pc8801::Config::kCompressSnapshot;
-      return true;
   }
   return false;
 }
@@ -699,7 +647,6 @@ void ConfigFunction::SetActive(HWND hdlg) {
 void ConfigFunction::Update(HWND hdlg) {
   CheckDlgButton(hdlg, IDC_FUNCTION_SAVEDIR,
                  BSTATE(config_.flags & pc8801::Config::kSaveDirectory));
-  CheckDlgButton(hdlg, IDC_FUNCTION_SAVEPOS, BSTATE(config_.flag2 & pc8801::Config::kSavePosition));
   CheckDlgButton(hdlg, IDC_FUNCTION_ASKBEFORERESET,
                  BSTATE(config_.flags & pc8801::Config::kAskBeforeReset));
   CheckDlgButton(hdlg, IDC_FUNCTION_SUPPRESSMENU,
@@ -720,10 +667,6 @@ void ConfigFunction::Update(HWND hdlg) {
                  BSTATE(config_.flags & pc8801::Config::kMouseJoyMode));
   EnableWindow(GetDlgItem(hdlg, IDC_FUNCTION_MOUSEJOY),
                (config_.flags & pc8801::Config::kEnableMouse) != 0);
-  CheckDlgButton(hdlg, IDC_FUNCTION_SCREENSHOT_NAME,
-                 BSTATE(config_.flag2 & pc8801::Config::kGenScrnShotName));
-  CheckDlgButton(hdlg, IDC_FUNCTION_COMPSNAP,
-                 BSTATE(config_.flag2 & pc8801::Config::kCompressSnapshot));
 }
 
 void ConfigFunction::UpdateSlider(HWND hdlg) {
@@ -774,10 +717,6 @@ LPCSTR ConfigEnv::GetTemplate() {
 
 bool ConfigEnv::Clicked(HWND hdlg, HWND hwctl, UINT id) {
   switch (id) {
-    case IDC_ENV_KEY98:
-      config_.keytype = pc8801::KeyboardType::kPC98;
-      return true;
-
     case IDC_ENV_KEY101:
       config_.keytype = pc8801::KeyboardType::kAT101;
       return true;
@@ -794,7 +733,7 @@ bool ConfigEnv::Clicked(HWND hdlg, HWND hwctl, UINT id) {
 }
 
 void ConfigEnv::Update(HWND hdlg) {
-  static const int item[3] = {IDC_ENV_KEY106, IDC_ENV_KEY98, IDC_ENV_KEY101};
+  static const int item[3] = {IDC_ENV_KEY106, 0, IDC_ENV_KEY101};
   CheckDlgButton(hdlg, item[static_cast<uint32_t>(config_.keytype) & 3], BSTATE(true));
   CheckDlgButton(hdlg, IDC_ENV_PLACESBAR, BSTATE(config_.flag2 & pc8801::Config::kShowPlaceBar));
   EnableWindow(GetDlgItem(hdlg, IDC_ENV_PLACESBAR), TRUE);

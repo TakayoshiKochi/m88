@@ -84,9 +84,8 @@ class WinDraw : public Draw, public Threadable<WinDraw> {
   void QueryNewPalette(bool background);
   void Activate(bool f) { active_ = f; }
 
-  void SetPriorityLow(bool low);
   void SetGUIFlag(bool flag);
-  bool ChangeDisplayMode(bool fullscreen, bool);
+  bool ChangeDisplayMode(bool fullscreen);
   void Refresh() { refresh_ = 1; }
   void WindowMoved(int cx, int cy);
 
