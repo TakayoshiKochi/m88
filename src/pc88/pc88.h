@@ -19,11 +19,11 @@
 // ---------------------------------------------------------------------------
 //  仮宣言
 //
-class TapeManager;
 class SchedulerImpl;
 
 namespace services {
 class DiskManager;
+class TapeManager;
 }  // namespace services
 
 namespace pc8801 {
@@ -79,7 +79,7 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   PC88();
   ~PC88() override;
 
-  bool Init(Draw* draw, services::DiskManager* disk_manager, TapeManager* tape_manager);
+  bool Init(Draw* draw, services::DiskManager* disk_manager, services::TapeManager* tape_manager);
   void DeInit();
 
   void Reset();
@@ -230,7 +230,7 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   Draw::Region region_{};
 
   services::DiskManager* disk_manager_ = nullptr;
-  TapeManager* tape_manager_ = nullptr;
+  services::TapeManager* tape_manager_ = nullptr;
 };
 
 inline bool PC88::IsCDSupported() {

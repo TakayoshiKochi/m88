@@ -208,7 +208,7 @@ bool WinUI::InitM88(const char* cmdline) {
   if (!disk_manager_ || !disk_manager_->Init())
     return false;
   if (!tape_manager_)
-    tape_manager_ = std::make_unique<TapeManager>();
+    tape_manager_ = std::make_unique<services::TapeManager>();
   if (!tape_manager_)
     return false;
 

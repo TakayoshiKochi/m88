@@ -12,7 +12,6 @@
 #include "pc88/config.h"
 
 class PC88;
-class TapeManager;
 
 namespace pc8801 {
 

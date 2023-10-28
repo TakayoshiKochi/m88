@@ -15,6 +15,7 @@
 
 class IOBus;
 
+namespace services {
 class TapeManager : public Device {
  public:
   enum {
@@ -123,3 +124,4 @@ class TapeManager : public Device {
   static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];
 };
+}  // namespace services

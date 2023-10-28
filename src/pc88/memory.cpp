@@ -911,7 +911,8 @@ bool Memory::LoadROM() {
   // Ext ROM 1-7, N80 Ext ROM
   erom_mask_ = ~1;
   for (int i = 1; i < 9; ++i) {
-    auto type = static_cast<services::RomType>(static_cast<int>(services::RomType::kExtRom1) + i - 1);
+    auto type =
+        static_cast<services::RomType>(static_cast<int>(services::RomType::kExtRom1) + i - 1);
     erom_[i] = loader->Get(type);
     if (erom_[i]) {
       erom_mask_ &= ~(1 << i);

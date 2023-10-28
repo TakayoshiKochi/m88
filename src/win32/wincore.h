@@ -34,7 +34,7 @@ class WinCore : public ISystem, public ILockCore {
             IConfigPropBase* cpb,
             Draw* draw,
             services::DiskManager* diskmgr,
-            TapeManager* tapemgr);
+            services::TapeManager* tapemgr);
   bool CleanUp();
 
   void Reset();

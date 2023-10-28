@@ -153,7 +153,8 @@ BOOL MemViewMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
                     (a0_ == services::MemoryViewer::kMainRam) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_N88,
                     (a0_ == services::MemoryViewer::kN88Rom) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_0_N, (a0_ == services::MemoryViewer::kNRom) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_0_N,
+                    (a0_ == services::MemoryViewer::kNRom) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_ERAM0,
                     (a0_ == services::MemoryViewer::kERam0) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_ERAM1,
@@ -162,13 +163,18 @@ BOOL MemViewMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
                     (a0_ == services::MemoryViewer::kERam2) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_ERAM3,
                     (a0_ == services::MemoryViewer::kERam3) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_0_SUB, (a0_ == services::MemoryViewer::kSub) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_0_SUB,
+                    (a0_ == services::MemoryViewer::kSub) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_N88,
                     (a6_ == services::MemoryViewer::kN88Rom) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_E0, (a6_ == services::MemoryViewer::kN88E0) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_E1, (a6_ == services::MemoryViewer::kN88E1) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_E2, (a6_ == services::MemoryViewer::kN88E2) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_E3, (a6_ == services::MemoryViewer::kN88E3) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_E0,
+                    (a6_ == services::MemoryViewer::kN88E0) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_E1,
+                    (a6_ == services::MemoryViewer::kN88E1) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_E2,
+                    (a6_ == services::MemoryViewer::kN88E2) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_E3,
+                    (a6_ == services::MemoryViewer::kN88E3) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_EROM1,
                     (a6_ == services::MemoryViewer::kExtRom1) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_EROM2,
