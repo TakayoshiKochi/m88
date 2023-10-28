@@ -30,9 +30,9 @@ bool MemViewMonitor::Init(LPCTSTR tmpl, PC88* pc88) {
   mv.Init(pc88);
   bus = mv.GetBus();
 
-  a0_ = MemoryViewer::kMainRam;
-  a6_ = MemoryViewer::kN88Rom;
-  af_ = MemoryViewer::kTVRam;
+  a0_ = services::MemoryViewer::kMainRam;
+  a6_ = services::MemoryViewer::kN88Rom;
+  af_ = services::MemoryViewer::kTVRam;
 
   return true;
 }
@@ -49,91 +49,91 @@ BOOL MemViewMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
     case WM_COMMAND:
       switch (LOWORD(wp)) {
         case IDM_MEM_0_RAM:
-          a0_ = MemoryViewer::kMainRam;
+          a0_ = services::MemoryViewer::kMainRam;
           SetBank();
           break;
         case IDM_MEM_0_N88:
-          a0_ = MemoryViewer::kN88Rom;
+          a0_ = services::MemoryViewer::kN88Rom;
           SetBank();
           break;
         case IDM_MEM_0_N:
-          a0_ = MemoryViewer::kNRom;
+          a0_ = services::MemoryViewer::kNRom;
           SetBank();
           break;
         case IDM_MEM_0_SUB:
-          a0_ = MemoryViewer::kSub;
+          a0_ = services::MemoryViewer::kSub;
           SetBank();
           break;
         case IDM_MEM_0_ERAM0:
-          a0_ = MemoryViewer::kERam0;
+          a0_ = services::MemoryViewer::kERam0;
           SetBank();
           break;
         case IDM_MEM_0_ERAM1:
-          a0_ = MemoryViewer::kERam1;
+          a0_ = services::MemoryViewer::kERam1;
           SetBank();
           break;
         case IDM_MEM_0_ERAM2:
-          a0_ = MemoryViewer::kERam2;
+          a0_ = services::MemoryViewer::kERam2;
           SetBank();
           break;
         case IDM_MEM_0_ERAM3:
-          a0_ = MemoryViewer::kERam3;
+          a0_ = services::MemoryViewer::kERam3;
           SetBank();
           break;
         case IDM_MEM_6_N88:
-          a6_ = MemoryViewer::kN88Rom;
+          a6_ = services::MemoryViewer::kN88Rom;
           SetBank();
           break;
         case IDM_MEM_6_E0:
-          a6_ = MemoryViewer::kN88E0;
+          a6_ = services::MemoryViewer::kN88E0;
           SetBank();
           break;
         case IDM_MEM_6_E1:
-          a6_ = MemoryViewer::kN88E1;
+          a6_ = services::MemoryViewer::kN88E1;
           SetBank();
           break;
         case IDM_MEM_6_E2:
-          a6_ = MemoryViewer::kN88E2;
+          a6_ = services::MemoryViewer::kN88E2;
           SetBank();
           break;
         case IDM_MEM_6_E3:
-          a6_ = MemoryViewer::kN88E3;
+          a6_ = services::MemoryViewer::kN88E3;
           SetBank();
           break;
         case IDM_MEM_6_EROM1:
-          a6_ = MemoryViewer::kExtRom1;
+          a6_ = services::MemoryViewer::kExtRom1;
           SetBank();
           break;
         case IDM_MEM_6_EROM2:
-          a6_ = MemoryViewer::kExtRom2;
+          a6_ = services::MemoryViewer::kExtRom2;
           SetBank();
           break;
         case IDM_MEM_6_EROM3:
-          a6_ = MemoryViewer::kExtRom3;
+          a6_ = services::MemoryViewer::kExtRom3;
           SetBank();
           break;
         case IDM_MEM_6_EROM4:
-          a6_ = MemoryViewer::kExtRom4;
+          a6_ = services::MemoryViewer::kExtRom4;
           SetBank();
           break;
         case IDM_MEM_6_EROM5:
-          a6_ = MemoryViewer::kExtRom5;
+          a6_ = services::MemoryViewer::kExtRom5;
           SetBank();
           break;
         case IDM_MEM_6_EROM6:
-          a6_ = MemoryViewer::kExtRom6;
+          a6_ = services::MemoryViewer::kExtRom6;
           SetBank();
           break;
         case IDM_MEM_6_EROM7:
-          a6_ = MemoryViewer::kExtRom7;
+          a6_ = services::MemoryViewer::kExtRom7;
           SetBank();
           break;
         case IDM_MEM_F_RAM:
-          af_ = MemoryViewer::kMainRam;
+          af_ = services::MemoryViewer::kMainRam;
           SetBank();
           break;
         case IDM_MEM_F_TVRAM:
-          af_ = MemoryViewer::kTVRam;
+          af_ = services::MemoryViewer::kTVRam;
           SetBank();
           break;
 
@@ -150,44 +150,44 @@ BOOL MemViewMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
     case WM_INITMENU: {
       HMENU hmenu = (HMENU)wp;
       CheckMenuItem(hmenu, IDM_MEM_0_RAM,
-                    (a0_ == MemoryViewer::kMainRam) ? MF_CHECKED : MF_UNCHECKED);
+                    (a0_ == services::MemoryViewer::kMainRam) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_N88,
-                    (a0_ == MemoryViewer::kN88Rom) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_0_N, (a0_ == MemoryViewer::kNRom) ? MF_CHECKED : MF_UNCHECKED);
+                    (a0_ == services::MemoryViewer::kN88Rom) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_0_N, (a0_ == services::MemoryViewer::kNRom) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_ERAM0,
-                    (a0_ == MemoryViewer::kERam0) ? MF_CHECKED : MF_UNCHECKED);
+                    (a0_ == services::MemoryViewer::kERam0) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_ERAM1,
-                    (a0_ == MemoryViewer::kERam1) ? MF_CHECKED : MF_UNCHECKED);
+                    (a0_ == services::MemoryViewer::kERam1) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_ERAM2,
-                    (a0_ == MemoryViewer::kERam2) ? MF_CHECKED : MF_UNCHECKED);
+                    (a0_ == services::MemoryViewer::kERam2) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_0_ERAM3,
-                    (a0_ == MemoryViewer::kERam3) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_0_SUB, (a0_ == MemoryViewer::kSub) ? MF_CHECKED : MF_UNCHECKED);
+                    (a0_ == services::MemoryViewer::kERam3) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_0_SUB, (a0_ == services::MemoryViewer::kSub) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_N88,
-                    (a6_ == MemoryViewer::kN88Rom) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_E0, (a6_ == MemoryViewer::kN88E0) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_E1, (a6_ == MemoryViewer::kN88E1) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_E2, (a6_ == MemoryViewer::kN88E2) ? MF_CHECKED : MF_UNCHECKED);
-      CheckMenuItem(hmenu, IDM_MEM_6_E3, (a6_ == MemoryViewer::kN88E3) ? MF_CHECKED : MF_UNCHECKED);
+                    (a6_ == services::MemoryViewer::kN88Rom) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_E0, (a6_ == services::MemoryViewer::kN88E0) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_E1, (a6_ == services::MemoryViewer::kN88E1) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_E2, (a6_ == services::MemoryViewer::kN88E2) ? MF_CHECKED : MF_UNCHECKED);
+      CheckMenuItem(hmenu, IDM_MEM_6_E3, (a6_ == services::MemoryViewer::kN88E3) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_EROM1,
-                    (a6_ == MemoryViewer::kExtRom1) ? MF_CHECKED : MF_UNCHECKED);
+                    (a6_ == services::MemoryViewer::kExtRom1) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_EROM2,
-                    (a6_ == MemoryViewer::kExtRom2) ? MF_CHECKED : MF_UNCHECKED);
+                    (a6_ == services::MemoryViewer::kExtRom2) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_EROM3,
-                    (a6_ == MemoryViewer::kExtRom3) ? MF_CHECKED : MF_UNCHECKED);
+                    (a6_ == services::MemoryViewer::kExtRom3) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_EROM4,
-                    (a6_ == MemoryViewer::kExtRom4) ? MF_CHECKED : MF_UNCHECKED);
+                    (a6_ == services::MemoryViewer::kExtRom4) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_EROM5,
-                    (a6_ == MemoryViewer::kExtRom5) ? MF_CHECKED : MF_UNCHECKED);
+                    (a6_ == services::MemoryViewer::kExtRom5) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_EROM6,
-                    (a6_ == MemoryViewer::kExtRom6) ? MF_CHECKED : MF_UNCHECKED);
+                    (a6_ == services::MemoryViewer::kExtRom6) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_6_EROM7,
-                    (a6_ == MemoryViewer::kExtRom7) ? MF_CHECKED : MF_UNCHECKED);
+                    (a6_ == services::MemoryViewer::kExtRom7) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_F_RAM,
-                    (af_ == MemoryViewer::kMainRam) ? MF_CHECKED : MF_UNCHECKED);
+                    (af_ == services::MemoryViewer::kMainRam) ? MF_CHECKED : MF_UNCHECKED);
       CheckMenuItem(hmenu, IDM_MEM_F_TVRAM,
-                    (af_ == MemoryViewer::kTVRam) ? MF_CHECKED : MF_UNCHECKED);
-      int x = a0_ != MemoryViewer::kN88Rom ? MF_GRAYED : MF_ENABLED;
+                    (af_ == services::MemoryViewer::kTVRam) ? MF_CHECKED : MF_UNCHECKED);
+      int x = a0_ != services::MemoryViewer::kN88Rom ? MF_GRAYED : MF_ENABLED;
       EnableMenuItem(hmenu, IDM_MEM_6_N88, x);
       EnableMenuItem(hmenu, IDM_MEM_6_E0, x);
       EnableMenuItem(hmenu, IDM_MEM_6_E1, x);
@@ -217,12 +217,12 @@ BOOL MemViewMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 //  バンク変更
 //
 void MemViewMonitor::SetBank() {
-  MemoryViewer::Type t6;
-  if (a0_ == MemoryViewer::kN88Rom)
+  services::MemoryViewer::Type t6;
+  if (a0_ == services::MemoryViewer::kN88Rom)
     t6 = a6_;
   else
     t6 = a0_;
-  mv.SelectBank(a0_, t6, MemoryViewer::kMainRam, MemoryViewer::kMainRam, af_);
+  mv.SelectBank(a0_, t6, services::MemoryViewer::kMainRam, services::MemoryViewer::kMainRam, af_);
   Update();
 }
 

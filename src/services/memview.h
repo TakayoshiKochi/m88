@@ -14,6 +14,10 @@
 #include "pc88/pc88.h"
 
 namespace pc8801 {
+class SubSystem;
+}  // namespace pc8801
+
+namespace services {
 // ----------------------------------------------------------------------------
 //  0   N88 N80 RAM ERAM             SUB
 //  60  N88 N80 RAM ERAM E0 E1 E2 E3 SUB
@@ -21,33 +25,32 @@ namespace pc8801 {
 //  C0  RAM GV0 GV1 GV2
 //  F0  RAM TV
 //
-class SubSystem;
 
 class MemoryViewer {
  public:
   enum Type {
-    kMainRam = Memory::mRAM,
-    kERam0 = Memory::mERAM,
-    kERam1 = Memory::mERAM + 1,
-    kERam2 = Memory::mERAM + 2,
-    kERam3 = Memory::mERAM + 3,
-    kN88Rom = Memory::mN88,
-    kNRom = Memory::mN,
-    kN88E0 = Memory::mN88E0,
-    kN88E1 = Memory::mN88E1,
-    kN88E2 = Memory::mN88E2,
-    kN88E3 = Memory::mN88E3,
-    kExtRom1 = Memory::mE1,
-    kExtRom2 = Memory::mE2,
-    kExtRom3 = Memory::mE3,
-    kExtRom4 = Memory::mE4,
-    kExtRom5 = Memory::mE5,
-    kExtRom6 = Memory::mE6,
-    kExtRom7 = Memory::mE7,
-    kGVRam0 = Memory::mG0,
-    kGVRam1 = Memory::mG1,
-    kGVRam2 = Memory::mG2,
-    kTVRam = Memory::mTV,
+    kMainRam = pc8801::Memory::mRAM,
+    kERam0 = pc8801::Memory::mERAM,
+    kERam1 = pc8801::Memory::mERAM + 1,
+    kERam2 = pc8801::Memory::mERAM + 2,
+    kERam3 = pc8801::Memory::mERAM + 3,
+    kN88Rom = pc8801::Memory::mN88,
+    kNRom = pc8801::Memory::mN,
+    kN88E0 = pc8801::Memory::mN88E0,
+    kN88E1 = pc8801::Memory::mN88E1,
+    kN88E2 = pc8801::Memory::mN88E2,
+    kN88E3 = pc8801::Memory::mN88E3,
+    kExtRom1 = pc8801::Memory::mE1,
+    kExtRom2 = pc8801::Memory::mE2,
+    kExtRom3 = pc8801::Memory::mE3,
+    kExtRom4 = pc8801::Memory::mE4,
+    kExtRom5 = pc8801::Memory::mE5,
+    kExtRom6 = pc8801::Memory::mE6,
+    kExtRom7 = pc8801::Memory::mE7,
+    kGVRam0 = pc8801::Memory::mG0,
+    kGVRam1 = pc8801::Memory::mG1,
+    kGVRam2 = pc8801::Memory::mG2,
+    kTVRam = pc8801::Memory::mTV,
     kSub = -1
   };
 
@@ -65,8 +68,8 @@ class MemoryViewer {
   uint32_t GetCurrentBank(uint32_t addr);
 
  private:
-  Memory* mem1_ = nullptr;
-  SubSystem* mem2_ = nullptr;
+  pc8801::Memory* mem1_ = nullptr;
+  pc8801::SubSystem* mem2_ = nullptr;
   MemoryBus bus_;
 
   PC88* pc_ = nullptr;
@@ -107,5 +110,4 @@ inline uint32_t* MemoryViewer::StatExecBuf() {
 #endif
   return nullptr;
 }
-
-};  // namespace pc8801
+}  // namespace services

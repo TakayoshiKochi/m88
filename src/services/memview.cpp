@@ -8,18 +8,11 @@
 
 #include "pc88/subsys.h"
 
-using namespace pc8801;
-
-// ----------------------------------------------------------------------------
-//
-//
+namespace services {
 MemoryViewer::MemoryViewer() = default;
 
 MemoryViewer::~MemoryViewer() = default;
 
-// ----------------------------------------------------------------------------
-//
-//
 bool MemoryViewer::Init(PC88* _pc) {
   if (!bus_.Init(0x10000 >> MemoryBus::pagebits))
     return false;
@@ -50,10 +43,10 @@ void MemoryViewer::SelectBank(Type a0, Type a6, Type a8, Type ac, Type af) {
     // a0
     switch (a0) {
       case kN88Rom:
-        p = mem1_->GetROM() + Memory::n88;
+        p = mem1_->GetROM() + pc8801::Memory::n88;
         break;
       case kNRom:
-        p = mem1_->GetROM() + Memory::n80;
+        p = mem1_->GetROM() + pc8801::Memory::n80;
         break;
       case kERam0:
         p = mem1_->GetERAM(0);
@@ -76,16 +69,16 @@ void MemoryViewer::SelectBank(Type a0, Type a6, Type a8, Type ac, Type af) {
     bank_[1] = a6;
     switch (a6) {
       case kN88Rom:
-        p = mem1_->GetROM() + Memory::n88 + 0x6000;
+        p = mem1_->GetROM() + pc8801::Memory::n88 + 0x6000;
         break;
       case kNRom:
-        p = mem1_->GetROM() + Memory::n80 + 0x6000;
+        p = mem1_->GetROM() + pc8801::Memory::n80 + 0x6000;
         break;
       case kN88E0:
       case kN88E1:
       case kN88E2:
       case kN88E3:
-        p = mem1_->GetROM() + Memory::n88e + (a6 - kN88E0) * 0x2000;
+        p = mem1_->GetROM() + pc8801::Memory::n88e + (a6 - kN88E0) * 0x2000;
         break;
       case kExtRom1:
       case kExtRom2:
@@ -137,3 +130,4 @@ void MemoryViewer::SelectBank(Type a0, Type a6, Type a8, Type ac, Type af) {
   }
   bus_.SetMemorys(0xf000, 0x1000, p);
 }
+}  // namespace services

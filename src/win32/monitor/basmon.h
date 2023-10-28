@@ -33,7 +33,7 @@ class BasicMonitor : public WinMonitor {
   int line[0x4000]{};
   int nlines{};
 
-  MemoryViewer mv;
+  services::MemoryViewer mv;
   MemoryBus* bus{};
 
   uint32_t Read8(uint32_t adr);
