@@ -717,10 +717,6 @@ LPCSTR ConfigEnv::GetTemplate() {
 
 bool ConfigEnv::Clicked(HWND hdlg, HWND hwctl, UINT id) {
   switch (id) {
-    case IDC_ENV_KEY98:
-      config_.keytype = pc8801::KeyboardType::kPC98;
-      return true;
-
     case IDC_ENV_KEY101:
       config_.keytype = pc8801::KeyboardType::kAT101;
       return true;
@@ -737,7 +733,7 @@ bool ConfigEnv::Clicked(HWND hdlg, HWND hwctl, UINT id) {
 }
 
 void ConfigEnv::Update(HWND hdlg) {
-  static const int item[3] = {IDC_ENV_KEY106, IDC_ENV_KEY98, IDC_ENV_KEY101};
+  static const int item[3] = {IDC_ENV_KEY106, 0, IDC_ENV_KEY101};
   CheckDlgButton(hdlg, item[static_cast<uint32_t>(config_.keytype) & 3], BSTATE(true));
   CheckDlgButton(hdlg, IDC_ENV_PLACESBAR, BSTATE(config_.flag2 & pc8801::Config::kShowPlaceBar));
   EnableWindow(GetDlgItem(hdlg, IDC_ENV_PLACESBAR), TRUE);
