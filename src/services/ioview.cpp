@@ -9,11 +9,7 @@
 #include "common/device.h"
 #include "common/io_bus.h"
 
-using namespace pc8801;
-
-// ----------------------------------------------------------------------------
-//
-//
+namespace services {
 IOViewer::IOViewer() : Device(0), bus(0) {}
 
 IOViewer::~IOViewer() {}
@@ -70,3 +66,4 @@ void IOCALL IOViewer::Out(uint32_t a, uint32_t d) {
 const Device::Descriptor IOViewer::descriptor = {0, outdef};
 
 const Device::OutFuncPtr IOViewer::outdef[] = {static_cast<Device::OutFuncPtr>(&Out)};
+}  // namespace services
