@@ -427,11 +427,6 @@ void OPNABase::ResetStatus(uint32_t bits) {
   UpdateStatus();
 }
 
-inline void OPNABase::UpdateStatus() {
-  //  Log("%d:INT = %d\n", Diag::GetCPUTick(), (status & stmask & reg29) != 0);
-  Intr((status & stmask & reg29_) != 0);
-}
-
 // ---------------------------------------------------------------------------
 //  ADPCM RAM への書込み操作
 //

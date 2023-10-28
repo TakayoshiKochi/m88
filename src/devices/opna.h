@@ -406,3 +406,8 @@ inline void fmgen::OPNBase::RebuildTimeTable() {
 inline void fmgen::OPNBase::SetVolumePSG(int db) {
   psg_.SetVolume(db);
 }
+
+inline void fmgen::OPNABase::UpdateStatus() {
+  //  Log("%d:INT = %d\n", Diag::GetCPUTick(), (status & stmask & reg29) != 0);
+  Intr((status & stmask & reg29_) != 0);
+}
