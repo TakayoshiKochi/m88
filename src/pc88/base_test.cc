@@ -29,7 +29,7 @@ namespace pc8801 {
 TEST(BaseTest, PortsTest) {
   PC88 pc88;
   DummyDraw draw;
-  DiskManager disk_manager;
+  services::DiskManager disk_manager;
   TapeManager tape_manager;
   pc88.Init(&draw, &disk_manager, &tape_manager);
   Base* base = pc88.GetBase();

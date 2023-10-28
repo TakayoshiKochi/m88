@@ -13,6 +13,7 @@
 
 #include <mutex>
 
+namespace services {
 class DiskManager {
  public:
   enum {
@@ -69,3 +70,4 @@ class DiskManager {
 
   std::mutex mtx_;
 };
+}  // namespace services

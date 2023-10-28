@@ -8,7 +8,9 @@
 
 #include "common/floppy.h"
 
+namespace services {
 class DiskManager;
+}  // namespace services
 
 namespace pc8801 {
 
@@ -38,7 +40,7 @@ class FDU {
   FDU();
   ~FDU();
 
-  bool Init(DiskManager* diskmgr, int dr);
+  bool Init(services::DiskManager* diskmgr, int dr);
 
   bool Mount(FloppyDisk* disk);
   bool Unmount();
@@ -64,7 +66,7 @@ class FDU {
 
   FloppyDisk* disk_ = nullptr;
   FloppyDisk::Sector* sector_ = nullptr;
-  DiskManager* diskmgr_ = nullptr;
+  services::DiskManager* diskmgr_ = nullptr;
   int cyrinder = 0;
   int head = 0;
   int drive = 0;

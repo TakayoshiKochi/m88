@@ -11,8 +11,7 @@
 
 #include "common/status.h"
 
-using namespace d88;
-
+namespace services {
 // ---------------------------------------------------------------------------
 //  構築・破棄
 //
@@ -174,8 +173,8 @@ bool DiskManager::Unmount(uint32_t dr) {
 //
 bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
   uint32_t t;
-  ImageHeader ih;
-  fio->Read(&ih, sizeof(ImageHeader));
+  d88::ImageHeader ih;
+  fio->Read(&ih, sizeof(d88::ImageHeader));
   if (!memcmp(ih.title, "M88 RawDiskImage", 16))
     return ReadDiskImageRaw(fio, drive);
 
@@ -220,13 +219,13 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
     g_status_display->Show(80, 3000, "ヘッダーに無効なデータが含まれています");
 
   // trackptr のごみそうじ
-  uint32_t trackstart = sizeof(ImageHeader);
+  uint32_t trackstart = sizeof(d88::ImageHeader);
   for (t = 0; t < 84; t++) {
     if (ih.trackptr[t] && ih.trackptr[t] < trackstart)
       trackstart = (uint32_t)ih.trackptr[t];
   }
-  if (trackstart < sizeof(ImageHeader))
-    memset(((char*)&ih) + trackstart, 0, sizeof(ImageHeader) - trackstart);
+  if (trackstart < sizeof(d88::ImageHeader))
+    memset(((char*)&ih) + trackstart, 0, sizeof(d88::ImageHeader) - trackstart);
 
   // trackptr データの保存
   for (t = 0; t < 164; t++) {
@@ -248,7 +247,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
       fio->Seek(ih.trackptr[t], FileIO::begin);
       int sot = 0;
       int i = 0;
-      SectorHeader sh;
+      d88::SectorHeader sh;
       do {
         if (fio->Read(&sh, sizeof(sh)) != sizeof(sh))
           break;
@@ -343,7 +342,7 @@ bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive) {
 //  ディスクイメージのサイズを計算する
 //
 uint32_t DiskManager::GetDiskImageSize(Drive* drv) {
-  uint32_t disksize = sizeof(ImageHeader);
+  uint32_t disksize = sizeof(d88::ImageHeader);
 
   for (int t = drv->disk.GetNumTracks() - 1; t >= 0; t--) {
     int tr = (drv->disk.GetType() == FloppyDisk::kMD2D) ? t & ~1 : t >> 1;
@@ -351,7 +350,7 @@ uint32_t DiskManager::GetDiskImageSize(Drive* drv) {
 
     FloppyDisk::Sector* sec;
     for (sec = drv->disk.GetFirstSector(tr); sec; sec = sec->next) {
-      disksize += sec->size + sizeof(SectorHeader);
+      disksize += sec->size + sizeof(d88::SectorHeader);
     }
   }
   return disksize;
@@ -366,14 +365,14 @@ bool DiskManager::WriteDiskImage(FileIO* fio, Drive* drv) {
   int t;
 
   // Header の作成
-  ImageHeader ih;
-  memset(&ih, 0, sizeof(ImageHeader));
+  d88::ImageHeader ih;
+  memset(&ih, 0, sizeof(d88::ImageHeader));
   strcpy(ih.title, drv->holder->GetTitle(drv->index));
 
   ih.disktype = typetbl[drv->disk.GetType()];
   ih.readonly = drv->disk.IsReadOnly() ? 0x10 : 0;
 
-  uint32_t disksize = sizeof(ImageHeader);
+  uint32_t disksize = sizeof(d88::ImageHeader);
   int ntracks = drv->disk.GetNumTracks();
 
   for (t = 0; t < ntracks; t++) {
@@ -383,7 +382,7 @@ bool DiskManager::WriteDiskImage(FileIO* fio, Drive* drv) {
 
     FloppyDisk::Sector* sec;
     for (sec = drv->disk.GetFirstSector(tr); sec; sec = sec->next)
-      tracksize += sec->size + sizeof(SectorHeader);
+      tracksize += sec->size + sizeof(d88::SectorHeader);
 
     ih.trackptr[t] = tracksize ? disksize : 0;
     disksize += tracksize;
@@ -395,7 +394,7 @@ bool DiskManager::WriteDiskImage(FileIO* fio, Drive* drv) {
 
   if (!fio->Seek(0, FileIO::begin))
     return false;
-  if (fio->Write(&ih, sizeof(ImageHeader)) != sizeof(ImageHeader))
+  if (fio->Write(&ih, sizeof(d88::ImageHeader)) != sizeof(d88::ImageHeader))
     return false;
 
   for (t = 0; t < ntracks; t++) {
@@ -411,8 +410,8 @@ bool DiskManager::WriteDiskImage(FileIO* fio, Drive* drv) {
 //  トラック一つ分のイメージをかく
 //
 bool DiskManager::WriteTrackImage(FileIO* fio, Drive* drv, int t) {
-  SectorHeader sh;
-  memset(&sh, 0, sizeof(SectorHeader));
+  d88::SectorHeader sh;
+  memset(&sh, 0, sizeof(d88::SectorHeader));
 
   FloppyDisk::Sector* sec;
   int nsect = 0;
@@ -437,7 +436,7 @@ bool DiskManager::WriteTrackImage(FileIO* fio, Drive* drv, int t) {
         sh.status = 0xf0;
         break;
     }
-    if (fio->Write(&sh, sizeof(SectorHeader)) != sizeof(SectorHeader))
+    if (fio->Write(&sh, sizeof(d88::SectorHeader)) != sizeof(d88::SectorHeader))
       return false;
     if (uint32_t(fio->Write(sec->image, sec->size)) != sec->size)
       return false;
@@ -485,7 +484,7 @@ void DiskManager::UpdateDrive(Drive* drv) {
           int tracksize = 0;
 
           for (sec = drv->disk.GetFirstSector(t); sec; sec = sec->next)
-            tracksize += sec->size + sizeof(SectorHeader);
+            tracksize += sec->size + sizeof(d88::SectorHeader);
 
           if (tracksize <= drv->tracksize[t]) {
             drv->modified[t] = false;
@@ -604,3 +603,4 @@ bool DiskManager::FormatDisk(uint32_t dr) {
   drive_->modified[0] = true;
   return true;
 }
+}  // namespace services

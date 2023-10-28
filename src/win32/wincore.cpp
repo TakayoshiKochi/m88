@@ -45,7 +45,7 @@ bool WinCore::Init(HWND hwnd,
                    WinKeyIF* keyb,
                    IConfigPropBase* cp,
                    Draw* draw,
-                   DiskManager* disk,
+                   services::DiskManager* disk,
                    TapeManager* tape) {
   cfg_prop_ = cp;
 

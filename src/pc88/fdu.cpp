@@ -29,7 +29,7 @@ FDU::~FDU() {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool FDU::Init(DiskManager* dm, int dr) {
+bool FDU::Init(services::DiskManager* dm, int dr) {
   diskmgr_ = dm;
   drive = dr;
   return true;

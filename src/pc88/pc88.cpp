@@ -57,7 +57,7 @@ PC88::~PC88() {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool PC88::Init(Draw* draw, DiskManager* disk_manager, TapeManager* tape_manager) {
+bool PC88::Init(Draw* draw, services::DiskManager* disk_manager, TapeManager* tape_manager) {
   draw_ = draw;
   disk_manager_ = disk_manager;
   tape_manager_ = tape_manager;

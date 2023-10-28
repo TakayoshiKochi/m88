@@ -29,6 +29,7 @@ struct SectorHeader {
 };
 }  // namespace d88
 
+namespace services {
 class DiskImageHolder {
  public:
   enum {
@@ -68,3 +69,4 @@ class DiskImageHolder {
   DiskInfo disks_[kMaxDisks]{};
   std::string diskname_;
 };
+}  // namespace services

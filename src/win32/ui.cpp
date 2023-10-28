@@ -204,7 +204,7 @@ bool WinUI::InitM88(const char* cmdline) {
 
   Log("%d\tdiskmanager\n", timeGetTime());
   if (!disk_manager_)
-    disk_manager_ = std::make_unique<DiskManager>();
+    disk_manager_ = std::make_unique<services::DiskManager>();
   if (!disk_manager_ || !disk_manager_->Init())
     return false;
   if (!tape_manager_)

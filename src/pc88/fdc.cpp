@@ -39,7 +39,7 @@ FDC::~FDC() = default;
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool FDC::Init(DiskManager* dm, Scheduler* s, IOBus* b, int ip, int sp) {
+bool FDC::Init(services::DiskManager* dm, Scheduler* s, IOBus* b, int ip, int sp) {
   diskmgr_ = dm;
   scheduler_ = s;
   bus_ = b;

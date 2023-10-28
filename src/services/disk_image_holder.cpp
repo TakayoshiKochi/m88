@@ -4,6 +4,7 @@
 
 using namespace d88;
 
+namespace services {
 DiskImageHolder::~DiskImageHolder() {
   Close();
 }
@@ -249,3 +250,4 @@ bool DiskImageHolder::SetDiskSize(int index, int newsize) {
   disks_[index].size = newsize;
   return true;
 }
+}  // namespace services
