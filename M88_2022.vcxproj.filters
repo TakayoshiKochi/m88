@@ -345,9 +345,6 @@
     <ClCompile Include="src\services\memview.cpp">
       <Filter>services</Filter>
     </ClCompile>
-    <ClCompile Include="src\services\sound.cpp">
-      <Filter>services</Filter>
-    </ClCompile>
     <ClCompile Include="src\services\tapemgr.cpp">
       <Filter>services</Filter>
     </ClCompile>
@@ -401,6 +398,9 @@
     </ClCompile>
     <ClCompile Include="src\services\88config.cpp">
       <Filter>services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pc88\sound.cpp">
+      <Filter>pc88</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -737,9 +737,6 @@
     <ClInclude Include="src\services\memview.h">
       <Filter>services</Filter>
     </ClInclude>
-    <ClInclude Include="src\services\sound.h">
-      <Filter>services</Filter>
-    </ClInclude>
     <ClInclude Include="src\services\tapemgr.h">
       <Filter>services</Filter>
     </ClInclude>
@@ -787,6 +784,9 @@
     </ClInclude>
     <ClInclude Include="src\services\88config.h">
       <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pc88\sound.h">
+      <Filter>pc88</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

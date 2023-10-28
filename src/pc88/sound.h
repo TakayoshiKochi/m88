@@ -20,7 +20,7 @@ class PC88;
 class Scheduler;
 
 namespace pc8801 {
-class Sound;
+
 class Config;
 
 class Sound : public Device, public ISoundControl, protected SoundSourceL {
@@ -76,5 +76,4 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
   std::vector<ISoundSource*> sslist_;
   std::mutex mtx_;
 };
-
 }  // namespace pc8801

@@ -17,7 +17,7 @@
 #include <mutex>
 #include <string>
 
-#include "services/sound.h"
+#include "pc88/sound.h"
 #include "win32/sound/sounddrv.h"
 
 #include <stdint.h>
