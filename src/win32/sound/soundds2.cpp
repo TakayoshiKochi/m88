@@ -121,9 +121,6 @@ bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint
   return true;
 }
 
-// ---------------------------------------------------------------------------
-//  後片付け -----------------------------------------------------------------
-
 bool DriverDS2::CleanUp() {
   playing_ = false;
 

@@ -36,7 +36,7 @@ WinSound::~WinSound() {
 //
 bool WinSound::Init(PC88* pc, HWND hwindow, uint32_t rate, uint32_t buflen) {
   current_rate_ = 100;
-  current_buffer_len_ = 0;
+  current_buffer_len_ms_ = 50;
   hwnd_ = hwindow;
 
   dumper.SetSource(GetSoundSource());
@@ -60,8 +60,8 @@ void WinSound::CleanUp() {
 // ---------------------------------------------------------------------------
 //  合成・再生レート変更
 //
-bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
-  if (current_rate_ == rate && current_buffer_len_ == buflen && use_waveout_ == waveout)
+bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen_ms, bool waveout) {
+  if (current_rate_ == rate && current_buffer_len_ms_ == buflen_ms && use_waveout_ == waveout)
     return true;
 
   if (IsDumping()) {
@@ -71,7 +71,7 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
 
   sample_rate_ = rate;
   current_rate_ = rate;
-  current_buffer_len_ = buflen;
+  current_buffer_len_ms_ = buflen_ms;
   use_waveout_ = waveout;
 
   if (rate < 8000) {
@@ -83,9 +83,9 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
   // waveOut:     サンプリングレート * バッファ長 * 2
   int bufsize = 0;
   if (use_waveout_)
-    bufsize = (sample_rate_ * buflen / 1000 * 1) & ~15;
+    bufsize = (sample_rate_ * buflen_ms / 1000 * 1) & ~15;
   else
-    bufsize = (sample_rate_ * buflen / 1000 / 2) & ~15;
+    bufsize = (sample_rate_ * buflen_ms / 1000 / 2) & ~15;
 
   if (driver_) {
     driver_->CleanUp();
@@ -102,7 +102,7 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
       if (use_waveout_) {
         driver_ = std::make_unique<DriverWO>();
       } else if (use_asio_) {
-        driver_ = std::make_unique<DriverASIO>();
+        driver_ = std::make_unique<DriverASIO>(this);
         statusdisplay.Show(200, 8000, "sounddrv: using ASIO driver");
       } else if (use_ds2_) {
         driver_ = std::make_unique<DriverDS2>();
@@ -112,7 +112,7 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
         statusdisplay.Show(200, 8000, "sounddrv: using timer driven driver");
       }
 
-      if (driver_ && driver_->Init(&dumper, hwnd_, sample_rate_, 2, buflen))
+      if (driver_ && driver_->Init(&dumper, hwnd_, sample_rate_, 2, buflen_ms))
         break;
 
       driver_.reset();
@@ -143,15 +143,15 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen, bool waveout) {
 //  設定更新
 //
 void WinSound::ApplyConfig(const pc8801::Config* config) {
+  Sound::ApplyConfig(config);
+
   use_ds2_ = !!(config->flag2 & pc8801::Config::kUseDSNotify);
 
   bool wo = (config->flag2 & pc8801::Config::kUseWaveOutDrv) != 0;
-  ChangeRate(config->sound, config->soundbuffer, wo);
+  ChangeRate(config->sound_output_hz, config->sound_buffer_ms, wo);
 
   if (driver_)
     driver_->MixAlways(0 != (config->flags & pc8801::Config::kMixSoundAlways));
-
-  Sound::ApplyConfig(config);
 }
 
 bool WinSound::DumpBegin(char* filename) {

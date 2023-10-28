@@ -4,6 +4,7 @@
 
 #include "common/threadable.h"
 #include "win32/sound/sounddrv.h"
+#include "win32/sound/winsound.h"
 
 #include <mutex>
 
@@ -18,7 +19,7 @@ class DriverASIO : public Driver, public Threadable<DriverASIO> {
   };
 
  public:
-  DriverASIO();
+  explicit DriverASIO(WinSound* parent);
   ~DriverASIO() override;
 
   bool Init(SoundSource* source,
@@ -38,7 +39,8 @@ class DriverASIO : public Driver, public Threadable<DriverASIO> {
   long AsioMessage(long selector, long value, void* message, double* opt);
 
  private:
-  void Send();
+  WinSound* parent_;
+  uint32_t sample_rate_ = 48000;
 };
 
 }  // namespace win32sound

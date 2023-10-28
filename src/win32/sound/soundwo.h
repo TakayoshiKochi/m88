@@ -14,17 +14,15 @@
 
 #include "win32/sound/sounddrv.h"
 
-// ---------------------------------------------------------------------------
-
 namespace win32sound {
 
 class DriverWO : public Driver {
  public:
   DriverWO();
-  ~DriverWO();
+  ~DriverWO() override;
 
-  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms);
-  bool CleanUp();
+  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms) override;
+  bool CleanUp() override;
 
  private:
   bool SendBlock(WAVEHDR*);

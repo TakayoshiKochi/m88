@@ -19,12 +19,12 @@ using namespace win32sound;
 //  構築・破棄
 //
 DriverWO::DriverWO() {
-  src_ = 0;
+  src_ = nullptr;
   playing_ = false;
-  hthread_ = 0;
-  hwo_ = 0;
+  hthread_ = nullptr;
+  hwo_ = nullptr;
   mixalways = false;
-  wavehdr_ = 0;
+  wavehdr_ = nullptr;
   num_blocks_ = 4;
 }
 

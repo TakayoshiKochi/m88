@@ -125,13 +125,14 @@ class Config {
   int refreshtiming;
   int mainsubratio;
   int opnclock;
-  int sound;
+  int sound_output_hz;
   int erambanks;
   KeyboardType keytype;
   int volfm, volssg, voladpcm, volrhythm;
   int volbd, volsd, voltop, volhh, voltom, volrim;
   int dipsw;
-  uint32_t soundbuffer;
+  // size of sound buffer in milliseconds.
+  uint32_t sound_buffer_ms;
   uint32_t mousesensibility;
   int cpumode;
   uint32_t lpffc;  // LPF のカットオフ周波数 (Hz)
