@@ -5,6 +5,9 @@
 #include <memory>
 #include <string>
 
+namespace services {
+
+// TODO: move this enum to namespace pc8801
 enum class RomType : uint8_t {
   kN88Rom,
   kN88ERom0,
@@ -91,3 +94,4 @@ class RomLoader {
   std::unique_ptr<RomView> roms_[static_cast<int>(RomType::kRomMax)];
   uint32_t erom_mask_ = 0xfffffffe;
 };
+}  // namespace services

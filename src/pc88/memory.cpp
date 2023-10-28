@@ -899,19 +899,19 @@ bool Memory::InitMemory() {
 //  ROM を読み込む
 //
 bool Memory::LoadROM() {
-  auto loader = RomLoader::GetInstance();
+  auto loader = services::RomLoader::GetInstance();
 
   // Jisyo - 88MH+, 512KB
-  dicrom_ = loader->Get(RomType::kJisyoRom);
+  dicrom_ = loader->Get(services::RomType::kJisyoRom);
   // CDBios - 88MC, 64KB
-  cdbios_ = loader->Get(RomType::kCDBiosRom);
-  n80rom_ = loader->Get(RomType::kN80Rom);
-  n80rom_ = loader->Get(RomType::kN80SRRom);
+  cdbios_ = loader->Get(services::RomType::kCDBiosRom);
+  n80rom_ = loader->Get(services::RomType::kN80Rom);
+  n80rom_ = loader->Get(services::RomType::kN80SRRom);
 
   // Ext ROM 1-7, N80 Ext ROM
   erom_mask_ = ~1;
   for (int i = 1; i < 9; ++i) {
-    auto type = static_cast<RomType>(static_cast<int>(RomType::kExtRom1) + i - 1);
+    auto type = static_cast<services::RomType>(static_cast<int>(services::RomType::kExtRom1) + i - 1);
     erom_[i] = loader->Get(type);
     if (erom_[i]) {
       erom_mask_ &= ~(1 << i);
@@ -919,27 +919,27 @@ bool Memory::LoadROM() {
   }
 
   // TODO: split rom_ into uint8_t* pointers.
-  uint8_t* ptr = loader->Get(RomType::kN88Rom);
+  uint8_t* ptr = loader->Get(services::RomType::kN88Rom);
   if (!ptr)
     return false;
   memcpy(rom_.get(), ptr, 0x8000);
-  ptr = loader->Get(RomType::kNRom);
+  ptr = loader->Get(services::RomType::kNRom);
   if (!ptr)
     return false;
   memcpy(rom_.get() + n80, ptr, 0x8000);
-  ptr = loader->Get(RomType::kN88ERom0);
+  ptr = loader->Get(services::RomType::kN88ERom0);
   if (!ptr)
     return false;
   memcpy(rom_.get() + n88e, ptr, 0x2000);
-  ptr = loader->Get(RomType::kN88ERom1);
+  ptr = loader->Get(services::RomType::kN88ERom1);
   if (!ptr)
     return false;
   memcpy(rom_.get() + n88e + 0x2000, ptr, 0x2000);
-  ptr = loader->Get(RomType::kN88ERom2);
+  ptr = loader->Get(services::RomType::kN88ERom2);
   if (!ptr)
     return false;
   memcpy(rom_.get() + n88e + 0x4000, ptr, 0x2000);
-  ptr = loader->Get(RomType::kN88ERom3);
+  ptr = loader->Get(services::RomType::kN88ERom3);
   if (!ptr)
     return false;
   memcpy(rom_.get() + n88e + 0x6000, ptr, 0x2000);

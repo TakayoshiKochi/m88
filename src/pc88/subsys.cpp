@@ -79,7 +79,7 @@ bool SubSystem::InitMemory() {
 bool SubSystem::LoadROM() {
   memset(rom_.get(), 0xff, 0x2000);
 
-  if (uint8_t* rom = RomLoader::GetInstance()->Get(RomType::kSubSystemRom)) {
+  if (uint8_t* rom = services::RomLoader::GetInstance()->Get(services::RomType::kSubSystemRom)) {
     memcpy(rom_.get(), rom, 0x2000);
     return true;
   }

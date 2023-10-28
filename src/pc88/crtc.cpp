@@ -352,8 +352,8 @@ uint32_t CRTC::Command(bool a0, uint32_t data) {
 //  フォントファイル読み込み
 //
 bool CRTC::LoadFontFile() {
-  fontrom_ = RomLoader::GetInstance()->Get(RomType::kFontRom);
-  cg80rom_ = RomLoader::GetInstance()->Get(RomType::kFont80SRRom);
+  fontrom_ = services::RomLoader::GetInstance()->Get(services::RomType::kFontRom);
+  cg80rom_ = services::RomLoader::GetInstance()->Get(services::RomType::kFont80SRRom);
   return true;
 }
 

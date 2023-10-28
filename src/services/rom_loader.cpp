@@ -4,6 +4,7 @@
 
 // See docs/rom_images.md for details.
 
+namespace services {
 // static
 RomLoader RomLoader::instance_;
 
@@ -110,3 +111,4 @@ void RomLoader::LoadOptionalRoms() {
 uint8_t* RomLoader::Get(const RomType type) const {
   return roms_[idx(type)] ? roms_[idx(type)]->Get() : nullptr;
 }
+}  // namespace services
