@@ -54,7 +54,6 @@ class EmulationLoop : public Threadable<EmulationLoop> {
     speed_pct_ = std::min(std::max(speed, 10), 10000);
     effective_clock_ = cpu_hz_ * speed_pct_ / 100;
   }
-  void SetRefreshTiming(uint32_t refresh_timing) { refresh_timing_ = refresh_timing; }
 
   // thread loop
   void ThreadInit();
@@ -82,8 +81,6 @@ class EmulationLoop : public Threadable<EmulationLoop> {
 
   uint32_t skipped_frames_ = 0;
   uint32_t refresh_count_ = 0;
-  // Screen refresh cycle (1: every frame, 2: every other frame, ...)
-  uint32_t refresh_timing_ = 1;
   bool draw_next_frame_ = false;
 
   std::atomic<bool> active_ = false;

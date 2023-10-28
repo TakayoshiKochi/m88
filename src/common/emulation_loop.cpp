@@ -25,7 +25,6 @@ bool EmulationLoop::Init(EmulationLoopDelegate* delegate) {
 
   draw_next_frame_ = false;
   skipped_frames_ = 0;
-  refresh_timing_ = 1;
   refresh_count_ = 0;
 
   StartThread();
@@ -114,7 +113,7 @@ void EmulationLoop::ExecuteNormal(uint32_t clocks) {
 
   if (tcpu_ns < twork_ns) {
     // Emulation is faster than real time
-    if (draw_next_frame_ && ++refresh_count_ >= refresh_timing_) {
+    if (draw_next_frame_ && ++refresh_count_ >= 1) {
       delegate_->UpdateScreen(false);
       skipped_frames_ = 0;
       refresh_count_ = 0;

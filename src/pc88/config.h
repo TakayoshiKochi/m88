@@ -121,10 +121,7 @@ class Config {
   int legacy_clock;
   // 1000 = 100%, 10% ～ 1000% (100-10000)
   int speed;
-  // 1: 60fps, 2: 30fps, 3: 20fps, ...
-  int refreshtiming;
   int mainsubratio;
-  int opnclock;
   int sound_output_hz;
   int erambanks;
   KeyboardType keytype;
