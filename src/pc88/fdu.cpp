@@ -11,11 +11,7 @@
 #include "pc88/fdc.h"
 #include "services/diskmgr.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  構築・破棄
-//
+namespace pc8801 {
 FDU::FDU() {
   disk_ = nullptr;
   cyrinder = 0;
@@ -26,10 +22,7 @@ FDU::~FDU() {
     Unmount();
 }
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
-bool FDU::Init(DiskManager* dm, int dr) {
+bool FDU::Init(services::DiskManager* dm, int dr) {
   diskmgr_ = dm;
   drive = dr;
   return true;
@@ -397,3 +390,4 @@ uint32_t FDU::ReadDiag(uint8_t* data, uint8_t** cursor, IDR idr) {
     return 0;
   return FDC::ST1_ND;
 }
+}  // namespace pc8801

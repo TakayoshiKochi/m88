@@ -16,8 +16,7 @@
 // #define LOGNAME "calender"
 #include "common/diag.h"
 
-using namespace pc8801;
-
+namespace pc8801 {
 inline unsigned int NtoBCD(unsigned int a) {
   return ((a / 10) << 4) + (a % 10);
 }
@@ -26,9 +25,6 @@ inline unsigned int BCDtoN(unsigned int v) {
   return (v >> 4) * 10 + (v & 15);
 }
 
-// ---------------------------------------------------------------------------
-//  Construct/Destruct
-//
 Calendar::Calendar(const ID& id) : Device(id) {
   diff_ = 0;
   Reset();
@@ -260,3 +256,4 @@ const Device::OutFuncPtr Calendar::outdef[] = {
 const Device::InFuncPtr Calendar::indef[] = {
     static_cast<Device::InFuncPtr>(&In40),
 };
+}  // namespace pc8801

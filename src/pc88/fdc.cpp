@@ -20,11 +20,7 @@
 // #define LOGNAME "fdc"
 #include "common/diag.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  構築/消滅
-//
+namespace pc8801 {
 FDC::FDC(const ID& id) : Device(id) {
   for (int i = 0; i < num_drives; i++) {
     drive_[i].cyrinder = 0;
@@ -36,10 +32,7 @@ FDC::FDC(const ID& id) : Device(id) {
 
 FDC::~FDC() = default;
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
-bool FDC::Init(DiskManager* dm, Scheduler* s, IOBus* b, int ip, int sp) {
+bool FDC::Init(services::DiskManager* dm, Scheduler* s, IOBus* b, int ip, int sp) {
   diskmgr_ = dm;
   scheduler_ = s;
   bus_ = b;
@@ -1275,3 +1268,4 @@ const Device::InFuncPtr FDC::indef[] = {
     static_cast<Device::InFuncPtr>(&FDC::GetData),
     static_cast<Device::InFuncPtr>(&FDC::TC),
 };
+}  // namespace pc8801

@@ -1,36 +1,13 @@
 #pragma once
 
+#include "pc88/config.h"
+
 #include <stdint.h>
 
 #include <memory>
 #include <string>
 
-enum class RomType : uint8_t {
-  kN88Rom,
-  kN88ERom0,
-  kN88ERom1,
-  kN88ERom2,
-  kN88ERom3,
-  kSubSystemRom,
-  kNRom,
-  kN80Rom,
-  kN80SRRom,
-  kKanji1Rom,
-  kKanji2Rom,
-  kFontRom,
-  kFont80SRRom,
-  kJisyoRom,
-  kCDBiosRom,
-  kExtRom1,
-  kExtRom2,
-  kExtRom3,
-  kExtRom4,
-  kExtRom5,
-  kExtRom6,
-  kExtRom7,
-  kExtRom8,  // N80 ext
-  kRomMax
-};
+namespace services {
 
 class RomView {
  public:
@@ -71,10 +48,10 @@ class RomLoader {
 
   static RomLoader* GetInstance() { return &instance_; }
 
-  [[nodiscard]] bool IsAvailable(const RomType type) const {
+  [[nodiscard]] bool IsAvailable(const pc8801::RomType type) const {
     return bool(roms_[static_cast<int>(type)]);
   }
-  [[nodiscard]] uint8_t* Get(RomType type) const;
+  [[nodiscard]] uint8_t* Get(pc8801::RomType type) const;
 
   static bool LoadFile(std::string_view filename, uint8_t* ptr, size_t size);
 
@@ -82,12 +59,13 @@ class RomLoader {
   RomLoader();
   static RomLoader instance_;
 
-  bool LoadRom(std::string_view filename, RomType type, size_t size);
+  bool LoadRom(std::string_view filename, pc8801::RomType type, size_t size);
 
   void LoadPC88();
   void LoadKanji();
   void LoadOptionalRoms();
 
-  std::unique_ptr<RomView> roms_[static_cast<int>(RomType::kRomMax)];
+  std::unique_ptr<RomView> roms_[static_cast<int>(pc8801::RomType::kRomMax)];
   uint32_t erom_mask_ = 0xfffffffe;
 };
+}  // namespace services

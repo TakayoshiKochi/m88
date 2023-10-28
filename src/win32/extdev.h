@@ -8,7 +8,7 @@
 
 #include "common/device.h"
 #include "pc88/pcinfo.h"
-#include "services/sound.h"
+#include "pc88/sound.h"
 
 class IOBus;
 class Scheduler;

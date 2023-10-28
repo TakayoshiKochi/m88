@@ -15,8 +15,11 @@
 
 #include <memory>
 
-class DiskManager;
 class IOBus;
+
+namespace services {
+class DiskManager;
+}  // namespace services
 
 namespace pc8801 {
 class Config;
@@ -81,7 +84,11 @@ class FDC : public Device {
   explicit FDC(const ID& id);
   ~FDC() override;
 
-  bool Init(DiskManager* dm, Scheduler* scheduler, IOBus* bus, int intport, int statport = -1);
+  bool Init(services::DiskManager* dm,
+            Scheduler* scheduler,
+            IOBus* bus,
+            int intport,
+            int statport = -1);
   void ApplyConfig(const Config* cfg);
 
   bool IsBusy() { return phase_ != idlephase; }
@@ -184,7 +191,7 @@ class FDC : public Device {
 
   uint32_t GetDeviceStatus(uint32_t dr);
 
-  DiskManager* diskmgr_ = nullptr;
+  services::DiskManager* diskmgr_ = nullptr;
   IOBus* bus_ = nullptr;
   int pintr_ = 0;
   Scheduler* scheduler_ = nullptr;

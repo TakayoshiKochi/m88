@@ -12,6 +12,33 @@
 
 namespace pc8801 {
 
+enum class RomType : uint8_t {
+  kN88Rom,
+  kN88ERom0,
+  kN88ERom1,
+  kN88ERom2,
+  kN88ERom3,
+  kSubSystemRom,
+  kNRom,
+  kN80Rom,
+  kN80SRRom,
+  kKanji1Rom,
+  kKanji2Rom,
+  kFontRom,
+  kFont80SRRom,
+  kJisyoRom,
+  kCDBiosRom,
+  kExtRom1,
+  kExtRom2,
+  kExtRom3,
+  kExtRom4,
+  kExtRom5,
+  kExtRom6,
+  kExtRom7,
+  kExtRom8,  // N80 ext
+  kRomMax
+};
+
 enum class BasicMode : uint32_t {
   // bit0 H/L
   // bit1 N/N80 (bit5=0)

@@ -14,11 +14,7 @@
 // #define LOGNAME "subsys"
 #include "common/diag.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  構築・破棄
-//
+namespace pc8801 {
 SubSystem::SubSystem(const ID& id) : Device(id) {}
 
 SubSystem::~SubSystem() {
@@ -26,9 +22,6 @@ SubSystem::~SubSystem() {
     mm_->Disconnect(mid_);
 }
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
 bool SubSystem::Init(MemoryManager* _mm) {
   mm_ = _mm;
   mid_ = mm_->Connect(this);
@@ -79,7 +72,7 @@ bool SubSystem::InitMemory() {
 bool SubSystem::LoadROM() {
   memset(rom_.get(), 0xff, 0x2000);
 
-  if (uint8_t* rom = RomLoader::GetInstance()->Get(RomType::kSubSystemRom)) {
+  if (uint8_t* rom = services::RomLoader::GetInstance()->Get(RomType::kSubSystemRom)) {
     memcpy(rom_.get(), rom, 0x2000);
     return true;
   }
@@ -293,3 +286,4 @@ const Device::OutFuncPtr SubSystem::outdef[] = {
     static_cast<Device::OutFuncPtr>(&SubSystem::S_Set2),
     static_cast<Device::OutFuncPtr>(&SubSystem::S_SetCW),
 };
+}  // namespace pc8801

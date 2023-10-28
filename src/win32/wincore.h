@@ -12,9 +12,9 @@
 
 #include <stdint.h>
 
+#include "common/emulation_loop.h"
 #include "pc88/config.h"
 #include "pc88/pc88.h"
-#include "common/emulation_loop.h"
 #include "win32/winjoy.h"
 #include "win32/sound/winsound.h"
 
@@ -33,8 +33,8 @@ class WinCore : public ISystem, public ILockCore {
             WinKeyIF* keyb,
             IConfigPropBase* cpb,
             Draw* draw,
-            DiskManager* diskmgr,
-            TapeManager* tapemgr);
+            services::DiskManager* diskmgr,
+            services::TapeManager* tapemgr);
   bool CleanUp();
 
   void Reset();

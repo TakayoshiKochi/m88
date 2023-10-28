@@ -17,21 +17,13 @@
 
 #define T88ID "PC-8801 Tape Image(T88)"
 
-// ---------------------------------------------------------------------------
-//  構築
-//
+namespace services {
 TapeManager::TapeManager() : Device(DEV_ID('T', 'A', 'P', 'E')) {}
 
-// ---------------------------------------------------------------------------
-//  破棄
-//
 TapeManager::~TapeManager() {
   Close();
 }
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
 bool TapeManager::Init(Scheduler* s, IOBus* b, int pi) {
   scheduler_ = s;
   bus_ = b;
@@ -370,3 +362,4 @@ const Device::OutFuncPtr TapeManager::outdef[] = {
 const Device::InFuncPtr TapeManager::indef[] = {
     static_cast<Device::InFuncPtr>(&TapeManager::In40),
 };
+}  // namespace services

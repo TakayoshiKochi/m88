@@ -12,21 +12,13 @@
 #include "common/status.h"
 #include "pc88/pc88.h"
 #include "pc88/config.h"
-#include "services/tapemgr.h"
 
 // #define LOGNAME "base"
 // #include "common/diag.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  構築・破壊
-//
+namespace pc8801 {
 Base::Base(const ID& id) : Device(id) {}
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
 bool Base::Init(PC88* pc88) {
   pc_ = pc88;
   RTC();
@@ -153,3 +145,4 @@ const Device::InFuncPtr Base::indef[] = {
     static_cast<Device::InFuncPtr>(&Base::In40),
     static_cast<Device::InFuncPtr>(&Base::In6e),
 };
+}  // namespace pc8801

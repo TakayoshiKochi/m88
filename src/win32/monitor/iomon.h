@@ -29,7 +29,7 @@ class IOMonitor : public WinMonitor {
   void Stop() override;
   void UpdateText() override;
   BOOL DlgProc(HWND, UINT, WPARAM, LPARAM) override;
-  IOViewer iov;
+  services::IOViewer iov;
   WinCore* pc;
   bool bank;
 

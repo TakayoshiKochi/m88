@@ -32,18 +32,17 @@ class MemViewMonitor : public WinMonitor {
   uint32_t StatExec(uint32_t a);
   virtual void SetBank();
 
-  MemoryViewer mv;
+  services::MemoryViewer mv;
 
-  MemoryViewer::Type GetA0() { return a0_; }
-  MemoryViewer::Type GetA6() { return a6_; }
-  MemoryViewer::Type GetAf() { return af_; }
+  services::MemoryViewer::Type GetA0() { return a0_; }
+  services::MemoryViewer::Type GetA6() { return a6_; }
+  services::MemoryViewer::Type GetAf() { return af_; }
 
  private:
   PC88* pc88_ = nullptr;
   MemoryBus* bus{};
-  MemoryViewer::Type a0_ = MemoryViewer::kMainRam;
-  MemoryViewer::Type a6_ = MemoryViewer::kMainRam;
-  MemoryViewer::Type af_ = MemoryViewer::kTVRam;
+  services::MemoryViewer::Type a0_ = services::MemoryViewer::kMainRam;
+  services::MemoryViewer::Type a6_ = services::MemoryViewer::kMainRam;
+  services::MemoryViewer::Type af_ = services::MemoryViewer::kTVRam;
 };
-
 }  // namespace pc8801

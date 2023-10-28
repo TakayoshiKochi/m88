@@ -45,8 +45,8 @@ bool WinCore::Init(HWND hwnd,
                    WinKeyIF* keyb,
                    IConfigPropBase* cp,
                    Draw* draw,
-                   DiskManager* disk,
-                   TapeManager* tape) {
+                   services::DiskManager* disk,
+                   services::TapeManager* tape) {
   cfg_prop_ = cp;
 
   if (!pc88_.Init(draw, disk, tape))

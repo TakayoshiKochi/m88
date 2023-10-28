@@ -19,9 +19,12 @@
 // ---------------------------------------------------------------------------
 //  仮宣言
 //
+class SchedulerImpl;
+
+namespace services {
 class DiskManager;
 class TapeManager;
-class SchedulerImpl;
+}  // namespace services
 
 namespace pc8801 {
 class Base;
@@ -76,7 +79,7 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   PC88();
   ~PC88() override;
 
-  bool Init(Draw* draw, DiskManager* disk_manager, TapeManager* tape_manager);
+  bool Init(Draw* draw, services::DiskManager* disk_manager, services::TapeManager* tape_manager);
   void DeInit();
 
   void Reset();
@@ -127,7 +130,7 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   pc8801::Beep* GetBEEP() { return beep_.get(); }
   pc8801::JoyPad* GetJoyPad() { return joy_pad_.get(); }
   DeviceList* GetDeviceList() { return &devlist_; }
-  DiskManager* GetDiskManager() { return disk_manager_; }
+  services::DiskManager* GetDiskManager() { return disk_manager_; }
 
   Scheduler* GetScheduler() { return &scheduler_; }
 
@@ -226,8 +229,8 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   Draw* draw_ = nullptr;
   Draw::Region region_{};
 
-  DiskManager* disk_manager_ = nullptr;
-  TapeManager* tape_manager_ = nullptr;
+  services::DiskManager* disk_manager_ = nullptr;
+  services::TapeManager* tape_manager_ = nullptr;
 };
 
 inline bool PC88::IsCDSupported() {

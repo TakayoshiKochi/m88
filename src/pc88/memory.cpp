@@ -21,12 +21,7 @@
 #include "pc88/crtc.h"
 #include "services/rom_loader.h"
 
-// using namespace std;
-using namespace pc8801;
-
-// ----------------------------------------------------------------------------
-//  Constructor / Destructor
-//
+namespace pc8801 {
 Memory::Memory(const ID& id) : Device(id) {}
 
 Memory::~Memory() {
@@ -899,7 +894,7 @@ bool Memory::InitMemory() {
 //  ROM を読み込む
 //
 bool Memory::LoadROM() {
-  auto loader = RomLoader::GetInstance();
+  auto loader = services::RomLoader::GetInstance();
 
   // Jisyo - 88MH+, 512KB
   dicrom_ = loader->Get(RomType::kJisyoRom);
@@ -1187,3 +1182,4 @@ uint32_t IFCALL Memory::GetWrBank(uint32_t addr) {
     return mRAM;
   return GetHiBank(addr);
 }
+}  // namespace pc8801

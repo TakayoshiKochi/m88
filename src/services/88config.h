@@ -11,11 +11,11 @@
 
 #include <string_view>
 
-namespace pc8801 {
-void SaveConfig(Config* cfg, const std::string_view inifile, bool writedefault);
-void LoadConfig(Config* cfg, const std::string_view inifile, bool applydefault);
-void LoadConfigDirectory(Config* cfg,
+namespace services {
+void SaveConfig(pc8801::Config* cfg, const std::string_view inifile, bool writedefault);
+void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applydefault);
+void LoadConfigDirectory(pc8801::Config* cfg,
                          const std::string_view inifile,
                          const char* entry,
                          bool readalways);
-}  // namespace pc8801
+}  // namespace services

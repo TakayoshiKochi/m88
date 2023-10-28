@@ -14,18 +14,11 @@
 // #define LOGNAME "sio"
 #include "common/diag.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  構築・破棄
-//
+namespace pc8801 {
 SIO::SIO(const ID& id) : Device(id) {}
 
 SIO::~SIO() = default;
 
-// ---------------------------------------------------------------------------
-//  初期化
-//
 bool SIO::Init(IOBus* _bus, uint32_t _prxrdy, uint32_t _preq) {
   bus_ = _bus, prxrdy = _prxrdy, prequest = _preq;
   Log("SIO::Init\n");
@@ -214,3 +207,4 @@ const Device::InFuncPtr SIO::indef[] = {
     static_cast<Device::InFuncPtr>(&SIO::GetStatus),
     static_cast<Device::InFuncPtr>(&SIO::GetData),
 };
+}  // namespace pc8801

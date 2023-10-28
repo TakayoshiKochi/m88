@@ -174,6 +174,8 @@ add_library(pc88core ${LIB_TYPE}
         src/pc88/screen.cpp
         src/pc88/sio.h
         src/pc88/sio.cpp
+        src/pc88/sound.h
+        src/pc88/sound.cpp
         src/pc88/subsys.h
         src/pc88/subsys.cpp)
 
@@ -208,8 +210,6 @@ add_library(pc88shell ${LIB_TYPE}
         src/services/memview.cpp
         src/services/rom_loader.cpp
         src/services/rom_loader.h
-        src/services/sound.h
-        src/services/sound.cpp
         src/services/tapemgr.h
         src/services/tapemgr.cpp)
 

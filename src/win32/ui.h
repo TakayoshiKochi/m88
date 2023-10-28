@@ -161,8 +161,8 @@ class WinUI {
   Z80RegMonitor reg_mon_;
   LoadMonitor load_mon_;
 
-  std::unique_ptr<DiskManager> disk_manager_;
-  std::unique_ptr<TapeManager> tape_manager_;
+  std::unique_ptr<services::DiskManager> disk_manager_;
+  std::unique_ptr<services::TapeManager> tape_manager_;
 
  private:
   // メッセージ関数

@@ -11,16 +11,9 @@
 // #define LOGNAME "DiskIO"
 #include "common/diag.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  構築破壊
-//
+namespace pc8801 {
 DiskIO::DiskIO(const ID& id) : Device(id) {}
 
-// ---------------------------------------------------------------------------
-//  Init
-//
 bool DiskIO::Init() {
   Reset();
   return true;
@@ -269,3 +262,4 @@ const Device::InFuncPtr DiskIO::indef[] = {
     static_cast<Device::InFuncPtr>(&DiskIO::GetStatus),
     // port 0xd1
     static_cast<Device::InFuncPtr>(&DiskIO::GetData)};
+}  // namespace pc8801

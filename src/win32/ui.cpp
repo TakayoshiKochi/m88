@@ -177,7 +177,7 @@ bool WinUI::InitM88(const char* cmdline) {
 
   //  設定読み込み
   Log("%d\tLoadConfig\n", timeGetTime());
-  pc8801::LoadConfig(&config_, m88ini, true);
+  services::LoadConfig(&config_, m88ini, true);
 
   // ステータスバー初期化
   statusdisplay.Init(hwnd_);
@@ -200,15 +200,15 @@ bool WinUI::InitM88(const char* cmdline) {
   GetCurrentDirectory(MAX_PATH, path);
 
   //  デバイスの初期化
-  pc8801::LoadConfigDirectory(&config_, m88ini, "BIOSPath", true);
+  services::LoadConfigDirectory(&config_, m88ini, "BIOSPath", true);
 
   Log("%d\tdiskmanager\n", timeGetTime());
   if (!disk_manager_)
-    disk_manager_ = std::make_unique<DiskManager>();
+    disk_manager_ = std::make_unique<services::DiskManager>();
   if (!disk_manager_ || !disk_manager_->Init())
     return false;
   if (!tape_manager_)
-    tape_manager_ = std::make_unique<TapeManager>();
+    tape_manager_ = std::make_unique<services::TapeManager>();
   if (!tape_manager_)
     return false;
 
@@ -255,7 +255,7 @@ bool WinUI::InitM88(const char* cmdline) {
   // あとごちゃごちゃしたもの
   Log("%d\tetc\n", timeGetTime());
   if (diskinfo[0].filename_.empty())
-    pc8801::LoadConfigDirectory(&config_, m88ini, "Directory", false);
+    services::LoadConfigDirectory(&config_, m88ini, "Directory", false);
 
   Log("%d\tend initm88\n", timeGetTime());
   return true;
@@ -267,7 +267,7 @@ bool WinUI::InitM88(const char* cmdline) {
 //
 void WinUI::CleanUpM88() {
   pc8801::Config cfg = config_;
-  pc8801::SaveConfig(&cfg, m88ini, true);
+  services::SaveConfig(&cfg, m88ini, true);
   core_.CleanUp();
   disk_manager_.reset();
   tape_manager_.reset();

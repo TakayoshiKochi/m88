@@ -57,7 +57,9 @@ PC88::~PC88() {
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool PC88::Init(Draw* draw, DiskManager* disk_manager, TapeManager* tape_manager) {
+bool PC88::Init(Draw* draw,
+                services::DiskManager* disk_manager,
+                services::TapeManager* tape_manager) {
   draw_ = draw;
   disk_manager_ = disk_manager;
   tape_manager_ = tape_manager;
@@ -441,10 +443,11 @@ bool PC88::ConnectDevices() {
   if (!sio_tape_->Init(&main_iobus_, kPint0, kPSIOReq))
     return false;
 
-  static const IOBus::Connector c_tape[] = {{kPSIOReq, IOBus::portout, TapeManager::requestdata},
-                                            {0x30, IOBus::portout, TapeManager::out30},
-                                            {0x40, IOBus::portin, TapeManager::in40},
-                                            {0, 0, 0}};
+  static const IOBus::Connector c_tape[] = {
+      {kPSIOReq, IOBus::portout, services::TapeManager::requestdata},
+      {0x30, IOBus::portout, services::TapeManager::out30},
+      {0x40, IOBus::portin, services::TapeManager::in40},
+      {0, 0, 0}};
   if (!main_iobus_.Connect(tape_manager_, c_tape))
     return false;
   if (!tape_manager_->Init(&scheduler_, &main_iobus_, kPSIOin))

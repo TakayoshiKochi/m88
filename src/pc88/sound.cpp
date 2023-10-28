@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: sound.cpp,v 1.32 2003/05/19 01:10:32 cisc Exp $
 
-#include "services/sound.h"
+#include "sound.h"
 
 #include <stdint.h>
 
@@ -17,20 +17,13 @@
 // #define LOGNAME "sound"
 #include "common/diag.h"
 
-using namespace pc8801;
-
-// ---------------------------------------------------------------------------
-//  生成・破棄
-//
+namespace pc8801 {
 Sound::Sound() : Device(0) {}
 
 Sound::~Sound() {
   CleanUp();
 }
 
-// ---------------------------------------------------------------------------
-//  初期化とか
-//
 bool Sound::Init(PC88* pc88, uint32_t rate, int bufsize) {
   pc_ = pc88;
   prev_clock_ = pc_->GetCPUClocks64();
@@ -207,3 +200,4 @@ void IOCALL Sound::UpdateCounter(uint32_t) {
     Update(nullptr);
   }
 }
+}  // namespace pc8801
