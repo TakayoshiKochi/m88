@@ -10,7 +10,7 @@
 
 static const char* AppName = "M88p2 for Windows";
 
-namespace pc8801 {
+namespace services {
 
 // ---------------------------------------------------------------------------
 //  LoadConfigEntry
@@ -34,11 +34,11 @@ static bool LoadConfigEntry(const std::string_view inifile,
 // ---------------------------------------------------------------------------
 //  LoadConfigDirectory
 //
-void LoadConfigDirectory(Config* cfg,
+void LoadConfigDirectory(pc8801::Config* cfg,
                          const std::string_view inifile,
                          const char* entry,
                          bool readalways) {
-  if (readalways || (cfg->flags & Config::kSaveDirectory)) {
+  if (readalways || (cfg->flags & pc8801::Config::kSaveDirectory)) {
     char path[MAX_PATH];
     if (GetPrivateProfileString(AppName, entry, ";", path, MAX_PATH, inifile.data())) {
       if (path[0] != ';')
@@ -56,16 +56,17 @@ void LoadConfigDirectory(Config* cfg,
   if (LoadConfigEntry(inifile, key, &n, def, applydefault)) \
     vol = n - VOLUME_BIAS;
 
-void LoadConfig(Config* cfg, const std::string_view inifile, bool applydefault) {
+void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applydefault) {
   int n;
 
-  n = Config::kSubCPUControl | Config::kSaveDirectory | Config::kForce480 | Config::kEnableWait;
+  n = pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory | pc8801::Config::kForce480 |
+      pc8801::Config::kEnableWait;
   LoadConfigEntry(inifile, "Flags", &cfg->flags, n, applydefault);
-  cfg->flags &= ~Config::kSpecialPalette;
+  cfg->flags &= ~pc8801::Config::kSpecialPalette;
 
-  n = Config::kGenScrnShotName;
+  n = pc8801::Config::kGenScrnShotName;
   LoadConfigEntry(inifile, "Flag2", &cfg->flag2, n, applydefault);
-  cfg->flag2 &= ~(Config::kMask0 | Config::kMask1 | Config::kMask2);
+  cfg->flag2 &= ~(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
 
   if (LoadConfigEntry(inifile, "CPUClock", &n, 40, applydefault))
     cfg->legacy_clock = Limit(n, 1000, 1);
@@ -77,15 +78,16 @@ void LoadConfig(Config* cfg, const std::string_view inifile, bool applydefault) 
   if (LoadConfigEntry(inifile, "RefreshTiming", &n, 1, applydefault))
     cfg->refreshtiming = Limit(n, 4, 1);
 
-  if (LoadConfigEntry(inifile, "BASICMode", &n, static_cast<int>(BasicMode::kN88V2),
+  if (LoadConfigEntry(inifile, "BASICMode", &n, static_cast<int>(pc8801::BasicMode::kN88V2),
                       applydefault)) {
-    BasicMode bm = static_cast<BasicMode>(n);
-    if (bm == BasicMode::kN80 || bm == BasicMode::kN88V1 || bm == BasicMode::kN88V1H ||
-        bm == BasicMode::kN88V2 || bm == BasicMode::kN802 || bm == BasicMode::kN80V2 ||
-        bm == BasicMode::kN88V2CD)
+    pc8801::BasicMode bm = static_cast<pc8801::BasicMode>(n);
+    if (bm == pc8801::BasicMode::kN80 || bm == pc8801::BasicMode::kN88V1 ||
+        bm == pc8801::BasicMode::kN88V1H || bm == pc8801::BasicMode::kN88V2 ||
+        bm == pc8801::BasicMode::kN802 || bm == pc8801::BasicMode::kN80V2 ||
+        bm == pc8801::BasicMode::kN88V2CD)
       cfg->basicmode = bm;
     else
-      cfg->basicmode = BasicMode::kN88V2;
+      cfg->basicmode = pc8801::BasicMode::kN88V2;
   }
 
   if (LoadConfigEntry(inifile, "Sound", &n, 55467, applydefault)) {
@@ -103,7 +105,7 @@ void LoadConfig(Config* cfg, const std::string_view inifile, bool applydefault) 
     cfg->erambanks = Limit(n, 256, 0);
 
   if (LoadConfigEntry(inifile, "KeyboardType", &n, 0, applydefault))
-    cfg->keytype = static_cast<KeyboardType>(n);
+    cfg->keytype = static_cast<pc8801::KeyboardType>(n);
 
   if (LoadConfigEntry(inifile, "Switches", &n, 1829, applydefault))
     cfg->dipsw = n;
@@ -114,7 +116,7 @@ void LoadConfig(Config* cfg, const std::string_view inifile, bool applydefault) 
   if (LoadConfigEntry(inifile, "MouseSensibility", &n, 4, applydefault))
     cfg->mousesensibility = Limit(n, 10, 1);
 
-  if (LoadConfigEntry(inifile, "CPUMode", &n, Config::kMainSubAuto, applydefault))
+  if (LoadConfigEntry(inifile, "CPUMode", &n, pc8801::Config::kMainSubAuto, applydefault))
     cfg->cpumode = Limit(n, 2, 0);
 
   if (LoadConfigEntry(inifile, "LPFCutoff", &n, 8000, applydefault))
@@ -176,7 +178,7 @@ static bool SaveEntry(const std::string_view inifile,
 // ---------------------------------------------------------------------------
 //  SaveConfig
 //
-void SaveConfig(Config* cfg, const std::string_view inifile, bool writedefault) {
+void SaveConfig(pc8801::Config* cfg, const std::string_view inifile, bool writedefault) {
   char buf[MAX_PATH];
   GetCurrentDirectory(MAX_PATH, buf);
   SaveEntry(inifile, "Directory", buf, writedefault);
@@ -213,4 +215,4 @@ void SaveConfig(Config* cfg, const std::string_view inifile, bool writedefault) 
   SaveEntry(inifile, "WinPosX", cfg->winposx, writedefault);
 }
 
-}  // namespace pc8801
+}  // namespace services
