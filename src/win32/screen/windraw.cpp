@@ -101,15 +101,6 @@ bool WinDraw::ThreadLoop() {
 }
 
 // ---------------------------------------------------------------------------
-//  スレッドの優先順位を下げる
-//
-void WinDraw::SetPriorityLow(bool low) {
-  if (hthread_) {
-    SetThreadPriority(hthread_, low ? THREAD_PRIORITY_BELOW_NORMAL : THREAD_PRIORITY_NORMAL);
-  }
-}
-
-// ---------------------------------------------------------------------------
 //  パレット反映
 //
 void WinDraw::QueryNewPalette(bool /*bkgnd*/) {
@@ -256,7 +247,7 @@ void WinDraw::WindowMoved(int x, int y) {
 // ---------------------------------------------------------------------------
 //  画面描画ドライバの変更
 //
-bool WinDraw::ChangeDisplayMode(bool fullscreen, bool) {
+bool WinDraw::ChangeDisplayMode(bool fullscreen) {
   // 現在窓(M88)が所属するモニタの GUID を取得
   memset(&gmonitor_, 0, sizeof(gmonitor_));
 

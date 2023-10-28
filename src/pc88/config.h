@@ -82,11 +82,14 @@ class Config {
     kSwappedButtons = 1 << 13,   // パッドのボタンを入れ替え
     kDisableSing = 1 << 14,      // CMD SING 無効
     kDigitalPalette = 1 << 15,   // ディジタルパレットモード
-    useqpc = 1 << 16,            // QueryPerformanceCounter つかう (obsolete)
-    kForce480 = 1 << 17,         // 全画面を常に 640x480 で (obsolete)
+    // Obsolete
+    // useqpc = 1 << 16,            // QueryPerformanceCounter つかう
+    // Obsolete
+    // kForce480 = 1 << 17,         // 全画面を常に 640x480 で
     kOPNonA8 = 1 << 18,          // OPN (a8h)
     kOPNAonA8 = 1 << 19,         // OPNA (a8h)
-    kDrawPriorityLow = 1 << 20,  // 描画の優先度を落とす
+    // Obsolete
+    // kDrawPriorityLow = 1 << 20,  // 描画の優先度を落とす
     kDisableF12Reset = 1 << 21,  // F12 を RESET として使用しない(COPY キーになる)
     kFullline = 1 << 22,         // 偶数ライン表示
     kShowStatusBar = 1 << 23,    // ステータスバー表示
@@ -105,15 +108,19 @@ class Config {
     kMask0 = 1 << 2,          // 選択表示モード
     kMask1 = 1 << 3,
     kMask2 = 1 << 4,
-    kGenScrnShotName = 1 << 5,   // スクリーンショットファイル名を自動生成
+    // Obsolete
+    // kGenScrnShotName = 1 << 5,   // スクリーンショットファイル名を自動生成
     kUseFMClock = 1 << 6,        // FM 音源の合成に本来のクロックを使用
-    kCompressSnapshot = 1 << 7,  // スナップショットを圧縮する
-    kSyncToVsync = 1 << 8,       // 全画面モード時 vsync と同期する
+    // Obsolete
+    // kCompressSnapshot = 1 << 7,  // スナップショットを圧縮する
+    // Obsolete
+    // kSyncToVsync = 1 << 8,       // 全画面モード時 vsync と同期する
     kShowPlaceBar = 1 << 9,      // ファイルダイアログで PLACESBAR を表示する
     kEnableLPF = 1 << 10,        // LPF を使ってみる
     kFDDNoWait = 1 << 11,        // FDD ノーウェイト
     kUseDSNotify = 1 << 12,
-    kSavePosition = 1 << 13,  // 起動時に前回終了時のウインドウ位置を復元
+    // Obsolete
+    // kSavePosition = 1 << 13,  // 起動時に前回終了時のウインドウ位置を復元
   };
 
   int flags;

@@ -59,12 +59,12 @@ void LoadConfigDirectory(pc8801::Config* cfg,
 void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applydefault) {
   int n;
 
-  n = pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory | pc8801::Config::kForce480 |
+  n = pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory |
       pc8801::Config::kEnableWait;
   LoadConfigEntry(inifile, "Flags", &cfg->flags, n, applydefault);
   cfg->flags &= ~pc8801::Config::kSpecialPalette;
 
-  n = pc8801::Config::kGenScrnShotName;
+  n = 0;
   LoadConfigEntry(inifile, "Flag2", &cfg->flag2, n, applydefault);
   cfg->flag2 &= ~(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
 

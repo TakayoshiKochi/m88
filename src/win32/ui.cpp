@@ -397,7 +397,6 @@ void WinUI::ApplyConfig() {
 
   core_.ApplyConfig(&config_);
   keyif_.ApplyConfig(&config_);
-  draw_.SetPriorityLow((config_.flags & pc8801::Config::kDrawPriorityLow) != 0);
 
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(mii));
@@ -1089,20 +1088,18 @@ void WinUI::SaveWindowPosition() {
 }
 
 void WinUI::LoadWindowPosition() {
-  if (config_.flag2 & pc8801::Config::kSavePosition) {
-    WINDOWPLACEMENT wp;
-    wp.length = sizeof(WINDOWPLACEMENT);
-    ::GetWindowPlacement(hwnd_, &wp);
+  WINDOWPLACEMENT wp;
+  wp.length = sizeof(WINDOWPLACEMENT);
+  ::GetWindowPlacement(hwnd_, &wp);
 
-    LONG winw = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
-    LONG winh = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
+  LONG winw = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
+  LONG winh = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
 
-    wp.rcNormalPosition.top = config_.winposy;
-    wp.rcNormalPosition.bottom = config_.winposy + winh;
-    wp.rcNormalPosition.left = config_.winposx;
-    wp.rcNormalPosition.right = config_.winposx + winw;
-    ::SetWindowPlacement(hwnd_, &wp);
-  }
+  wp.rcNormalPosition.top = config_.winposy;
+  wp.rcNormalPosition.bottom = config_.winposy + winh;
+  wp.rcNormalPosition.left = config_.winposx;
+  wp.rcNormalPosition.right = config_.winposx + winw;
+  ::SetWindowPlacement(hwnd_, &wp);
 }
 
 void WinUI::PreventSleep() {
@@ -1128,7 +1125,7 @@ void WinUI::AllowSleep() {
 //  表示メソッドの変更
 //
 LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
-  if (!draw_.ChangeDisplayMode(fullscreen_, (config_.flags & pc8801::Config::kForce480) != 0)) {
+  if (!draw_.ChangeDisplayMode(fullscreen_)) {
     fullscreen_ = false;
   }
 
