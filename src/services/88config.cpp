@@ -66,37 +66,79 @@ std::string LoadConfigString(const std::string_view inifile, const char* entry) 
   }
   return {};
 }
-}  // namespace
 
-// static
-ConfigService ConfigService::instance_;
-// static
-std::once_flag ConfigService::once_;
-
-// static
-void ConfigService::Init() {
-  InitPathInfo();
-  LoadConfig(&instance_.config_, m88ini, true);
-}
-
-
-void LoadConfigDirectory(pc8801::Config* cfg,
-                         const std::string_view inifile,
-                         const char* entry,
-                         bool readalways) {
-  if (readalways || (cfg->flags & pc8801::Config::kSaveDirectory)) {
-    char path[MAX_PATH];
-    if (GetPrivateProfileString(AppName, entry, ";", path, MAX_PATH, inifile.data())) {
-      if (path[0] != ';')
-        SetCurrentDirectory(path);
-    }
+bool SaveEntry(const std::string_view inifile, const char* entry, int value, bool applydefault) {
+  char buf[MAX_PATH];
+  if (applydefault || -1 != GetPrivateProfileInt(AppName, entry, -1, inifile.data())) {
+    wsprintf(buf, "%d", value);
+    WritePrivateProfileString(AppName, entry, buf, inifile.data());
+    return true;
   }
+  return false;
 }
 
-// ---------------------------------------------------------------------------
-//  M88Config::LoadConfig
-//
-#define VOLUME_BIAS 100
+bool SaveEntry(const std::string_view inifile,
+               const char* entry,
+               const char* value,
+               bool applydefault) {
+  bool apply = applydefault;
+  if (!applydefault) {
+    char buf[8];
+    GetPrivateProfileString(AppName, entry, ";", buf, sizeof(buf), inifile.data());
+    if (buf[0] != ';')
+      apply = true;
+  }
+  if (apply)
+    WritePrivateProfileString(AppName, entry, value, inifile.data());
+  return apply;
+}
+
+// TODO:
+constexpr int VOLUME_BIAS = 100;
+
+void SaveConfig(pc8801::Config* cfg, const std::string_view inifile, bool writedefault) {
+  char buf[MAX_PATH];
+  GetCurrentDirectory(MAX_PATH, buf);
+  SaveEntry(inifile, "Directory", buf, writedefault);
+
+  SaveEntry(inifile, "Flags", cfg->flags, writedefault);
+  SaveEntry(inifile, "Flag2", cfg->flag2, writedefault);
+  SaveEntry(inifile, "CPUClock", cfg->legacy_clock, writedefault);
+  // SaveEntry(inifile, "Speed", cfg->speed, writedefault);
+  // Obsolete - always refresh.
+  // SaveEntry(inifile, "RefreshTiming", cfg->refreshtiming, writedefault);
+  SaveEntry(inifile, "BASICMode", static_cast<int>(cfg->basicmode), writedefault);
+  SaveEntry(inifile, "Sound", cfg->sound_output_hz, writedefault);
+  SaveEntry(inifile, "Switches", cfg->dipsw, writedefault);
+  SaveEntry(inifile, "SoundBuffer", cfg->sound_buffer_ms, writedefault);
+  SaveEntry(inifile, "MouseSensibility", cfg->mousesensibility, writedefault);
+  SaveEntry(inifile, "CPUMode", cfg->cpumode, writedefault);
+  SaveEntry(inifile, "KeyboardType", static_cast<int>(cfg->keytype), writedefault);
+  SaveEntry(inifile, "ERAMBank", cfg->erambanks, writedefault);
+
+  // Obsolete
+  // SaveEntry(inifile, "LPFCutoff", cfg->lpffc, writedefault);
+  // SaveEntry(inifile, "LPFOrder", static_cast<int>(cfg->lpforder), writedefault);
+
+  SaveEntry(inifile, "ROMEOLatency", cfg->romeolatency, writedefault);
+
+  SaveEntry(inifile, "VolumeFM", cfg->volfm + VOLUME_BIAS, writedefault);
+  SaveEntry(inifile, "VolumeSSG", cfg->volssg + VOLUME_BIAS, writedefault);
+  SaveEntry(inifile, "VolumeADPCM", cfg->voladpcm + VOLUME_BIAS, writedefault);
+  SaveEntry(inifile, "VolumeRhythm", cfg->volrhythm + VOLUME_BIAS, writedefault);
+  SaveEntry(inifile, "VolumeBD", cfg->volbd + VOLUME_BIAS, writedefault);
+  SaveEntry(inifile, "VolumeSD", cfg->volsd + VOLUME_BIAS, writedefault);
+  SaveEntry(inifile, "VolumeTOP", cfg->voltop + VOLUME_BIAS, writedefault);
+  SaveEntry(inifile, "VolumeHH", cfg->volhh + VOLUME_BIAS, writedefault);
+  SaveEntry(inifile, "VolumeTOM", cfg->voltom + VOLUME_BIAS, writedefault);
+  SaveEntry(inifile, "VolumeRIM", cfg->volrim + VOLUME_BIAS, writedefault);
+
+  SaveEntry(inifile, "WinPosY", cfg->winposy, writedefault);
+  SaveEntry(inifile, "WinPosX", cfg->winposx, writedefault);
+
+  SaveEntry(inifile, "SoundDriverType", static_cast<int>(cfg->sound_driver_type), writedefault);
+  SaveEntry(inifile, "PreferredASIODriver", cfg->preferred_asio_driver.c_str(), writedefault);
+}
 
 #define LOADVOLUMEENTRY(key, def, vol)                      \
   if (LoadConfigEntry(inifile, key, &n, def, applydefault)) \
@@ -198,84 +240,31 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applyd
   LoadConfigEntry(inifile, "WinPosY", &cfg->winposy, 64, applydefault);
   LoadConfigEntry(inifile, "WinPosX", &cfg->winposx, 64, applydefault);
 }
+}  // namespace
 
-// ---------------------------------------------------------------------------
-//  SaveEntry
-//
-static bool SaveEntry(const std::string_view inifile,
-                      const char* entry,
-                      int value,
-                      bool applydefault) {
-  char buf[MAX_PATH];
-  if (applydefault || -1 != GetPrivateProfileInt(AppName, entry, -1, inifile.data())) {
-    wsprintf(buf, "%d", value);
-    WritePrivateProfileString(AppName, entry, buf, inifile.data());
-    return true;
-  }
-  return false;
+// static
+ConfigService ConfigService::instance_;
+// static
+std::once_flag ConfigService::once_;
+
+// static
+void ConfigService::Init() {
+  InitPathInfo();
+  LoadConfig(&instance_.config_, m88ini, true);
 }
 
-static bool SaveEntry(const std::string_view inifile,
-                      const char* entry,
-                      const char* value,
-                      bool applydefault) {
-  bool apply = applydefault;
-  if (!applydefault) {
-    char buf[8];
-    GetPrivateProfileString(AppName, entry, ";", buf, sizeof(buf), inifile.data());
-    if (buf[0] != ';')
-      apply = true;
-  }
-  if (apply)
-    WritePrivateProfileString(AppName, entry, value, inifile.data());
-  return apply;
+void ConfigService::Save() {
+  SaveConfig(&config_, m88ini, true);
 }
 
-// ---------------------------------------------------------------------------
-//  SaveConfig
-//
-void SaveConfig(pc8801::Config* cfg, const std::string_view inifile, bool writedefault) {
-  char buf[MAX_PATH];
-  GetCurrentDirectory(MAX_PATH, buf);
-  SaveEntry(inifile, "Directory", buf, writedefault);
-
-  SaveEntry(inifile, "Flags", cfg->flags, writedefault);
-  SaveEntry(inifile, "Flag2", cfg->flag2, writedefault);
-  SaveEntry(inifile, "CPUClock", cfg->legacy_clock, writedefault);
-  // SaveEntry(inifile, "Speed", cfg->speed, writedefault);
-  // Obsolete - always refresh.
-  // SaveEntry(inifile, "RefreshTiming", cfg->refreshtiming, writedefault);
-  SaveEntry(inifile, "BASICMode", static_cast<int>(cfg->basicmode), writedefault);
-  SaveEntry(inifile, "Sound", cfg->sound_output_hz, writedefault);
-  SaveEntry(inifile, "Switches", cfg->dipsw, writedefault);
-  SaveEntry(inifile, "SoundBuffer", cfg->sound_buffer_ms, writedefault);
-  SaveEntry(inifile, "MouseSensibility", cfg->mousesensibility, writedefault);
-  SaveEntry(inifile, "CPUMode", cfg->cpumode, writedefault);
-  SaveEntry(inifile, "KeyboardType", static_cast<int>(cfg->keytype), writedefault);
-  SaveEntry(inifile, "ERAMBank", cfg->erambanks, writedefault);
-
-  // Obsolete
-  // SaveEntry(inifile, "LPFCutoff", cfg->lpffc, writedefault);
-  // SaveEntry(inifile, "LPFOrder", static_cast<int>(cfg->lpforder), writedefault);
-
-  SaveEntry(inifile, "ROMEOLatency", cfg->romeolatency, writedefault);
-
-  SaveEntry(inifile, "VolumeFM", cfg->volfm + VOLUME_BIAS, writedefault);
-  SaveEntry(inifile, "VolumeSSG", cfg->volssg + VOLUME_BIAS, writedefault);
-  SaveEntry(inifile, "VolumeADPCM", cfg->voladpcm + VOLUME_BIAS, writedefault);
-  SaveEntry(inifile, "VolumeRhythm", cfg->volrhythm + VOLUME_BIAS, writedefault);
-  SaveEntry(inifile, "VolumeBD", cfg->volbd + VOLUME_BIAS, writedefault);
-  SaveEntry(inifile, "VolumeSD", cfg->volsd + VOLUME_BIAS, writedefault);
-  SaveEntry(inifile, "VolumeTOP", cfg->voltop + VOLUME_BIAS, writedefault);
-  SaveEntry(inifile, "VolumeHH", cfg->volhh + VOLUME_BIAS, writedefault);
-  SaveEntry(inifile, "VolumeTOM", cfg->voltom + VOLUME_BIAS, writedefault);
-  SaveEntry(inifile, "VolumeRIM", cfg->volrim + VOLUME_BIAS, writedefault);
-
-  SaveEntry(inifile, "WinPosY", cfg->winposy, writedefault);
-  SaveEntry(inifile, "WinPosX", cfg->winposx, writedefault);
-
-  SaveEntry(inifile, "SoundDriverType", static_cast<int>(cfg->sound_driver_type), writedefault);
-  SaveEntry(inifile, "PreferredASIODriver", cfg->preferred_asio_driver.c_str(), writedefault);
+void ConfigService::LoadConfigDirectory(const char* entry, bool readalways) {
+  if (readalways || (config_.flags & pc8801::Config::kSaveDirectory)) {
+    char path[MAX_PATH];
+    if (GetPrivateProfileString(AppName, entry, ";", path, MAX_PATH, m88ini)) {
+      if (path[0] != ';')
+        SetCurrentDirectory(path);
+    }
+  }
 }
 
 }  // namespace services

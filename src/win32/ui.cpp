@@ -177,8 +177,6 @@ bool WinUI::InitM88(const char* cmdline) {
   //  設定読み込み
   Log("%d\tLoadConfig\n", timeGetTime());
   cfg_ = services::ConfigService::GetInstance();
-  // TODO: remove
-  // services::LoadConfig(&config_, m88ini, true);
 
   // ステータスバー初期化
   statusdisplay.Init(hwnd_);
@@ -201,7 +199,7 @@ bool WinUI::InitM88(const char* cmdline) {
   GetCurrentDirectory(MAX_PATH, path);
 
   //  デバイスの初期化
-  services::LoadConfigDirectory(&config(), m88ini, "BIOSPath", true);
+  cfg_->LoadConfigDirectory("BIOSPath", true);
 
   Log("%d\tdiskmanager\n", timeGetTime());
   if (!disk_manager_)
@@ -256,7 +254,7 @@ bool WinUI::InitM88(const char* cmdline) {
   // あとごちゃごちゃしたもの
   Log("%d\tetc\n", timeGetTime());
   if (diskinfo[0].filename_.empty())
-    services::LoadConfigDirectory(&config(), m88ini, "Directory", false);
+    cfg_->LoadConfigDirectory("Directory", false);
 
   Log("%d\tend initm88\n", timeGetTime());
   return true;
@@ -267,7 +265,7 @@ bool WinUI::InitM88(const char* cmdline) {
 //  M88 の後片付け
 //
 void WinUI::CleanUpM88() {
-  services::SaveConfig(&config(), m88ini, true);
+  cfg_->Save();
   core_.CleanUp();
   disk_manager_.reset();
   tape_manager_.reset();
@@ -404,9 +402,8 @@ void WinUI::ApplyConfig() {
   mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
-  mii.dwTypeData = (flags() & pc8801::Config::kDisableF12Reset)
-                       ? const_cast<LPSTR>("&Reset")
-                       : const_cast<LPSTR>("&Reset\tF12");
+  mii.dwTypeData = (flags() & pc8801::Config::kDisableF12Reset) ? const_cast<LPSTR>("&Reset")
+                                                                : const_cast<LPSTR>("&Reset\tF12");
   SetMenuItemInfo(GetMenu(hwnd_), IDM_RESET, false, &mii);
   ShowStatusWindow();
 

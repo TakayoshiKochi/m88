@@ -154,7 +154,6 @@ class WinUI {
   WinDraw draw_;
   WinKeyIF keyif_;
   services::ConfigService* cfg_ = nullptr;
-  // pc8801::Config config_;
   WinConfig win_config_;
   WinNewDisk new_disk_;
 
