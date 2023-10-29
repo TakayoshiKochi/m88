@@ -21,6 +21,9 @@ class ConfigService {
     return &instance_;
   }
 
+  // TODO: temporary for migration
+  pc8801::Config& config() { return config_; }
+
  private:
   ConfigService() = default;
   static void Init();
