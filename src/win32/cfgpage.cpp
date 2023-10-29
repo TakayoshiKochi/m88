@@ -164,7 +164,7 @@ void ConfigCPU::InitDialog(HWND hdlg) {
   config_.speed = org_config_.speed;
   SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETLINESIZE, 0, 1);
   SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETPAGESIZE, 0, 2);
-  SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETRANGE, TRUE, MAKELONG(2, 20));
+  SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETRANGE, TRUE, MAKELONG(1, 100));
   SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETPOS, FALSE, config_.speed / 100);
 }
 
@@ -173,14 +173,14 @@ void ConfigCPU::SetActive(HWND hdlg) {
       hdlg, config_.flags & pc8801::Config::kFullSpeed ? IDC_CPU_NOSUBCPUCONTROL : IDC_CPU_CLOCK));
   SendDlgItemMessage(hdlg, IDC_CPU_CLOCK_SPIN, UDM_SETRANGE, 0, MAKELONG(100, 1));
   SendDlgItemMessage(hdlg, IDC_CPU_CLOCK, EM_SETLIMITTEXT, 3, 0);
-  SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETRANGE, TRUE, MAKELONG(2, 20));
+  SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETRANGE, TRUE, MAKELONG(1, 100));
 }
 
 BOOL ConfigCPU::Command(HWND hdlg, HWND, UINT nc, UINT id) {
   switch (id) {
     case IDC_CPU_CLOCK:
       if (nc == EN_CHANGE) {
-        int clock = Limit(GetDlgItemInt(hdlg, IDC_CPU_CLOCK, 0, false), 100, 1) * 10;
+        int clock = Limit(GetDlgItemInt(hdlg, IDC_CPU_CLOCK, nullptr, false), 100, 1) * 10;
         if (clock != config_.legacy_clock)
           base_->PageChanged(hdlg);
         config_.legacy_clock = clock;
@@ -189,7 +189,7 @@ BOOL ConfigCPU::Command(HWND hdlg, HWND, UINT nc, UINT id) {
       break;
     case IDC_ERAM:
       if (nc == EN_CHANGE) {
-        int erambanks = Limit(GetDlgItemInt(hdlg, IDC_ERAM, 0, false), 256, 0);
+        int erambanks = Limit(GetDlgItemInt(hdlg, IDC_ERAM, nullptr, false), 256, 0);
         if (erambanks != config_.erambanks)
           base_->PageChanged(hdlg);
         config_.erambanks = erambanks;
