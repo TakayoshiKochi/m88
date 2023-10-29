@@ -162,7 +162,9 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
 
   if (LoadConfigEntry(inifile, "SoundDriverType", &n, 0)) {
     if (n >= pc8801::Config::SoundDriverType::kNumSoundDriverTypes)
-      cfg->sound_driver_type = pc8801::Config::SoundDriverType::kUnknown;
+      cfg->sound_driver_type = pc8801::Config::SoundDriverType::kAuto;
+    else
+      cfg->sound_driver_type = static_cast<pc8801::Config::SoundDriverType>(n);
   }
 
   cfg->preferred_asio_driver = LoadConfigString(inifile, "PreferredASIODriver");

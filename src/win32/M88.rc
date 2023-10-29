@@ -454,8 +454,8 @@ BEGIN
     CONTROL         "CMD SIN&G を使う",IDC_SOUND_CMDSING,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,110,70,65,10
     CONTROL         "音の合成を優先(&S)",IDC_SOUND_MIXALWAYS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,110,80,77,10
     CONTROL         "高精度合成(&P)",IDC_SOUND_PRECISEMIX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,110,90,63,10
-    CONTROL         "WaveOut API で再生(&W)",IDC_SOUND_WAVEOUT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,110,100,93,10
-    CONTROL         "DirectSound&Notify を使う",IDC_SOUND_USENOTIFY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,110,110,89,10
+    COMBOBOX        IDC_SOUNDDRIVER_DROPDOWN,109,116,90,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "ドライバー",IDC_STATIC,110,106,36,8
 END
 
 IDD_CONFIG_SWITCHES DIALOGEX 0, 0, 210, 147
@@ -635,29 +635,8 @@ BEGIN
 END
 
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// AFX_DIALOG_LAYOUT
-//
-
-IDD_CONFIG_ENV AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_CONFIG_FUNCTION AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_CONFIG_SCREEN AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
 #endif    // 日本語 (日本) resources
 /////////////////////////////////////////////////////////////////////////////
-
 
 
 #ifndef APSTUDIO_INVOKED

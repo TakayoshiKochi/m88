@@ -62,6 +62,9 @@ BOOL ConfigPage::PageProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
         case PSN_QUERYCANCEL:
           base_->_ChangeVolume(false);
           return FALSE;
+
+        default:
+          break;
       }
       return TRUE;
 
@@ -173,7 +176,7 @@ void ConfigCPU::SetActive(HWND hdlg) {
   SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETRANGE, TRUE, MAKELONG(2, 20));
 }
 
-BOOL ConfigCPU::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id) {
+BOOL ConfigCPU::Command(HWND hdlg, HWND, UINT nc, UINT id) {
   switch (id) {
     case IDC_CPU_CLOCK:
       if (nc == EN_CHANGE) {
@@ -234,7 +237,7 @@ LPCSTR ConfigScreen::GetTemplate() {
   return MAKEINTRESOURCE(IDD_CONFIG_SCREEN);
 }
 
-bool ConfigScreen::Clicked(HWND hdlg, HWND hwctl, UINT id) {
+bool ConfigScreen::Clicked(HWND hdlg, HWND, UINT id) {
   switch (id) {
     case IDC_SCREEN_ENABLEPCG:
       config_.flags ^= pc8801::Config::kEnablePCG;
@@ -389,6 +392,15 @@ void ConfigSound::InitDialog(HWND hdlg) {
           ? IDC_SOUNDA8_OPNA
           : (config_.flags & pc8801::Config::kOPNonA8 ? IDC_SOUNDA8_OPN : IDC_SOUNDA8_NONE),
       BSTATE(true));
+
+    // The order has to match "enum SoundDriverType" in config.h.
+    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "Auto");
+    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "DirectSound");
+    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0,
+                       (LPARAM) "DirectSound (notify)");
+    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "WaveOut");
+    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "ASIO");
+    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_SETCURSEL, 0, 0);
 }
 
 void ConfigSound::SetActive(HWND hdlg) {
@@ -412,6 +424,16 @@ BOOL ConfigSound::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id) {
         return TRUE;
       }
       break;
+    case IDC_SOUNDDRIVER_DROPDOWN:
+      if (nc == CBN_CLOSEUP) {
+        auto type = static_cast<pc8801::Config::SoundDriverType>(
+            SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_GETCURSEL, 0, 0));
+        if (type != config_.sound_driver_type) {
+          base_->PageChanged(hdlg);
+        }
+        config_.sound_driver_type = type;
+        return TRUE;
+      }
   }
   return FALSE;
 }
@@ -439,6 +461,8 @@ void ConfigSound::Update(HWND hdlg) {
   CheckDlgButton(hdlg, IDC_SOUND_USENOTIFY, BSTATE(config_.flag2 & pc8801::Config::kUseDSNotify));
 
   SetDlgItemInt(hdlg, IDC_SOUND_BUFFER, config_.sound_buffer_ms, false);
+
+  SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_SETCURSEL, config_.sound_driver_type, 0);
 }
 
 // ---------------------------------------------------------------------------

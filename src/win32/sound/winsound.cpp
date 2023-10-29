@@ -60,8 +60,8 @@ void WinSound::CleanUp() {
 // ---------------------------------------------------------------------------
 //  合成・再生レート変更
 //
-bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen_ms, bool /*waveout*/) {
-  if (current_rate_ == rate && current_buffer_len_ms_ == buflen_ms)
+bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen_ms, pc8801::Config::SoundDriverType type) {
+  if (current_rate_ == rate && current_buffer_len_ms_ == buflen_ms && driver_type_ == type)
     return true;
 
   if (IsDumping()) {
@@ -78,10 +78,11 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen_ms, bool /*waveout*/) {
     sample_rate_ = 0;
   }
 
+  // TODO: fix this
   // DirectSound: サンプリングレート * バッファ長 / 2
   // waveOut:     サンプリングレート * バッファ長 * 2
   int bufsize = 0;
-  if (driver_type_ == pc8801::Config::SoundDriverType::kWaveOut) {
+  if (type == pc8801::Config::SoundDriverType::kWaveOut) {
     bufsize = (sample_rate_ * buflen_ms / 1000 * 1) & ~15;
   } else {
     bufsize = (sample_rate_ * buflen_ms / 1000 / 2) & ~15;
@@ -97,43 +98,46 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen_ms, bool /*waveout*/) {
   if (!Sound::SetRate(rate, bufsize))
     return false;
 
-  if (driver_ || bufsize == 0)
+  if (driver_ && driver_type_ == type && bufsize == 0)
     return true;
 
-  pc8801::Config::SoundDriverType new_driver = pc8801::Config::SoundDriverType::kAsio;
-  while (new_driver != pc8801::Config::SoundDriverType::kUnknown) {
-    pc8801::Config::SoundDriverType next_driver = pc8801::Config::SoundDriverType::kUnknown;
-    switch (new_driver) {
+  pc8801::Config::SoundDriverType new_type = type == pc8801::Config::SoundDriverType::kAuto
+                                                 ? pc8801::Config::SoundDriverType::kAsio
+                                                 : type;
+  while (new_type != pc8801::Config::SoundDriverType::kAuto) {
+    pc8801::Config::SoundDriverType next_driver = pc8801::Config::SoundDriverType::kAuto;
+    switch (new_type) {
       case pc8801::Config::SoundDriverType::kAsio:
-        statusdisplay.Show(200, 8000, "sounddrv: using ASIO driver");
+        statusdisplay.Show(200, 5000, "sounddrv: using ASIO driver");
         driver_ = std::make_unique<DriverASIO>();
         next_driver = pc8801::Config::SoundDriverType::kDirectSoundNotify;
         break;
       case pc8801::Config::SoundDriverType::kDirectSoundNotify:
-        statusdisplay.Show(200, 8000, "sounddrv: using notification-driven DirectSound driver");
+        statusdisplay.Show(200, 5000, "sounddrv: using notification-driven DirectSound driver");
         driver_ = std::make_unique<DriverDS2>();
         next_driver = pc8801::Config::SoundDriverType::kDirectSound;
         break;
       case pc8801::Config::SoundDriverType::kDirectSound:
-        statusdisplay.Show(200, 8000, "sounddrv: using timer-driven DirectSound driver");
+        statusdisplay.Show(200, 5000, "sounddrv: using timer-driven DirectSound driver");
         driver_ = std::make_unique<DriverDS>();
         next_driver = pc8801::Config::SoundDriverType::kWaveOut;
         break;
       case pc8801::Config::SoundDriverType::kWaveOut:
+        statusdisplay.Show(200, 5000, "sounddrv: using WaveOut driver");
         driver_ = std::make_unique<DriverWO>();
-        next_driver = pc8801::Config::SoundDriverType::kUnknown;
+        next_driver = pc8801::Config::SoundDriverType::kAuto;
         break;
       default:
-        next_driver = pc8801::Config::SoundDriverType::kUnknown;
+        next_driver = pc8801::Config::SoundDriverType::kAuto;
         break;
     }
-
-    if (driver_ && driver_->Init(&dumper, hwnd_, sample_rate_, 2, buflen_ms))
+    if (driver_ && driver_->Init(&dumper, hwnd_, sample_rate_, 2, buflen_ms)) {
+      driver_type_ = new_type;
       break;
-
+    }
     driver_.reset();
     statusdisplay.Show(100, 3000, "Failed to initialize sound driver");
-    new_driver = next_driver;
+    new_type = next_driver;
   }
 
   if (!driver_) {
@@ -149,12 +153,8 @@ bool WinSound::ChangeRate(uint32_t rate, uint32_t buflen_ms, bool /*waveout*/) {
 //
 void WinSound::ApplyConfig(const pc8801::Config* config) {
   Sound::ApplyConfig(config);
-
   preferred_asio_driver_ = config->preferred_asio_driver;
-
-  bool wo = config->sound_driver_type == pc8801::Config::SoundDriverType::kWaveOut;
-  ChangeRate(config->sound_output_hz, config->sound_buffer_ms, wo);
-
+  ChangeRate(config->sound_output_hz, config->sound_buffer_ms, config->sound_driver_type);
   if (driver_) {
     driver_->MixAlways(0 != (config->flags & pc8801::Config::kMixSoundAlways));
     if (!config->preferred_asio_driver.empty())

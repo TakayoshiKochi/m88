@@ -70,7 +70,7 @@ class Config {
   };
 
   enum SoundDriverType : uint8_t {
-    kUnknown = 0,
+    kAuto = 0,
     kDirectSound,
     kDirectSoundNotify,
     kWaveOut,
