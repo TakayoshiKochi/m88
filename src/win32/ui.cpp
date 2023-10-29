@@ -30,8 +30,6 @@
 // #define LOGNAME "ui"
 #include "common/diag.h"
 
-extern char m88ini[MAX_PATH];
-
 namespace {
 constexpr int kPC88ScreenWidth = 640;
 constexpr int kPC88ScreenHeight = 400;
