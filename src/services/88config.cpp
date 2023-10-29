@@ -27,17 +27,33 @@ void InitPathInfo() {
   sprintf(m88ini, "%s%s%s.ini", drive, dir, fname);
 }
 
-static bool LoadConfigEntry(const std::string_view inifile,
-                            const char* entry,
-                            int* value,
-                            int default_value,
-                            bool apply_default) {
+bool LoadConfigEntry(const std::string_view inifile,
+                     const char* entry,
+                     int* value,
+                     int default_value,
+                     bool apply_default) {
   int n = GetPrivateProfileInt(AppName, entry, -1, inifile.data());
 
   if (n == -1 && apply_default)
     n = default_value;
   if (n != -1) {
     *value = n;
+    return true;
+  }
+  return false;
+}
+
+bool LoadConfigEntryU(const std::string_view inifile,
+                      const char* entry,
+                      uint32_t* value,
+                      uint32_t default_value,
+                      bool apply_default) {
+  int n = GetPrivateProfileInt(AppName, entry, -1, inifile.data());
+  auto r = static_cast<uint32_t>(n);
+  if (n == -1 && apply_default)
+    r = default_value;
+  if (n != -1) {
+    *value = r;
     return true;
   }
   return false;
@@ -87,15 +103,16 @@ void LoadConfigDirectory(pc8801::Config* cfg,
     vol = n - VOLUME_BIAS;
 
 void LoadConfig(pc8801::Config* cfg, const std::string_view inifile, bool applydefault) {
-  int n =
+  uint32_t u =
       pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory | pc8801::Config::kEnableWait;
-  LoadConfigEntry(inifile, "Flags", &cfg->flags, n, applydefault);
+  LoadConfigEntryU(inifile, "Flags", &cfg->flags, u, applydefault);
   cfg->flags &= ~pc8801::Config::kSpecialPalette;
 
-  n = 0;
-  LoadConfigEntry(inifile, "Flag2", &cfg->flag2, n, applydefault);
+  u = 0;
+  LoadConfigEntryU(inifile, "Flag2", &cfg->flag2, u, applydefault);
   cfg->flag2 &= ~(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
 
+  int n = 0;
   if (LoadConfigEntry(inifile, "CPUClock", &n, 40, applydefault))
     cfg->legacy_clock = Limit(n, 1000, 1);
 

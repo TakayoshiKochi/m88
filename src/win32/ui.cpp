@@ -151,7 +151,7 @@ int WinUI::Main(const char* cmdline) {
 
     if (!TranslateAccelerator(msg.hwnd, haccel_, &msg)) {
       if ((msg.message == WM_SYSKEYDOWN || msg.message == WM_SYSKEYUP) &&
-          !(config_.flags & pc8801::Config::kSuppressMenu))
+          !(flags() & pc8801::Config::kSuppressMenu))
         TranslateMessage(&msg);
     }
     DispatchMessage(&msg);
@@ -176,6 +176,7 @@ bool WinUI::InitM88(const char* cmdline) {
 
   //  設定読み込み
   Log("%d\tLoadConfig\n", timeGetTime());
+  cfg_ = services::ConfigService::GetInstance();
   services::LoadConfig(&config_, m88ini, true);
 
   // ステータスバー初期化
@@ -265,8 +266,7 @@ bool WinUI::InitM88(const char* cmdline) {
 //  M88 の後片付け
 //
 void WinUI::CleanUpM88() {
-  pc8801::Config cfg = config_;
-  services::SaveConfig(&cfg, m88ini, true);
+  services::SaveConfig(&config_, m88ini, true);
   core_.CleanUp();
   disk_manager_.reset();
   tape_manager_.reset();
@@ -371,7 +371,7 @@ void WinUI::ReportError() {
 //  WinUI::Reset
 //
 void WinUI::Reset() {
-  if (config_.flags & pc8801::Config::kAskBeforeReset) {
+  if (flags() & pc8801::Config::kAskBeforeReset) {
     SetGUIFlag(true);
     int res = MessageBox(hwnd_, "リセットしますか？", "M88",
                          MB_ICONQUESTION | MB_OKCANCEL | MB_DEFBUTTON2);
@@ -389,7 +389,7 @@ void WinUI::Reset() {
 //
 void WinUI::ApplyConfig() {
   config_.mainsubratio =
-      (config_.legacy_clock >= 60 || (config_.flags & pc8801::Config::kFullSpeed)) ? 2 : 1;
+      (config_.legacy_clock >= 60 || (flags() & pc8801::Config::kFullSpeed)) ? 2 : 1;
   if (config_.dipsw != 1) {
     config_.flags &= ~pc8801::Config::kSpecialPalette;
     config_.flag2 &= ~(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
@@ -403,7 +403,7 @@ void WinUI::ApplyConfig() {
   mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_TYPE;
   mii.fType = MFT_STRING;
-  mii.dwTypeData = (config_.flags & pc8801::Config::kDisableF12Reset)
+  mii.dwTypeData = (flags() & pc8801::Config::kDisableF12Reset)
                        ? const_cast<LPSTR>("&Reset")
                        : const_cast<LPSTR>("&Reset\tF12");
   SetMenuItemInfo(GetMenu(hwnd_), IDM_RESET, false, &mii);
@@ -492,7 +492,7 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
             activate = strtoul(endptr + 1, &endptr, 16);
           }
           cmdline = endptr;
-          config_.flags = (config_.flags & ~activate) | (newflags & activate);
+          config_.flags = (flags() & ~activate) | (newflags & activate);
           break;
 
         // flag2 の値を設定  -g値,有効ビット
@@ -503,7 +503,7 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
             activate = strtoul(endptr + 1, &endptr, 16);
           }
           cmdline = endptr;
-          config_.flag2 = (config_.flag2 & ~activate) | (newflags & activate);
+          config_.flag2 = (flags2() & ~activate) | (newflags & activate);
           break;
       }
 
@@ -572,7 +572,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
   ofn.lStructSize = sizeof(OPENFILENAME);
-  ofn.FlagsEx = config_.flag2 & pc8801::Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
+  ofn.FlagsEx = flags2() & pc8801::Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];
   filename[0] = 0;
@@ -784,7 +784,7 @@ void WinUI::ChangeTapeImage() {
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(ofn));
   ofn.lStructSize = sizeof(OPENFILENAME);
-  ofn.FlagsEx = config_.flag2 & pc8801::Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
+  ofn.FlagsEx = flags2() & pc8801::Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
 
   char filename[MAX_PATH];
   filename[0] = 0;
@@ -835,8 +835,8 @@ void WinUI::OpenTapeImage(const char* filename) {
 void WinUI::ShowStatusWindow() {
   if (fullscreen_)
     return;
-  if (config_.flags & pc8801::Config::kShowStatusBar) {
-    statusdisplay.Enable((config_.flags & pc8801::Config::kShowFDCStatus) != 0);
+  if (flags() & pc8801::Config::kShowStatusBar) {
+    statusdisplay.Enable((flags() & pc8801::Config::kShowFDCStatus) != 0);
     // Allow window corner rounding.
     DWORD dwm_attr = DWMWCP_DEFAULT;
     DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
@@ -1201,9 +1201,6 @@ LRESULT WinUI::M88ChangeVolume(HWND, WPARAM c, LPARAM) {
   return 0;
 }
 
-// ---------------------------------------------------------------------------
-//  WinUI::ReportError
-//
 LRESULT WinUI::M88ApplyConfig(HWND, WPARAM newconfig, LPARAM) {
   if (newconfig) {
     // 乱暴ですな。
@@ -1269,7 +1266,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
 
     case IDM_CPU_BURST:
       config_.flags ^= pc8801::Config::kCPUBurst;
-      if (config_.flags & pc8801::Config::kCPUBurst)
+      if (flags() & pc8801::Config::kCPUBurst)
         config_.flags &= ~pc8801::Config::kFullSpeed;
       ApplyConfig();
       break;
@@ -1696,7 +1693,7 @@ LRESULT WinUI::WmSetCursor(HWND hwnd, WPARAM wp, LPARAM lp) {
 }
 
 inline LRESULT WinUI::WmKeyDown(HWND, WPARAM wparam, LPARAM lparam) {
-  if ((uint32_t)wparam == VK_F12 && !(config_.flags & pc8801::Config::kDisableF12Reset))
+  if ((uint32_t)wparam == VK_F12 && !(flags() & pc8801::Config::kDisableF12Reset))
     ;
   else
     keyif_.KeyDown((uint32_t)wparam, (uint32_t)lparam);
@@ -1705,7 +1702,7 @@ inline LRESULT WinUI::WmKeyDown(HWND, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmKeyUp(HWND, WPARAM wparam, LPARAM lparam) {
-  if ((uint32_t)wparam == VK_F12 && !(config_.flags & pc8801::Config::kDisableF12Reset))
+  if ((uint32_t)wparam == VK_F12 && !(flags() & pc8801::Config::kDisableF12Reset))
     Reset();
   else
     keyif_.KeyUp((uint32_t)wparam, (uint32_t)lparam);
@@ -1714,7 +1711,7 @@ inline LRESULT WinUI::WmKeyUp(HWND, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  if (config_.flags & pc8801::Config::kSuppressMenu) {
+  if (flags() & pc8801::Config::kSuppressMenu) {
     keyif_.KeyDown((uint32_t)wparam, (uint32_t)lparam);
     return 0;
   }
@@ -1722,7 +1719,7 @@ inline LRESULT WinUI::WmSysKeyDown(HWND hwnd, WPARAM wparam, LPARAM lparam) {
 }
 
 inline LRESULT WinUI::WmSysKeyUp(HWND hwnd, WPARAM wparam, LPARAM lparam) {
-  if (config_.flags & pc8801::Config::kSuppressMenu) {
+  if (flags() & pc8801::Config::kSuppressMenu) {
     keyif_.KeyUp((uint32_t)wparam, (uint32_t)lparam);
     return 0;
   }
@@ -1762,7 +1759,7 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   EnableMenuItem(hmenu_, IDM_N88V2CD, core_.GetPC88()->IsCDSupported() ? MF_ENABLED : MF_GRAYED);
 
   CheckMenuItem(hmenu_, IDM_CPU_BURST,
-                (config_.flags & pc8801::Config::kCPUBurst) ? MF_CHECKED : MF_UNCHECKED);
+                (flags() & pc8801::Config::kCPUBurst) ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu_, IDM_KEY_GRPH, keyif_.IsGrphLocked() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_KEY_KANA, keyif_.IsKanaLocked() ? MF_CHECKED : MF_UNCHECKED);
@@ -1772,10 +1769,10 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   CheckMenuItem(hmenu_, IDM_WATCHREGISTER,
                 (config_.dipsw != 1 && reg_mon_.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_STATUSBAR,
-                (config_.flags & pc8801::Config::kShowStatusBar) ? MF_CHECKED : MF_UNCHECKED);
+                (flags() & pc8801::Config::kShowStatusBar) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_STATUSBAR, fullscreen_ ? MF_GRAYED : MF_ENABLED);
   CheckMenuItem(hmenu_, IDM_FDC_STATUS,
-                (config_.flags & pc8801::Config::kShowFDCStatus) ? MF_CHECKED : MF_UNCHECKED);
+                (flags() & pc8801::Config::kShowFDCStatus) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_SOUNDMON, opn_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_MEMMON, mem_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_CODEMON, code_mon_.IsOpen() ? MF_CHECKED : MF_UNCHECKED);
@@ -1795,8 +1792,8 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
 
   if (hmenudbg_) {
     CheckMenuItem(hmenudbg_, IDM_DEBUG_TEXT,
-                  (config_.flags & pc8801::Config::kSpecialPalette) ? MF_CHECKED : MF_UNCHECKED);
-    int mask = (config_.flag2 / pc8801::Config::kMask0) & 7;
+                  (flags() & pc8801::Config::kSpecialPalette) ? MF_CHECKED : MF_UNCHECKED);
+    int mask = (flags2() / pc8801::Config::kMask0) & 7;
     CheckMenuItem(hmenudbg_, IDM_DEBUG_GVRAM0, (mask & 1) ? MF_CHECKED : MF_UNCHECKED);
     CheckMenuItem(hmenudbg_, IDM_DEBUG_GVRAM1, (mask & 2) ? MF_CHECKED : MF_UNCHECKED);
     CheckMenuItem(hmenudbg_, IDM_DEBUG_GVRAM2, (mask & 4) ? MF_CHECKED : MF_UNCHECKED);
@@ -1905,7 +1902,7 @@ LRESULT WinUI::WmDestroy(HWND, WPARAM, LPARAM) {
 //
 LRESULT WinUI::WmClose(HWND hwnd, WPARAM, LPARAM) {
   // 確認
-  if (config_.flags & pc8801::Config::kAskBeforeReset) {
+  if (flags() & pc8801::Config::kAskBeforeReset) {
     SetGUIFlag(true);
     int res = MessageBox(hwnd, "M88 を終了します", "M88",
                          MB_ICONEXCLAMATION | MB_OKCANCEL | MB_DEFBUTTON2);
