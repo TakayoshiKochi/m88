@@ -60,6 +60,9 @@ enum class KeyboardType : uint32_t { kAT106 = 0, kPC98_obsolete = 1, kAT101 = 2 
 
 class Config {
  public:
+  // Config(Config& other) = delete;
+  // const Config& operator=(const Config& rhs) = delete;
+
   enum CPUType {
     kMainSub11 = 0,
     kMainSub21,

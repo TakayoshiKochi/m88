@@ -83,8 +83,8 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   void DeInit();
 
   void Reset();
-  void ApplyConfig(pc8801::Config*);
-  void SetVolume(pc8801::Config*);
+  void ApplyConfig(const pc8801::Config* cfg);
+  void SetVolume(const pc8801::Config* cfg);
 
   // Override EmulationLoopDelegate
   int64_t ProceedNS(uint64_t cpu_clock, int64_t ns, int64_t effective_clock) override;

@@ -7,8 +7,8 @@
 #include "win32/wincore.h"
 
 #include "common/device.h"
-#include "if/ifpc88.h"
 #include "if/ifguid.h"
+#include "if/ifpc88.h"
 #include "pc88/beep.h"
 #include "pc88/config.h"
 #include "pc88/joypad.h"
@@ -17,6 +17,7 @@
 #include "services/diskmgr.h"
 #include "win32/extdev.h"
 #include "win32/file.h"
+#include "win32/messages.h"
 #include "win32/module.h"
 #include "win32/status_win.h"
 #include "win32/ui.h"
@@ -47,6 +48,7 @@ bool WinCore::Init(HWND hwnd,
                    Draw* draw,
                    services::DiskManager* disk,
                    services::TapeManager* tape) {
+  hwnd_ = hwnd;
   cfg_prop_ = cp;
 
   if (!pc88_.Init(draw, disk, tape))
@@ -98,29 +100,29 @@ void WinCore::Reset() {
 // ---------------------------------------------------------------------------
 //  設定を反映する
 //
-void WinCore::ApplyConfig(pc8801::Config* cfg) {
-  config_ = *cfg;
+void WinCore::ApplyConfig(const pc8801::Config* config) {
+  config_ = config;
 
-  int c = cfg->legacy_clock;
+  int c = config_->legacy_clock;
   uint64_t cpu_clock = c * 100000;
   if (c == 40) {
     cpu_clock = 3993600;
   } else if (c == 80) {
     cpu_clock = 7987200;
   }
-  if (cfg->flags & pc8801::Config::kFullSpeed)
+  if (config_->flags & pc8801::Config::kFullSpeed)
     c = 0;
-  if (cfg->flags & pc8801::Config::kCPUBurst)
+  if (config_->flags & pc8801::Config::kCPUBurst)
     c = -c;
   seq_.SetLegacyClock(c);
   seq_.SetCPUClock(cpu_clock);
-  seq_.SetSpeed(cfg->speed / 10);
+  seq_.SetSpeed(config_->speed / 10);
 
   if (pc88_.GetJoyPad())
     pc88_.GetJoyPad()->Connect(&pad_if_);
 
-  pc88_.ApplyConfig(cfg);
-  sound_.ApplyConfig(cfg);
+  pc88_.ApplyConfig(config_);
+  sound_.ApplyConfig(config_);
 }
 
 // ---------------------------------------------------------------------------
@@ -185,13 +187,13 @@ bool WinCore::SaveSnapshot(const std::string_view filename) {
     ssh.major = ssmajor;
     ssh.minor = ssminor;
     ssh.datasize = size;
-    ssh.basicmode = config_.basicmode;
-    ssh.legacy_clock = int16_t(config_.legacy_clock);
-    ssh.erambanks = uint16_t(config_.erambanks);
-    ssh.cpumode = int16_t(config_.cpumode);
-    ssh.mainsubratio = int16_t(config_.mainsubratio);
-    ssh.flags = config_.flags | (esize < size ? 0x80000000 : 0);
-    ssh.flag2 = config_.flag2;
+    ssh.basicmode = config_->basicmode;
+    ssh.legacy_clock = int16_t(config_->legacy_clock);
+    ssh.erambanks = uint16_t(config_->erambanks);
+    ssh.cpumode = int16_t(config_->cpumode);
+    ssh.mainsubratio = int16_t(config_->mainsubratio);
+    ssh.flags = config_->flags | (esize < size ? 0x80000000 : 0);
+    ssh.flag2 = config_->flag2;
     for (uint32_t i = 0; i < 2; i++)
       ssh.disk[i] = (int8_t)pc88_.GetDiskManager()->GetCurrentDisk(i);
 
@@ -233,14 +235,19 @@ bool WinCore::LoadSnapshot(const std::string_view filename, const std::string_vi
       pc8801::Config::kOPNAonA8 | pc8801::Config::kEnableWait;
   const uint32_t fl2a = pc8801::Config::kDisableOPN44;
 
-  config_.flags = (config_.flags & ~fl1a) | (ssh.flags & fl1a);
-  config_.flag2 = (config_.flag2 & ~fl2a) | (ssh.flag2 & fl2a);
-  config_.basicmode = ssh.basicmode;
-  config_.legacy_clock = ssh.legacy_clock;
-  config_.erambanks = ssh.erambanks;
-  config_.cpumode = ssh.cpumode;
-  config_.mainsubratio = ssh.mainsubratio;
-  ApplyConfig(&config_);
+  pc8801::Config newconfig = *config_;
+
+  newconfig.flags = (config_->flags & ~fl1a) | (ssh.flags & fl1a);
+  newconfig.flag2 = (config_->flag2 & ~fl2a) | (ssh.flag2 & fl2a);
+  newconfig.basicmode = ssh.basicmode;
+  newconfig.legacy_clock = ssh.legacy_clock;
+  newconfig.erambanks = ssh.erambanks;
+  newconfig.cpumode = ssh.cpumode;
+  newconfig.mainsubratio = ssh.mainsubratio;
+
+  // TODO: this is not working. fix this.
+  // ApplyConfig(&newconfig);
+  PostMessage(hwnd_, WM_M88_APPLYCONFIG, (WPARAM)&newconfig, 0);
 
   // Reset
   pc88_.Reset();

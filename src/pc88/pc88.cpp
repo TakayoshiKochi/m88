@@ -571,7 +571,7 @@ bool PC88::ConnectDevices2() {
 // ---------------------------------------------------------------------------
 //  設定反映
 //
-void PC88::ApplyConfig(Config* cfg) {
+void PC88::ApplyConfig(const Config* cfg) {
   cfg_flags_ = cfg->flags;
   cfg_flags2_ = cfg->flag2;
 
@@ -609,7 +609,7 @@ void PC88::ApplyConfig(Config* cfg) {
 // ---------------------------------------------------------------------------
 //  音量変更
 //
-void PC88::SetVolume(pc8801::Config* cfg) {
+void PC88::SetVolume(const pc8801::Config* const cfg) {
   opn1_->SetVolume(cfg);
   opn2_->SetVolume(cfg);
 }

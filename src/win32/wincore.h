@@ -38,7 +38,7 @@ class WinCore : public ISystem, public ILockCore {
   bool CleanUp();
 
   void Reset();
-  void ApplyConfig(pc8801::Config* config);
+  void ApplyConfig(const pc8801::Config* config);
 
   bool SaveSnapshot(const std::string_view filename);
   bool LoadSnapshot(const std::string_view filename, const std::string_view diskname);
@@ -88,6 +88,7 @@ class WinCore : public ISystem, public ILockCore {
   bool ConnectDevices(WinKeyIF* keyb);
   bool ConnectExternalDevices();
 
+  HWND hwnd_ = nullptr;
   PC88 pc88_;
   IConfigPropBase* cfg_prop_ = nullptr;
 
@@ -98,7 +99,7 @@ class WinCore : public ISystem, public ILockCore {
   ExtendModules ext_modules_;
 
   WinSound sound_;
-  pc8801::Config config_;
+  const pc8801::Config* config_;
 
   using ExternalDevices = std::vector<ExternalDevice*>;
   ExternalDevices ext_devices_;
