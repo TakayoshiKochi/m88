@@ -394,8 +394,8 @@ void WinUI::ApplyConfig() {
     config().flag2 &= ~(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
   }
 
-  core_.ApplyConfig(&config());
   keyif_.ApplyConfig(&config());
+  core_.ApplyConfig(&config());
 
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(mii));
