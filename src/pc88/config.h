@@ -60,6 +60,9 @@ enum class KeyboardType : uint32_t { kAT106 = 0, kPC98_obsolete = 1, kAT101 = 2 
 
 class Config {
  public:
+  // Config(Config& other) = delete;
+  // const Config& operator=(const Config& rhs) = delete;
+
   enum CPUType {
     kMainSub11 = 0,
     kMainSub21,
@@ -75,7 +78,7 @@ class Config {
     kNumSoundDriverTypes,
   };
 
-  enum Flags {
+  enum Flags : uint32_t {
     kSubCPUControl = 1 << 0,    // Sub CPU の駆動を制御する
     kSaveDirectory = 1 << 1,    // 起動時に前回終了時のディレクトリに移動
     kFullSpeed = 1 << 2,        // 全力動作
@@ -112,7 +115,7 @@ class Config {
     kPreciseMixing = 1 << 30,    // 高精度な合成を行う
   };
 
-  enum Flag2 {
+  enum Flag2 : uint32_t {
     kDisableOPN44 = 1 << 0,   // OPN(44h) を無効化 (V2 モード時は OPN)
     kUseWaveOutDrv = 1 << 1,  // PCM の再生に waveOut を使用する
     kMask0 = 1 << 2,          // 選択表示モード
@@ -133,8 +136,8 @@ class Config {
     // kSavePosition = 1 << 13,  // 起動時に前回終了時のウインドウ位置を復元
   };
 
-  int flags;
-  int flag2;
+  uint32_t flags;
+  uint32_t flag2;
   int legacy_clock;
   // 1000 = 100%, 10% ～ 1000% (100-10000)
   int speed;

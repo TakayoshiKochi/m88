@@ -30,7 +30,6 @@
 // ---------------------------------------------------------------------------
 
 char m88dir[MAX_PATH];
-char m88ini[MAX_PATH];
 
 // ---------------------------------------------------------------------------
 //  InitPathInfo
@@ -44,7 +43,6 @@ static void InitPathInfo() {
 
   GetModuleFileName(0, buf, MAX_PATH);
   _splitpath(buf, drive, dir, fname, ext);
-  sprintf(m88ini, "%s%s%s.ini", drive, dir, fname);
   sprintf(m88dir, "%s%s", drive, dir);
 }
 

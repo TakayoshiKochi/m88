@@ -103,6 +103,11 @@ class WinUI {
   // int AllocControlID();
   // void FreeControlID(int);
 
+  pc8801::Config& config() { return cfg_->config(); }
+  pc8801::Config& config() const { return cfg_->config(); }
+  uint32_t flags() const { return config().flags; }
+  uint32_t flags2() const { return config().flag2; }
+
   // ウインドウ関係
   HWND hwnd_ = nullptr;
   HINSTANCE hinst_ = nullptr;
@@ -148,7 +153,7 @@ class WinUI {
   WinCore core_;
   WinDraw draw_;
   WinKeyIF keyif_;
-  pc8801::Config config_;
+  services::ConfigService* cfg_ = nullptr;
   WinConfig win_config_;
   WinNewDisk new_disk_;
 
