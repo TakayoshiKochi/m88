@@ -69,7 +69,7 @@ class WinSound : public pc8801::Sound {
   ~WinSound() override;
 
   bool Init(PC88* pc, HWND hwnd, uint32_t rate, uint32_t buflen);
-  bool ChangeRate(uint32_t rate, uint32_t buflen_ms, bool waveout);
+  bool ChangeRate(uint32_t rate, uint32_t buflen_ms, pc8801::Config::SoundDriverType type);
 
   void ApplyConfig(const pc8801::Config* config);
 
@@ -92,7 +92,7 @@ class WinSound : public pc8801::Sound {
   uint32_t sample_rate_ = 0;
 
   OPNMonitor* sound_mon_ = nullptr;
-  pc8801::Config::SoundDriverType driver_type_ = pc8801::Config::SoundDriverType::kUnknown;
+  pc8801::Config::SoundDriverType driver_type_ = pc8801::Config::SoundDriverType::kAuto;
   std::string preferred_asio_driver_;
 
   SoundDumpPipe dumper;
