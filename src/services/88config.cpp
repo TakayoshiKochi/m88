@@ -12,9 +12,21 @@ static const char* AppName = "M88p2 for Windows";
 
 namespace services {
 
-// ---------------------------------------------------------------------------
-//  LoadConfigEntry
-//
+namespace {
+char m88ini[MAX_PATH];
+
+void InitPathInfo() {
+  char buf[MAX_PATH];
+  char drive[_MAX_DRIVE];
+  char dir[_MAX_DIR];
+  char fname[_MAX_FNAME];
+  char ext[_MAX_EXT];
+
+  GetModuleFileName(nullptr, buf, MAX_PATH);
+  _splitpath(buf, drive, dir, fname, ext);
+  sprintf(m88ini, "%s%s%s.ini", drive, dir, fname);
+}
+
 static bool LoadConfigEntry(const std::string_view inifile,
                             const char* entry,
                             int* value,
@@ -38,10 +50,20 @@ std::string LoadConfigString(const std::string_view inifile, const char* entry) 
   }
   return {};
 }
+}  // namespace
 
-// ---------------------------------------------------------------------------
-//  LoadConfigDirectory
-//
+// static
+ConfigService ConfigService::instance_;
+// static
+std::once_flag ConfigService::once_;
+
+// static
+void ConfigService::Init() {
+  InitPathInfo();
+  LoadConfig(&instance_.config_, m88ini, true);
+}
+
+
 void LoadConfigDirectory(pc8801::Config* cfg,
                          const std::string_view inifile,
                          const char* entry,
