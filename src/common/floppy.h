@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 
+#include <memory>
 #include <vector>
 
 // ---------------------------------------------------------------------------
@@ -25,7 +26,10 @@ class FloppyDisk {
   };
   enum DiskType { kMD2D = 0, kMD2DD, kMD2HD };
   struct IDR {
-    uint8_t c, h, r, n;
+    uint8_t c = 0;
+    uint8_t h = 0;
+    uint8_t r = 0;
+    uint8_t n = 0;
 
     bool operator==(const IDR& i) const {
       return ((c == i.c) && (h == i.h) && (r == i.r) && (n == i.n));
@@ -34,10 +38,10 @@ class FloppyDisk {
 
   struct Sector {
     IDR id;
-    uint32_t flags;
-    uint8_t* image;
-    uint32_t size;
-    Sector* next;
+    uint32_t flags = 0;
+    std::unique_ptr<uint8_t[]> image;
+    uint32_t size = 0;
+    Sector* next = nullptr;
   };
 
   class Track {
@@ -46,7 +50,6 @@ class FloppyDisk {
     ~Track() {
       for (Sector* s = sector_; s;) {
         Sector* n = s->next;
-        delete[] s->image;
         delete s;
         s = n;
       }
@@ -68,7 +71,7 @@ class FloppyDisk {
   Sector* GetSector();
   bool FindID(IDR idr, uint32_t density);
   uint32_t GetNumSectors();
-  uint32_t GetTrackCapacity();
+  [[nodiscard]] uint32_t GetTrackCapacity() const;
   uint32_t GetTrackSize();
   [[nodiscard]] uint32_t GetNumTracks() const { return ntracks_; }
   bool Resize(Sector* sector, uint32_t newsize);

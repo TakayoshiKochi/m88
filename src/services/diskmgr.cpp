@@ -272,7 +272,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
             sec->flags |= FloppyDisk::kMAM;
             break;
         }
-        if (fio->Read(sec->image, sh.length) != sh.length)
+        if (fio->Read(sec->image.get(), sh.length) != sh.length)
           break;
         sot += 0x10 + sh.length;
       } while (++i < sh.sectors);
@@ -330,7 +330,7 @@ bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive) {
       sec->id = id;
       sec->size = 256;
       sec->flags = 0x40;
-      memcpy(sec->image, buf, 256);
+      memcpy(sec->image.get(), buf, 256);
     }
   }
   drive->sizechanged = false;
@@ -438,7 +438,7 @@ bool DiskManager::WriteTrackImage(FileIO* fio, Drive* drv, int t) {
     }
     if (fio->Write(&sh, sizeof(d88::SectorHeader)) != sizeof(d88::SectorHeader))
       return false;
-    if (uint32_t(fio->Write(sec->image, sec->size)) != sec->size)
+    if (uint32_t(fio->Write(sec->image.get(), sec->size)) != sec->size)
       return false;
     ;
   }
@@ -595,7 +595,7 @@ bool DiskManager::FormatDisk(uint32_t dr) {
         break;
       sec->id = id, sec->size = 256;
       sec->flags = 0x40;
-      memcpy(sec->image, dest, 256);
+      memcpy(sec->image.get(), dest, 256);
       dest += 256;
     }
   }

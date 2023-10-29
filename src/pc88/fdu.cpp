@@ -117,7 +117,7 @@ uint32_t FDU::ReadSector(uint32_t flags, IDR id, uint8_t* data) {
     cy = rid.c;
 
     if (rid == id) {
-      memcpy(data, sector_->image, std::min(0x2000U, sector_->size));
+      memcpy(data, sector_->image.get(), std::min(0x2000U, sector_->size));
 
       if (sector_->flags & FloppyDisk::kDataCRC)
         return FDC::ST0_AT | FDC::ST1_DE | FDC::ST2_DD;
@@ -169,7 +169,7 @@ uint32_t FDU::WriteSector(uint32_t flags, IDR id, const uint8_t* data, bool dele
           return 0;
       }
 
-      memcpy(sector_->image, data, writesize);
+      memcpy(sector_->image.get(), data, writesize);
       sector_->flags = (flags & 0xc0) | (deleted ? FloppyDisk::kDeleted : 0);
       sector_->size = writesize;
       diskmgr_->Modified(drive, track);
@@ -232,7 +232,7 @@ uint32_t FDU::WriteID(uint32_t flags, WIDDESC* wid) {
       FloppyDisk::Sector* sec = disk_->GetSector();
       sec->id = *wid->idr++;
       sec->flags = flags & 0xc0;
-      memset(sec->image, wid->d, sec->size);
+      memset(sec->image.get(), wid->d, sec->size);
     }
   } else {
     // unformat
@@ -345,7 +345,7 @@ uint32_t FDU::MakeDiagData(uint32_t flags, uint8_t* data, uint32_t* size) {
       diaginfo->data = dest;
       diaginfo++;
 
-      memcpy(dest, sec->image, sec->size);
+      memcpy(dest, sec->image.get(), sec->size);
       dest += sec->size;
       if (flags & 0x40)
         memset(dest, 0x4e, 2 + 0x20), dest += 0x22;
