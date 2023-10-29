@@ -126,8 +126,7 @@ bool FloppyDisk::Resize(Sector* sec, uint32_t newsize) {
   int extend = newsize - sec->size - 0x40;
 
   // sector 自身の resize
-  delete[] sec->image;
-  sec->image = new uint8_t[newsize];
+  sec->image = std::make_unique<uint8_t[]>(newsize);
   sec->size = newsize;
 
   if (!sec->image) {
@@ -139,7 +138,6 @@ bool FloppyDisk::Resize(Sector* sec, uint32_t newsize) {
   while (extend > 0 && cur_sector_) {
     Sector* next = cur_sector_->next;
     extend -= cur_sector_->size + 0xc0;
-    delete[] cur_sector_->image;
     delete cur_sector_;
     sec->next = cur_sector_ = next;
   }
@@ -150,7 +148,6 @@ bool FloppyDisk::Resize(Sector* sec, uint32_t newsize) {
   while (extend > 0 && cur_sector_) {
     Sector* next = cur_sector_->next;
     extend -= cur_sector_->size + 0xc0;
-    delete[] cur_sector_->image;
     delete cur_sector_;
     cur_track_->sector_ = cur_sector_ = next;
   }
@@ -173,7 +170,6 @@ bool FloppyDisk::FormatTrack(int nsec, int secsize) {
   sec = cur_track_->sector_;
   while (sec) {
     Sector* next = sec->next;
-    delete[] sec->image;
     delete sec;
     sec = next;
   }
@@ -190,13 +186,13 @@ bool FloppyDisk::FormatTrack(int nsec, int secsize) {
       newsector->next = cur_sector_;
       newsector->size = secsize;
       if (secsize) {
-        newsector->image = new uint8_t[secsize];
+        newsector->image = std::make_unique<uint8_t[]>(secsize);
         if (!newsector->image) {
           newsector->size = 0;
           return false;
         }
       } else {
-        newsector->image = nullptr;
+        newsector->image.reset();
       }
       cur_sector_ = newsector;
     }
@@ -215,7 +211,7 @@ FloppyDisk::Sector* FloppyDisk::AddSector(int size) {
   if (!newsector)
     return nullptr;
   if (size) {
-    newsector->image = new uint8_t[size];
+    newsector->image = std::make_unique<uint8_t[]>(size);
     if (!newsector->image) {
       delete newsector;
       return nullptr;
@@ -241,7 +237,7 @@ FloppyDisk::Sector* FloppyDisk::AddSector(int size) {
 // ---------------------------------------------------------------------------
 //  トラックの容量を得る
 //
-uint32_t FloppyDisk::GetTrackCapacity() {
+uint32_t FloppyDisk::GetTrackCapacity() const {
   static const int table[3] = {6250, 6250, 10416};
   return table[type_];
 }

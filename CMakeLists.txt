@@ -88,6 +88,7 @@ target_link_libraries(common Z80)
 
 add_executable(common_unittests
         src/common/device_test.cc
+        src/common/floppy_test.cc
         src/common/io_bus_test.cc
         src/common/scheduler_test.cc)
 
