@@ -121,6 +121,7 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
 
   SaveEntry(inifile, "SoundDriverType", static_cast<int>(cfg->sound_driver_type));
   SaveEntry(inifile, "PreferredASIODriver", cfg->preferred_asio_driver.c_str());
+  SaveEntry(inifile, "UsePiccolo", cfg->flags & pc8801::Config::kUsePiccolo);
 }
 
 #define LOADVOLUMEENTRY(key, def, vol)        \
@@ -223,6 +224,12 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
 
   LoadConfigEntry(inifile, "WinPosY", &cfg->winposy, 64);
   LoadConfigEntry(inifile, "WinPosX", &cfg->winposx, 64);
+
+  cfg->flags &= ~pc8801::Config::kUsePiccolo;
+  if (LoadConfigEntry(inifile, "UsePiccolo", &n, 0)) {
+    if (n)
+      cfg->flags |= pc8801::Config::kUsePiccolo;
+  }
 }
 }  // namespace
 

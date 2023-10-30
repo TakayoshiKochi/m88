@@ -58,6 +58,7 @@ class OPNIF : public Device, public ISoundSource {
   void IFCALL Mix(int32_t* buffer, int nsamples) override;
 
   void SetVolume(const Config* config);
+  void ApplyConfig(const Config* config);
   void SetFMMixMode(bool);
 
   void Enable(bool en) { enable_ = en; }
@@ -122,8 +123,12 @@ class OPNIF : public Device, public ISoundSource {
   // bool ROMEOEnabled() { return romeo_user == this; }
 
   OPNUnit opn_;
+
+  // Hardware devices support
   Piccolo* piccolo_ = nullptr;
   PiccoloChip* chip_ = nullptr;
+  bool use_hardware_ = false;
+
   ISoundControl* sound_control_ = nullptr;
   IOBus* bus_ = nullptr;
   Scheduler* scheduler_ = nullptr;
