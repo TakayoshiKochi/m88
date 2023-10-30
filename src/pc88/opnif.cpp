@@ -53,27 +53,27 @@ bool OPNIF::Init(IOBus* bus, int intrport, int io, Scheduler* sched) {
       Log(" success.\n");
       switch (piccolo_->IsDriverBased()) {
         case 1:
-          g_status_display->Show(100, 10000, "ROMEO/GIMIC: YMF288 enabled");
+          g_status_display->Show(100, 10000, "ROMEO/GIMIC: YMF288 available");
           opn_.SetChannelMask(0xfdff);
           break;
         case 2:
-          g_status_display->Show(100, 10000, "GIMIC: YM2608 enabled");
+          g_status_display->Show(100, 10000, "GIMIC: YM2608 available");
           opn_.SetChannelMask(0xffff);
           break;
         case 3:
-          g_status_display->Show(100, 10000, "SCCI: YM2608 enabled");
+          g_status_display->Show(100, 10000, "SCCI: YM2608 available");
           opn_.SetChannelMask(0xffff);
           break;
         case 0:
         default:
-          g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 enabled");
+          g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 available");
+          opn_.SetChannelMask(0xfdff);
           break;
       }
       // clock_ = 8000000;
       // opn.Init(clock, 8000, 0);
     }
   }
-
   return true;
 }
 
@@ -152,6 +152,24 @@ void OPNIF::SetVolume(const Config* config) {
   }
 }
 
+void OPNIF::ApplyConfig(const Config* config) {
+  SetVolume(config);
+  if (chip_) {
+    use_hardware_ = config->flags & Config::kUsePiccolo;
+    uint32_t mask = use_hardware_ ? 0xffff : 0;
+    switch (piccolo_->IsDriverBased()) {
+      case 2:
+      case 3:
+        opn_.SetChannelMask(0xffff & mask);
+        break;
+      case 0:
+      case 1:
+      default:
+        opn_.SetChannelMask(0xfdff & mask);
+        break;
+    }  }
+}
+
 // ---------------------------------------------------------------------------
 //  Reset
 //
@@ -167,7 +185,7 @@ void IOCALL OPNIF::Reset(uint32_t, uint32_t) {
   opn_.SetIntrMask(true);
   prescaler = 0x2d;
 
-  if (chip_)
+  if (/* use_hardware_ && */chip_)
     chip_->Reset(opna_mode_);
 }
 
@@ -253,7 +271,7 @@ void IOCALL OPNIF::WriteData0(uint32_t a, uint32_t data) {
     if (ROMEOEnabled())
       juliet_YMF288A(index0, data);
 #endif
-    if (chip_ && index0_ != 0x20)
+    if (use_hardware_ && chip_ && index0_ != 0x20)
       chip_->SetReg(ChipTime(), index0_, data);
 
     if (index0_ == 0x27) {
@@ -272,7 +290,7 @@ void IOCALL OPNIF::WriteData1(uint32_t a, uint32_t data) {
     regs_[0x100 | index1_] = data;
     opn_.SetReg(0x100 | index1_, data);
 
-    if (chip_)
+    if (use_hardware_ && chip_)
       chip_->SetReg(ChipTime(), 0x100 | index1_, data);
   }
 }
@@ -460,10 +478,10 @@ bool IFCALL OPNIF::LoadStatus(const uint8_t* s) {
 //  カウンタを同期
 //
 void IOCALL OPNIF::Sync(uint32_t, uint32_t) {
-  if (chip_) {
-    base_time_ = piccolo_->GetCurrentTimeUS();
-    base_time_ns_ = scheduler_->GetTimeNS();
-  }
+  if (!chip_)
+    return;
+  base_time_ = piccolo_->GetCurrentTimeUS();
+  base_time_ns_ = scheduler_->GetTimeNS();
 }
 
 // ---------------------------------------------------------------------------

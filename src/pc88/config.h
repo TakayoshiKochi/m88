@@ -134,6 +134,8 @@ class Config {
     kUseDSNotify = 1 << 12,
     // Obsolete
     // kSavePosition = 1 << 13,  // 起動時に前回終了時のウインドウ位置を復元
+    // Use Piccolo-based hardware sound device
+    kUsePiccolo = 1 << 14,
   };
 
   uint32_t flags;

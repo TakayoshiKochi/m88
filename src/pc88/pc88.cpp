@@ -582,9 +582,9 @@ void PC88::ApplyConfig(const Config* cfg) {
   fdc_->ApplyConfig(cfg);
   beep_->EnableSING(!(cfg->flags & Config::kDisableSing));
   opn1_->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
-  opn1_->SetVolume(cfg);
+  opn1_->ApplyConfig(cfg);
   opn2_->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
-  opn2_->SetVolume(cfg);
+  opn2_->ApplyConfig(cfg);
 
   cpu_mode_ = (cfg->cpumode == Config::kMainSubAuto) ? (cfg->mainsubratio > 1 ? ms21 : ms11)
                                                      : (cfg->cpumode & 1);
