@@ -27,13 +27,13 @@ bool JoyPad::Connect(IPadInput* u) {
 // ---------------------------------------------------------------------------
 //  入力
 //
-uint32_t IOCALL JoyPad::GetDirection(uint32_t) {
+uint32_t JoyPad::GetDirection(uint32_t) {
   if (!paravalid)
     Update();
   return data[0];
 }
 
-uint32_t IOCALL JoyPad::GetButton(uint32_t) {
+uint32_t JoyPad::GetButton(uint32_t) {
   if (!paravalid)
     Update();
   return data[1];
@@ -71,7 +71,7 @@ void JoyPad::SetButtonMode(ButtonMode mode) {
 // ---------------------------------------------------------------------------
 //  VSync たいみんぐ
 //
-void IOCALL JoyPad::VSync(uint32_t, uint32_t d) {
+void JoyPad::VSync(uint32_t, uint32_t d) {
   if (d)
     paravalid = false;
 }

@@ -50,7 +50,7 @@ bool WinKeyIF::Init(HWND hwndmsg) {
 // ---------------------------------------------------------------------------
 //  リセット（というか、BASIC モードの変更）
 //
-void IOCALL WinKeyIF::Reset(uint32_t, uint32_t) {
+void WinKeyIF::Reset(uint32_t, uint32_t) {
   SyncLockState();
   pc80mode_ = (static_cast<uint32_t>(basicmode_) & 2) != 0;
 }
@@ -249,7 +249,7 @@ uint32_t WinKeyIF::GetKey(const Key* key) {
 // ---------------------------------------------------------------------------
 //  VSync 処理
 //
-void IOCALL WinKeyIF::VSync(uint32_t, uint32_t d) {
+void WinKeyIF::VSync(uint32_t, uint32_t d) {
   if (d && active_) {
     if (hwnd_) {
       PostMessage(hwnd_, WM_M88_SENDKEYSTATE, reinterpret_cast<WPARAM>(keyboard_), (LPARAM)hevent_);
@@ -282,7 +282,7 @@ void WinKeyIF::Disable(bool disabled) {
 // ---------------------------------------------------------------------------
 //  キー入力
 //
-uint32_t IOCALL WinKeyIF::In(uint32_t port) {
+uint32_t WinKeyIF::In(uint32_t port) {
   port &= 0x0f;
 
   if (active_) {

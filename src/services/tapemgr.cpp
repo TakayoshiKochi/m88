@@ -209,7 +209,7 @@ void TapeManager::Proceed(bool timer) {
 // ---------------------------------------------------------------------------
 //
 //
-void IOCALL TapeManager::Timer(uint32_t) {
+void TapeManager::Timer(uint32_t) {
   tick_ += timer_count_;
   g_status_display->Show(50, 0, "tape: %d", tick_);
 
@@ -314,11 +314,11 @@ bool TapeManager::Seek(uint32_t newpos, uint32_t off) {
 
 // ---------------------------------------------------------------------------
 
-void IOCALL TapeManager::Out30(uint32_t, uint32_t d) {
+void TapeManager::Out30(uint32_t, uint32_t d) {
   Motor(!!(d & 8));
 }
 
-uint32_t IOCALL TapeManager::In40(uint32_t) {
+uint32_t TapeManager::In40(uint32_t) {
   return IOBus::Active(Carrier() ? 4 : 0, 4);
 }
 

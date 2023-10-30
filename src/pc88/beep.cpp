@@ -96,7 +96,7 @@ void Beep::Mix(int32_t* dest, int nsamples) {
 // ---------------------------------------------------------------------------
 //  BEEP Port への Out
 //
-void IOCALL Beep::Out40(uint32_t, uint32_t data) {
+void Beep::Out40(uint32_t, uint32_t data) {
   data &= p40mask_;
   int i = data ^ port40_;
   if (i & 0xa0) {

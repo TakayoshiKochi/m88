@@ -189,7 +189,7 @@ bool ExternalDevice::S_DelEvent(void* h, void* ev) {
 // ---------------------------------------------------------------------------
 //  Timer Event
 //
-void IOCALL ExternalDevice::EventProc(uint32_t arg) {
+void ExternalDevice::EventProc(uint32_t arg) {
   (*devinfo.eventproc)(dev, arg);
 }
 
@@ -212,14 +212,14 @@ void ExternalDevice::S_SoundUpdate(void* h) {
 // ---------------------------------------------------------------------------
 //  Out
 //
-void IOCALL ExternalDevice::Out(uint32_t port, uint32_t data) {
+void ExternalDevice::Out(uint32_t port, uint32_t data) {
   (*devinfo.outport)(dev, port, data);
 }
 
 // ---------------------------------------------------------------------------
 //  In
 //
-uint32_t IOCALL ExternalDevice::In(uint32_t port) {
+uint32_t ExternalDevice::In(uint32_t port) {
   return (*devinfo.inport)(dev, port);
 }
 

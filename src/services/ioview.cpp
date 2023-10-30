@@ -56,14 +56,14 @@ void IOViewer::Dim() {
 //  Out
 //  出力データを記録
 //
-void IOCALL IOViewer::Out(uint32_t a, uint32_t d) {
+void IOViewer::Out(uint32_t a, uint32_t d) {
   buf[a] = d & 0xff;
 }
 
 // ---------------------------------------------------------------------------
 //  device description
 //
-const Device::Descriptor IOViewer::descriptor = {0, outdef};
+const Device::Descriptor IOViewer::descriptor = {nullptr, outdef};
 
 const Device::OutFuncPtr IOViewer::outdef[] = {static_cast<Device::OutFuncPtr>(&Out)};
 }  // namespace services

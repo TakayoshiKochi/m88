@@ -44,7 +44,7 @@ void Base::SetSwitch(const Config* cfg) {
 // ---------------------------------------------------------------------------
 //  りせっと
 //
-void IOCALL Base::Reset(uint32_t, uint32_t) {
+void Base::Reset(uint32_t, uint32_t) {
   port40_ = 0xc0 + (fv15k_ ? 2 : 0) + ((dipsw_ & (1 << 11)) || !autoboot_ ? 8 : 0);
   sw6e_ = (sw6e_ & 0x7f) | ((!clock_ || abs(clock_) >= 60) ? 0 : 0x80);
   auto basic_mode = static_cast<uint32_t>(basic_mode_);

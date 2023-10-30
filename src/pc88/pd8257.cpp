@@ -61,7 +61,7 @@ bool PD8257::ConnectWr(uint8_t* mem, uint32_t addr, uint32_t length) {
 // ---------------------------------------------------------------------------
 //  Reset
 //
-void IOCALL PD8257::Reset(uint32_t, uint32_t) {
+void PD8257::Reset(uint32_t, uint32_t) {
   stat_.autoinit = false;
   stat_.ff = false;
   stat_.enabled = 0;
@@ -77,7 +77,7 @@ void IOCALL PD8257::Reset(uint32_t, uint32_t) {
 // ---------------------------------------------------------------------------
 //  アドレスレジスタをセット
 //
-void IOCALL PD8257::SetAddr(uint32_t d, uint32_t p) {
+void PD8257::SetAddr(uint32_t d, uint32_t p) {
   int bank = (d / 2) & 3;
   if (!stat_.ff)
     stat_.ptr[bank] = (stat_.ptr[bank] & 0xff00) | p;
@@ -93,7 +93,7 @@ void IOCALL PD8257::SetAddr(uint32_t d, uint32_t p) {
 // ---------------------------------------------------------------------------
 //  カウンタレジスタをセット
 //
-void IOCALL PD8257::SetCount(uint32_t d, uint32_t p) {
+void PD8257::SetCount(uint32_t d, uint32_t p) {
   int bank = (d / 2) & 3;
   if (!stat_.ff)
     stat_.count[bank] = (stat_.count[bank] & 0xff00) | p;
@@ -110,7 +110,7 @@ void IOCALL PD8257::SetCount(uint32_t d, uint32_t p) {
 // ---------------------------------------------------------------------------
 //  モードレジスタをセット
 //
-void IOCALL PD8257::SetMode(uint32_t, uint32_t d) {
+void PD8257::SetMode(uint32_t, uint32_t d) {
   Log("Mode: %.2x\n", d);
   stat_.autoinit = (d & 0x80) != 0;
 
@@ -129,7 +129,7 @@ void IOCALL PD8257::SetMode(uint32_t, uint32_t d) {
 // ---------------------------------------------------------------------------
 //  アドレスレジスタを読み込む
 //
-uint32_t IOCALL PD8257::GetAddr(uint32_t p) {
+uint32_t PD8257::GetAddr(uint32_t p) {
   int bank = (p / 2) & 3;
   stat_.ff = !stat_.ff;
   if (stat_.ff)
@@ -141,7 +141,7 @@ uint32_t IOCALL PD8257::GetAddr(uint32_t p) {
 // ---------------------------------------------------------------------------
 //  カウンタレジスタを読み込む
 //
-uint32_t IOCALL PD8257::GetCount(uint32_t p) {
+uint32_t PD8257::GetCount(uint32_t p) {
   int bank = (p / 2) & 3;
   stat_.ff = !stat_.ff;
   if (stat_.ff)
@@ -153,7 +153,7 @@ uint32_t IOCALL PD8257::GetCount(uint32_t p) {
 // ---------------------------------------------------------------------------
 //  ステータスを取得
 //
-inline uint32_t IOCALL PD8257::GetStatus(uint32_t) {
+inline uint32_t PD8257::GetStatus(uint32_t) {
   //  stat.ff = false;
   return stat_.status;
 }
