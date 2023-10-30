@@ -11,7 +11,7 @@ bool ConfigCDIF::Init(HINSTANCE hinst) {
   return true;
 }
 
-bool IFCALL ConfigCDIF::Setup(IConfigPropBase* _base, PROPSHEETPAGE* psp) {
+bool ConfigCDIF::Setup(IConfigPropBase* _base, PROPSHEETPAGE* psp) {
   base_ = _base;
 
   memset(psp, 0, sizeof(PROPSHEETPAGE));

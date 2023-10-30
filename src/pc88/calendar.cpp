@@ -35,7 +35,7 @@ Calendar::~Calendar() {}
 // ---------------------------------------------------------------------------
 //  入・出力
 //
-void IOCALL Calendar::Reset(uint32_t, uint32_t) {
+void Calendar::Reset(uint32_t, uint32_t) {
   datain_ = 0;
   dataout_mode_ = 0;
   strobe_ = 0;
@@ -46,7 +46,7 @@ void IOCALL Calendar::Reset(uint32_t, uint32_t) {
 }
 
 // Bit4 : CDI
-uint32_t IOCALL Calendar::In40(uint32_t) {
+uint32_t Calendar::In40(uint32_t) {
   if (dataout_mode_)
     return IOBus::Active((reg_[0] & 1) << 4, 0x10);
   else {
@@ -59,14 +59,14 @@ uint32_t IOCALL Calendar::In40(uint32_t) {
 
 // Bit3   : CD0
 // Bit0~2 : C0-C2
-void IOCALL Calendar::Out10(uint32_t, uint32_t data) {
+void Calendar::Out10(uint32_t, uint32_t data) {
   pcmd_ = data & 7;
   datain_ = (data >> 3) & 1;
 }
 
 // Bit2 : CCLK (0:off / 1:on)
 // Bit1 : CSTB (0:on / 1:off)
-void IOCALL Calendar::Out40(uint32_t, uint32_t data) {
+void Calendar::Out40(uint32_t, uint32_t data) {
   uint32_t modified;
   modified = strobe_ ^ data;
   strobe_ = data;
@@ -206,11 +206,11 @@ void Calendar::SetTime() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL Calendar::GetStatusSize() {
+uint32_t Calendar::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL Calendar::SaveStatus(uint8_t* s) {
+bool Calendar::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
   st->t = time(&st->t) + diff_;
@@ -225,7 +225,7 @@ bool IFCALL Calendar::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL Calendar::LoadStatus(const uint8_t* s) {
+bool Calendar::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

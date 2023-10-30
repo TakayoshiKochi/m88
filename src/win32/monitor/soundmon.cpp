@@ -87,7 +87,7 @@ void OPNMonitor::DrawMain(HDC hdc, bool) {
     WinMonitor::DrawMain(hdc, true);
 }
 
-void IFCALL OPNMonitor::Mix(int32_t* s, int length) {
+void OPNMonitor::Mix(int32_t* s, int length) {
   int c = buf[write][0];
 
   if (c + length >= width) {

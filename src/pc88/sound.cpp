@@ -187,7 +187,7 @@ bool Sound::Update(ISoundSource* /*src*/) {
 // ---------------------------------------------------------------------------
 //  今まで合成された時間の，1サンプル未満の端数(0-1999)を求める
 //
-int IFCALL Sound::GetSubsampleTime(ISoundSource* /*src*/) {
+int Sound::GetSubsampleTime(ISoundSource* /*src*/) {
   return clock_remainder_;
 }
 

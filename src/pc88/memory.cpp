@@ -189,7 +189,7 @@ const Memory::WaitDesc Memory::waittable[48] = {
 //  1  0    N80
 //  x  1    RAM
 //
-void IOCALL Memory::Out31(uint32_t, uint32_t data) {
+void Memory::Out31(uint32_t, uint32_t data) {
   if (!n80mode) {
     if ((data ^ port31) & 6) {
       port31 = data & 6;
@@ -212,7 +212,7 @@ void IOCALL Memory::Out31(uint32_t, uint32_t data) {
 //  b4      RAM/~TVRAM (V1S 無効)
 //  b1 b0   N88 EROM bank select
 //
-void IOCALL Memory::Out32(uint32_t, uint32_t data) {
+void Memory::Out32(uint32_t, uint32_t data) {
   if (n80mode)
     return;
   uint32_t mod = data ^ port32;
@@ -230,7 +230,7 @@ void IOCALL Memory::Out32(uint32_t, uint32_t data) {
 //  b7      0...N/N80mode   1...N80V2mode
 //  b6      ALU Enable (port5x=RAM)
 //
-void IOCALL Memory::Out33(uint32_t, uint32_t data) {
+void Memory::Out33(uint32_t, uint32_t data) {
   if (!n80mode)
     return;
   uint32_t mod = data ^ port33;
@@ -244,7 +244,7 @@ void IOCALL Memory::Out33(uint32_t, uint32_t data) {
 // ----------------------------------------------------------------------------
 //  Port34  ALU Operation
 //
-void IOCALL Memory::Out34(uint32_t, uint32_t data) {
+void Memory::Out34(uint32_t, uint32_t data) {
   if (n80mode && !n80srmode)
     return;
 
@@ -282,7 +282,7 @@ void IOCALL Memory::Out34(uint32_t, uint32_t data) {
 //  b5-b4   ALU Write Control
 //  b2-b0   ALU Read MUX
 //
-void IOCALL Memory::Out35(uint32_t, uint32_t data) {
+void Memory::Out35(uint32_t, uint32_t data) {
   if (n80mode && !n80srmode)
     return;
 
@@ -309,7 +309,7 @@ void IOCALL Memory::Out35(uint32_t, uint32_t data) {
 //  port5e  GVRAM2
 //  port5f  RAM
 //
-void IOCALL Memory::Out5x(uint32_t bank, uint32_t) {
+void Memory::Out5x(uint32_t bank, uint32_t) {
   bank &= 3;
   if (n80mode) {
     if (!n80srmode) {
@@ -328,7 +328,7 @@ void IOCALL Memory::Out5x(uint32_t bank, uint32_t) {
 // ----------------------------------------------------------------------------
 //  Port70  TextWindow (N88 時有効)
 //
-void IOCALL Memory::Out70(uint32_t, uint32_t data) {
+void Memory::Out70(uint32_t, uint32_t data) {
   // 80SR では port70 が hold されないってことかな？
   if (n80mode)
     return;
@@ -343,7 +343,7 @@ void IOCALL Memory::Out70(uint32_t, uint32_t data) {
 //  Port71
 //  b0      N88ROM/~EROM
 //
-void IOCALL Memory::Out71(uint32_t, uint32_t data) {
+void Memory::Out71(uint32_t, uint32_t data) {
   port71 = (data | erom_mask_) & 0xff;
   if (!n80mode) {
     if ((port31 & 6) == 0) {
@@ -358,7 +358,7 @@ void IOCALL Memory::Out71(uint32_t, uint32_t data) {
 // ----------------------------------------------------------------------------
 //  Port78  ++Port70
 //
-void IOCALL Memory::Out78(uint32_t, uint32_t) {
+void Memory::Out78(uint32_t, uint32_t) {
   txtwnd = (txtwnd + 0x100) & 0xff00;
   if ((port31 & 6) == 0) {
     Update80();
@@ -370,7 +370,7 @@ void IOCALL Memory::Out78(uint32_t, uint32_t) {
 //  b4      CD-BIOS/other
 //  b0      CD-EROM
 //
-void IOCALL Memory::Out99(uint32_t, uint32_t data) {
+void Memory::Out99(uint32_t, uint32_t data) {
   if (cdbios_ && !n80mode) {
     port99 = data & 0x11;
     Update00R();
@@ -385,7 +385,7 @@ void IOCALL Memory::Out99(uint32_t, uint32_t data) {
 //  b4      erom write enable (pe4 < ERAM Pages)
 //  b0      erom read enable
 //
-void IOCALL Memory::Oute2(uint32_t, uint32_t data) {
+void Memory::Oute2(uint32_t, uint32_t data) {
   porte2 = data;
   if (!n80mode) {
     Update00R();
@@ -400,7 +400,7 @@ void IOCALL Memory::Oute2(uint32_t, uint32_t data) {
 // ----------------------------------------------------------------------------
 //  Porte4  erom page select
 //
-void IOCALL Memory::Oute3(uint32_t, uint32_t data) {
+void Memory::Oute3(uint32_t, uint32_t data) {
   porte3 = data;
   if (!n80mode) {
     Update00R();
@@ -415,7 +415,7 @@ void IOCALL Memory::Oute3(uint32_t, uint32_t data) {
 // ----------------------------------------------------------------------------
 //  Port F0 辞書ROMバンク選択
 //
-void IOCALL Memory::Outf0(uint32_t, uint32_t data) {
+void Memory::Outf0(uint32_t, uint32_t data) {
   portf0 = data;
   if (dicrom_ && !n80mode) {
     UpdateC0();
@@ -426,7 +426,7 @@ void IOCALL Memory::Outf0(uint32_t, uint32_t data) {
 // ----------------------------------------------------------------------------
 //  Port F0 辞書ROMバンク選択
 //
-void IOCALL Memory::Outf1(uint32_t, uint32_t data) {
+void Memory::Outf1(uint32_t, uint32_t data) {
   if (dicrom_ && !n80mode) {
     seldic = !(data & 1);
     UpdateC0();
@@ -437,32 +437,32 @@ void IOCALL Memory::Outf1(uint32_t, uint32_t data) {
 // ----------------------------------------------------------------------------
 //  In xx
 //
-uint32_t IOCALL Memory::In32(uint32_t) {
+uint32_t Memory::In32(uint32_t) {
   return port32;
 }
 
-uint32_t IOCALL Memory::In33(uint32_t) {
+uint32_t Memory::In33(uint32_t) {
   return n80mode ? port33 : 0xff;
 }
 
-uint32_t IOCALL Memory::In5c(uint32_t) {
+uint32_t Memory::In5c(uint32_t) {
   static const uint32_t res[4] = {0xf9, 0xfa, 0xfc, 0xf8};
   return res[port5x & 3];
 }
 
-uint32_t IOCALL Memory::In70(uint32_t) {
+uint32_t Memory::In70(uint32_t) {
   return txtwnd >> 8;
 }
 
-uint32_t IOCALL Memory::In71(uint32_t) {
+uint32_t Memory::In71(uint32_t) {
   return port71;
 }
 
-uint32_t IOCALL Memory::Ine2(uint32_t) {
+uint32_t Memory::Ine2(uint32_t) {
   return (~porte2) | 0xee;
 }
 
-uint32_t IOCALL Memory::Ine3(uint32_t) {
+uint32_t Memory::Ine3(uint32_t) {
   return porte3;
 }
 
@@ -988,7 +988,7 @@ void Memory::VRTC(uint32_t, uint32_t d) {
 // ----------------------------------------------------------------------------
 //  Out40
 //
-void IOCALL Memory::Out40(uint32_t, uint32_t data) {
+void Memory::Out40(uint32_t, uint32_t data) {
   data &= 0x10;
   if (data ^ port40) {
     port40 = data;
@@ -1025,11 +1025,11 @@ inline void Memory::SetWaits(uint32_t a, uint32_t s, uint32_t v) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL Memory::GetStatusSize() {
+uint32_t Memory::GetStatusSize() {
   return sizeof(Status) + erambanks * 0x8000 - 1;
 }
 
-bool IFCALL Memory::SaveStatus(uint8_t* s) {
+bool Memory::SaveStatus(uint8_t* s) {
   Status* status = (Status*)s;
   status->rev = ssrev;
   status->p31 = uint8_t(port31);
@@ -1055,7 +1055,7 @@ bool IFCALL Memory::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL Memory::LoadStatus(const uint8_t* s) {
+bool Memory::LoadStatus(const uint8_t* s) {
   const Status* status = (const Status*)s;
   if (status->rev != ssrev)
     return false;
@@ -1137,7 +1137,7 @@ inline uint32_t Memory::GetHiBank(uint32_t addr) {
   return mRAM;
 }
 
-uint32_t IFCALL Memory::GetRdBank(uint32_t addr) {
+uint32_t Memory::GetRdBank(uint32_t addr) {
   if (addr < 0x8000) {
     if ((porte2 & 0x01) && (porte3 < erambanks))
       return mERAM + porte3;
@@ -1172,7 +1172,7 @@ uint32_t IFCALL Memory::GetRdBank(uint32_t addr) {
   return GetHiBank(addr);
 }
 
-uint32_t IFCALL Memory::GetWrBank(uint32_t addr) {
+uint32_t Memory::GetWrBank(uint32_t addr) {
   if (addr < 0x8000) {
     if ((porte2 & 0x10) && (porte3 < erambanks))
       return mERAM + porte3;

@@ -108,22 +108,22 @@ bool CRTC::Init(IOBus* bus, Scheduler* sched, PD8257* dmac) {
 // ---------------------------------------------------------------------------
 //  IO
 //
-void IOCALL CRTC::Out(uint32_t port, uint32_t data) {
+void CRTC::Out(uint32_t port, uint32_t data) {
   Command((port & 1) != 0, data);
 }
 
-uint32_t IOCALL CRTC::In(uint32_t) {
+uint32_t CRTC::In(uint32_t) {
   return Command(false, 0);
 }
 
-uint32_t IOCALL CRTC::GetStatus(uint32_t) {
+uint32_t CRTC::GetStatus(uint32_t) {
   return status_;
 }
 
 // ---------------------------------------------------------------------------
 //  Reset
 //
-void IOCALL CRTC::Reset(uint32_t, uint32_t) {
+void CRTC::Reset(uint32_t, uint32_t) {
   line200_ = (bus_->In(0x40) & 2) != 0;
   memcpy(pcgram_.get(), fontrom_ + 0x400, 0x400);
   kana_mode_ = 0;
@@ -431,7 +431,7 @@ void CRTC::CreateGFont() {
 // ---------------------------------------------------------------------------
 //  画面表示開始のタイミング処理
 //
-void IOCALL CRTC::StartDisplay(uint32_t) {
+void CRTC::StartDisplay(uint32_t) {
   sev_ = nullptr;
   row_ = 0;
   ResetFlag(kSuppressDisplay);
@@ -445,7 +445,7 @@ void IOCALL CRTC::StartDisplay(uint32_t) {
 // ---------------------------------------------------------------------------
 //  １行分取得
 //
-void IOCALL CRTC::ExpandLine(uint32_t) {
+void CRTC::ExpandLine(uint32_t) {
   int e = ExpandLineSub();
   if (e) {
     event_ = e + 1;
@@ -516,7 +516,7 @@ int CRTC::ExpandLineSub() {
   return 0;
 }
 
-inline void IOCALL CRTC::ExpandLineEnd(uint32_t) {
+inline void CRTC::ExpandLineEnd(uint32_t) {
   //  Log("Vertical Retrace\n");
   bus_->Out(PC88::kVrtc, 1);
   event_ = -1;
@@ -973,7 +973,7 @@ void CRTC::PutLineReversedW(packed* dest, uint8_t attr) {
 // ---------------------------------------------------------------------------
 //  OUT
 //
-void IOCALL CRTC::PCGOut(uint32_t p, uint32_t d) {
+void CRTC::PCGOut(uint32_t p, uint32_t d) {
   switch (p) {
     case 0:
       pcg_dat_ = d;
@@ -1013,7 +1013,7 @@ void CRTC::EnablePCG(bool enable) {
 //  OUT 33H (80SR)
 //  bit4 = ひらがな(1)・カタカナ(0)選択
 //
-void IOCALL CRTC::SetKanaMode(uint32_t, uint32_t data) {
+void CRTC::SetKanaMode(uint32_t, uint32_t data) {
   if (kana_enable_) {
     // ROMに3つフォントが用意されているが1以外は切り替わらない。
     data &= 0x10;
@@ -1037,7 +1037,7 @@ void CRTC::ApplyConfig(const Config* cfg) {
 //  状態保存
 //
 
-bool IFCALL CRTC::SaveStatus(uint8_t* s) {
+bool CRTC::SaveStatus(uint8_t* s) {
   Log("*** Save Status\n");
   auto* st = reinterpret_cast<Status*>(s);
 
@@ -1060,7 +1060,7 @@ bool IFCALL CRTC::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL CRTC::LoadStatus(const uint8_t* s) {
+bool CRTC::LoadStatus(const uint8_t* s) {
   Log("*** Load Status\n");
   const Status* st = (const Status*)s;
   if (st->rev < 1 || ssrev < st->rev)

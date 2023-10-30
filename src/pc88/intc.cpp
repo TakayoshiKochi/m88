@@ -37,7 +37,7 @@ inline void INTC::IRQ(bool flag) {
 // ---------------------------------------------------------------------------
 //  Reset
 //
-void IOCALL INTC::Reset(uint32_t, uint32_t) {
+void INTC::Reset(uint32_t, uint32_t) {
   stat_.irq = 0;
   stat_.mask = 0;
   stat_.mask2 = 0;
@@ -47,7 +47,7 @@ void IOCALL INTC::Reset(uint32_t, uint32_t) {
 // ---------------------------------------------------------------------------
 //  割り込み要請
 //
-void IOCALL INTC::Request(uint32_t port, uint32_t en) {
+void INTC::Request(uint32_t port, uint32_t en) {
   uint32_t bit = 1 << (port - i_port_base_);
   if (en) {
     bit &= stat_.mask2;
@@ -71,7 +71,7 @@ void IOCALL INTC::Request(uint32_t port, uint32_t en) {
 // ---------------------------------------------------------------------------
 //  CPU が割り込みを受け取った
 //
-uint32_t IOCALL INTC::IntAck(uint32_t) {
+uint32_t INTC::IntAck(uint32_t) {
   uint32_t ai = stat_.irq & stat_.mask & stat_.mask2;
   for (int i = 0; i < 8; i++, ai >>= 1) {
     if (ai & 1) {
@@ -89,7 +89,7 @@ uint32_t IOCALL INTC::IntAck(uint32_t) {
 // ---------------------------------------------------------------------------
 //  マスク設定(porte6)
 //
-void IOCALL INTC::SetMask(uint32_t, uint32_t data) {
+void INTC::SetMask(uint32_t, uint32_t data) {
   static const int8_t table[8] = {~7, ~3, ~5, ~1, ~6, ~2, ~4, ~0};
   stat_.mask2 = table[data & 7];
   stat_.irq &= stat_.mask2;
@@ -100,7 +100,7 @@ void IOCALL INTC::SetMask(uint32_t, uint32_t data) {
 // ---------------------------------------------------------------------------
 //  レジスタ設定(porte4)
 //
-void IOCALL INTC::SetRegister(uint32_t, uint32_t data) {
+void INTC::SetRegister(uint32_t, uint32_t data) {
   stat_.mask = ~(-1 << std::min(8U, data));
   //  mode = (data & 7) != 0;
   Log("p[e4] = %.2x  : ", data);
@@ -110,16 +110,16 @@ void IOCALL INTC::SetRegister(uint32_t, uint32_t data) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL INTC::GetStatusSize() {
+uint32_t INTC::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL INTC::SaveStatus(uint8_t* s) {
+bool INTC::SaveStatus(uint8_t* s) {
   *(Status*)s = stat_;
   return true;
 }
 
-bool IFCALL INTC::LoadStatus(const uint8_t* s) {
+bool INTC::LoadStatus(const uint8_t* s) {
   stat_ = *(const Status*)s;
   return true;
 }

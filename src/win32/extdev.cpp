@@ -189,7 +189,7 @@ bool ExternalDevice::S_DelEvent(void* h, void* ev) {
 // ---------------------------------------------------------------------------
 //  Timer Event
 //
-void IOCALL ExternalDevice::EventProc(uint32_t arg) {
+void ExternalDevice::EventProc(uint32_t arg) {
   (*devinfo.eventproc)(dev, arg);
 }
 
@@ -212,21 +212,21 @@ void ExternalDevice::S_SoundUpdate(void* h) {
 // ---------------------------------------------------------------------------
 //  Out
 //
-void IOCALL ExternalDevice::Out(uint32_t port, uint32_t data) {
+void ExternalDevice::Out(uint32_t port, uint32_t data) {
   (*devinfo.outport)(dev, port, data);
 }
 
 // ---------------------------------------------------------------------------
 //  In
 //
-uint32_t IOCALL ExternalDevice::In(uint32_t port) {
+uint32_t ExternalDevice::In(uint32_t port) {
   return (*devinfo.inport)(dev, port);
 }
 
 // ---------------------------------------------------------------------------
 //  SetRate
 //
-bool IFCALL ExternalDevice::SetRate(uint32_t rate) {
+bool ExternalDevice::SetRate(uint32_t rate) {
   return (*devinfo.setrate)(dev, rate);
 }
 
@@ -243,19 +243,19 @@ void ExternalDevice::Mix(int32_t* s, int l) {
 
 // ---------------------------------------------------------------------------
 
-uint32_t IFCALL ExternalDevice::GetStatusSize() {
+uint32_t ExternalDevice::GetStatusSize() {
   if (devinfo.snapshot)
     return (*devinfo.snapshot)(dev, 0, 0);
   return 0;
 }
 
-bool IFCALL ExternalDevice::SaveStatus(uint8_t* s) {
+bool ExternalDevice::SaveStatus(uint8_t* s) {
   if (devinfo.snapshot)
     return (*devinfo.snapshot)(dev, s, true) != 0;
   return false;
 }
 
-bool IFCALL ExternalDevice::LoadStatus(const uint8_t* s) {
+bool ExternalDevice::LoadStatus(const uint8_t* s) {
   if (devinfo.snapshot)
     return (*devinfo.snapshot)(dev, const_cast<uint8_t*>(s), false) != 0;
   return false;

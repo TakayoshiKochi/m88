@@ -100,7 +100,7 @@ void SubSystem::PatchROM() {
 // ---------------------------------------------------------------------------
 //  Reset
 //
-void IOCALL SubSystem::Reset(uint32_t, uint32_t) {
+void SubSystem::Reset(uint32_t, uint32_t) {
   pio_main_.Reset();
   pio_sub_.Reset();
   idle_count_ = 0;
@@ -109,31 +109,31 @@ void IOCALL SubSystem::Reset(uint32_t, uint32_t) {
 // ---------------------------------------------------------------------------
 //  割り込み受理
 //
-uint32_t IOCALL SubSystem::IntAck(uint32_t) {
+uint32_t SubSystem::IntAck(uint32_t) {
   return 0x00;
 }
 
 // ---------------------------------------------------------------------------
 //  Main 側 PIO
 //
-void IOCALL SubSystem::M_Set0(uint32_t, uint32_t data) {
+void SubSystem::M_Set0(uint32_t, uint32_t data) {
   idle_count_ = 0;
   Log(".%.2x ", data);
   pio_main_.SetData(0, data);
 }
 
-void IOCALL SubSystem::M_Set1(uint32_t, uint32_t data) {
+void SubSystem::M_Set1(uint32_t, uint32_t data) {
   idle_count_ = 0;
   Log(" %.2x ", data);
   pio_main_.SetData(1, data);
 }
 
-void IOCALL SubSystem::M_Set2(uint32_t, uint32_t data) {
+void SubSystem::M_Set2(uint32_t, uint32_t data) {
   idle_count_ = 0;
   pio_main_.SetData(2, data);
 }
 
-void IOCALL SubSystem::M_SetCW(uint32_t, uint32_t data) {
+void SubSystem::M_SetCW(uint32_t, uint32_t data) {
   idle_count_ = 0;
   if (data == 0x0f)
     Log("\ncmd: ");
@@ -142,21 +142,21 @@ void IOCALL SubSystem::M_SetCW(uint32_t, uint32_t data) {
   pio_main_.SetCW(data);
 }
 
-uint32_t IOCALL SubSystem::M_Read0(uint32_t) {
+uint32_t SubSystem::M_Read0(uint32_t) {
   idle_count_ = 0;
   uint32_t d = pio_main_.Read0();
   Log(">%.2x ", d);
   return d;
 }
 
-uint32_t IOCALL SubSystem::M_Read1(uint32_t) {
+uint32_t SubSystem::M_Read1(uint32_t) {
   idle_count_ = 0;
   uint32_t d = pio_main_.Read1();
   Log(")%.2x ", d);
   return d;
 }
 
-uint32_t IOCALL SubSystem::M_Read2(uint32_t) {
+uint32_t SubSystem::M_Read2(uint32_t) {
   g_status_display->WaitSubSys();
   idle_count_ = 0;
   return pio_main_.Read2();
@@ -165,46 +165,46 @@ uint32_t IOCALL SubSystem::M_Read2(uint32_t) {
 // ---------------------------------------------------------------------------
 //  Sub 側 PIO
 //
-void IOCALL SubSystem::S_Set0(uint32_t, uint32_t data) {
+void SubSystem::S_Set0(uint32_t, uint32_t data) {
   idle_count_ = 0;
   //  Log("<a %.2x> ", data);
   pio_sub_.SetData(0, data);
 }
 
-void IOCALL SubSystem::S_Set1(uint32_t, uint32_t data) {
+void SubSystem::S_Set1(uint32_t, uint32_t data) {
   idle_count_ = 0;
   //  Log("<b %.2x> ", data);
   pio_sub_.SetData(1, data);
 }
 
-void IOCALL SubSystem::S_Set2(uint32_t, uint32_t data) {
+void SubSystem::S_Set2(uint32_t, uint32_t data) {
   idle_count_ = 0;
   //  Log("<c %.2x> ", data);
   pio_sub_.SetData(2, data);
 }
 
-void IOCALL SubSystem::S_SetCW(uint32_t, uint32_t data) {
+void SubSystem::S_SetCW(uint32_t, uint32_t data) {
   idle_count_ = 0;
   if (data & 0x80)
     cw_sub_ = data;
   pio_sub_.SetCW(data);
 }
 
-uint32_t IOCALL SubSystem::S_Read0(uint32_t) {
+uint32_t SubSystem::S_Read0(uint32_t) {
   idle_count_ = 0;
   uint32_t d = pio_sub_.Read0();
   //  Log("(a %.2x) ", d);
   return d;
 }
 
-uint32_t IOCALL SubSystem::S_Read1(uint32_t) {
+uint32_t SubSystem::S_Read1(uint32_t) {
   idle_count_ = 0;
   uint32_t d = pio_sub_.Read1();
   //  Log("(b %.2x) ", d);
   return d;
 }
 
-uint32_t IOCALL SubSystem::S_Read2(uint32_t) {
+uint32_t SubSystem::S_Read2(uint32_t) {
   idle_count_++;
   uint32_t d = pio_sub_.Read2();
   //  Log("(c %.2x) ", d);
@@ -223,11 +223,11 @@ bool SubSystem::IsBusy() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL SubSystem::GetStatusSize() {
+uint32_t SubSystem::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL SubSystem::SaveStatus(uint8_t* s) {
+bool SubSystem::SaveStatus(uint8_t* s) {
   auto* st = (Status*)s;
   st->rev = ssrev;
   for (int i = 0; i < 3; i++) {
@@ -243,7 +243,7 @@ bool IFCALL SubSystem::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL SubSystem::LoadStatus(const uint8_t* s) {
+bool SubSystem::LoadStatus(const uint8_t* s) {
   const auto* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

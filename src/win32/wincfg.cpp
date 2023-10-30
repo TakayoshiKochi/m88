@@ -141,12 +141,12 @@ int CALLBACK WinConfig::PropProcGate(HWND hwnd, UINT m, LPARAM l) {
 
 // ---------------------------------------------------------------------------
 
-bool IFCALL WinConfig::Add(IConfigPropSheet* sheet) {
+bool WinConfig::Add(IConfigPropSheet* sheet) {
   prop_sheets_.push_back(sheet);
   return true;
 }
 
-bool IFCALL WinConfig::Remove(IConfigPropSheet* sheet) {
+bool WinConfig::Remove(IConfigPropSheet* sheet) {
   auto i = find(prop_sheets_.begin(), prop_sheets_.end(), sheet);
   if (i != prop_sheets_.end()) {
     prop_sheets_.erase(i);
@@ -155,7 +155,7 @@ bool IFCALL WinConfig::Remove(IConfigPropSheet* sheet) {
   return false;
 }
 
-bool IFCALL WinConfig::PageSelected(IConfigPropSheet* sheet) {
+bool WinConfig::PageSelected(IConfigPropSheet* sheet) {
   auto i = find(prop_sheets_.begin(), prop_sheets_.end(), sheet);
   if (i == prop_sheets_.end()) {
     page_ = 0;
@@ -165,18 +165,18 @@ bool IFCALL WinConfig::PageSelected(IConfigPropSheet* sheet) {
   return true;
 }
 
-bool IFCALL WinConfig::PageChanged(HWND hdlg) {
+bool WinConfig::PageChanged(HWND hdlg) {
   if (hwndps_)
     PropSheet_Changed(hwndps_, hdlg);
   return true;
 }
 
-bool IFCALL WinConfig::Apply() {
+bool WinConfig::Apply() {
   orgconfig_ = config_;
   PostMessage(hwndparent_, WM_M88_APPLYCONFIG, (WPARAM)&config_, 0);
   return true;
 }
 
-void IFCALL WinConfig::_ChangeVolume(bool current) {
+void WinConfig::_ChangeVolume(bool current) {
   PostMessage(hwndparent_, WM_M88_CHANGEVOLUME, (WPARAM)(current ? &config_ : &orgconfig_), 0);
 }

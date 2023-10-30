@@ -13,6 +13,8 @@
 
 #include <stdint.h>
 
+// See https://learn.microsoft.com/en-us/cpp/cpp/stdcall?view=msvc-170 for __stdcall
+// __stdcall specifier needs to be in declaration, but not in definition.
 #ifndef IFCALL
 #define IFCALL __stdcall
 #endif

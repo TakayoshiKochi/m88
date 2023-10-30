@@ -77,7 +77,7 @@ void FDC::ApplyConfig(const Config* cfg) {
 //          0: 48TPI (2D)
 //          1: 96TPI (2DD/2HD)
 //
-void IOCALL FDC::DriveControl(uint32_t, uint32_t x) {
+void FDC::DriveControl(uint32_t, uint32_t x) {
   int hdprev;
   Log("Drive control (%.2x) ", x);
 
@@ -108,7 +108,7 @@ inline void FDC::Intr(bool i) {
 // ---------------------------------------------------------------------------
 //  Reset
 //
-void IOCALL FDC::Reset(uint32_t, uint32_t) {
+void FDC::Reset(uint32_t, uint32_t) {
   Log("Reset\n");
   ShiftToIdlePhase();
   int_requested_ = false;
@@ -134,7 +134,7 @@ void IOCALL FDC::Reset(uint32_t, uint32_t) {
 //  DIO = 0 なら CPU->FDC (Put)  1 なら FDC->CPU (Get)
 //  RQM = データの送信・受信の用意ができた
 //
-uint32_t IOCALL FDC::Status(uint32_t) {
+uint32_t FDC::Status(uint32_t) {
   return seek_state_ | status_;
 }
 
@@ -142,7 +142,7 @@ uint32_t IOCALL FDC::Status(uint32_t) {
 //  FDC::SetData
 //  CPU から FDC にデータを送る
 //
-void IOCALL FDC::SetData(uint32_t, uint32_t d) {
+void FDC::SetData(uint32_t, uint32_t d) {
   // 受け取れる状況かチェック
   if ((status_ & (S_RQM | S_DIO)) == S_RQM) {
     data_ = d;
@@ -207,7 +207,7 @@ void IOCALL FDC::SetData(uint32_t, uint32_t d) {
 //  FDC::GetData
 //  FDC -> CPU
 //
-uint32_t IOCALL FDC::GetData(uint32_t) {
+uint32_t FDC::GetData(uint32_t) {
   if ((status_ & (S_RQM | S_DIO)) == (S_RQM | S_DIO)) {
     Intr(false);
     status_ &= ~S_RQM;
@@ -249,7 +249,7 @@ uint32_t IOCALL FDC::GetData(uint32_t) {
 // ---------------------------------------------------------------------------
 //  TC (転送終了)
 //
-uint32_t IOCALL FDC::TC(uint32_t) {
+uint32_t FDC::TC(uint32_t) {
   if (accept_tc_) {
     Log(" <TC>");
     prev_phase_ = phase_;
@@ -418,7 +418,7 @@ void FDC::DelTimer() {
   timer_handle_ = nullptr;
 }
 
-void IOCALL FDC::PhaseTimer(uint32_t p) {
+void FDC::PhaseTimer(uint32_t p) {
   timer_handle_ = nullptr;
   phase_ = Phase(p);
   (this->*CommandTable[command_ & 31])();
@@ -674,7 +674,7 @@ void FDC::Seek(uint32_t dr, uint32_t cy) {
   }
 }
 
-void IOCALL FDC::SeekEvent(uint32_t dr) {
+void FDC::SeekEvent(uint32_t dr) {
   Log("\tSeek (%d) ", dr);
   std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
 
@@ -1157,11 +1157,11 @@ void FDC::GetSectorParameters() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL FDC::GetStatusSize() {
+uint32_t FDC::GetStatusSize() {
   return sizeof(Snapshot);
 }
 
-bool IFCALL FDC::SaveStatus(uint8_t* s) {
+bool FDC::SaveStatus(uint8_t* s) {
   auto* st = (Snapshot*)s;
 
   st->rev = ssrev;
@@ -1195,7 +1195,7 @@ bool IFCALL FDC::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL FDC::LoadStatus(const uint8_t* s) {
+bool FDC::LoadStatus(const uint8_t* s) {
   const auto* st = (const Snapshot*)s;
   if (st->rev != ssrev)
     return false;

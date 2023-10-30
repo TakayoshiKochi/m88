@@ -23,8 +23,11 @@ bool Scheduler::Init() {
 // ---------------------------------------------------------------------------
 //  時間イベントを追加
 //
-Scheduler::Event* IFCALL
-Scheduler::AddEvent(int count, IDevice* inst, IDevice::TimeFunc func, int arg, bool repeat) {
+Scheduler::Event* Scheduler::AddEvent(int count,
+                                      IDevice* inst,
+                                      IDevice::TimeFunc func,
+                                      int arg,
+                                      bool repeat) {
   assert(inst && func);
   assert(count > 0);
   return AddEventNS(count * kNanoSecsPerTick, inst, func, arg, repeat);
@@ -57,12 +60,12 @@ Scheduler::Event* Scheduler::AddEventNS(int64_t ns,
 // ---------------------------------------------------------------------------
 //  時間イベントの属性変更
 //
-void IFCALL Scheduler::SetEvent(Event* ev,
-                                int count,
-                                IDevice* inst,
-                                IDevice::TimeFunc func,
-                                int arg,
-                                bool repeat) {
+void Scheduler::SetEvent(Event* ev,
+                         int count,
+                         IDevice* inst,
+                         IDevice::TimeFunc func,
+                         int arg,
+                         bool repeat) {
   assert(inst && func);
   assert(count > 0);
   SetEventNS(ev, count * kNanoSecsPerTick, inst, func, arg, repeat);
@@ -98,7 +101,7 @@ void Scheduler::SetEventNS(Event* ev,
 // ---------------------------------------------------------------------------
 //  時間イベントを削除
 //
-bool IFCALL Scheduler::DelEvent(IDevice* inst) {
+bool Scheduler::DelEvent(IDevice* inst) {
   Event* ev = &events[evlast_];
   for (int i = evlast_; i >= 0; --i, --ev) {
     if (ev->inst == inst) {
@@ -110,7 +113,7 @@ bool IFCALL Scheduler::DelEvent(IDevice* inst) {
   return true;
 }
 
-bool IFCALL Scheduler::DelEvent(Event* ev) {
+bool Scheduler::DelEvent(Event* ev) {
   if (ev) {
     ev->inst = nullptr;
     if (ev - events == evlast_)

@@ -130,8 +130,8 @@ void IOBus::Out(uint32_t port, uint32_t data) {
   }
 }
 
-uint32_t IOCALL IOBus::DummyIO::dummyin(uint32_t) {
+uint32_t IOBus::DummyIO::dummyin(uint32_t) {
   return IOBus::Active(0xff, 0xff);
 }
 
-void IOCALL IOBus::DummyIO::dummyout(uint32_t, uint32_t) {}
+void IOBus::DummyIO::dummyout(uint32_t, uint32_t) {}

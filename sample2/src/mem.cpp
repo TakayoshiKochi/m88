@@ -22,17 +22,17 @@ bool GVRAMReverse::Init(IMemoryManager* _mm) {
 // ---------------------------------------------------------------------------
 //  I/O ポートを監視
 
-void IFCALL GVRAMReverse::Out32(uint32_t, uint32_t r) {
+void GVRAMReverse::Out32(uint32_t, uint32_t r) {
   p32 = r;
   Update();
 }
 
-void IFCALL GVRAMReverse::Out35(uint32_t, uint32_t r) {
+void GVRAMReverse::Out35(uint32_t, uint32_t r) {
   p35 = r;
   Update();
 }
 
-void IFCALL GVRAMReverse::Out5x(uint32_t a, uint32_t) {
+void GVRAMReverse::Out5x(uint32_t a, uint32_t) {
   p5x = a & 3;
   Update();
 }

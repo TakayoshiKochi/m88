@@ -38,7 +38,7 @@ void SIO::Reset(uint32_t, uint32_t) {
 // ---------------------------------------------------------------------------
 //  こんとろーるぽーと
 //
-void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
+void SIO::SetControl(uint32_t, uint32_t d) {
   Log("[%.2x] ", d);
 
   switch (mode) {
@@ -114,14 +114,14 @@ void IOCALL SIO::SetControl(uint32_t, uint32_t d) {
 // ---------------------------------------------------------------------------
 //  でーたせっと
 //
-void IOCALL SIO::SetData(uint32_t, uint32_t d) {
+void SIO::SetData(uint32_t, uint32_t d) {
   Log("<%.2x ", d);
 }
 
 // ---------------------------------------------------------------------------
 //  じょうたいしゅとく
 //
-uint32_t IOCALL SIO::GetStatus(uint32_t) {
+uint32_t SIO::GetStatus(uint32_t) {
   //  Log("!%.2x ", status      );
   return status;
 }
@@ -129,7 +129,7 @@ uint32_t IOCALL SIO::GetStatus(uint32_t) {
 // ---------------------------------------------------------------------------
 //  でーたしゅとく
 //
-uint32_t IOCALL SIO::GetData(uint32_t) {
+uint32_t SIO::GetData(uint32_t) {
   Log(">%.2x ", data);
 
   int f = status & RXRDY;
@@ -141,7 +141,7 @@ uint32_t IOCALL SIO::GetData(uint32_t) {
   return data;
 }
 
-void IOCALL SIO::AcceptData(uint32_t, uint32_t d) {
+void SIO::AcceptData(uint32_t, uint32_t d) {
   Log("Accept: [%.2x]", d);
   if (rxen) {
     data = d;
@@ -160,11 +160,11 @@ void IOCALL SIO::AcceptData(uint32_t, uint32_t d) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL SIO::GetStatusSize() {
+uint32_t SIO::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL SIO::SaveStatus(uint8_t* s) {
+bool SIO::SaveStatus(uint8_t* s) {
   Status* status = (Status*)s;
   status->rev = ssrev;
   status->base_clock_ = baseclock;
@@ -177,7 +177,7 @@ bool IFCALL SIO::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL SIO::LoadStatus(const uint8_t* s) {
+bool SIO::LoadStatus(const uint8_t* s) {
   const Status* status = (const Status*)s;
   if (status->rev != ssrev)
     return false;
