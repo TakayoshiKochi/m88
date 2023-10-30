@@ -20,7 +20,7 @@ bool Sine::Init()
     return true;
 }
 
-bool IFCALL Sine::Connect(ISoundControl* _sc)
+bool Sine::Connect(ISoundControl* _sc)
 {
     if (sc) sc->Disconnect(this);
     sc = _sc;
@@ -28,27 +28,27 @@ bool IFCALL Sine::Connect(ISoundControl* _sc)
     return true;
 }
 
-bool IFCALL Sine::SetRate(uint32_t r)
+bool Sine::SetRate(uint32_t r)
 {
     rate = r;
     step = 4000 * 128 * pitch / rate;
     return true;
 }
 
-void IOCALL Sine::SetPitch(uint32_t, uint32_t data)
+void Sine::SetPitch(uint32_t, uint32_t data)
 {
     sc->Update(this);
     pitch = data;
     step = 4000 * 128 * pitch / rate;
 }
 
-void IOCALL Sine::SetVolume(uint32_t, uint32_t data)
+void Sine::SetVolume(uint32_t, uint32_t data)
 {
     sc->Update(this);
     volume = data;
 }
 
-void IFCALL Sine::Mix(int32_t* dest, int length)
+void Sine::Mix(int32_t* dest, int length)
 {
     for (; length > 0; length --)
     {

@@ -110,16 +110,16 @@ void IOCALL INTC::SetRegister(uint32_t, uint32_t data) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL INTC::GetStatusSize() {
+uint32_t INTC::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL INTC::SaveStatus(uint8_t* s) {
+bool INTC::SaveStatus(uint8_t* s) {
   *(Status*)s = stat_;
   return true;
 }
 
-bool IFCALL INTC::LoadStatus(const uint8_t* s) {
+bool INTC::LoadStatus(const uint8_t* s) {
   stat_ = *(const Status*)s;
   return true;
 }

@@ -393,14 +393,14 @@ void ConfigSound::InitDialog(HWND hdlg) {
           : (config_.flags & pc8801::Config::kOPNonA8 ? IDC_SOUNDA8_OPN : IDC_SOUNDA8_NONE),
       BSTATE(true));
 
-    // The order has to match "enum SoundDriverType" in config.h.
-    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "Auto");
-    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "DirectSound");
-    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0,
-                       (LPARAM) "DirectSound (notify)");
-    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "WaveOut");
-    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "ASIO");
-    SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_SETCURSEL, 0, 0);
+  // The order has to match "enum SoundDriverType" in config.h.
+  SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "Auto");
+  SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "DirectSound");
+  SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0,
+                     (LPARAM) "DirectSound (notify)");
+  SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "WaveOut");
+  SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_ADDSTRING, 0, (LPARAM) "ASIO");
+  SendDlgItemMessage(hdlg, IDC_SOUNDDRIVER_DROPDOWN, CB_SETCURSEL, 0, 0);
 }
 
 void ConfigSound::SetActive(HWND hdlg) {

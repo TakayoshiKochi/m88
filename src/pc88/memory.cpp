@@ -1025,11 +1025,11 @@ inline void Memory::SetWaits(uint32_t a, uint32_t s, uint32_t v) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL Memory::GetStatusSize() {
+uint32_t Memory::GetStatusSize() {
   return sizeof(Status) + erambanks * 0x8000 - 1;
 }
 
-bool IFCALL Memory::SaveStatus(uint8_t* s) {
+bool Memory::SaveStatus(uint8_t* s) {
   Status* status = (Status*)s;
   status->rev = ssrev;
   status->p31 = uint8_t(port31);
@@ -1055,7 +1055,7 @@ bool IFCALL Memory::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL Memory::LoadStatus(const uint8_t* s) {
+bool Memory::LoadStatus(const uint8_t* s) {
   const Status* status = (const Status*)s;
   if (status->rev != ssrev)
     return false;
@@ -1137,7 +1137,7 @@ inline uint32_t Memory::GetHiBank(uint32_t addr) {
   return mRAM;
 }
 
-uint32_t IFCALL Memory::GetRdBank(uint32_t addr) {
+uint32_t Memory::GetRdBank(uint32_t addr) {
   if (addr < 0x8000) {
     if ((porte2 & 0x01) && (porte3 < erambanks))
       return mERAM + porte3;
@@ -1172,7 +1172,7 @@ uint32_t IFCALL Memory::GetRdBank(uint32_t addr) {
   return GetHiBank(addr);
 }
 
-uint32_t IFCALL Memory::GetWrBank(uint32_t addr) {
+uint32_t Memory::GetWrBank(uint32_t addr) {
   if (addr < 0x8000) {
     if ((porte2 & 0x10) && (porte3 < erambanks))
       return mERAM + porte3;

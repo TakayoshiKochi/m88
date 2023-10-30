@@ -43,7 +43,7 @@ bool WinPadIF::Init() {
 // ---------------------------------------------------------------------------
 //  ジョイスティックの状態を更新
 //
-void IFCALL WinPadIF::GetState(PadState* d) {
+void WinPadIF::GetState(PadState* d) {
   const int threshold = 16384;
   JOYINFO joyinfo;
   if (enabled && joyGetPos(JOYSTICKID1, &joyinfo) == JOYERR_NOERROR) {

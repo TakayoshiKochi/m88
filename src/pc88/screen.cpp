@@ -1504,11 +1504,11 @@ void Screen::CreateTable() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL Screen::GetStatusSize() {
+uint32_t Screen::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL Screen::SaveStatus(uint8_t* s) {
+bool Screen::SaveStatus(uint8_t* s) {
   auto st = (Status*)s;
   st->rev = ssrev;
   st->p30 = port30_;
@@ -1522,7 +1522,7 @@ bool IFCALL Screen::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL Screen::LoadStatus(const uint8_t* s) {
+bool Screen::LoadStatus(const uint8_t* s) {
   const auto* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

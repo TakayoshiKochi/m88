@@ -14,7 +14,7 @@ bool ConfigMP::Init(HINSTANCE _hinst) {
   return true;
 }
 
-bool IFCALL ConfigMP::Setup(IConfigPropBase* _base, PROPSHEETPAGE* psp) {
+bool ConfigMP::Setup(IConfigPropBase* _base, PROPSHEETPAGE* psp) {
   base = _base;
 
   memset(psp, 0, sizeof(PROPSHEETPAGE));

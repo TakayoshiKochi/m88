@@ -26,7 +26,7 @@ void Beep::CleanUp() {
   Connect(nullptr);
 }
 
-bool IFCALL Beep::Connect(ISoundControl* control) {
+bool Beep::Connect(ISoundControl* control) {
   if (sound_control_)
     sound_control_->Disconnect(this);
   sound_control_ = control;
@@ -55,7 +55,7 @@ bool Beep::SetRate(uint32_t rate) {
 //  10 - 14     0011
 //  15 - 19     0001
 //
-void IFCALL Beep::Mix(int32_t* dest, int nsamples) {
+void Beep::Mix(int32_t* dest, int nsamples) {
   int i = 0;
   int p = port40_ & 0x80 ? 0 : 0x10000;
   int b = port40_ & 0x20 ? 0 : 0x10000;
@@ -116,18 +116,18 @@ void IOCALL Beep::Out40(uint32_t, uint32_t data) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL Beep::GetStatusSize() {
+uint32_t Beep::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL Beep::SaveStatus(uint8_t* s) {
+bool Beep::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
   st->port40 = port40_;
   return true;
 }
 
-bool IFCALL Beep::LoadStatus(const uint8_t* s) {
+bool Beep::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

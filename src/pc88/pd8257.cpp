@@ -165,7 +165,7 @@ inline uint32_t IOCALL PD8257::GetStatus(uint32_t) {
 //      nbytes  転送サイズ
 //  ret:        転送できたサイズ
 //
-uint32_t IFCALL PD8257::RequestRead(uint32_t bank, uint8_t* dest, uint32_t nbytes) {
+uint32_t PD8257::RequestRead(uint32_t bank, uint8_t* dest, uint32_t nbytes) {
   uint32_t n = nbytes;
   Log("Request ");
   if ((stat_.enabled & (1 << bank)) && !(stat_.mode[bank] & 0x40)) {
@@ -220,7 +220,7 @@ void PD8257::Reload() {
 //      nbytes  転送サイズ
 //  ret:        転送できたサイズ
 //
-uint32_t IFCALL PD8257::RequestWrite(uint32_t bank, uint8_t* data, uint32_t nbytes) {
+uint32_t PD8257::RequestWrite(uint32_t bank, uint8_t* data, uint32_t nbytes) {
   uint32_t n = nbytes;
   if ((stat_.enabled & (1 << bank)) && !(stat_.mode[bank] & 0x80)) {
     while (n > 0) {
@@ -262,18 +262,18 @@ uint32_t IFCALL PD8257::RequestWrite(uint32_t bank, uint8_t* data, uint32_t nbyt
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL PD8257::GetStatusSize() {
+uint32_t PD8257::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL PD8257::SaveStatus(uint8_t* s) {
+bool PD8257::SaveStatus(uint8_t* s) {
   auto* st = reinterpret_cast<Status*>(s);
   *st = stat_;
   st->rev = ssrev;
   return true;
 }
 
-bool IFCALL PD8257::LoadStatus(const uint8_t* s) {
+bool PD8257::LoadStatus(const uint8_t* s) {
   const auto* st = reinterpret_cast<const Status*>(s);
   if (st->rev != ssrev)
     return false;

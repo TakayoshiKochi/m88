@@ -276,7 +276,7 @@ inline void Z80C::SingleStep() {
 // ---------------------------------------------------------------------------
 // リセット
 //
-void IOCALL Z80C::Reset(uint32_t, uint32_t) {
+void Z80C::Reset(uint32_t, uint32_t) {
   memset(&reg_, 0, sizeof(reg_));
 
   reg_.iff1 = false;
@@ -306,7 +306,7 @@ void CPUExecutor::Reset() {
 // ---------------------------------------------------------------------------
 // 強制割り込み
 //
-void IOCALL Z80C::NMI(uint32_t, uint32_t) {
+void Z80C::NMI(uint32_t, uint32_t) {
   reg_.iff2 = reg_.iff1;
   reg_.iff1 = false;
   Push(GetPC());
@@ -2807,11 +2807,11 @@ bool Z80C::EnableDump(bool dump) {
 // ---------------------------------------------------------------------------
 // 状態保存
 //
-uint32_t IFCALL Z80C::GetStatusSize() {
+uint32_t Z80C::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL Z80C::SaveStatus(uint8_t* s) {
+bool Z80C::SaveStatus(uint8_t* s) {
   auto* st = (Status*)s;
   GetAF();
   st->rev = ssrev;
@@ -2825,7 +2825,7 @@ bool IFCALL Z80C::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL Z80C::LoadStatus(const uint8_t* s) {
+bool Z80C::LoadStatus(const uint8_t* s) {
   const auto* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

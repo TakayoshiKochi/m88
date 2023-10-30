@@ -160,11 +160,11 @@ void IOCALL SIO::AcceptData(uint32_t, uint32_t d) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL SIO::GetStatusSize() {
+uint32_t SIO::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL SIO::SaveStatus(uint8_t* s) {
+bool SIO::SaveStatus(uint8_t* s) {
   Status* status = (Status*)s;
   status->rev = ssrev;
   status->base_clock_ = baseclock;
@@ -177,7 +177,7 @@ bool IFCALL SIO::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL SIO::LoadStatus(const uint8_t* s) {
+bool SIO::LoadStatus(const uint8_t* s) {
   const Status* status = (const Status*)s;
   if (status->rev != ssrev)
     return false;

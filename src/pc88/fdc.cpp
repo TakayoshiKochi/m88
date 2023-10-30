@@ -1157,11 +1157,11 @@ void FDC::GetSectorParameters() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL FDC::GetStatusSize() {
+uint32_t FDC::GetStatusSize() {
   return sizeof(Snapshot);
 }
 
-bool IFCALL FDC::SaveStatus(uint8_t* s) {
+bool FDC::SaveStatus(uint8_t* s) {
   auto* st = (Snapshot*)s;
 
   st->rev = ssrev;
@@ -1195,7 +1195,7 @@ bool IFCALL FDC::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL FDC::LoadStatus(const uint8_t* s) {
+bool FDC::LoadStatus(const uint8_t* s) {
   const auto* st = (const Snapshot*)s;
   if (st->rev != ssrev)
     return false;

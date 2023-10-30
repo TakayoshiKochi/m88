@@ -31,7 +31,7 @@ bool WinMouseUI::Init(WinUI* _ui) {
 // ---------------------------------------------------------------------------
 //  COM IUnk
 //
-long IFCALL WinMouseUI::QueryInterface(REFIID id, void** ppi) {
+long WinMouseUI::QueryInterface(REFIID id, void** ppi) {
   if (id == IID_IUnknown)
     *ppi = this;
   else if (id == ChIID_MouseUI)
@@ -44,11 +44,11 @@ long IFCALL WinMouseUI::QueryInterface(REFIID id, void** ppi) {
   return S_OK;
 }
 
-uint32_t IFCALL WinMouseUI::AddRef() {
+uint32_t WinMouseUI::AddRef() {
   return ++refcount;
 }
 
-uint32_t IFCALL WinMouseUI::Release() {
+uint32_t WinMouseUI::Release() {
   if (--refcount)
     return refcount;
   delete this;

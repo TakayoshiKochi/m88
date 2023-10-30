@@ -325,11 +325,11 @@ uint32_t IOCALL TapeManager::In40(uint32_t) {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL TapeManager::GetStatusSize() {
+uint32_t TapeManager::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL TapeManager::SaveStatus(uint8_t* s) {
+bool TapeManager::SaveStatus(uint8_t* s) {
   Status* status = (Status*)s;
   status->rev = ssrev;
   status->motor = motor_;
@@ -339,7 +339,7 @@ bool IFCALL TapeManager::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL TapeManager::LoadStatus(const uint8_t* s) {
+bool TapeManager::LoadStatus(const uint8_t* s) {
   const Status* status = (const Status*)s;
   if (status->rev != ssrev)
     return false;

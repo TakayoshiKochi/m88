@@ -90,7 +90,7 @@ void OPNIF::CleanUp() {
 // ---------------------------------------------------------------------------
 //
 //
-bool IFCALL OPNIF::Connect(ISoundControl* c) {
+bool OPNIF::Connect(ISoundControl* c) {
   if (sound_control_)
     sound_control_->Disconnect(this);
   sound_control_ = c;
@@ -102,7 +102,7 @@ bool IFCALL OPNIF::Connect(ISoundControl* c) {
 // ---------------------------------------------------------------------------
 //  合成・再生レート設定
 //
-bool IFCALL OPNIF::SetRate(uint32_t rate) {
+bool OPNIF::SetRate(uint32_t rate) {
   opn_.SetReg(prescaler, 0);
   opn_.SetRate(clock_, rate, fm_mix_mode_);
   current_rate_ = rate;
@@ -120,7 +120,7 @@ void OPNIF::SetFMMixMode(bool mm) {
 // ---------------------------------------------------------------------------
 //  合成
 //
-void IFCALL OPNIF::Mix(int32_t* dest, int nsamples) {
+void OPNIF::Mix(int32_t* dest, int nsamples) {
   if (enable_)
     opn_.Mix(dest, nsamples);
 }
@@ -167,7 +167,8 @@ void OPNIF::ApplyConfig(const Config* config) {
       default:
         opn_.SetChannelMask(0xfdff & mask);
         break;
-    }  }
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -185,7 +186,7 @@ void IOCALL OPNIF::Reset(uint32_t, uint32_t) {
   opn_.SetIntrMask(true);
   prescaler = 0x2d;
 
-  if (/* use_hardware_ && */chip_)
+  if (/* use_hardware_ && */ chip_)
     chip_->Reset(opna_mode_);
 }
 
@@ -373,7 +374,7 @@ void IOCALL OPNIF::TimeEvent(uint32_t e) {
 // ---------------------------------------------------------------------------
 //  状態のサイズ
 //
-uint32_t IFCALL OPNIF::GetStatusSize() {
+uint32_t OPNIF::GetStatusSize() {
   if (enable_)
     return sizeof(Status) + (opna_mode_ ? kADPCMBufferSize : 0);
   else
@@ -383,7 +384,7 @@ uint32_t IFCALL OPNIF::GetStatusSize() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-bool IFCALL OPNIF::SaveStatus(uint8_t* s) {
+bool OPNIF::SaveStatus(uint8_t* s) {
   auto* st = (Status*)s;
   st->rev = ssrev;
   st->i0 = index0_;
@@ -401,7 +402,7 @@ bool IFCALL OPNIF::SaveStatus(uint8_t* s) {
 // ---------------------------------------------------------------------------
 //  状態復帰
 //
-bool IFCALL OPNIF::LoadStatus(const uint8_t* s) {
+bool OPNIF::LoadStatus(const uint8_t* s) {
   const auto* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

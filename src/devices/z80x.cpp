@@ -170,7 +170,7 @@ bool Z80X::Init(MemoryManager* mem, IOBus* bus, int iack) {
 // ---------------------------------------------------------------------------
 // リセット
 //
-void IOCALL Z80X::Reset(uint32_t, uint32_t) {
+void Z80X::Reset(uint32_t, uint32_t) {
   z80_power(&z80_, true);
   ResetMemory();
 
@@ -181,11 +181,11 @@ void IOCALL Z80X::Reset(uint32_t, uint32_t) {
   exec_cycles_ = 0;
 }
 
-void IOCALL Z80X::IRQ(uint32_t, uint32_t d) {
+void Z80X::IRQ(uint32_t, uint32_t d) {
   z80_int(&z80_, d);
 }
 
-void IOCALL Z80X::NMI(uint32_t, uint32_t) {
+void Z80X::NMI(uint32_t, uint32_t) {
   z80_nmi(&z80_);
 }
 
@@ -242,11 +242,11 @@ void Z80X::ExportReg() {
   z80_.iff2 = reg_.iff2;
 }
 
-uint32_t IFCALL Z80X::GetStatusSize() {
+uint32_t Z80X::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL Z80X::SaveStatus(uint8_t* s) {
+bool Z80X::SaveStatus(uint8_t* s) {
   auto* st = (Status*)s;
   st->rev = ssrev;
 
@@ -266,7 +266,7 @@ bool IFCALL Z80X::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL Z80X::LoadStatus(const uint8_t* s) {
+bool Z80X::LoadStatus(const uint8_t* s) {
   const auto* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

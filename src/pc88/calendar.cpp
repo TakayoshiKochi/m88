@@ -206,11 +206,11 @@ void Calendar::SetTime() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL Calendar::GetStatusSize() {
+uint32_t Calendar::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL Calendar::SaveStatus(uint8_t* s) {
+bool Calendar::SaveStatus(uint8_t* s) {
   Status* st = (Status*)s;
   st->rev = ssrev;
   st->t = time(&st->t) + diff_;
@@ -225,7 +225,7 @@ bool IFCALL Calendar::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL Calendar::LoadStatus(const uint8_t* s) {
+bool Calendar::LoadStatus(const uint8_t* s) {
   const Status* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;

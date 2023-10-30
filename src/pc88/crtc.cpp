@@ -1037,7 +1037,7 @@ void CRTC::ApplyConfig(const Config* cfg) {
 //  状態保存
 //
 
-bool IFCALL CRTC::SaveStatus(uint8_t* s) {
+bool CRTC::SaveStatus(uint8_t* s) {
   Log("*** Save Status\n");
   auto* st = reinterpret_cast<Status*>(s);
 
@@ -1060,7 +1060,7 @@ bool IFCALL CRTC::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL CRTC::LoadStatus(const uint8_t* s) {
+bool CRTC::LoadStatus(const uint8_t* s) {
   Log("*** Load Status\n");
   const Status* st = (const Status*)s;
   if (st->rev < 1 || ssrev < st->rev)

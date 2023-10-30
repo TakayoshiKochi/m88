@@ -223,11 +223,11 @@ bool SubSystem::IsBusy() {
 // ---------------------------------------------------------------------------
 //  状態保存
 //
-uint32_t IFCALL SubSystem::GetStatusSize() {
+uint32_t SubSystem::GetStatusSize() {
   return sizeof(Status);
 }
 
-bool IFCALL SubSystem::SaveStatus(uint8_t* s) {
+bool SubSystem::SaveStatus(uint8_t* s) {
   auto* st = (Status*)s;
   st->rev = ssrev;
   for (int i = 0; i < 3; i++) {
@@ -243,7 +243,7 @@ bool IFCALL SubSystem::SaveStatus(uint8_t* s) {
   return true;
 }
 
-bool IFCALL SubSystem::LoadStatus(const uint8_t* s) {
+bool SubSystem::LoadStatus(const uint8_t* s) {
   const auto* st = (const Status*)s;
   if (st->rev != ssrev)
     return false;
