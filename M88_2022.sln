@@ -5,9 +5,9 @@ VisualStudioVersion = 17.6.33801.468
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "M88", "M88_2022.vcxproj", "{9792F586-937B-4B5B-B01E-DF451C23B5C4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "diskdrv", "diskdrv\diskdrv_2022.vcxproj", "{68224585-4A7E-4D23-941F-B6714E1A1FA2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "diskdrv", "modules\diskdrv\diskdrv_2022.vcxproj", "{68224585-4A7E-4D23-941F-B6714E1A1FA2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cdif", "cdif\cdif_2022.vcxproj", "{BFE8B45C-16F5-47C0-9470-83AD735CA5F1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cdif", "modules\cdif\cdif_2022.vcxproj", "{BFE8B45C-16F5-47C0-9470-83AD735CA5F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
