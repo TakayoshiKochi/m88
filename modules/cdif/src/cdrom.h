@@ -6,8 +6,9 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <windows.h>
+
+#include <stdint.h>
 
 class ASPI;
 

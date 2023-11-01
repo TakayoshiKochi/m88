@@ -409,25 +409,25 @@ target_link_libraries(m88
         PRIVATE zlib libpng
         PRIVATE winmm.lib comctl32.lib dwmapi.lib d3d12.lib dxgi.lib d3dcompiler.lib)
 
-add_library(cdif SHARED
-        cdif/src/aspi.h
-        cdif/src/aspi.cpp
-        cdif/src/aspidef.h
-        cdif/src/cdctrl.h
-        cdif/src/cdctrl.cpp
-        cdif/src/cdif.h
-        cdif/src/cdif.cpp
-        cdif/src/cdif.rc
-        cdif/src/cdrom.h
-        cdif/src/cdrom.cpp
-        cdif/src/cdromdef.h
-        cdif/src/config.h
-        cdif/src/config.cpp
-        cdif/src/guid.cpp
-        cdif/src/moduleif.cpp
-        cdif/src/resource.h)
-
 # modules
+
+add_library(cdif SHARED
+        modules/cdif/src/aspi.h
+        modules/cdif/src/aspi.cpp
+        modules/cdif/src/aspidef.h
+        modules/cdif/src/cdctrl.h
+        modules/cdif/src/cdctrl.cpp
+        modules/cdif/src/cdif.h
+        modules/cdif/src/cdif.cpp
+        modules/cdif/src/cdif.rc
+        modules/cdif/src/cdrom.h
+        modules/cdif/src/cdrom.cpp
+        modules/cdif/src/cdromdef.h
+        modules/cdif/src/config.h
+        modules/cdif/src/config.cpp
+        modules/cdif/src/guid.cpp
+        modules/cdif/src/moduleif.cpp
+        modules/cdif/src/resource.h)
 
 target_include_directories(cdif
         PRIVATE ${CMAKE_SOURCE_DIR}
@@ -443,10 +443,10 @@ add_custom_command(TARGET cdif POST_BUILD
         COMMENT "Copying 'cdif.dll' library to 'cdif.m88'")
 
 add_library(diskdrv SHARED
-        diskdrv/src/diskio.h
-        diskdrv/src/diskio.cpp
-        diskdrv/src/guid.cpp
-        diskdrv/src/moduleif.cpp
+        modules/diskdrv/src/diskio.h
+        modules/diskdrv/src/diskio.cpp
+        modules/diskdrv/src/guid.cpp
+        modules/diskdrv/src/moduleif.cpp
         src/win32/file.h
         src/win32/file.cpp)
 
@@ -464,10 +464,10 @@ add_custom_command(TARGET diskdrv POST_BUILD
         COMMENT "Copying 'diskdrv.dll' library to 'diskdrv.m88'")
 
 add_library(sample1 ${LIB_TYPE}
-        sample1/src/guid.cpp
-        sample1/src/moduleif.cpp
-        sample1/src/sine.h
-        sample1/src/sine.cpp)
+        modules/sample1/src/guid.cpp
+        modules/sample1/src/moduleif.cpp
+        modules/sample1/src/sine.h
+        modules/sample1/src/sine.cpp)
 
 target_include_directories(sample1
         PRIVATE ${CMAKE_SOURCE_DIR}
@@ -477,13 +477,13 @@ target_link_libraries(sample1
         common devices)
 
 add_library(sample2 ${LIB_TYPE}
-        sample2/src/config.h
-        sample2/src/config.cpp
-        sample2/src/guid.cpp
-        sample2/src/mem.h
-        sample2/src/mem.cpp
-        sample2/src/moduleif.cpp
-        sample2/src/resource.h)
+        modules/sample2/src/config.h
+        modules/sample2/src/config.cpp
+        modules/sample2/src/guid.cpp
+        modules/sample2/src/mem.h
+        modules/sample2/src/mem.cpp
+        modules/sample2/src/moduleif.cpp
+        modules/sample2/src/resource.h)
 
 target_include_directories(sample2
         PRIVATE ${CMAKE_SOURCE_DIR}
