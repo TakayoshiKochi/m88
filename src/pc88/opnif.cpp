@@ -156,7 +156,7 @@ void OPNIF::SetVolume(const Config* config) {
 void OPNIF::ApplyConfig(const Config* config) {
   SetVolume(config);
 
-  if (config->flag2 && Config::kUsePiccolo) {
+  if (config->flag2 & Config::kUsePiccolo) {
     if (!piccolo_) {
       InitHardware();
     }

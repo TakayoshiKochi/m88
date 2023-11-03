@@ -33,6 +33,6 @@ class ConfigService {
   // singleton instance
   static ConfigService instance_;
   static std::once_flag once_;
-  pc8801::Config config_;
+  pc8801::Config config_{};
 };
 }  // namespace services
