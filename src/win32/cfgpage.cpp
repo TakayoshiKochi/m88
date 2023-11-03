@@ -747,7 +747,7 @@ LPCSTR ConfigROMEO::GetTemplate() {
 bool ConfigROMEO::Clicked(HWND hdlg, HWND hwctl, UINT id) {
   switch (id) {
     case IDC_USE_SCCI:
-      config_.flags ^= pc8801::Config::kUsePiccolo;
+      config_.flag2 ^= pc8801::Config::kUsePiccolo;
       return true;
   }
   return true;
@@ -774,7 +774,7 @@ void ConfigROMEO::Apply(HWND hdlg) {
 }
 
 void ConfigROMEO::Update(HWND hdlg) {
-  CheckDlgButton(hdlg, IDC_USE_SCCI, BSTATE(config_.flags & pc8801::Config::kUsePiccolo));
+  CheckDlgButton(hdlg, IDC_USE_SCCI, BSTATE(config_.flag2 & pc8801::Config::kUsePiccolo));
 }
 
 void ConfigROMEO::UpdateSlider(HWND hdlg) {
