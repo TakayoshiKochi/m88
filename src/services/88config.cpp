@@ -258,4 +258,12 @@ void ConfigService::LoadConfigDirectory(const char* entry, bool readalways) {
   }
 }
 
+void ConfigService::UpdateConfig(const pc8801::Config& config) {
+  new_config_ = config;
+}
+
+void ConfigService::LoadNewConfig() {
+  config_ = new_config_;
+}
+
 }  // namespace services

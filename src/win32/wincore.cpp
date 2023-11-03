@@ -250,6 +250,8 @@ bool WinCore::LoadSnapshot(const std::string_view filename, const std::string_vi
   newconfig.mainsubratio = ssh.mainsubratio;
 
   // TODO: This is a temporary hack.
+  // PostMessage (below in this function) will take effect asynchronously - can't be used here
+  // (needs to be synchronously applied before Reset).
   ApplyConfig2(&newconfig);
 
   // Reset
@@ -294,7 +296,8 @@ bool WinCore::LoadSnapshot(const std::string_view filename, const std::string_vi
       }
     }
   }
-  PostMessage(hwnd_, WM_M88_APPLYCONFIG, (WPARAM)&newconfig, 0);
+  services::ConfigService::GetInstance()->UpdateConfig(newconfig);
+  PostMessage(hwnd_, WM_M88_APPLYCONFIG, 0, 0);
   return r;
 }
 

@@ -23,6 +23,9 @@ class ConfigService {
 
   void Save();
   void LoadConfigDirectory(const char* entry, bool readalways);
+  // Save new config, and then post WM_M88_APPLYCONFIG message to main window.
+  void UpdateConfig(const pc8801::Config& config);
+  void LoadNewConfig();
   // TODO: temporary for migration
   pc8801::Config& config() { return config_; }
 
@@ -34,5 +37,6 @@ class ConfigService {
   static ConfigService instance_;
   static std::once_flag once_;
   pc8801::Config config_{};
+  pc8801::Config new_config_{};
 };
 }  // namespace services
