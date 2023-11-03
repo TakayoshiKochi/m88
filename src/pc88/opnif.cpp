@@ -156,7 +156,8 @@ void OPNIF::SetVolume(const Config* config) {
 void OPNIF::ApplyConfig(const Config* config) {
   SetVolume(config);
 
-  if (config->flag2 & Config::kUsePiccolo) {
+  use_hardware_ = (config->flag2 & Config::kUsePiccolo) && ((GetID() >> 24) & 0xff) == '1';
+  if (use_hardware_) {
     if (!piccolo_) {
       InitHardware();
     }
@@ -165,14 +166,11 @@ void OPNIF::ApplyConfig(const Config* config) {
       delete chip_;
       chip_ = nullptr;
     }
-    Piccolo::DeleteInstance();
     piccolo_ = nullptr;
-
     opn_.SetChannelMask(0);
   }
 
   if (chip_) {
-    use_hardware_ = config->flags & Config::kUsePiccolo;
     uint32_t mask = use_hardware_ ? 0xffff : 0;
     switch (piccolo_->IsDriverBased()) {
       case 2:
