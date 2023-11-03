@@ -423,11 +423,17 @@ bool OPNIF::LoadStatus(const uint8_t* s) {
   // PSG
   for (int i = 8; i <= 0x0a; ++i) {
     opn_.SetReg(i, 0);
+    if (use_hardware_ && chip_)
+      chip_->SetReg(ChipTime(), i, 0);
   }
 
   for (int i = 0x40; i < 0x4f; ++i) {
     opn_.SetReg(i, 0x7f);
     opn_.SetReg(i + 0x100, 0x7f);
+    if (use_hardware_ && chip_) {
+      chip_->SetReg(ChipTime(), i, 0x7f);
+      chip_->SetReg(ChipTime(), i + 0x100, 0x7f);
+    }
   }
 
   for (int i = 0; i < 0x10; ++i) {
