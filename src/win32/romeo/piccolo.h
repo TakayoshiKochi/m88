@@ -41,7 +41,11 @@ class Piccolo : public Threadable<Piccolo> {
     PICCOLOE_THREAD_ERROR,
   };
 
-  static Piccolo* GetInstance();
+  static Piccolo* GetInstance() {
+    std::call_once(once_, &Piccolo::InitHardware);
+    return instance;
+  }
+
   static void DeleteInstance();
 
   // 遅延バッファのサイズを設定
@@ -80,6 +84,7 @@ class Piccolo : public Threadable<Piccolo> {
   static Piccolo* instance;
 
   virtual int Init();
+  static void InitHardware();
   void CleanUp();
 
   RealTimeKeeper keeper_;
@@ -100,6 +105,7 @@ class Piccolo : public Threadable<Piccolo> {
   uint32_t irq_ = 0;
 
   std::atomic<bool> active_ = false;
+  static std::once_flag once_;
 
   int avail_ = 0;
 };
