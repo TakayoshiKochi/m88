@@ -1,6 +1,4 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ で生成されたインクルード ファイル。
-// M88.rc で使用
 //
 #define IDM_CONFIG 0
 #define IDM_MEM_F_1 8
@@ -250,13 +248,14 @@
 #define IDM_JUMP_SUBPC 40241
 #define IDM_KEY_CURSOR 40242
 #define IDM_KEY_CAPS 40243
+#define IDM_PAUSE 40244
 
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE 140
-#define _APS_NEXT_COMMAND_VALUE 40244
+#define _APS_NEXT_COMMAND_VALUE 40245
 #define _APS_NEXT_CONTROL_VALUE 1140
 #define _APS_NEXT_SYMED_VALUE 101
 #endif
