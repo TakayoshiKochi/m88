@@ -159,8 +159,6 @@ class OPNIF : public Device, public ISoundSource {
 
   static int prescaler;
 
-  //  static OPNIF* romeo_user;
-
   static const Descriptor descriptor;
   static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];

@@ -16,9 +16,6 @@
 #include "common/diag.h"
 
 namespace pc8801 {
-// OPNIF* OPNIF::romeo_user = 0;
-
-#define ROMEO_JULIET 0
 
 namespace {
 constexpr int kBaseClockOPNA = 7987200;
@@ -268,10 +265,6 @@ void OPNIF::WriteData0(uint32_t a, uint32_t data) {
     }
     regs_[index0_] = data;
     opn_.SetReg(index0_, data);
-#if ROMEO_JULIET
-    if (ROMEOEnabled())
-      juliet_YMF288A(index0, data);
-#endif
     if (use_hardware_ && chip_ && index0_ != 0x20)
       chip_->SetReg(ChipTime(), index0_, data);
 
