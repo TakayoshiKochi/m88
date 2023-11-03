@@ -42,36 +42,41 @@ bool OPNIF::Init(IOBus* bus, int intrport, int io, Scheduler* sched) {
     return false;
   prev_time_ns_ = scheduler_->GetTimeNS();
   TimeEvent(1);
-
-  piccolo_ = Piccolo::GetInstance();
-  if (piccolo_) {
-    Log("asking piccolo to obtain YMF288 instance\n");
-    if (piccolo_->GetChip(PICCOLO_YMF288, &chip_) >= 0) {
-      Log(" success.\n");
-      switch (piccolo_->IsDriverBased()) {
-        case 1:
-          g_status_display->Show(100, 10000, "ROMEO/GIMIC: YMF288 available");
-          opn_.SetChannelMask(0xfdff);
-          break;
-        case 2:
-          g_status_display->Show(100, 10000, "GIMIC: YM2608 available");
-          opn_.SetChannelMask(0xffff);
-          break;
-        case 3:
-          g_status_display->Show(100, 10000, "SCCI: YM2608 available");
-          opn_.SetChannelMask(0xffff);
-          break;
-        case 0:
-        default:
-          g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 available");
-          opn_.SetChannelMask(0xfdff);
-          break;
-      }
-      // clock_ = 8000000;
-      // opn.Init(clock, 8000, 0);
-    }
-  }
+  InitHardware();
   return true;
+}
+
+void OPNIF::InitHardware() {
+  piccolo_ = Piccolo::GetInstance();
+  if (!piccolo_)
+    return;
+
+  Log("asking piccolo to obtain YMF288 instance\n");
+  if (piccolo_->GetChip(PICCOLO_YMF288, &chip_) < 0)
+    return;
+
+  Log(" success.\n");
+  switch (piccolo_->IsDriverBased()) {
+    case 1:
+      g_status_display->Show(100, 10000, "ROMEO/GIMIC: YMF288 available");
+      opn_.SetChannelMask(0xfdff);
+      break;
+    case 2:
+      g_status_display->Show(100, 10000, "GIMIC: YM2608 available");
+      opn_.SetChannelMask(0xffff);
+      break;
+    case 3:
+      g_status_display->Show(100, 10000, "SCCI: YM2608 available");
+      opn_.SetChannelMask(0xffff);
+      break;
+    case 0:
+    default:
+      g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 available");
+      opn_.SetChannelMask(0xfdff);
+      break;
+  }
+  // clock_ = 8000000;
+  // opn.Init(clock, 8000, 0);
 }
 
 void OPNIF::SetIMask(uint32_t port, uint32_t bit) {

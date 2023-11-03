@@ -43,6 +43,7 @@ class OPNIF : public Device, public ISoundSource {
   ~OPNIF() override = default;
 
   bool Init(IOBus* bus, int intrport, int io, Scheduler* sched);
+  void InitHardware();
   void SetIMask(uint32_t port, uint32_t bit);
 
   void CleanUp();
