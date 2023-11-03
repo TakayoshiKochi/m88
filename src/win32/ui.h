@@ -60,6 +60,7 @@ class WinUI {
   static LRESULT CALLBACK WinProcGate(HWND, UINT, WPARAM, LPARAM);
   void ReportError();
   void Reset();
+  void Pause();
 
   void ApplyConfig();
   void ApplyCommandLine(const char* cmdline);
@@ -146,6 +147,7 @@ class WinUI {
   // PC88
   bool capture_mouse_ = true;
   uint32_t mouse_button_ = 0;
+  bool paused_ = false;
 
   // Power management
   scoped_handle<HANDLE> hpower_;

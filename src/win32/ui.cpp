@@ -381,6 +381,14 @@ void WinUI::Reset() {
   core_.Reset();
 }
 
+void WinUI::Pause() {
+  if (paused_) {
+    core_.Wait(true);
+  } else {
+    core_.Wait(false);
+  }
+}
+
 // ---------------------------------------------------------------------------
 //  WinUI::ApplyConfig
 //
@@ -1256,6 +1264,11 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       Reset();
       break;
 
+    case IDM_PAUSE:
+      paused_ = !paused_;
+      Pause();
+      break;
+
     case IDM_CPU_BURST:
       config().flags ^= pc8801::Config::kCPUBurst;
       if (flags() & pc8801::Config::kCPUBurst)
@@ -1752,6 +1765,7 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
 
   CheckMenuItem(hmenu_, IDM_CPU_BURST,
                 (flags() & pc8801::Config::kCPUBurst) ? MF_CHECKED : MF_UNCHECKED);
+  CheckMenuItem(hmenu_, IDM_PAUSE, paused_ ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu_, IDM_KEY_GRPH, keyif_.IsGrphLocked() ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_KEY_KANA, keyif_.IsKanaLocked() ? MF_CHECKED : MF_UNCHECKED);

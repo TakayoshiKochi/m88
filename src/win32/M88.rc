@@ -54,8 +54,8 @@ IDR_MENU_M88 MENU
 BEGIN
     POPUP "&Control"
     BEGIN
-        MENUITEM "4MHz",                        IDM_4MHZ
-        MENUITEM "8MHz",                        IDM_8MHZ
+        MENUITEM "&4MHz",                       IDM_4MHZ
+        MENUITEM "&8MHz",                       IDM_8MHZ
         MENUITEM SEPARATOR
         MENUITEM "N88-V&1(S) mode",             IDM_N88V1
         MENUITEM "N88-V1(&H) mode",             IDM_N88V1H
@@ -67,6 +67,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Burst mode",                 IDM_CPU_BURST
         MENUITEM "&Reset\tF12",                 IDM_RESET
+        MENUITEM "&Pause",                      IDM_PAUSE
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDM_EXIT
     END
@@ -635,9 +636,9 @@ BEGIN
     CONTROL         "Use SCCI",IDC_USE_SCCI,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,9,24,50,10
 END
 
-
 #endif    // “ú–{Œê (“ú–{) resources
 /////////////////////////////////////////////////////////////////////////////
+
 
 
 #ifndef APSTUDIO_INVOKED
