@@ -1198,14 +1198,9 @@ LRESULT WinUI::M88ChangeVolume(HWND, WPARAM c, LPARAM) {
 }
 
 LRESULT WinUI::M88ApplyConfig(HWND, WPARAM wparam, LPARAM) {
-  auto* newconfig = reinterpret_cast<pc8801::Config*>(wparam);
-  if (newconfig) {
-    // 乱暴ですな。
-    if (memcmp(&config(), newconfig, sizeof(pc8801::Config)) != 0) {
-      config() = *newconfig;
-      ApplyConfig();
-    }
-  }
+  // TODO: Skip if old and new configs are equal.
+  services::ConfigService::GetInstance()->LoadNewConfig();
+  ApplyConfig();
   return 0;
 }
 

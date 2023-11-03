@@ -8,6 +8,7 @@
 
 #include <algorithm>
 
+#include "services/88config.h"
 #include "win32/messages.h"
 #include "win32/resource.h"
 
@@ -173,7 +174,8 @@ bool WinConfig::PageChanged(HWND hdlg) {
 
 bool WinConfig::Apply() {
   orgconfig_ = config_;
-  PostMessage(hwndparent_, WM_M88_APPLYCONFIG, (WPARAM)&config_, 0);
+  services::ConfigService::GetInstance()->UpdateConfig(config_);
+  PostMessage(hwndparent_, WM_M88_APPLYCONFIG, 0, 0);
   return true;
 }
 
