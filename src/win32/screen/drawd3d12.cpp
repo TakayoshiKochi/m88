@@ -12,11 +12,12 @@
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
 
 namespace {
 
 #ifndef COMPILE_SHADER_FROM_FILE
+#pragma comment(lib, "d3dcompiler.lib")
+
 #include "win32/screen/vertex_shader.h"
 #include "win32/screen/pixel_shader.h"
 #endif
