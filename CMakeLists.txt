@@ -34,6 +34,7 @@ set(Z80_WITH_Q YES CACHE BOOL "")
 
 #add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/abseil)
 #add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/glog)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/benchmark)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/gtest)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Z80)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Zeta)
@@ -94,6 +95,13 @@ add_executable(common_unittests
 
 target_link_libraries(common_unittests
         PRIVATE gtest gtest_main
+        common)
+
+add_executable(common_benchmarks
+        src/common/io_bus_benchmark.cc)
+
+target_link_libraries(common_benchmarks
+        PRIVATE benchmark::benchmark benchmark::benchmark_main
         common)
 
 add_library(devices ${LIB_TYPE}
