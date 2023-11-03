@@ -17,33 +17,8 @@
 
 Piccolo* Piccolo::instance = nullptr;
 
-// ---------------------------------------------------------------------------
-//
-//
-Piccolo* Piccolo::GetInstance() {
-  if (instance)
-    return instance;
-
-  instance = new Piccolo_Romeo();
-  if (instance->Init() == PICCOLO_SUCCESS) {
-    return instance;
-  }
-  delete instance;
-
-  instance = new Piccolo_Gimic();
-  if (instance->Init() == PICCOLO_SUCCESS) {
-    return instance;
-  }
-
-  instance = new Piccolo_SCCI();
-  if (instance->Init() == PICCOLO_SUCCESS) {
-    return instance;
-  }
-
-  delete instance;
-  instance = nullptr;
-  return nullptr;
-}
+// static
+std::once_flag Piccolo::once_;
 
 void Piccolo::DeleteInstance() {
   if (instance) {
@@ -62,6 +37,28 @@ int Piccolo::Init() {
   SetMaximumLatency(1000000);
   SetLatencyBufferSize(16384);
   return PICCOLO_SUCCESS;
+}
+
+// static
+void Piccolo::InitHardware() {
+  instance = new Piccolo_Romeo();
+  if (instance->Init() == PICCOLO_SUCCESS) {
+    return;
+  }
+  delete instance;
+
+  instance = new Piccolo_Gimic();
+  if (instance->Init() == PICCOLO_SUCCESS) {
+    return;
+  }
+  delete instance;
+
+  instance = new Piccolo_SCCI();
+  if (instance->Init() == PICCOLO_SUCCESS) {
+    return;
+  }
+  delete instance;
+  instance = nullptr;
 }
 
 // ---------------------------------------------------------------------------

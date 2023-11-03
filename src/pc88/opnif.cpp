@@ -16,9 +16,6 @@
 #include "common/diag.h"
 
 namespace pc8801 {
-// OPNIF* OPNIF::romeo_user = 0;
-
-#define ROMEO_JULIET 0
 
 namespace {
 constexpr int kBaseClockOPNA = 7987200;
@@ -45,36 +42,40 @@ bool OPNIF::Init(IOBus* bus, int intrport, int io, Scheduler* sched) {
     return false;
   prev_time_ns_ = scheduler_->GetTimeNS();
   TimeEvent(1);
-
-  piccolo_ = Piccolo::GetInstance();
-  if (piccolo_) {
-    Log("asking piccolo to obtain YMF288 instance\n");
-    if (piccolo_->GetChip(PICCOLO_YMF288, &chip_) >= 0) {
-      Log(" success.\n");
-      switch (piccolo_->IsDriverBased()) {
-        case 1:
-          g_status_display->Show(100, 10000, "ROMEO/GIMIC: YMF288 available");
-          opn_.SetChannelMask(0xfdff);
-          break;
-        case 2:
-          g_status_display->Show(100, 10000, "GIMIC: YM2608 available");
-          opn_.SetChannelMask(0xffff);
-          break;
-        case 3:
-          g_status_display->Show(100, 10000, "SCCI: YM2608 available");
-          opn_.SetChannelMask(0xffff);
-          break;
-        case 0:
-        default:
-          g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 available");
-          opn_.SetChannelMask(0xfdff);
-          break;
-      }
-      // clock_ = 8000000;
-      // opn.Init(clock, 8000, 0);
-    }
-  }
   return true;
+}
+
+void OPNIF::InitHardware() {
+  piccolo_ = Piccolo::GetInstance();
+  if (!piccolo_)
+    return;
+
+  Log("asking piccolo to obtain YMF288 instance\n");
+  if (piccolo_->GetChip(PICCOLO_YMF288, &chip_) < 0)
+    return;
+
+  Log(" success.\n");
+  switch (piccolo_->IsDriverBased()) {
+    case 1:
+      g_status_display->Show(100, 10000, "ROMEO/GIMIC: YMF288 available");
+      opn_.SetChannelMask(0xfdff);
+      break;
+    case 2:
+      g_status_display->Show(100, 10000, "GIMIC: YM2608 available");
+      opn_.SetChannelMask(0xffff);
+      break;
+    case 3:
+      g_status_display->Show(100, 10000, "SCCI: YM2608 available");
+      opn_.SetChannelMask(0xffff);
+      break;
+    case 0:
+    default:
+      g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 available");
+      opn_.SetChannelMask(0xfdff);
+      break;
+  }
+  // clock_ = 8000000;
+  // opn.Init(clock, 8000, 0);
 }
 
 void OPNIF::SetIMask(uint32_t port, uint32_t bit) {
@@ -154,6 +155,22 @@ void OPNIF::SetVolume(const Config* config) {
 
 void OPNIF::ApplyConfig(const Config* config) {
   SetVolume(config);
+
+  if (config->flag2 && Config::kUsePiccolo) {
+    if (!piccolo_) {
+      InitHardware();
+    }
+  } else {
+    if (chip_) {
+      delete chip_;
+      chip_ = nullptr;
+    }
+    Piccolo::DeleteInstance();
+    piccolo_ = nullptr;
+
+    opn_.SetChannelMask(0);
+  }
+
   if (chip_) {
     use_hardware_ = config->flags & Config::kUsePiccolo;
     uint32_t mask = use_hardware_ ? 0xffff : 0;
@@ -268,10 +285,6 @@ void OPNIF::WriteData0(uint32_t a, uint32_t data) {
     }
     regs_[index0_] = data;
     opn_.SetReg(index0_, data);
-#if ROMEO_JULIET
-    if (ROMEOEnabled())
-      juliet_YMF288A(index0, data);
-#endif
     if (use_hardware_ && chip_ && index0_ != 0x20)
       chip_->SetReg(ChipTime(), index0_, data);
 

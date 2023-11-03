@@ -407,7 +407,7 @@ add_executable(m88 WIN32
 target_link_libraries(m88
         PRIVATE common devices fmgen pc88core pc88shell win32 win32mon romeo
         PRIVATE zlib libpng
-        PRIVATE winmm.lib comctl32.lib dwmapi.lib d3d12.lib dxgi.lib d3dcompiler.lib)
+        PRIVATE winmm.lib comctl32.lib dwmapi.lib d3d12.lib dxgi.lib)
 
 # modules
 

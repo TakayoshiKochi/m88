@@ -12,10 +12,12 @@ class DummyStatusDisplay : public StatusDisplay {
 
 StatusDisplay* g_status_display = new DummyStatusDisplay();
 
+// static
+std::once_flag Piccolo::once_;
+Piccolo* Piccolo::instance = nullptr;
+
 // For tests
-Piccolo* Piccolo::GetInstance() {
-  return nullptr;
-}
+void Piccolo::InitHardware() {}
 
 // For tests
 void Piccolo::DeleteInstance() {}

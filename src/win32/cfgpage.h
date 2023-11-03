@@ -131,6 +131,7 @@ class ConfigROMEO final : public ConfigPage {
   void InitDialog(HWND hdlg) final;
   void SetActive(HWND hdlg) final;
   bool Clicked(HWND hdlg, HWND hwctl, UINT id) final;
+  void Update(HWND hdlg) final;
   void UpdateSlider(HWND hdlg) final;
   void Apply(HWND hdlg) final;
 
