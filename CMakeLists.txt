@@ -34,8 +34,8 @@ set(Z80_WITH_Q YES CACHE BOOL "")
 
 #add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/abseil)
 #add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/glog)
-add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/benchmark)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/gtest)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/benchmark)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Z80)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Zeta)
 
