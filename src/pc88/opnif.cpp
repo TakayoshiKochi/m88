@@ -42,7 +42,6 @@ bool OPNIF::Init(IOBus* bus, int intrport, int io, Scheduler* sched) {
     return false;
   prev_time_ns_ = scheduler_->GetTimeNS();
   TimeEvent(1);
-  InitHardware();
   return true;
 }
 
@@ -156,6 +155,22 @@ void OPNIF::SetVolume(const Config* config) {
 
 void OPNIF::ApplyConfig(const Config* config) {
   SetVolume(config);
+
+  if (config->flag2 && Config::kUsePiccolo) {
+    if (!piccolo_) {
+      InitHardware();
+    }
+  } else {
+    if (chip_) {
+      delete chip_;
+      chip_ = nullptr;
+    }
+    Piccolo::DeleteInstance();
+    piccolo_ = nullptr;
+
+    opn_.SetChannelMask(0);
+  }
+
   if (chip_) {
     use_hardware_ = config->flags & Config::kUsePiccolo;
     uint32_t mask = use_hardware_ ? 0xffff : 0;
