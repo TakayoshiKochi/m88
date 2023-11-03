@@ -102,27 +102,31 @@ void WinCore::Reset() {
 //
 void WinCore::ApplyConfig(const pc8801::Config* config) {
   config_ = config;
+  // XXX
+  ApplyConfig2(config_);
+}
 
-  int c = config_->legacy_clock;
+void WinCore::ApplyConfig2(const pc8801::Config* config) {
+  int c = config->legacy_clock;
   uint64_t cpu_clock = c * 100000;
   if (c == 40) {
     cpu_clock = 3993600;
   } else if (c == 80) {
     cpu_clock = 7987200;
   }
-  if (config_->flags & pc8801::Config::kFullSpeed)
+  if (config->flags & pc8801::Config::kFullSpeed)
     c = 0;
-  if (config_->flags & pc8801::Config::kCPUBurst)
+  if (config->flags & pc8801::Config::kCPUBurst)
     c = -c;
   seq_.SetLegacyClock(c);
   seq_.SetCPUClock(cpu_clock);
-  seq_.SetSpeed(config_->speed / 10);
+  seq_.SetSpeed(config->speed / 10);
 
   if (pc88_.GetJoyPad())
     pc88_.GetJoyPad()->Connect(&pad_if_);
 
-  pc88_.ApplyConfig(config_);
-  sound_.ApplyConfig(config_);
+  pc88_.ApplyConfig(config);
+  sound_.ApplyConfig(config);
 }
 
 // ---------------------------------------------------------------------------
@@ -245,9 +249,8 @@ bool WinCore::LoadSnapshot(const std::string_view filename, const std::string_vi
   newconfig.cpumode = ssh.cpumode;
   newconfig.mainsubratio = ssh.mainsubratio;
 
-  // TODO: this is not working. fix this.
-  // ApplyConfig(&newconfig);
-  PostMessage(hwnd_, WM_M88_APPLYCONFIG, (WPARAM)&newconfig, 0);
+  // TODO: This is a temporary hack.
+  ApplyConfig2(&newconfig);
 
   // Reset
   pc88_.Reset();
@@ -291,6 +294,7 @@ bool WinCore::LoadSnapshot(const std::string_view filename, const std::string_vi
       }
     }
   }
+  PostMessage(hwnd_, WM_M88_APPLYCONFIG, (WPARAM)&newconfig, 0);
   return r;
 }
 
