@@ -147,8 +147,19 @@ class Config {
   uint32_t sound_output_hz;
   int erambanks;
   KeyboardType keytype;
-  int volfm, volssg, voladpcm, volrhythm;
-  int volbd, volsd, voltop, volhh, voltom, volrim;
+
+  int volfm;
+  int volssg;
+  int voladpcm;
+  int volrhythm;
+
+  int volbd;
+  int volsd;
+  int voltop;
+  int volhh;
+  int voltom;
+  int volrim;
+
   int dipsw;
   // size of sound buffer in milliseconds.
   uint32_t sound_buffer_ms;

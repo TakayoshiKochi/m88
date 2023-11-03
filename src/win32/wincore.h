@@ -39,6 +39,7 @@ class WinCore : public ISystem, public ILockCore {
 
   void Reset();
   void ApplyConfig(const pc8801::Config* config);
+  void ApplyConfig2(const pc8801::Config* config);
 
   bool SaveSnapshot(const std::string_view filename);
   bool LoadSnapshot(const std::string_view filename, const std::string_view diskname);

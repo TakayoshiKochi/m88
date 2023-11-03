@@ -1197,11 +1197,12 @@ LRESULT WinUI::M88ChangeVolume(HWND, WPARAM c, LPARAM) {
   return 0;
 }
 
-LRESULT WinUI::M88ApplyConfig(HWND, WPARAM newconfig, LPARAM) {
+LRESULT WinUI::M88ApplyConfig(HWND, WPARAM wparam, LPARAM) {
+  auto* newconfig = reinterpret_cast<pc8801::Config*>(wparam);
   if (newconfig) {
     // 乱暴ですな。
-    if (memcmp(&config(), (pc8801::Config*)newconfig, sizeof(pc8801::Config)) != 0) {
-      config() = *((pc8801::Config*)newconfig);
+    if (memcmp(&config(), newconfig, sizeof(pc8801::Config)) != 0) {
+      config() = *newconfig;
       ApplyConfig();
     }
   }
