@@ -15,17 +15,15 @@
 // ---------------------------------------------------------------------------
 //  構築/消滅
 //
-WinPadIF::WinPadIF() {
-  enabled = false;
-}
+WinPadIF::WinPadIF() = default;
 
-WinPadIF::~WinPadIF() {}
+WinPadIF::~WinPadIF() = default;
 
 // ---------------------------------------------------------------------------
 //  初期化
 //
 bool WinPadIF::Init() {
-  enabled = false;
+  enabled_ = false;
   if (!joyGetNumDevs()) {
     statusdisplay.Show(70, 3000, "ジョイスティック API を使用できません");
     return false;
@@ -36,7 +34,7 @@ bool WinPadIF::Init() {
     statusdisplay.Show(70, 3000, "ジョイスティックが接続されていません");
     return false;
   }
-  enabled = true;
+  enabled_ = true;
   return true;
 }
 
@@ -46,7 +44,7 @@ bool WinPadIF::Init() {
 void WinPadIF::GetState(PadState* d) {
   const int threshold = 16384;
   JOYINFO joyinfo;
-  if (enabled && joyGetPos(JOYSTICKID1, &joyinfo) == JOYERR_NOERROR) {
+  if (enabled_ && joyGetPos(JOYSTICKID1, &joyinfo) == JOYERR_NOERROR) {
     d->direction = (joyinfo.wYpos < (32768 - threshold) ? 1 : 0)     // U
                    | (joyinfo.wYpos > (32768 + threshold) ? 2 : 0)   // D
                    | (joyinfo.wXpos < (32768 - threshold) ? 4 : 0)   // L

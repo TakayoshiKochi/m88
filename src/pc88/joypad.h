@@ -36,13 +36,13 @@ class JoyPad : public Device {
  private:
   void Update();
 
-  IPadInput* ui;
-  bool paravalid;
-  uint8_t data[2];
+  IPadInput* ui_ = nullptr;
+  bool paravalid_ = false;
+  uint8_t data[2]{};
 
-  uint8_t button1;
-  uint8_t button2;
-  uint32_t directionmask;
+  uint8_t button1_ = 0;
+  uint8_t button2_ = 0;
+  uint32_t direction_mask_ = 0;
 
  private:
   static const Descriptor descriptor;
