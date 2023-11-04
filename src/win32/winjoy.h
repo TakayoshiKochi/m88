@@ -16,8 +16,8 @@ class WinPadIF : public IPadInput {
 
   bool Init();
 
-  void IFCALL GetState(PadState*);
+  void IFCALL GetState(PadState*) override;
 
  private:
-  bool enabled;
+  bool enabled_ = false;
 };

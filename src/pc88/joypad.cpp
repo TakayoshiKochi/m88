@@ -8,62 +8,59 @@
 
 #include <utility>
 
-#include "if/ifguid.h"
-
 namespace pc8801 {
 
-JoyPad::JoyPad() : Device(0), ui(0) {
+JoyPad::JoyPad() : Device(0) {
   SetButtonMode(NORMAL);
 }
 
-JoyPad::~JoyPad() {}
+JoyPad::~JoyPad() = default;
 
 bool JoyPad::Connect(IPadInput* u) {
-  ui = u;
-
-  return !!ui;
+  ui_ = u;
+  return ui_ != nullptr;
 }
 
 // ---------------------------------------------------------------------------
 //  入力
 //
 uint32_t JoyPad::GetDirection(uint32_t) {
-  if (!paravalid)
+  if (!paravalid_)
     Update();
   return data[0];
 }
 
 uint32_t JoyPad::GetButton(uint32_t) {
-  if (!paravalid)
+  if (!paravalid_)
     Update();
   return data[1];
 }
 
 void JoyPad::Update() {
-  PadState ps;
-  if (ui) {
-    ui->GetState(&ps);
-    data[0] = ~ps.direction | directionmask;
-    data[1] = (ps.button & button1 ? 0 : 1) | (ps.button & button2 ? 0 : 2) | 0xfc;
+  PadState ps{};
+  if (ui_) {
+    ui_->GetState(&ps);
+    data[0] = ~ps.direction | direction_mask_;
+    data[1] = (ps.button & button1_ ? 0 : 1) | (ps.button & button2_ ? 0 : 2) | 0xfc;
   } else {
     data[0] = data[1] = 0xff;
   }
-  paravalid = true;
+  paravalid_ = true;
 }
 
 void JoyPad::SetButtonMode(ButtonMode mode) {
-  button1 = 1 | 4;
-  button2 = 2 | 8;
-  directionmask = 0xf0;
+  button1_ = 1 | 4;
+  button2_ = 2 | 8;
+  direction_mask_ = 0xf0;
 
   switch (mode) {
     case SWAPPED:
-      std::swap(button1, button2);
+      std::swap(button1_, button2_);
       break;
     case DISABLED:
-      button1 = 0;
-      button2 = 0;
-      directionmask = 0xff;
+      button1_ = 0;
+      button2_ = 0;
+      direction_mask_ = 0xff;
       break;
   }
 }
@@ -73,7 +70,7 @@ void JoyPad::SetButtonMode(ButtonMode mode) {
 //
 void JoyPad::VSync(uint32_t, uint32_t d) {
   if (d)
-    paravalid = false;
+    paravalid_ = false;
 }
 
 // ---------------------------------------------------------------------------
@@ -82,11 +79,11 @@ void JoyPad::VSync(uint32_t, uint32_t d) {
 const Device::Descriptor JoyPad::descriptor = {indef, outdef};
 
 const Device::OutFuncPtr JoyPad::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&VSync),
+    static_cast<Device::OutFuncPtr>(&JoyPad::VSync),
 };
 
 const Device::InFuncPtr JoyPad::indef[] = {
-    static_cast<Device::InFuncPtr>(&GetDirection),
-    static_cast<Device::InFuncPtr>(&GetButton),
+    static_cast<Device::InFuncPtr>(&JoyPad::GetDirection),
+    static_cast<Device::InFuncPtr>(&JoyPad::GetButton),
 };
 }  // namespace pc8801
