@@ -148,6 +148,20 @@ target_include_directories(fmgen
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+add_library(ymfm ${LIB_TYPE}
+        third_party/ymfm/src/ymfm.h
+        third_party/ymfm/src/ymfm_fm.h
+        third_party/ymfm/src/ymfm_fm.ipp
+        third_party/ymfm/src/ymfm_adpcm.h
+        third_party/ymfm/src/ymfm_adpcm.cpp
+        third_party/ymfm/src/ymfm_opn.h
+        third_party/ymfm/src/ymfm_opn.cpp
+        third_party/ymfm/src/ymfm_ssg.h
+        third_party/ymfm/src/ymfm_ssg.cpp)
+
+target_include_directories(ymfm
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/ymfm/src)
+
 add_library(pc88core ${LIB_TYPE}
         src/pc88/base.h
         src/pc88/base.cpp
