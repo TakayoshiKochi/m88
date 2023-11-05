@@ -43,6 +43,9 @@
     <Filter Include="asio">
       <UniqueIdentifier>{fc4b0869-0c27-41da-926c-22be36b2db66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ymfm">
+      <UniqueIdentifier>{cd22e341-ef4b-4052-8fca-8a10792dc4e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\device.cpp">
@@ -401,6 +404,15 @@
     </ClCompile>
     <ClCompile Include="src\pc88\sound.cpp">
       <Filter>pc88</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\ymfm\src\ymfm_adpcm.cpp">
+      <Filter>ymfm</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\ymfm\src\ymfm_opn.cpp">
+      <Filter>ymfm</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\ymfm\src\ymfm_ssg.cpp">
+      <Filter>ymfm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -787,6 +799,24 @@
     </ClInclude>
     <ClInclude Include="src\pc88\sound.h">
       <Filter>pc88</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\ymfm\src\ymfm.h">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\ymfm\src\ymfm_adpcm.h">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\ymfm\src\ymfm_fm.h">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\ymfm\src\ymfm_fm.ipp">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\ymfm\src\ymfm_opn.h">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\ymfm\src\ymfm_ssg.h">
+      <Filter>ymfm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
