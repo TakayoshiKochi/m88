@@ -206,7 +206,7 @@ target_include_directories(pc88core
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
-target_link_libraries(pc88core Z80)
+target_link_libraries(pc88core Z80 ymfm)
 
 add_executable(pc88core_unittests
         src/pc88/base_test.cc
