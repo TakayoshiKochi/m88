@@ -8,6 +8,8 @@
 
 #include "common/device.h"
 #include "devices/opna.h"
+#include "ymfm/src/ymfm.h"
+#include "ymfm/src/ymfm_opn.h"
 
 class IOBus;
 class PC88;
@@ -19,6 +21,72 @@ class Scheduler;
 
 namespace pc8801 {
 class Config;
+
+class YMFMUnit : public ymfm::ymfm_interface {
+ public:
+  YMFMUnit();
+  ~YMFMUnit() = default;
+
+  // fmgen compatible interface
+  bool Init() { return true; }
+
+  bool SetRate(uint32_t c, uint32_t r, bool x);
+
+  void Intr(bool flag);
+  void SetIntr(IOBus* b, int p) {
+    bus_ = b;
+    pintr_ = p;
+  }
+  void SetIntrMask(bool en);
+
+  void Mix(int32_t* buffer, int nsamples);
+  void Reset() { chip_.reset(); }
+  void SetReg(uint32_t addr, uint32_t data);
+  uint32_t GetReg(uint32_t addr) { return chip_.read(addr); }
+
+  // Overrides ymfm::ymfm_interface
+  void ymfm_sync_mode_write(uint8_t data) override;
+  void ymfm_sync_check_interrupts() override;
+  void ymfm_set_timer(uint32_t tnum, int32_t duration_in_clocks) override;
+
+  // Intentionally not implemented - do not support chip busy.
+  // void ymfm_set_busy_end(uint32_t clocks) override { ymfm_interface::ymfm_set_busy_end(clocks); }
+  // bool ymfm_is_busy() override { return false; }
+
+  void ymfm_update_irq(bool asserted) override {
+    // TODO
+    Intr(asserted);
+  }
+
+  // Implements ADPCM A/B data read/write
+  uint8_t ymfm_external_read(ymfm::access_class type, uint32_t address) override;
+  void ymfm_external_write(ymfm::access_class type, uint32_t address, uint8_t data) override;
+
+ private:
+  ymfm::ym2608 chip_;
+
+  IOBus* bus_ = nullptr;
+  // interrupt pin (kPint4)
+  int pintr_ = 0;
+
+  bool intr_enabled_ = false;
+  bool intr_pending_ = false;
+
+  // ratio of ymfm internal clock and expected sampling rate (55467Hz)
+  int multiplier_ = 1;
+
+  // Rhythm sampling data
+  static uint8_t adpcm_rom_[0x2000];
+  // ADPCM data (256KiB)
+  std::vector<uint8_t> adpcm_buf_;
+
+  // TODO
+  int32_t next_timer_a_ = 0;
+  int32_t next_timer_b_ = 0;
+
+  friend class OPNIF;
+};
+
 // ---------------------------------------------------------------------------
 //  88 用の OPN Unit
 //
@@ -124,6 +192,7 @@ class OPNIF : public Device, public ISoundSource {
   // bool ROMEOEnabled() { return romeo_user == this; }
 
   OPNUnit opn_;
+  YMFMUnit ym_;
 
   // Hardware devices support
   Piccolo* piccolo_ = nullptr;

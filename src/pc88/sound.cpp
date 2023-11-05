@@ -124,7 +124,7 @@ int Sound::Get(SampleL* dest, int nsamples) {
 //  設定更新
 //
 void Sound::ApplyConfig(const Config* config) {
-  mix_threshold_ = (config->flags & Config::kPreciseMixing) ? 100 : 2000;
+  mix_threshold_ = (config->flags & Config::kPreciseMixing) ? 72 : 2000;
 }
 
 // ---------------------------------------------------------------------------
@@ -174,10 +174,10 @@ bool Sound::Disconnect(ISoundSource* ss) {
 bool Sound::Update(ISoundSource* /*src*/) {
   int64_t current_clock = pc_->GetCPUClocks64();
   int64_t clocks = current_clock - prev_clock_ + clock_remainder_;
-  if (enabled_ && clocks > mix_threshold_) {
+  if (enabled_ && clocks >= mix_threshold_) {
     int samples = mix_rate_ * clocks / pc_->GetEffectiveSpeed();
     clock_remainder_ = clocks - (pc_->GetEffectiveSpeed() * samples / mix_rate_);
-    Log("Store = %5d samples\n", samples);
+    Log("%.16llx:Mix %d samples\n", pc_->GetScheduler()->GetTimeNS(), samples);
     soundbuf_.Fill(samples);
     prev_clock_ = current_clock;
   }
