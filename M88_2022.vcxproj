@@ -703,6 +703,9 @@
     <ClCompile Include="third_party\libpng\pngwrite.c" />
     <ClCompile Include="third_party\libpng\pngwtran.c" />
     <ClCompile Include="third_party\libpng\pngwutil.c" />
+    <ClCompile Include="third_party\ymfm\src\ymfm_adpcm.cpp" />
+    <ClCompile Include="third_party\ymfm\src\ymfm_opn.cpp" />
+    <ClCompile Include="third_party\ymfm\src\ymfm_ssg.cpp" />
     <ClCompile Include="third_party\Z80\sources\Z80.c">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(RelativeDir)</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -841,6 +844,12 @@
     <ClInclude Include="third_party\libpng\pnglibconf.h" />
     <ClInclude Include="third_party\libpng\pngpriv.h" />
     <ClInclude Include="third_party\libpng\pngstruct.h" />
+    <ClInclude Include="third_party\ymfm\src\ymfm.h" />
+    <ClInclude Include="third_party\ymfm\src\ymfm_adpcm.h" />
+    <ClInclude Include="third_party\ymfm\src\ymfm_fm.h" />
+    <ClInclude Include="third_party\ymfm\src\ymfm_fm.ipp" />
+    <ClInclude Include="third_party\ymfm\src\ymfm_opn.h" />
+    <ClInclude Include="third_party\ymfm\src\ymfm_ssg.h" />
     <ClInclude Include="third_party\Z80\API\Z80.h" />
   </ItemGroup>
   <ItemGroup>
