@@ -382,6 +382,7 @@
     <ClCompile Include="src\pc88\sio.cpp" />
     <ClCompile Include="src\pc88\sound.cpp" />
     <ClCompile Include="src\pc88\subsys.cpp" />
+    <ClCompile Include="src\pc88\ymfm_interface.cpp" />
     <ClCompile Include="src\services\88config.cpp" />
     <ClCompile Include="src\services\diskmgr.cpp" />
     <ClCompile Include="src\services\disk_image_holder.cpp" />
@@ -774,6 +775,7 @@
     <ClInclude Include="src\pc88\sio.h" />
     <ClInclude Include="src\pc88\sound.h" />
     <ClInclude Include="src\pc88\subsys.h" />
+    <ClInclude Include="src\pc88\ymfm_interface.h" />
     <ClInclude Include="src\services\88config.h" />
     <ClInclude Include="src\services\diskmgr.h" />
     <ClInclude Include="src\services\disk_image_holder.h" />
