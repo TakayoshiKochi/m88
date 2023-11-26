@@ -4,7 +4,13 @@
 
 ### `PC88.ROM` : Composite ROM (112KB)
 
-| offset   | size | Description               | Altenrative            |
+The original format was defined for P88SR, and is supported by many other emulators.
+The format was described at http://www1.plala.or.jp/aoto/tech.htm but the site
+has been closed. You can find the page via the Wayback Machine.
+
+Other emulators (M88, quasi88 etc.) support alternative to provide each part of the ROM separately.
+
+| offset   | size | Description               | Alternative            |
 |----------|------|---------------------------|------------------------|
 | 0x00000  | 32KB | N88-BASIC                 | N88.ROM                |
 | 0x08000  | 8KB  | N-BASIC (0x6000-0x7fff)   | N80.ROM, N88N.ROM      |
@@ -28,7 +34,7 @@ PC-8801MH+, 512KB
 
 ### `CDBIOS.ROM` : CD BIOS (64KB)
 
-PC-8801MC
+PC-8801MC, 64KB
 
 ### `FONT.ROM` : Font (2KB)
 
@@ -45,3 +51,19 @@ If not available, parts of "KANJI1.ROM" (offset 0x1000, size 0x800) is used.
 diskdrv uses E1.ROM.
 
 ### `E8.ROM` : N80 Ext ROM (16KB)
+
+### `ym2608_adpcm_rom.bin` : YM2608 Rhythm ROM (8KB)
+
+YM2608B has its internal ROM for rhythm sounds, encoded in ADPCM-A format,
+which is different from the one used in YM2608B's ADPCM (-B) encoding.
+The ROM cannot be dumped from the real chip via software.
+The sampling rate is fixed at ~18.5kHz (= 1/3 of FM sample rate).
+
+| offset  | size  | Description | Alternative  |
+|---------|-------|-------------|--------------|
+| 0x0000  | 448B  | Bass Drum   | 2608_BD.WAV  |
+| 0x01c0  | 640B  | Snare Drum  | 2608_SD.WAV  |
+| 0x0440  | 5952B | Top Cymbal  | 2608_TOP.WAV |
+| 0x1b80  | 384B  | Hi-Hat      | 2608_HH.WAV  |
+| 0x1d00  | 640B  | Tom Tom     | 2608_TOM.WAV |
+| 0x1f80  | 128B  | Rimshot     | 2608_RIM.WAV |
