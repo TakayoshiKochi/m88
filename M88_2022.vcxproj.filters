@@ -414,6 +414,9 @@
     <ClCompile Include="third_party\ymfm\src\ymfm_ssg.cpp">
       <Filter>ymfm</Filter>
     </ClCompile>
+    <ClCompile Include="src\pc88\ymfm_interface.cpp">
+      <Filter>pc88</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -817,6 +820,9 @@
     </ClInclude>
     <ClInclude Include="third_party\ymfm\src\ymfm_ssg.h">
       <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pc88\ymfm_interface.h">
+      <Filter>pc88</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

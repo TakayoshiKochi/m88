@@ -200,7 +200,9 @@ add_library(pc88core ${LIB_TYPE}
         src/pc88/sound.h
         src/pc88/sound.cpp
         src/pc88/subsys.h
-        src/pc88/subsys.cpp)
+        src/pc88/subsys.cpp
+        src/pc88/ymfm_interface.h
+        src/pc88/ymfm_interface.cpp)
 
 target_include_directories(pc88core
         PUBLIC ${CMAKE_SOURCE_DIR}/src
