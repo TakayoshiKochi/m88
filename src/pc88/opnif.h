@@ -42,8 +42,8 @@ class YMFMUnit : public ymfm::ymfm_interface {
   void Mix(int32_t* buffer, int nsamples);
   void Reset() { chip_.reset(); }
   void SetReg(uint32_t addr, uint32_t data);
+  uint32_t GetReg(uint32_t addr);
   bool Count(int32_t clocks);
-  uint32_t GetReg(uint32_t addr) { return chip_.read(addr); }
 
   // Overrides ymfm::ymfm_interface
   void ymfm_sync_mode_write(uint8_t data) override;
