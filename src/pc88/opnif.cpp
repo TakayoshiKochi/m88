@@ -905,16 +905,16 @@ void OPNIF::WriteData1(uint32_t a, uint32_t data) {
 //
 uint32_t OPNIF::ReadData0(uint32_t a) {
   uint32_t ret;
-  if (!enable_)
+  if (!enable_) {
     ret = 0xff;
-  else if ((index0_ & 0xfe) == 0x0e)
+  } else if ((index0_ & 0xfe) == 0x0e) {
+    // JoyStick
     ret = bus_->In(port_io_ + (index0_ & 1));
-  else if (index0_ == 0xff && !opna_mode_)
+  } else if (index0_ == 0xff && !opna_mode_) {
     ret = 0;
-  else {
-    ret = opn_.GetReg(index0_);
-    // TODO
-    // ret = ym_.GetReg(index0_);
+  } else {
+    // ret = opn_.GetReg(index0_);
+    ret = ym_.GetReg(index0_);
   }
   //  Log("Read0 [%.2x] = %.2x\n", a, ret);
   return ret;
@@ -924,9 +924,8 @@ uint32_t OPNIF::ReadData1(uint32_t a) {
   uint32_t ret = 0xff;
   if (enable_ && opna_mode_) {
     if (index1_ == 0x08) {
-      ret = opn_.GetReg(0x100 | index1_);
-      // TODO
-      // ret = ym_.GetReg(0x100 | index1_);
+      // ret = opn_.GetReg(0x100 | index1_);
+      ret = ym_.GetReg(0x100 | index1_);
     } else {
       ret = data1_;
     }
@@ -1137,6 +1136,12 @@ void YMFMUnit::SetReg(uint32_t addr, uint32_t data) {
   uint32_t offset = (addr / 0x100) * 2;
   chip_.write(offset, addr & 0xff);
   chip_.write(offset + 1, data);
+}
+
+uint32_t YMFMUnit::GetReg(uint32_t addr) {
+  uint32_t offset = (addr / 0x100) * 2;
+  chip_.write(offset, addr & 0xff);
+  return chip_.read(offset + 1);
 }
 
 bool YMFMUnit::Count(int32_t clocks) {
