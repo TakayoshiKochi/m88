@@ -67,7 +67,7 @@ class OPNIF : public Device, public ISoundSource {
   void Enable(bool en) { enable_ = en; }
   void SetOPNMode(bool _opna) { opna_mode_ = _opna; }
   const uint8_t* GetRegs() const { return regs_; }
-  void SetChannelMask(uint32_t ch);
+  void SetChannelMask(uint32_t mask);
 
   void IOCALL SetIntrMask(uint32_t, uint32_t intrmask);
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
@@ -126,7 +126,7 @@ class OPNIF : public Device, public ISoundSource {
   // bool ROMEOEnabled() { return romeo_user == this; }
 
   OPNUnit opn_;
-  YMFMUnit ym_;
+  YMFMInterface ym_;
 
   // Hardware devices support
   Piccolo* piccolo_ = nullptr;
@@ -168,8 +168,8 @@ class OPNIF : public Device, public ISoundSource {
   static const OutFuncPtr outdef[];
 };
 
-inline void OPNIF::SetChannelMask(uint32_t ch) {
-  opn_.SetChannelMask(ch);
+inline void OPNIF::SetChannelMask(uint32_t mask) {
+  opn_.SetChannelMask(mask);
 }
 
 }  // namespace pc8801

@@ -15,7 +15,7 @@ constexpr size_t kADPCMBufferSize = 0x40000;  // 256KiB
 }  // namespace
 
 // static
-uint8_t YMFMUnit::adpcm_rom_[0x2000] = {
+uint8_t YMFMInterface::adpcm_rom_[0x2000] = {
     // clang-format off
     /* Source: 01BD.ROM */
     /* Length: 448 / 0x000001C0 */
@@ -556,33 +556,34 @@ uint8_t YMFMUnit::adpcm_rom_[0x2000] = {
     // clang-format on
 };
 
-YMFMUnit::YMFMUnit() : chip_(*this) {
+YMFMInterface::YMFMInterface() : chip_(*this) {
   adpcm_buf_.resize(kADPCMBufferSize);
 }
 
-bool YMFMUnit::SetRate(uint32_t c, uint32_t, bool) {
+bool YMFMInterface::SetRate(uint32_t c, uint32_t, bool) {
   // Assuming YM2608 is clocked at kBaseClockOPNA (~8MHz).
   clock_ratio_ = 144 / (c / chip_.sample_rate(c));
   return true;
 }
 
-void YMFMUnit::Intr(bool flag) {
-  bool prev = intr_pending_ && intr_enabled_ && bus_;
-  intr_pending_ = flag;
-  Log("OPN     :Interrupt %d %d %d\n", intr_pending_, intr_enabled_, !prev);
-  if (intr_pending_ && intr_enabled_ && bus_ && !prev) {
-    bus_->Out(pintr_, true);
-  }
-}
+void YMFMInterface::Intr(bool flag) {}
 
-void YMFMUnit::SetIntrMask(bool en) {
+void YMFMInterface::SetIntrMask(bool en) {
   bool prev = intr_pending_ && intr_enabled_ && bus_;
   intr_enabled_ = en;
   if (intr_pending_ && intr_enabled_ && bus_ && !prev)
     bus_->Out(pintr_, true);
 }
 
-void YMFMUnit::Mix(int32_t* buffer, int nsamples) {
+void YMFMInterface::SetChannelMask(uint32_t mask) {
+  channel_mask_ = mask;
+}
+
+void YMFMInterface::Mix(int32_t* buffer, int nsamples) {
+  // Only support all mute or all unmute.
+  if (channel_mask_ == 0xffff)
+    return;
+
   auto output = std::make_unique<ymfm::ym2608::output_data[]>(nsamples * clock_ratio_);
   chip_.generate(output.get(), nsamples * clock_ratio_);
   for (uint32_t i = 0; i < nsamples; ++i) {
@@ -602,19 +603,27 @@ void YMFMUnit::Mix(int32_t* buffer, int nsamples) {
   }
 }
 
-void YMFMUnit::SetReg(uint32_t addr, uint32_t data) {
+void YMFMInterface::SetReg(uint32_t addr, uint32_t data) {
   uint32_t offset = (addr / 0x100) * 2;
   chip_.write(offset, addr & 0xff);
   chip_.write(offset + 1, data);
 }
 
-uint32_t YMFMUnit::GetReg(uint32_t addr) {
+uint32_t YMFMInterface::GetReg(uint32_t addr) {
   uint32_t offset = (addr / 0x100) * 2;
   chip_.write(offset, addr & 0xff);
   return chip_.read(offset + 1);
 }
 
-bool YMFMUnit::Count(int32_t clocks) {
+uint32_t YMFMInterface::ReadStatus() {
+  return chip_.read_status();
+}
+
+uint32_t YMFMInterface::ReadStatusEx() {
+  return chip_.read_status_hi();
+}
+
+bool YMFMInterface::Count(int32_t clocks) {
   bool event = false;
   if (timer_a_enabled_) {
     count_a_ -= clocks;
@@ -633,35 +642,22 @@ bool YMFMUnit::Count(int32_t clocks) {
   return event;
 }
 
-void YMFMUnit::ymfm_sync_mode_write(uint8_t data) {
+void YMFMInterface::ymfm_sync_mode_write(uint8_t data) {
   // This will call ymfm_set_timer().
   m_engine->engine_mode_write(data);
   // |data| format
   // |d7 d6|d5 d4|d3 d2 |d1 d0|
   // |mode |reset|enable|load |
-  if (data & 0x01) {
-    // Load Timer-A
-  }
-  if (data & 0x02) {
-    // Load Timer-B
-  }
-  timer_a_enabled_ = data & 0x04;
-  timer_b_enabled_ = data & 0x08;
+  timer_a_enabled_ = data & 0b00000100;
+  timer_b_enabled_ = data & 0b00001000;
 }
 
-void YMFMUnit::ymfm_sync_check_interrupts() {
+void YMFMInterface::ymfm_sync_check_interrupts() {
+  // This will call back ymfm_update_irq() when necessary.
   m_engine->engine_check_interrupts();
-  // TODO: do some extra stuff?
-  auto status = chip_.read_status();
-  if (status & 0x01) {
-    // interrupt
-  }
-  if (status & 0x02) {
-    // interrupt
-  }
 }
 
-void YMFMUnit::ymfm_set_timer(uint32_t tnum, int32_t duration_in_clocks) {
+void YMFMInterface::ymfm_set_timer(uint32_t tnum, int32_t duration_in_clocks) {
   if (duration_in_clocks < 0)
     return;
   switch (tnum) {
@@ -676,7 +672,16 @@ void YMFMUnit::ymfm_set_timer(uint32_t tnum, int32_t duration_in_clocks) {
   }
 }
 
-uint8_t YMFMUnit::ymfm_external_read(ymfm::access_class type, uint32_t address) {
+void YMFMInterface::ymfm_update_irq(bool asserted) {
+  bool prev = intr_pending_ && intr_enabled_ && bus_;
+  intr_pending_ = asserted;
+  Log("OPN     :Interrupt %d %d %d\n", intr_pending_, intr_enabled_, !prev);
+  if (intr_pending_ && intr_enabled_ && bus_ && !prev) {
+    bus_->Out(pintr_, true);
+  }
+}
+
+uint8_t YMFMInterface::ymfm_external_read(ymfm::access_class type, uint32_t address) {
   switch (type) {
     case ymfm::ACCESS_ADPCM_A:
       return adpcm_rom_[address & 0x1fff];
@@ -688,7 +693,7 @@ uint8_t YMFMUnit::ymfm_external_read(ymfm::access_class type, uint32_t address) 
   return ymfm_interface::ymfm_external_read(type, address);
 }
 
-void YMFMUnit::ymfm_external_write(ymfm::access_class type, uint32_t address, uint8_t data) {
+void YMFMInterface::ymfm_external_write(ymfm::access_class type, uint32_t address, uint8_t data) {
   switch (type) {
     case ymfm::ACCESS_ADPCM_B:
       adpcm_buf_[address & 0x3ffff] = data;

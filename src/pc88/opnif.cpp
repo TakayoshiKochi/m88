@@ -60,19 +60,23 @@ void OPNIF::InitHardware() {
     case 1:
       g_status_display->Show(100, 10000, "ROMEO/GIMIC: YMF288 available");
       opn_.SetChannelMask(0xfdff);
+      ym_.SetChannelMask(0xfdff);
       break;
     case 2:
       g_status_display->Show(100, 10000, "GIMIC: YM2608 available");
       opn_.SetChannelMask(0xffff);
+      ym_.SetChannelMask(0xffff);
       break;
     case 3:
       g_status_display->Show(100, 10000, "SCCI: YM2608 available");
       opn_.SetChannelMask(0xffff);
+      ym_.SetChannelMask(0xffff);
       break;
     case 0:
     default:
       g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 available");
       opn_.SetChannelMask(0xfdff);
+      ym_.SetChannelMask(0xfdff);
       break;
   }
   // clock_ = 8000000;
@@ -202,11 +206,13 @@ void OPNIF::ApplyConfig(const Config* config) {
       case 2:
       case 3:
         opn_.SetChannelMask(0xffff & mask);
+        ym_.SetChannelMask(0xffff & mask);
         break;
       case 0:
       case 1:
       default:
         opn_.SetChannelMask(0xfdff & mask);
+        ym_.SetChannelMask(0xfdff & mask);
         break;
     }
   }
@@ -380,13 +386,13 @@ uint32_t OPNIF::ReadData1(uint32_t a) {
 //  ReadStatus
 //
 uint32_t OPNIF::ReadStatus(uint32_t a) {
-  uint32_t ret = enable_ ? opn_.ReadStatus() : 0xff;
+  uint32_t ret = enable_ ? /*opn_.*/ ym_.ReadStatus() : 0xff;
   //  Log("status[%.2x] = %.2x\n", a, ret);
   return ret;
 }
 
 uint32_t OPNIF::ReadStatusEx(uint32_t a) {
-  uint32_t ret = enable_ && opna_mode_ ? opn_.ReadStatusEx() : 0xff;
+  uint32_t ret = enable_ && opna_mode_ ? /*opn_.*/ ym_.ReadStatusEx() : 0xff;
   //  Log("statex[%.2x] = %.2x\n", a, ret);
   return ret;
 }
@@ -396,6 +402,7 @@ uint32_t OPNIF::ReadStatusEx(uint32_t a) {
 //
 void OPNIF::UpdateTimer() {
   scheduler_->DelEvent(this);
+  // TODO: Implement ym_.GetNextEvent()
   next_count_ = opn_.GetNextEvent();
   if (next_count_) {
     next_count_ = (next_count_ + 9) / 10;
@@ -470,13 +477,16 @@ bool OPNIF::LoadStatus(const uint8_t* s) {
   // PSG
   for (int i = 8; i <= 0x0a; ++i) {
     opn_.SetReg(i, 0);
+    ym_.SetReg(i, 0);
     if (use_hardware_ && chip_)
       chip_->SetReg(ChipTime(), i, 0);
   }
 
   for (int i = 0x40; i < 0x4f; ++i) {
     opn_.SetReg(i, 0x7f);
+    ym_.SetReg(i, 0x7f);
     opn_.SetReg(i + 0x100, 0x7f);
+    ym_.SetReg(i + 0x100, 0x7f);
     if (use_hardware_ && chip_) {
       chip_->SetReg(ChipTime(), i, 0x7f);
       chip_->SetReg(ChipTime(), i + 0x100, 0x7f);
