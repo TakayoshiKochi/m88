@@ -172,15 +172,22 @@ bool Sound::Disconnect(ISoundSource* ss) {
 //  arg:    src     更新する音源を指定(今の実装では無視されます)
 //
 bool Sound::Update(ISoundSource* /*src*/) {
+  if (!enabled_)
+    return true;
+
   int64_t current_clock = pc_->GetCPUClocks64();
   int64_t clocks = current_clock - prev_clock_ + clock_remainder_;
-  if (enabled_ && clocks >= mix_threshold_) {
-    int samples = mix_rate_ * clocks / pc_->GetEffectiveSpeed();
-    clock_remainder_ = clocks - (pc_->GetEffectiveSpeed() * samples / mix_rate_);
-    Log("%.16llx:Mix %d samples\n", pc_->GetScheduler()->GetTimeNS(), samples);
-    soundbuf_.Fill(samples);
-    prev_clock_ = current_clock;
-  }
+  if (clocks < mix_threshold_)
+    return true;
+
+  int samples = mix_rate_ * clocks / pc_->GetEffectiveSpeed();
+  if (samples == 0)
+    return true;
+
+  clock_remainder_ = clocks - (pc_->GetEffectiveSpeed() * samples / mix_rate_);
+  Log("%.16llx:Mix %d samples\n", pc_->GetScheduler()->GetTimeNS(), samples);
+  soundbuf_.Fill(samples);
+  prev_clock_ = current_clock;
   return true;
 }
 

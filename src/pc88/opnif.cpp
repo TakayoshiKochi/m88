@@ -666,30 +666,31 @@ void OPNIF::SetFMMixMode(bool mm) {
 //  合成
 //
 void OPNIF::Mix(int32_t* dest, int nsamples) {
-  if (enable_) {
-    Log("%.16llx:Mix %d samples\n", scheduler_->GetTimeNS(), nsamples);
-    bool debug = false;
-    if (debug) {
-      auto* dest2 = new int32_t[nsamples * 2];
-      // Left channel - fmgen
-      memset(dest2, 0, sizeof(int32_t) * nsamples * 2);
-      opn_.Mix(dest2, nsamples);
-      for (int i = 0; i < nsamples; ++i) {
-        // L only
-        dest[i * 2] += (dest2[i * 2] + dest2[i * 2 + 1]) >> 1;
-      }
-      // Right channel - YMFM
-      memset(dest2, 0, sizeof(int32_t) * nsamples * 2);
-      ym_.Mix(dest2, nsamples);
-      for (int i = 0; i < nsamples; ++i) {
-        // R only
-        dest[i * 2 + 1] += (dest2[i * 2] + dest2[i * 2 + 1]) >> 1;
-      }
-      delete[] dest2;
-    } else {
-      // opn_.Mix(dest, nsamples);
-      ym_.Mix(dest, nsamples);
+  if (!enable_)
+    return;
+
+  Log("%.16llx:Mix %d samples\n", scheduler_->GetTimeNS(), nsamples);
+  bool debug = false;
+  if (debug) {
+    auto* dest2 = new int32_t[nsamples * 2];
+    // Left channel - fmgen
+    memset(dest2, 0, sizeof(int32_t) * nsamples * 2);
+    opn_.Mix(dest2, nsamples);
+    for (int i = 0; i < nsamples; ++i) {
+      // L only
+      dest[i * 2] += (dest2[i * 2] + dest2[i * 2 + 1]) >> 1;
     }
+    // Right channel - YMFM
+    memset(dest2, 0, sizeof(int32_t) * nsamples * 2);
+    ym_.Mix(dest2, nsamples);
+    for (int i = 0; i < nsamples; ++i) {
+      // R only
+      dest[i * 2 + 1] += (dest2[i * 2] + dest2[i * 2 + 1]) >> 1;
+    }
+    delete[] dest2;
+  } else {
+    // opn_.Mix(dest, nsamples);
+    ym_.Mix(dest, nsamples);
   }
 }
 
@@ -782,7 +783,7 @@ void OPNIF::OPNUnit::Intr(bool flag) {
   intr_pending_ = flag;
   Log("OPN     :Interrupt %d %d %d\n", intr_pending_, intr_enabled_, !prev);
   if (intr_pending_ && intr_enabled_ && bus_ && !prev) {
-    bus_->Out(pintr_, true);
+    // bus_->Out(pintr_, true);
   }
 }
 
@@ -816,6 +817,7 @@ void OPNIF::SetIntrMask(uint32_t port, uint32_t intrmask) {
   //  Log("Intr enabled (%.2x)[%.2x]\n", a, intrmask);
   if (port == is_mask_port_) {
     opn_.SetIntrMask(!(is_mask_bit_ & intrmask));
+    ym_.SetIntrMask(!(is_mask_bit_ & intrmask));
   }
 }
 
@@ -829,6 +831,7 @@ void OPNIF::SetIndex0(uint32_t a, uint32_t data) {
     regs_[0x2f] = 1;
     prescaler = data;
     opn_.SetReg(data, 0);
+    ym_.SetReg(data, 0);
   }
 }
 
@@ -871,10 +874,9 @@ void OPNIF::WriteData0(uint32_t a, uint32_t data) {
     }
     regs_[index0_] = data;
     opn_.SetReg(index0_, data);
+    ym_.SetReg(index0_, data);
     if (use_hardware_ && chip_ && index0_ != 0x20)
       chip_->SetReg(ChipTime(), index0_, data);
-    if (index0_ != 0x20)
-      ym_.SetReg(index0_, data);
 
     if (index0_ == 0x27) {
       UpdateTimer();
@@ -909,8 +911,11 @@ uint32_t OPNIF::ReadData0(uint32_t a) {
     ret = bus_->In(port_io_ + (index0_ & 1));
   else if (index0_ == 0xff && !opna_mode_)
     ret = 0;
-  else
+  else {
     ret = opn_.GetReg(index0_);
+    // TODO
+    // ret = ym_.GetReg(index0_);
+  }
   //  Log("Read0 [%.2x] = %.2x\n", a, ret);
   return ret;
 }
@@ -918,10 +923,13 @@ uint32_t OPNIF::ReadData0(uint32_t a) {
 uint32_t OPNIF::ReadData1(uint32_t a) {
   uint32_t ret = 0xff;
   if (enable_ && opna_mode_) {
-    if (index1_ == 0x08)
+    if (index1_ == 0x08) {
       ret = opn_.GetReg(0x100 | index1_);
-    else
+      // TODO
+      // ret = ym_.GetReg(0x100 | index1_);
+    } else {
       ret = data1_;
+    }
   }
   //  Log("Read1 [%.2x] = %.2x  (d1:%.2x)\n", a, ret, data1);
   return ret;
@@ -966,9 +974,16 @@ void OPNIF::TimeEvent(uint32_t e) {
   if (enable_) {
     Log("%.8x:TimeEvent(%lld) : diff:%lld\n", currenttime_ns, e, diff_ns);
 
-    if (sound_control_)
+    if (sound_control_) {
       sound_control_->Update(this);
-    if (opn_.Count(diff_ns / 1000) || e)
+    }
+    // if (opn_.Count(diff_ns / 1000) || e)
+    //   UpdateTimer();
+
+    opn_.Count(diff_ns / 1000);
+
+    // Assuming ~8MHz => 125ns / clock
+    if (ym_.Count(diff_ns / 125) || e)
       UpdateTimer();
   }
 }
@@ -1124,34 +1139,69 @@ void YMFMUnit::SetReg(uint32_t addr, uint32_t data) {
   chip_.write(offset + 1, data);
 }
 
-void YMFMUnit::ymfm_sync_mode_write(uint8_t data)  {
-  m_engine->engine_mode_write(data);
-  // TODO: do some extra stuff?
+bool YMFMUnit::Count(int32_t clocks) {
+  bool event = false;
+  if (timer_a_enabled_) {
+    count_a_ -= clocks;
+    if (count_a_ <= 0) {
+      m_engine->engine_timer_expired(0);
+      event = true;
+    }
+  }
+  if (timer_b_enabled_) {
+    count_b_ -= clocks;
+    if (count_b_ <= 0) {
+      m_engine->engine_timer_expired(1);
+      event = true;
+    }
+  }
+  return event;
 }
 
-void YMFMUnit::ymfm_sync_check_interrupts()  {
+void YMFMUnit::ymfm_sync_mode_write(uint8_t data) {
+  // This will call ymfm_set_timer().
+  m_engine->engine_mode_write(data);
+  // |data| format
+  // |d7 d6|d5 d4|d3 d2 |d1 d0|
+  // |mode |reset|enable|load |
+  if (data & 0x01) {
+    // Load Timer-A
+  }
+  if (data & 0x02) {
+    // Load Timer-B
+  }
+  timer_a_enabled_ = data & 0x04;
+  timer_b_enabled_ = data & 0x08;
+}
+
+void YMFMUnit::ymfm_sync_check_interrupts() {
   m_engine->engine_check_interrupts();
   // TODO: do some extra stuff?
+  auto status = chip_.read_status();
+  if (status & 0x01) {
+    // interrupt
+  }
+  if (status & 0x02) {
+    // interrupt
+  }
 }
 
 void YMFMUnit::ymfm_set_timer(uint32_t tnum, int32_t duration_in_clocks) {
-  // TODO: trigger update?
-  // ymfm_interface::ymfm_set_timer(tnum, duration_in_clocks);
   if (duration_in_clocks < 0)
     return;
   switch (tnum) {
     case 0:
-      next_timer_a_ = duration_in_clocks;
+      count_a_ = duration_in_clocks;
       break;
     case 1:
-      next_timer_b_ = duration_in_clocks;
+      count_b_ = duration_in_clocks;
       break;
     default:
       break;
   }
 }
 
-uint8_t YMFMUnit::ymfm_external_read(ymfm::access_class type, uint32_t address)  {
+uint8_t YMFMUnit::ymfm_external_read(ymfm::access_class type, uint32_t address) {
   switch (type) {
     case ymfm::ACCESS_ADPCM_A:
       return adpcm_rom_[address & 0x1fff];
@@ -1163,7 +1213,7 @@ uint8_t YMFMUnit::ymfm_external_read(ymfm::access_class type, uint32_t address) 
   return ymfm_interface::ymfm_external_read(type, address);
 }
 
-void YMFMUnit::ymfm_external_write(ymfm::access_class type, uint32_t address, uint8_t data)  {
+void YMFMUnit::ymfm_external_write(ymfm::access_class type, uint32_t address, uint8_t data) {
   switch (type) {
     case ymfm::ACCESS_ADPCM_B:
       adpcm_buf_[address & 0x3ffff] = data;
