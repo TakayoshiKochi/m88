@@ -42,6 +42,7 @@ class YMFMUnit : public ymfm::ymfm_interface {
   void Mix(int32_t* buffer, int nsamples);
   void Reset() { chip_.reset(); }
   void SetReg(uint32_t addr, uint32_t data);
+  bool Count(int32_t clocks);
   uint32_t GetReg(uint32_t addr) { return chip_.read(addr); }
 
   // Overrides ymfm::ymfm_interface
@@ -50,7 +51,7 @@ class YMFMUnit : public ymfm::ymfm_interface {
   void ymfm_set_timer(uint32_t tnum, int32_t duration_in_clocks) override;
 
   // Intentionally not implemented - do not support chip busy.
-  // void ymfm_set_busy_end(uint32_t clocks) override { ymfm_interface::ymfm_set_busy_end(clocks); }
+  // void ymfm_set_busy_end(uint32_t clocks) override {}
   // bool ymfm_is_busy() override { return false; }
 
   void ymfm_update_irq(bool asserted) override {
@@ -80,9 +81,13 @@ class YMFMUnit : public ymfm::ymfm_interface {
   // ADPCM data (256KiB)
   std::vector<uint8_t> adpcm_buf_;
 
-  // TODO
-  int32_t next_timer_a_ = 0;
-  int32_t next_timer_b_ = 0;
+  std::vector<uint8_t> dbg_buf_;
+
+  int32_t count_a_ = 0;
+  int32_t count_b_ = 0;
+
+  bool timer_a_enabled_ = false;
+  bool timer_b_enabled_ = false;
 
   friend class OPNIF;
 };
