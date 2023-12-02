@@ -242,7 +242,7 @@ void OPNIF::Reset(uint32_t, uint32_t) {
 // ---------------------------------------------------------------------------
 //  割り込み
 //
-void OPNIF::OPNUnit::Intr(bool flag) {
+void OPNUnit::Intr(bool flag) {
   bool prev = intr_pending_ && intr_enabled_ && bus_;
   intr_pending_ = flag;
   Log("OPN     :Interrupt %d %d %d\n", intr_pending_, intr_enabled_, !prev);
@@ -254,7 +254,7 @@ void OPNIF::OPNUnit::Intr(bool flag) {
 // ---------------------------------------------------------------------------
 //  割り込み許可？
 //
-inline void OPNIF::OPNUnit::SetIntrMask(bool en) {
+inline void OPNUnit::SetIntrMask(bool en) {
   bool prev = intr_pending_ && intr_enabled_ && bus_;
   intr_enabled_ = en;
   if (intr_pending_ && intr_enabled_ && bus_ && !prev)

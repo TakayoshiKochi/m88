@@ -21,6 +21,27 @@ class Scheduler;
 namespace pc8801 {
 class Config;
 
+class OPNUnit : public fmgen::OPNA {
+ public:
+  OPNUnit() = default;
+  ~OPNUnit() override = default;
+  void Intr(bool f) override;
+  void SetIntr(IOBus* b, int p) {
+    bus_ = b;
+    pintr_ = p;
+  }
+  void SetIntrMask(bool e);
+  [[nodiscard]] uint32_t IntrStat() const {
+    return (intr_enabled_ ? 1 : 0) | (intr_pending_ ? 2 : 0);
+  }
+
+ private:
+  IOBus* bus_ = nullptr;
+  int pintr_ = 0;
+  bool intr_enabled_ = false;
+  bool intr_pending_ = false;
+};
+
 // ---------------------------------------------------------------------------
 //  88 用の OPN Unit
 //
@@ -84,29 +105,6 @@ class OPNIF : public Device, public ISoundSource {
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
  private:
-  class OPNUnit : public fmgen::OPNA {
-   public:
-    OPNUnit() = default;
-    ~OPNUnit() override = default;
-    void Intr(bool f) override;
-    void SetIntr(IOBus* b, int p) {
-      bus_ = b;
-      pintr_ = p;
-    }
-    void SetIntrMask(bool e);
-    [[nodiscard]] uint32_t IntrStat() const {
-      return (intr_enabled_ ? 1 : 0) | (intr_pending_ ? 2 : 0);
-    }
-
-   private:
-    IOBus* bus_ = nullptr;
-    int pintr_ = 0;
-    bool intr_enabled_ = false;
-    bool intr_pending_ = false;
-
-    friend class OPNIF;
-  };
-
   // TODO: bump version and add |opna_mode_| to Status
   enum {
     ssrev = 3,
