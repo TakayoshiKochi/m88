@@ -41,7 +41,7 @@ bool WinDrawGDI::Resize(uint32_t w, uint32_t h) {
     return false;
 
   memset(image, 0x40, width * height);
-  status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
+  status |= Draw::Status::kShouldRefresh;
   return true;
 }
 
@@ -146,6 +146,6 @@ bool WinDrawGDI::Lock(uint8_t** pimage, int* pbpl) {
 //  画面イメージの使用終了
 //
 bool WinDrawGDI::Unlock() {
-  status &= ~static_cast<uint32_t>(Draw::Status::kShouldRefresh);
+  status &= ~Draw::Status::kShouldRefresh;
   return true;
 }

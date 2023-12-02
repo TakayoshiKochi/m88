@@ -80,7 +80,7 @@ void Memory::Reset(uint32_t, uint32_t newmode) {
   //  port33 = 0;
 
   n80mode = (newmode & 2) && (port33 & 0x80 ? n80v2rom_ : n80rom_);
-  n80srmode = (newmode == static_cast<uint32_t>(BasicMode::kN80V2));
+  n80srmode = (newmode == BasicMode::kN80V2);
 
   waitmode = ((sw31 & 0x40) || (n80mode && n80srmode) ? 12 : 0) + (high ? 24 : 0);
   selgvram = true;
@@ -906,8 +906,8 @@ bool Memory::LoadROM() {
   // Ext ROM 1-7, N80 Ext ROM
   erom_mask_ = ~1;
   for (int i = 1; i < 9; ++i) {
-    auto type = static_cast<RomType>(static_cast<int>(RomType::kExtRom1) + i - 1);
-    erom_[i] = loader->Get(type);
+    auto type = RomType::kExtRom1 + i - 1;
+    erom_[i] = loader->Get(static_cast<RomType>(type));
     if (erom_[i]) {
       erom_mask_ &= ~(1 << i);
     }

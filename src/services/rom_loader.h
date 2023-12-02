@@ -65,7 +65,7 @@ class RomLoader {
   void LoadKanji();
   void LoadOptionalRoms();
 
-  std::unique_ptr<RomView> roms_[static_cast<int>(pc8801::RomType::kRomMax)];
+  std::unique_ptr<RomView> roms_[pc8801::RomType::kRomMax];
   uint32_t erom_mask_ = 0xfffffffe;
 };
 }  // namespace services

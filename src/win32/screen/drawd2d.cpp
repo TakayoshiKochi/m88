@@ -73,7 +73,7 @@ bool WinDrawD2D::Resize(uint32_t _width, uint32_t _height) {
   m_width = _width;
   m_height = _height;
 
-  status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
+  status |= Draw::Status::kShouldRefresh;
 
   HRESULT hr = S_OK;
 
@@ -239,6 +239,6 @@ bool WinDrawD2D::Lock(uint8_t** _pimage, int* _pbpl) {
 //! 画面イメージの使用終了
 //
 bool WinDrawD2D::Unlock() {
-  status &= ~static_cast<uint32_t>(Draw::Status::kShouldRefresh);
+  status &= ~Draw::Status::kShouldRefresh;
   return true;
 }

@@ -41,10 +41,14 @@ class Draw {
     int right, bottom;
   };
 
-  enum class Status : uint32_t {
-    kReadyToDraw = 1 << 0,    // 更新できることを示す
-    kShouldRefresh = 1 << 1,  // DrawBuffer をまた書き直す必要がある
-    kFlippable = 1 << 2,      // flip が実装してあることを示す
+  class Status {
+   public:
+    // 更新できることを示す
+    static constexpr uint32_t kReadyToDraw = 1 << 0;
+    // DrawBuffer をまた書き直す必要がある
+    static constexpr uint32_t kShouldRefresh = 1 << 1;
+    // flip が実装してあることを示す (not used)
+    static constexpr uint32_t kFlippable = 1 << 2;
   };
 
  public:

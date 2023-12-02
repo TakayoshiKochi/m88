@@ -13,7 +13,7 @@
 
 namespace pc8801 {
 
-enum class RomType : uint8_t {
+enum RomType : uint8_t {
   kN88Rom,
   kN88ERom0,
   kN88ERom1,
@@ -40,7 +40,7 @@ enum class RomType : uint8_t {
   kRomMax
 };
 
-enum class BasicMode : uint32_t {
+enum BasicMode : uint32_t {
   // bit0 H/L
   // bit1 N/N80 (bit5=0)
   // bit4 V1/V2
@@ -56,7 +56,7 @@ enum class BasicMode : uint32_t {
 };
 
 // Note: kPC98 is not supported anymore.
-enum class KeyboardType : uint32_t { kAT106 = 0, kPC98_obsolete = 1, kAT101 = 2 };
+enum KeyboardType : uint32_t { kAT106 = 0, kPC98_obsolete = 1, kAT101 = 2 };
 
 class Config {
  public:

@@ -280,9 +280,8 @@ uint32_t WinDraw::GetStatus() {
   if (drawsub_) {
     if (refresh_)
       refresh_ = 1;
-    return (!drawing_ && active_ ? static_cast<uint32_t>(Draw::Status::kReadyToDraw) : 0) |
-           (refresh_ ? static_cast<uint32_t>(Draw::Status::kShouldRefresh) : 0) |
-           drawsub_->GetStatus();
+    return (!drawing_ && active_ ? Draw::Status::kReadyToDraw : 0) |
+           (refresh_ ? Draw::Status::kShouldRefresh : 0) | drawsub_->GetStatus();
   }
   return 0;
 }
