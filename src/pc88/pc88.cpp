@@ -225,7 +225,7 @@ uint64_t PC88::GetFramePeriodNS() {
 void PC88::Reset() {
   bool cd = false;
   if (IsCDSupported())
-    cd = (static_cast<uint32_t>(base_->GetBasicMode()) & 0x40) != 0;
+    cd = (base_->GetBasicMode() & 0x40) != 0;
 
   base_->SetFDBoot(cd || disk_manager_->GetCurrentDisk(0) >= 0);
   base_->Reset();  // Switch 関係の更新
@@ -249,7 +249,7 @@ void PC88::Reset() {
   else
     opn1_->SetIMask(0x33, 0x02);
 
-  main_iobus_.Out(kPReset, static_cast<uint32_t>(base_->GetBasicMode()));
+  main_iobus_.Out(kPReset, base_->GetBasicMode());
   main_iobus_.Out(0x30, 1);
   main_iobus_.Out(0x30, 0);
   main_iobus_.Out(0x31, 0);

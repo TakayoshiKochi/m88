@@ -90,7 +90,7 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
   // SaveEntry(inifile, "Speed", cfg->speed);
   // Obsolete - always refresh.
   // SaveEntry(inifile, "RefreshTiming", cfg->refreshtiming);
-  SaveEntry(inifile, "BASICMode", static_cast<int>(cfg->basicmode));
+  SaveEntry(inifile, "BASICMode", cfg->basicmode);
   SaveEntry(inifile, "Sound", cfg->sound_output_hz);
   SaveEntry(inifile, "Switches", cfg->dipsw);
   SaveEntry(inifile, "SoundBuffer", cfg->sound_buffer_ms);
@@ -150,7 +150,7 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
   // if (LoadConfigEntry(inifile, "RefreshTiming", &n, 1))
   //   cfg->refreshtiming = Limit(n, 4, 1);
 
-  if (LoadConfigEntry(inifile, "BASICMode", &n, static_cast<int>(pc8801::BasicMode::kN88V2))) {
+  if (LoadConfigEntry(inifile, "BASICMode", &n, pc8801::BasicMode::kN88V2)) {
     pc8801::BasicMode bm = static_cast<pc8801::BasicMode>(n);
     if (bm == pc8801::BasicMode::kN80 || bm == pc8801::BasicMode::kN88V1 ||
         bm == pc8801::BasicMode::kN88V1H || bm == pc8801::BasicMode::kN88V2 ||
@@ -186,7 +186,7 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
     cfg->erambanks = Limit(n, 256, 0);
 
   if (LoadConfigEntry(inifile, "KeyboardType", &n, 0))
-    cfg->keytype = static_cast<pc8801::KeyboardType>(n);
+    cfg->keytype = n;
   if (cfg->keytype == pc8801::KeyboardType::kPC98_obsolete)
     cfg->keytype = pc8801::KeyboardType::kAT106;
 
