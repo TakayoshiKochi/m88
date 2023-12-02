@@ -172,14 +172,13 @@ void PC88::TimeSync() {
 //
 void PC88::UpdateScreen(bool refresh) {
   uint32_t dstat = draw_->GetStatus();
-  if (dstat & static_cast<uint32_t>(Draw::Status::kShouldRefresh))
+  if (dstat & Draw::Status::kShouldRefresh)
     refresh = true;
 
   LOADBEGIN("Screen");
 
   if (!screen_updated_ || refresh) {
-    if ((dstat & (static_cast<uint32_t>(Draw::Status::kReadyToDraw) |
-                  static_cast<uint32_t>(Draw::Status::kShouldRefresh))))
+    if (dstat & (Draw::Status::kReadyToDraw | Draw::Status::kShouldRefresh))
     //      if (dstat & (Draw::readytodraw | Draw::shouldrefresh))
     {
       int bpl;
@@ -200,7 +199,7 @@ void PC88::UpdateScreen(bool refresh) {
     }
   }
   LOADEND("Screen");
-  if (draw_->GetStatus() & static_cast<uint32_t>(Draw::Status::kReadyToDraw)) {
+  if (draw_->GetStatus() & Draw::Status::kReadyToDraw) {
     if (screen_updated_) {
       screen_updated_ = false;
       draw_->DrawScreen(region_);

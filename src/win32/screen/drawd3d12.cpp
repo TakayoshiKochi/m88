@@ -54,7 +54,7 @@ bool WinDrawD3D12::Resize(uint32_t screen_width, uint32_t screen_height) {
   width_ = screen_width;
   height_ = screen_height;
 
-  status |= static_cast<uint32_t>(Draw::Status::kShouldRefresh);
+  status |= Draw::Status::kShouldRefresh;
   ::SetWindowPos(hcwnd_, nullptr, 0, 0, screen_width, screen_height, SWP_SHOWWINDOW);
   return true;
 }
@@ -109,7 +109,7 @@ bool WinDrawD3D12::Lock(uint8_t** image, int* bpl) {
 }
 
 bool WinDrawD3D12::Unlock() {
-  status &= ~static_cast<uint32_t>(Draw::Status::kShouldRefresh);
+  status &= ~Draw::Status::kShouldRefresh;
   return true;
 }
 
