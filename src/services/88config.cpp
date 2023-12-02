@@ -186,7 +186,7 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
     cfg->erambanks = Limit(n, 256, 0);
 
   if (LoadConfigEntry(inifile, "KeyboardType", &n, 0))
-    cfg->keytype = n;
+    cfg->keytype = static_cast<pc8801::KeyboardType>(n);
   if (cfg->keytype == pc8801::KeyboardType::kPC98_obsolete)
     cfg->keytype = pc8801::KeyboardType::kAT106;
 
