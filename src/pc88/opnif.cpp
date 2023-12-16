@@ -22,7 +22,6 @@ constexpr int kBaseClockOPNA = 7987200;
 constexpr size_t kADPCMBufferSize = 0x40000;  // 256KiB
 }  // namespace
 
-// ---------------------------------------------------------------------------
 //  プリスケーラの設定値
 //  static にするのは，FMGen の制限により，複数の OPN を異なるクロックに
 //  することが出来ないため．
