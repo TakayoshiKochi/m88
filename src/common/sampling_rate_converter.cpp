@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: srcbuf.cpp,v 1.2 2003/05/12 22:26:34 cisc Exp $
 
-#include "common/srcbuf.h"
+#include "common/sampling_rate_converter.h"
 
 #include <assert.h>
 #include <math.h>
@@ -54,7 +54,7 @@ SamplingRateConverter::~SamplingRateConverter() {
   CleanUp();
 }
 
-bool SamplingRateConverter::Init(SoundSourceL* _source, int buffer_size, uint32_t outrate) {
+bool SamplingRateConverter::Init(SoundSource32* _source, int buffer_size, uint32_t outrate) {
   std::lock_guard<std::mutex> lock(mtx_);
 
   buffer_.reset();
@@ -73,11 +73,11 @@ bool SamplingRateConverter::Init(SoundSourceL* _source, int buffer_size, uint32_
   if (!ch_ || buffer_size_ <= 0)
     return false;
 
-  buffer_ = std::make_unique<SampleL[]>(ch_ * buffer_size_);
+  buffer_ = std::make_unique<Sample32[]>(ch_ * buffer_size_);
   if (!buffer_)
     return false;
 
-  memset(buffer_.get(), 0, ch_ * buffer_size_ * sizeof(SampleL));
+  memset(buffer_.get(), 0, ch_ * buffer_size_ * sizeof(Sample32));
   source_ = _source;
 
   output_rate_ = outrate;
@@ -143,8 +143,8 @@ void SamplingRateConverter::MakeFilter(uint32_t out) {
   // ソースを ic 倍アップサンプリングして LPF を掛けた後
   // oc 分の 1 にダウンサンプリングする
 
-  if (in == 55467)  // FM 音源対策(w
-  {
+  // FM 音源対策(w
+  if (in == 55467) {
     in = 166400;
     out *= 3;
   }
@@ -175,20 +175,20 @@ void SamplingRateConverter::MakeFilter(uint32_t out) {
   double d = bessel0(a);
 
   int j = 0;
-  for (int i = 0; i <= ic_; i++) {
+  for (int i = 0; i <= ic_; ++i) {
     int ii = i;
-    for (int o = 0; o <= M; o++) {
+    for (int o = 0; o <= M; ++o) {
       if (ii > 0) {
         double x = (double)ii / (double)(n_);
         double x2 = x * x;
         double w = bessel0(sqrt(1.0 - x2) * a) / d;
-        double g = c * (double)ii;
-        double z = sin(g) / g * w;
+        double gg = c * (double)ii;
+        double z = sin(gg) / gg * w;
         h2_[j] = gain * z;
       } else {
         h2_[j] = gain;
       }
-      j++;
+      ++j;
       ii += ic_;
     }
   }
@@ -198,44 +198,43 @@ void SamplingRateConverter::MakeFilter(uint32_t out) {
 // ---------------------------------------------------------------------------
 //  バッファから音を貰う
 //
-int SamplingRateConverter::Get(Sample* dest, int samples) {
+int SamplingRateConverter::Get(Sample16* dest, int samples) {
   std::lock_guard<std::mutex> lock(mtx_);
   if (!buffer_)
     return 0;
 
   int ss = samples;
-  for (int count = samples; count > 0; count--) {
+  for (int count = samples; count > 0; --count) {
     int i = 0;
     float z0 = 0.f;
     float z1 = 0.f;
 
     int p = read_ptr_;
     float* h = &h2_[(ic_ - oo_) * (M + 1) + (M)];
-    for (i = -M; i <= 0; i++) {
+    for (i = -M; i <= 0; ++i) {
       z0 += *h * buffer_[p * 2];
       z1 += *h * buffer_[p * 2 + 1];
-      h--;
-      p++;
+      --h;
+      ++p;
       if (p == buffer_size_)
         p = 0;
     }
 
     h = &h2_[oo_ * (M + 1)];
-    for (; i <= M; i++) {
+    for (; i <= M; ++i) {
       z0 += *h * buffer_[p * 2];
       z1 += *h * buffer_[p * 2 + 1];
-      h++;
-      p++;
+      ++h;
+      ++p;
       if (p == buffer_size_)
         p = 0;
     }
-    *dest++ = Limit(z0, 32767, -32768);
-    *dest++ = Limit(z1, 32767, -32768);
+    *dest++ = Limit(static_cast<int>(z0), 32767, -32768);
+    *dest++ = Limit(static_cast<int>(z1), 32767, -32768);
 
     oo_ -= oc_;
     while (oo_ < 0) {
-      read_ptr_++;
-      if (read_ptr_ == buffer_size_)
+      if (++read_ptr_ == buffer_size_)
         read_ptr_ = 0;
       if (Avail() < 2 * M + 1)
         FillMain(std::max(ss, count));

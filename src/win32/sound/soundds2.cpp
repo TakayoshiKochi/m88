@@ -32,7 +32,7 @@ DriverDS2::~DriverDS2() {
 // ---------------------------------------------------------------------------
 //  初期化 -------------------------------------------------------------------
 
-bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms) {
+bool DriverDS2::Init(SoundSource16 *s, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms) {
   if (playing_)
     return false;
 
@@ -41,7 +41,7 @@ bool DriverDS2::Init(SoundSource *s, HWND hwnd, uint32_t rate, uint32_t ch, uint
   sample_shift_ = 1 + (ch == 2 ? 1 : 0);
 
   // 計算
-  buffer_size_ = (rate * ch * sizeof(Sample) * buffer_length_ms_ / 1000) & ~7;
+  buffer_size_ = (rate * ch * sizeof(Sample16) * buffer_length_ms_ / 1000) & ~7;
 
   // DirectSound object 作成
   if (FAILED(DirectSoundCreate8(nullptr, &lpds_, nullptr)))
@@ -202,9 +202,9 @@ void DriverDS2::Send() {
     //      if (mixalways || !src->IsEmpty())
     {
       if (a1)
-        src_->Get((Sample *)a1, al1 >> sample_shift_);
+        src_->Get((Sample16 *)a1, al1 >> sample_shift_);
       if (a2)
-        src_->Get((Sample *)a2, al2 >> sample_shift_);
+        src_->Get((Sample16 *)a2, al2 >> sample_shift_);
     }
 
     // Unlock

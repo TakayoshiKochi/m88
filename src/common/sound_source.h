@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 template <class T>
-class SoundSource_ {
+class SoundSourceBase {
  public:
   virtual int Get(T* dest, int size) = 0;
   virtual uint32_t GetRate() = 0;
@@ -17,7 +17,7 @@ class SoundSource_ {
   virtual int GetAvail() = 0;
 };
 
-using Sample = int16_t;
-using SampleL = int32_t;
-using SoundSource = SoundSource_<Sample>;
-using SoundSourceL = SoundSource_<SampleL>;
+using Sample16 = int16_t;
+using Sample32 = int32_t;
+using SoundSource16 = SoundSourceBase<Sample16>;
+using SoundSource32 = SoundSourceBase<Sample32>;

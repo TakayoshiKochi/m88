@@ -68,13 +68,13 @@ add_library(common ${LIB_TYPE}
         src/common/png_codec.cpp
         src/common/real_time_keeper.h
         src/common/real_time_keeper.cpp
+        src/common/sampling_rate_converter.h
+        src/common/sampling_rate_converter.cpp
         src/common/scheduler.h
         src/common/scheduler.cpp
         src/common/scoped_comptr.h
         src/common/scoped_handle.h
-        src/common/soundsrc.h
-        src/common/srcbuf.h
-        src/common/srcbuf.cpp
+        src/common/sound_source.h
         src/common/status.h
         src/common/status.cpp
         src/common/threadable.h

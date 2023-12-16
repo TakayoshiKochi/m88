@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: sound.cpp,v 1.32 2003/05/19 01:10:32 cisc Exp $
 
-#include "sound.h"
+#include "pc88/sound.h"
 
 #include <stdint.h>
 
@@ -54,7 +54,7 @@ bool Sound::SetRate(uint32_t rate, int bufsize) {
   enabled_ = false;
 
   // 古いバッファを削除
-  soundbuf_.CleanUp();
+  source_buffer_.CleanUp();
 
   // 新しいバッファを用意
   sampling_rate_ = rate;
@@ -62,7 +62,7 @@ bool Sound::SetRate(uint32_t rate, int bufsize) {
   if (bufsize > 0) {
     //      if (!soundbuf.Init(this, bufsize))
     //          return false;
-    if (!soundbuf_.Init(this, bufsize, rate))
+    if (!source_buffer_.Init(this, bufsize, rate))
       return false;
 
     mixing_buf_ = std::make_unique<int32_t[]>(2 * bufsize);
@@ -82,13 +82,13 @@ void Sound::CleanUp() {
   // 各音源を切り離す。(音源自体の削除は行わない)
   sslist_.clear();
   // バッファを開放
-  soundbuf_.CleanUp();
+  source_buffer_.CleanUp();
 }
 
 // ---------------------------------------------------------------------------
 //  音合成
 //
-int Sound::Get(Sample* dest, int nsamples) {
+int Sound::Get(Sample16* dest, int nsamples) {
   int mixsamples = std::min(nsamples, buffer_size_);
   if (mixsamples > 0) {
     // 合成
@@ -111,7 +111,7 @@ int Sound::Get(Sample* dest, int nsamples) {
 // ---------------------------------------------------------------------------
 //  音合成
 //
-int Sound::Get(SampleL* dest, int nsamples) {
+int Sound::Get(Sample32* dest, int nsamples) {
   // 合成
   memset(dest, 0, nsamples * 2 * sizeof(int32_t));
   std::lock_guard<std::mutex> lock(mtx_);
@@ -177,8 +177,8 @@ bool Sound::Update(ISoundSource* /*src*/) {
 
   int64_t current_clock = pc_->GetCPUClocks64();
   int64_t clocks = current_clock - prev_clock_ + clock_remainder_;
-  if (clocks < mix_threshold_)
-    return true;
+  // if (clocks < mix_threshold_)
+  //   return true;
 
   int samples = mix_rate_ * clocks / pc_->GetEffectiveSpeed();
   if (samples == 0)
@@ -186,7 +186,7 @@ bool Sound::Update(ISoundSource* /*src*/) {
 
   clock_remainder_ = clocks - (pc_->GetEffectiveSpeed() * samples / mix_rate_);
   Log("%.16llx:Mix %d samples\n", pc_->GetScheduler()->GetTimeNS(), samples);
-  soundbuf_.Fill(samples);
+  source_buffer_.Fill(samples);
   prev_clock_ = current_clock;
   return true;
 }

@@ -7,7 +7,7 @@
 #pragma once
 
 #include "common/device.h"
-#include "common/soundsrc.h"
+#include "common/sound_source.h"
 #include "win32/monitor/winmon.h"
 
 // ---------------------------------------------------------------------------

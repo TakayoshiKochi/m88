@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "common/soundsrc.h"
+#include "common/sound_source.h"
 
 #include <memory>
 #include <mutex>
@@ -14,16 +14,16 @@
 // ---------------------------------------------------------------------------
 //  SamplingRateConverter
 //
-class SamplingRateConverter : public SoundSource {
+class SamplingRateConverter : public SoundSource16 {
  public:
   SamplingRateConverter();
   ~SamplingRateConverter();
 
-  bool Init(SoundSourceL* source, int buffer_size, uint32_t outrate);  // bufsize はサンプル単位
+  bool Init(SoundSource32* source, int buffer_size, uint32_t outrate);  // bufsize はサンプル単位
   void CleanUp();
 
   // Overrides SoundSource
-  int Get(Sample* dest, int size) override;
+  int Get(Sample16* dest, int size) override;
   uint32_t GetRate() override;
   int GetChannels() override;
   int GetAvail() override;
@@ -43,11 +43,11 @@ class SamplingRateConverter : public SoundSource {
   void MakeFilter(uint32_t outrate);
   [[nodiscard]] int Avail() const;
 
-  SoundSourceL* source_ = nullptr;
-  std::unique_ptr<SampleL[]> buffer_;
+  SoundSource32* source_ = nullptr;
+  std::unique_ptr<Sample32[]> buffer_;
   std::unique_ptr<float[]> h2_;
 
-  int buffer_size_ = 0;  // バッファのサイズ (in samples)
+  int buffer_size_ = 0;  // 1チャンネル分のバッファのサイズ (in samples)
   int read_ptr_ = 0;     // 読込位置 (in samples)
   int write_ptr_ = 0;    // 書き込み位置 (in samples)
   int ch_ = 2;           // チャネル数(1sample = ch*Sample)

@@ -29,7 +29,7 @@ class DriverASIO : public Driver {
   DriverASIO();
   ~DriverASIO() override;
 
-  bool Init(SoundSource* source,
+  bool Init(SoundSource16* source,
             HWND hwnd,
             uint32_t rate,
             uint32_t ch,
