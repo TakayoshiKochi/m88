@@ -9,7 +9,7 @@
 #include <limits.h>
 
 #include "common/device.h"
-#include "common/srcbuf.h"
+#include "common/sampling_rate_converter.h"
 
 #include <mutex>
 #include <vector>
@@ -23,7 +23,7 @@ namespace pc8801 {
 
 class Config;
 
-class Sound : public Device, public ISoundControl, protected SoundSourceL {
+class Sound : public Device, public ISoundControl, protected SoundSource32 {
  public:
   Sound();
   ~Sound() override;
@@ -44,12 +44,12 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
 
   // void FillWhenEmpty(bool f) { soundbuf.FillWhenEmpty(f); }
 
-  SoundSource* GetSoundSource() { return &soundbuf_; }
+  SoundSource16* GetSoundSource() { return &source_buffer_; }
 
-  int Get(Sample* dest, int size);
+  int Get(Sample16* dest, int size);
 
-  // Overrides SoundSourceL
-  int Get(SampleL* dest, int size) override;
+  // Overrides SoundSource32
+  int Get(Sample32* dest, int size) override;
   uint32_t GetRate() override { return mix_rate_; }
   int GetChannels() override { return 2; }
   int GetAvail() override { return INT_MAX; }
@@ -59,7 +59,7 @@ class Sound : public Device, public ISoundControl, protected SoundSourceL {
   uint32_t sampling_rate_ = 0;  // サンプリングレート
 
  private:
-  SamplingRateConverter soundbuf_;
+  SamplingRateConverter source_buffer_;
 
   PC88* pc_ = nullptr;
 

@@ -28,7 +28,7 @@ class DriverDS : public Driver {
   DriverDS();
   ~DriverDS();
 
-  bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms);
+  bool Init(SoundSource16* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms);
   bool CleanUp();
 
  private:

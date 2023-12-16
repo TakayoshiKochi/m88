@@ -230,7 +230,7 @@ DriverASIO::~DriverASIO() {
   ASIOExit();
 }
 
-bool DriverASIO::Init(SoundSource* source,
+bool DriverASIO::Init(SoundSource16* source,
                       HWND hwnd,
                       uint32_t rate,
                       uint32_t ch,
@@ -378,7 +378,7 @@ ASIOTime* DriverASIO::BufferSwitchTimeInfo(ASIOTime* timeInfo, long index) {
   // buffer size in samples
   long buffSize = g_asio_driver_info.preferred_size;
 
-  std::unique_ptr<Sample[]> buf = std::make_unique<Sample[]>(buffSize * 2);
+  std::unique_ptr<Sample16[]> buf = std::make_unique<Sample16[]>(buffSize * 2);
   src_->Get(buf.get(), buffSize);
 
   // perform the processing
@@ -397,7 +397,7 @@ ASIOTime* DriverASIO::BufferSwitchTimeInfo(ASIOTime* timeInfo, long index) {
         break;
       case ASIOSTInt32LSB: {
         auto* dest32 = reinterpret_cast<int32_t*>(dest);
-        Sample* ptr = buf.get() + (first ? 0 : 1);
+        Sample16* ptr = buf.get() + (first ? 0 : 1);
         first = false;
         for (int j = 0; j < buffSize; ++j) {
           *dest32++ = (int32_t)(*ptr) << 16;

@@ -26,14 +26,14 @@
 class PC88;
 class OPNMonitor;
 
-class SoundDumpPipe : public SoundSource {
+class SoundDumpPipe : public SoundSource16 {
  public:
   SoundDumpPipe();
 
-  void SetSource(SoundSource* source) { source_ = source; }
+  void SetSource(SoundSource16* source) { source_ = source; }
   uint32_t GetRate() { return source_ ? source_->GetRate() : 0; }
   int GetChannels() { return source_ ? source_->GetChannels() : 0; }
-  int Get(Sample* dest, int samples);
+  int Get(Sample16* dest, int samples);
   int GetAvail() { return INT_MAX; }
 
   bool DumpStart(char* filename);
@@ -43,9 +43,9 @@ class SoundDumpPipe : public SoundSource {
  private:
   enum DumpState { IDLE, STANDBY, DUMPING };
 
-  void Dump(Sample* dest, int samples);
+  void Dump(Sample16* dest, int samples);
 
-  SoundSource* source_;
+  SoundSource16* source_;
   std::string dumpfile_;
 
   HMMIO hmmio_;        // mmio handle

@@ -12,7 +12,7 @@
 #include <atomic>
 #include <string>
 
-#include "common/soundsrc.h"
+#include "common/sound_source.h"
 
 // ---------------------------------------------------------------------------
 
@@ -23,7 +23,11 @@ class Driver {
   Driver() = default;
   virtual ~Driver() = default;
 
-  virtual bool Init(SoundSource* sb, HWND hwnd, uint32_t rate, uint32_t ch, uint32_t buflen_ms) = 0;
+  virtual bool Init(SoundSource16* sb,
+                    HWND hwnd,
+                    uint32_t rate,
+                    uint32_t ch,
+                    uint32_t buflen_ms) = 0;
   virtual bool CleanUp() = 0;
 
   // Note: Used by DriverASIO only.
@@ -34,7 +38,7 @@ class Driver {
   void MixAlways(bool yes) { mixalways = yes; }
 
  protected:
-  SoundSource* src_ = nullptr;
+  SoundSource16* src_ = nullptr;
   uint32_t buffer_size_ = 0;
   uint32_t sample_shift_ = 0;
   std::atomic<bool> playing_ = false;

@@ -346,8 +346,8 @@
     <ClCompile Include="src\common\memory_bus.cpp" />
     <ClCompile Include="src\common\png_codec.cpp" />
     <ClCompile Include="src\common\real_time_keeper.cpp" />
+    <ClCompile Include="src\common\sampling_rate_converter.cpp" />
     <ClCompile Include="src\common\scheduler.cpp" />
-    <ClCompile Include="src\common\srcbuf.cpp" />
     <ClCompile Include="src\common\status.cpp" />
     <ClCompile Include="src\devices\fmgen.cpp" />
     <ClCompile Include="src\devices\fmtimer.cpp" />
@@ -734,11 +734,11 @@
     <ClInclude Include="src\common\misc.h" />
     <ClInclude Include="src\common\png_codec.h" />
     <ClInclude Include="src\common\real_time_keeper.h" />
+    <ClInclude Include="src\common\sampling_rate_converter.h" />
     <ClInclude Include="src\common\scheduler.h" />
     <ClInclude Include="src\common\scoped_comptr.h" />
     <ClInclude Include="src\common\scoped_handle.h" />
-    <ClInclude Include="src\common\soundsrc.h" />
-    <ClInclude Include="src\common\srcbuf.h" />
+    <ClInclude Include="src\common\sound_source.h" />
     <ClInclude Include="src\common\status.h" />
     <ClInclude Include="src\common\time_constants.h" />
     <ClInclude Include="src\devices\fmgen.h" />
