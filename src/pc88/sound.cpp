@@ -177,8 +177,8 @@ bool Sound::Update(ISoundSource* /*src*/) {
 
   int64_t current_clock = pc_->GetCPUClocks64();
   int64_t clocks = current_clock - prev_clock_ + clock_remainder_;
-  // if (clocks < mix_threshold_)
-  //   return true;
+  if (clocks < mix_threshold_)
+    return true;
 
   int samples = mix_rate_ * clocks / pc_->GetEffectiveSpeed();
   if (samples == 0)
