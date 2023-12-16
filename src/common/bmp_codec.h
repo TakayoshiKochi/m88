@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "common/image_codec.h"
 
 class BMPCodec : public ImageCodec {
