@@ -159,6 +159,9 @@ class OPNIF : public Device, public ISoundSource {
 
   uint8_t regs_[0x200]{};
 
+  //  プリスケーラの設定値
+  //  static にするのは，FMGen の制限により，複数の OPN を異なるクロックに
+  //  することが出来ないため．
   static int prescaler;
 
   static const Descriptor descriptor;

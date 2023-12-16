@@ -1,6 +1,9 @@
-#pragma once
+// ---------------------------------------------------------------------------
+// M88 - PC8801 Series Emulator
+// Copyright (C) by cisc 1998, 2003.
+// ---------------------------------------------------------------------------
 
-#include <memory>
+#pragma once
 
 #include "common/image_codec.h"
 
