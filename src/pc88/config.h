@@ -37,6 +37,7 @@ enum RomType : uint8_t {
   kExtRom6,
   kExtRom7,
   kExtRom8,  // N80 ext
+  kYM2608BRythmRom,
   kRomMax
 };
 
