@@ -34,3 +34,4 @@ cmake-build-release/
 *.D88
 *.wav
 *.WAV
+*.bin
