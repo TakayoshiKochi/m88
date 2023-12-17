@@ -79,7 +79,7 @@ class YMFMInterface : public ymfm::ymfm_interface {
   uint32_t channel_mask_ = 0;
 
   // Rhythm sampling data
-  static uint8_t adpcm_rom_[0x2000];
+  uint8_t* adpcm_rom_ = nullptr;
   // ADPCM data (256KiB)
   std::vector<uint8_t> adpcm_buf_;
 

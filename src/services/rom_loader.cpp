@@ -42,11 +42,11 @@ bool RomLoader::LoadRom(const std::string_view filename, pc8801::RomType type, s
 
   auto& rom = roms_[type];
   rom = std::make_unique<RomView>(size);
-  if (!(LoadFile(filename, rom->Get(), size))) {
-    rom.reset();
-    return false;
+  if (LoadFile(filename, rom->Get(), size)) {
+    return true;
   }
-  return true;
+  rom.reset();
+  return false;
 }
 
 void RomLoader::LoadPC88() {
@@ -96,6 +96,7 @@ void RomLoader::LoadOptionalRoms() {
   LoadRom("CDBIOS.ROM", pc8801::RomType::kCDBiosRom, 0x10000);
   LoadRom("N80_2.ROM", pc8801::RomType::kN80Rom, 0x8000);
   LoadRom("N80_3.ROM", pc8801::RomType::kN80SRRom, 0xa000);
+  LoadRom("ym2608_adpcm_rom.bin", pc8801::RomType::kYM2608BRythmRom, 0x2000);
 
   char name[] = "E0.ROM";
   erom_mask_ = ~1;
