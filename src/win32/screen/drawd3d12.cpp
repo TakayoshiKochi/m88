@@ -64,8 +64,8 @@ void WinDrawD3D12::SetPalette(Draw::Palette* pe, int index, int nentries) {
     pal_[index].red = pe->red;
     pal_[index].green = pe->green;
     pal_[index].blue = pe->blue;
-    index++;
-    pe++;
+    ++index;
+    ++pe;
   }
   update_palette_ = true;
 }
@@ -120,6 +120,7 @@ bool WinDrawD3D12::CreateD3D() {
 
 #if defined(_DEBUG)
   {
+    scoped_comptr<ID3D12Debug> debug_;
     HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debug_));
     if (SUCCEEDED(hr)) {
       debug_->EnableDebugLayer();
@@ -484,6 +485,66 @@ bool WinDrawD3D12::SetUpTexture() {
       return false;
   }
 
+  // "CopyTextureRegion" version start
+  if (!upload_buffer_) {
+    D3D12_HEAP_PROPERTIES upload_heap_prop = {};
+    upload_heap_prop.Type = D3D12_HEAP_TYPE_UPLOAD;
+    upload_heap_prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    upload_heap_prop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+    upload_heap_prop.CreationNodeMask = 0;
+    upload_heap_prop.VisibleNodeMask = 0;
+
+    D3D12_RESOURCE_DESC resource_desc = {};
+    resource_desc.Format = DXGI_FORMAT_UNKNOWN;
+    resource_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+    resource_desc.Width = kTextureWidth * kTextureHeight * sizeof(TexRGBA);
+    resource_desc.Height = 1;
+    resource_desc.DepthOrArraySize = 1;
+    resource_desc.MipLevels = 1;
+
+    resource_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    resource_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+    resource_desc.SampleDesc.Count = 1;
+    resource_desc.SampleDesc.Quality = 0;
+
+    HRESULT hr = dev_->CreateCommittedResource(&upload_heap_prop, D3D12_HEAP_FLAG_NONE,
+                                               &resource_desc, D3D12_RESOURCE_STATE_GENERIC_READ,
+                                               nullptr, IID_PPV_ARGS(&upload_buffer_));
+    if (FAILED(hr)) {
+      // hr = dev_->GetDeviceRemovedReason();
+      return false;
+    }
+  }
+
+  if (!texture_buffer_) {
+    D3D12_HEAP_PROPERTIES tex_heap_prop = {};
+    tex_heap_prop.Type = D3D12_HEAP_TYPE_DEFAULT;
+    tex_heap_prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    tex_heap_prop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+    tex_heap_prop.CreationNodeMask = 0;
+    tex_heap_prop.VisibleNodeMask = 0;
+
+    D3D12_RESOURCE_DESC resource_desc = {};
+    resource_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    resource_desc.Width = kTextureWidth;
+    resource_desc.Height = kTextureHeight;
+    resource_desc.DepthOrArraySize = 1;
+    resource_desc.MipLevels = 1;
+    resource_desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    resource_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    resource_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+    resource_desc.SampleDesc.Count = 1;
+    resource_desc.SampleDesc.Quality = 0;
+
+    HRESULT hr = dev_->CreateCommittedResource(&tex_heap_prop, D3D12_HEAP_FLAG_NONE, &resource_desc,
+                                               D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+                                               IID_PPV_ARGS(&texture_buffer_));
+    if (FAILED(hr)) {
+      return false;
+    }
+  }
+  // end
+
   return true;
 }
 
@@ -700,6 +761,80 @@ bool WinDrawD3D12::RenderTexture(const RECT& rect) {
     }
   }
 
+#if 1
+  // "CopyTextureRegion" version start
+  TexRGBA* map_for_img = nullptr;
+  HRESULT hr = upload_buffer_->Map(0, nullptr, (void**)&map_for_img);
+  if (FAILED(hr)) {
+    return false;
+  }
+  std::copy_n(texturedata_.data(), texturedata_.size(), map_for_img);
+  upload_buffer_->Unmap(0, nullptr);
+
+  D3D12_TEXTURE_COPY_LOCATION src = {};
+  src.pResource = upload_buffer_.get();
+  src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+  src.PlacedFootprint.Offset = 0;
+  src.PlacedFootprint.Footprint.Width = kTextureWidth;
+  src.PlacedFootprint.Footprint.Height = kTextureHeight;
+  src.PlacedFootprint.Footprint.Depth = 1;
+  src.PlacedFootprint.Footprint.RowPitch = kTextureWidth * sizeof(TexRGBA);
+  src.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+  D3D12_TEXTURE_COPY_LOCATION dst = {};
+  dst.pResource = texture_buffer_.get();
+  dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+  dst.SubresourceIndex = 0;
+
+  {
+    D3D12_RESOURCE_BARRIER barrier_desc = {};
+    barrier_desc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier_desc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier_desc.Transition.pResource = texture_buffer_.get();
+    barrier_desc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    barrier_desc.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    barrier_desc.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+    cmd_list_->ResourceBarrier(1, &barrier_desc);
+  }
+
+  D3D12_BOX src_region;
+  src_region.left = rect.left;
+  src_region.top = rect.top;
+  src_region.right = rect.right;
+  src_region.bottom = rect.bottom;
+  src_region.front = 0;
+  src_region.back = 1;
+
+  cmd_list_->CopyTextureRegion(&dst, rect.left, rect.top, 0, &src, &src_region);
+
+  {
+    D3D12_RESOURCE_BARRIER barrier_desc = {};
+    barrier_desc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier_desc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier_desc.Transition.pResource = texture_buffer_.get();
+    barrier_desc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    barrier_desc.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+    barrier_desc.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    cmd_list_->ResourceBarrier(1, &barrier_desc);
+  }
+
+  D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
+  srv_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+  srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+  srv_desc.Texture2D.MipLevels = 1;
+
+  dev_->CreateShaderResourceView(texture_buffer_.get(), &srv_desc,
+                                 tex_desc_heap_->GetCPUDescriptorHandleForHeapStart());
+
+  cmd_list_->SetDescriptorHeaps(1, &tex_desc_heap_);
+  cmd_list_->SetGraphicsRootDescriptorTable(0,
+                                            tex_desc_heap_->GetGPUDescriptorHandleForHeapStart());
+  return true;
+  // end
+
+#else
+
   D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
   srv_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -717,6 +852,7 @@ bool WinDrawD3D12::RenderTexture(const RECT& rect) {
       texture_->WriteToSubresource(0, nullptr, texturedata_.data(), kTextureWidth * sizeof(TexRGBA),
                                    texturedata_.size() * sizeof(TexRGBA));
   return SUCCEEDED(hr);
+#endif
 }
 
 void WinDrawD3D12::WaitForGPU() {
