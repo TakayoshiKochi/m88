@@ -16,7 +16,7 @@
 //  構築/消滅
 //
 M88About::M88About() {
-  SanityCheck(&crc);
+  SanityCheck(&crc_);
 }
 
 // ---------------------------------------------------------------------------
@@ -42,7 +42,7 @@ INT_PTR M88About::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 
       SetDlgItemText(hdlg, IDC_ABOUT_TEXT, buf);
 
-      wsprintf(buf, abouttext, crc);
+      wsprintf(buf, abouttext, crc_);
 
       SetDlgItemText(hdlg, IDC_ABOUT_BOX, buf);
 
@@ -67,7 +67,7 @@ INT_PTR M88About::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 }
 
 INT_PTR CALLBACK M88About::DlgProcGate(HWND hwnd, UINT m, WPARAM w, LPARAM l) {
-  M88About* about = 0;
+  M88About* about = nullptr;
   if (m == WM_INITDIALOG) {
     about = reinterpret_cast<M88About*>(l);
     if (about) {

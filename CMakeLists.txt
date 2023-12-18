@@ -42,6 +42,8 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Zeta)
 add_library(common ${LIB_TYPE}
         src/common/bmp_codec.h
         src/common/bmp_codec.cpp
+        src/common/crc32.h
+        src/common/crc32.cpp
         src/common/device.h
         src/common/device.cpp
         src/common/diag.h
@@ -88,6 +90,7 @@ target_include_directories(common
 target_link_libraries(common Z80)
 
 add_executable(common_unittests
+        src/common/crc32_test.cc
         src/common/device_test.cc
         src/common/floppy_test.cc
         src/common/io_bus_test.cc
@@ -98,7 +101,7 @@ target_link_libraries(common_unittests
         common)
 
 add_executable(common_benchmarks
-        src/common/io_bus_benchmark.cc)
+        src/common/crc32_benchmark.cc)
 
 target_link_libraries(common_benchmarks
         PRIVATE benchmark::benchmark benchmark::benchmark_main
@@ -454,7 +457,7 @@ add_library(cdif SHARED
         modules/cdif/src/resource.h)
 
 target_include_directories(cdif
-        PRIVATE ${CMAKE_SOURCE_DIR}
+        PRIVATE ${CMAKE_SOURCE_DIR}/src
         PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(cdif
@@ -475,7 +478,7 @@ add_library(diskdrv SHARED
         src/win32/file.cpp)
 
 target_include_directories(diskdrv
-        PRIVATE ${CMAKE_SOURCE_DIR}
+        PRIVATE ${CMAKE_SOURCE_DIR}/src
         PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(diskdrv
@@ -494,7 +497,7 @@ add_library(sample1 ${LIB_TYPE}
         modules/sample1/src/sine.cpp)
 
 target_include_directories(sample1
-        PRIVATE ${CMAKE_SOURCE_DIR}
+        PRIVATE ${CMAKE_SOURCE_DIR}/src
         PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(sample1
@@ -510,7 +513,7 @@ add_library(sample2 ${LIB_TYPE}
         modules/sample2/src/resource.h)
 
 target_include_directories(sample2
-        PRIVATE ${CMAKE_SOURCE_DIR}
+        PRIVATE ${CMAKE_SOURCE_DIR}/src
         PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(sample2
@@ -519,7 +522,14 @@ target_link_libraries(sample2
 # tools
 
 add_executable(writetag
-        tools/writetag.cpp)
+        src/tools/writetag.cpp)
+
+target_include_directories(writetag
+        PRIVATE ${CMAKE_SOURCE_DIR}/src
+        PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
+
+target_link_libraries(writetag
+        common)
 
 add_custom_command(TARGET writetag POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
