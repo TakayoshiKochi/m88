@@ -121,9 +121,9 @@
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
       <AssemblerOutput>AssemblyAndMachineCode</AssemblerOutput>
-      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)%(RelativeDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -184,9 +184,9 @@
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
       <AssemblerOutput>AssemblyAndMachineCode</AssemblerOutput>
-      <AssemblerListingLocation>.\x64/Release/</AssemblerListingLocation>
-      <ObjectFileName>.\x64/Release/</ObjectFileName>
-      <ProgramDataBaseFileName>.\x64/Release/</ProgramDataBaseFileName>
+      <AssemblerListingLocation>.\x64/Release/%(RelativeDir)</AssemblerListingLocation>
+      <ObjectFileName>.\x64/Release/%(RelativeDir)</ObjectFileName>
+      <ProgramDataBaseFileName>.\x64/Release/%(RelativeDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -244,9 +244,9 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)%(RelativeDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -298,9 +298,9 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\x64/Debug/</AssemblerListingLocation>
-      <ObjectFileName>.\x64/Debug/</ObjectFileName>
-      <ProgramDataBaseFileName>.\x64/Debug/</ProgramDataBaseFileName>
+      <AssemblerListingLocation>.\x64/Debug/%(RelativeDir)</AssemblerListingLocation>
+      <ObjectFileName>.\x64/Debug/%(RelativeDir)</ObjectFileName>
+      <ProgramDataBaseFileName>.\x64/Debug/%(RelativeDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -334,6 +334,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\common\bmp_codec.cpp" />
+    <ClCompile Include="src\common\crc32.cpp" />
     <ClCompile Include="src\common\device.cpp" />
     <ClCompile Include="src\common\diag.cpp" />
     <ClCompile Include="src\common\emulation_loop.cpp" />
@@ -720,6 +721,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\bmp_codec.h" />
+    <ClInclude Include="src\common\crc32.h" />
     <ClInclude Include="src\common\device.h" />
     <ClInclude Include="src\common\diag.h" />
     <ClInclude Include="src\common\draw.h" />

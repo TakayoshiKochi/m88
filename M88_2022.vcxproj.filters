@@ -417,6 +417,9 @@
     <ClCompile Include="src\common\sampling_rate_converter.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="src\common\crc32.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -822,6 +825,9 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\sound_source.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\crc32.h">
       <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
