@@ -13,11 +13,12 @@
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
+#undef COMPILE_SHADER_FROM_FILE
+
 namespace {
 
-#ifndef COMPILE_SHADER_FROM_FILE
 #pragma comment(lib, "d3dcompiler.lib")
-
+#ifndef COMPILE_SHADER_FROM_FILE
 #include "win32/screen/vertex_shader.h"
 #include "win32/screen/pixel_shader.h"
 #endif
@@ -288,11 +289,12 @@ bool WinDrawD3D12::SetUpShaders() {
         OutputDebugStringA(errstr.c_str());
       }
     }
-#endif
+#else
     HRESULT hr = D3DCreateBlob(sizeof(g_BasicVS), &vs_blob_);
     std::copy_n(g_BasicVS, sizeof(g_BasicVS), (char*)vs_blob_->GetBufferPointer());
     if (FAILED(hr))
       return false;
+#endif
   }
 
   if (!ps_blob_) {
@@ -319,11 +321,12 @@ bool WinDrawD3D12::SetUpShaders() {
         OutputDebugStringA(errstr.c_str());
       }
     }
-#endif
+#else
     HRESULT hr = D3DCreateBlob(sizeof(g_BasicPS), &ps_blob_);
     std::copy_n(g_BasicPS, sizeof(g_BasicPS), (char*)ps_blob_->GetBufferPointer());
     if (FAILED(hr))
       return false;
+#endif
   }
 
   return true;
