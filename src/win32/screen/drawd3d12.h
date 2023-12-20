@@ -88,12 +88,12 @@ class WinDrawD3D12 : public WinDrawSub {
   scoped_comptr<ID3DBlob> vs_blob_;
   scoped_comptr<ID3DBlob> ps_blob_;
 
+  // Texture buffers
+  scoped_comptr<ID3D12Resource> upload_buffer_;
+  scoped_comptr<ID3D12Resource> texture_buffer_;
+
   scoped_comptr<ID3D12Fence> fence_;
   uint64_t fence_val_ = 0;
-
-#if defined(_DEBUG)
-  scoped_comptr<ID3D12Debug> debug_;
-#endif
 
   struct TexRGBA {
     uint8_t R, G, B, A;
