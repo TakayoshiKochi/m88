@@ -819,8 +819,8 @@ void WinUI::OpenTapeImage(const char* filename) {
 //  ステータスバー表示切り替え
 //
 void WinUI::ShowStatusWindow() {
-  if (fullscreen_)
-    return;
+  assert(!fullscreen_);
+
   if (flags() & pc8801::Config::kShowStatusBar) {
     statusdisplay.Enable((flags() & pc8801::Config::kShowFDCStatus) != 0);
     // Allow window corner rounding.
@@ -883,8 +883,11 @@ void WinUI::SetCursorVisibility(bool flag) {
     return;
 
   if (flag) {
-    if (!(pci.flags & CURSOR_SHOWING))
-      ShowCursor(true);
+    if (!(pci.flags & CURSOR_SHOWING)) {
+      int retries = 10;
+      while (ShowCursor(true) < 0 || --retries >= 0)
+        ;
+    }
   } else {
     if (pci.flags & CURSOR_SHOWING)
       ShowCursor(false);
