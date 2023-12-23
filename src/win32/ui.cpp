@@ -232,12 +232,6 @@ bool WinUI::InitM88(const char* cmdline) {
   if (!SanityCheck())
     return false;
 
-  //  エミュレーション開始
-  Log("%d\temulation begin\n", timeGetTime());
-  core_.Wait(false);
-  active_ = true;
-  fullscreen_ = false;
-
   //  設定反映
   Log("%d\tapply cmdline\n", timeGetTime());
   SetCurrentDirectory(path);
@@ -248,6 +242,12 @@ bool WinUI::InitM88(const char* cmdline) {
   //  リセット
   Log("%d\treset\n", timeGetTime());
   core_.Reset();
+
+  //  エミュレーション開始
+  Log("%d\temulation begin\n", timeGetTime());
+  core_.Wait(false);
+  active_ = true;
+  fullscreen_ = false;
 
   // あとごちゃごちゃしたもの
   Log("%d\tetc\n", timeGetTime());
