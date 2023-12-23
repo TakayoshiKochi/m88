@@ -389,6 +389,7 @@
     <ClCompile Include="src\services\disk_image_holder.cpp" />
     <ClCompile Include="src\services\ioview.cpp" />
     <ClCompile Include="src\services\memview.cpp" />
+    <ClCompile Include="src\services\power_management.cpp" />
     <ClCompile Include="src\services\rom_loader.cpp" />
     <ClCompile Include="src\services\tapemgr.cpp" />
     <ClCompile Include="src\win32\about.cpp">
@@ -783,6 +784,7 @@
     <ClInclude Include="src\services\disk_image_holder.h" />
     <ClInclude Include="src\services\ioview.h" />
     <ClInclude Include="src\services\memview.h" />
+    <ClInclude Include="src\services\power_management.h" />
     <ClInclude Include="src\services\rom_loader.h" />
     <ClInclude Include="src\services\tapemgr.h" />
     <ClInclude Include="src\win32\about.h" />
