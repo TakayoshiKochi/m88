@@ -170,12 +170,6 @@ bool WinUI::InitM88(const char* cmdline) {
   // Window位置復元
   ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
   LoadWindowPosition();
-  {
-    RECT rect;
-    GetWindowRect(hwnd_, &rect);
-    point_.x = rect.left;
-    point_.y = rect.top;
-  }
 
   // 画面初期化
   M88ChangeDisplay(hwnd_, 0, 0);
@@ -1080,18 +1074,8 @@ void WinUI::SaveWindowPosition() {
 }
 
 void WinUI::LoadWindowPosition() {
-  WINDOWPLACEMENT wp;
-  wp.length = sizeof(WINDOWPLACEMENT);
-  ::GetWindowPlacement(hwnd_, &wp);
-
-  LONG winw = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
-  LONG winh = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
-
-  wp.rcNormalPosition.top = config().winposy;
-  wp.rcNormalPosition.bottom = config().winposy + winh;
-  wp.rcNormalPosition.left = config().winposx;
-  wp.rcNormalPosition.right = config().winposx + winw;
-  ::SetWindowPlacement(hwnd_, &wp);
+  point_.x = config().winposx;
+  point_.y = config().winposy;
 }
 
 LRESULT WinUI::M88ChangeSampleRate(HWND hwnd, WPARAM wp, LPARAM) {
