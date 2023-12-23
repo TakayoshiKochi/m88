@@ -60,7 +60,7 @@ int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR cmdline, int nwinmode) {
 
   int r = -1;
 
-  std::unique_ptr<WinUI> ui = std::make_unique<WinUI>(hinst);
+  auto ui = std::make_unique<WinUI>(hinst);
   if (ui && ui->InitWindow(nwinmode)) {
     r = ui->Main(cmdline);
   }

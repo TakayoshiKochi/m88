@@ -18,6 +18,7 @@
 #include "common/image_codec.h"
 #include "pc88/opnif.h"
 #include "services/diskmgr.h"
+#include "services/power_management.h"
 #include "services/tapemgr.h"
 #include "win32/about.h"
 #include "win32/file.h"
@@ -42,15 +43,16 @@ constexpr int kPC88ScreenHeight = 400;
 WinUI::WinUI(HINSTANCE hinstance) : hinst_(hinstance) {
   point_.x = 0;
   point_.y = 0;
-  //  resizewindow = 0;
   displaychanged_time_ = GetTickCount();
 
   diskinfo[0].hmenu = nullptr;
   diskinfo[0].idchgdisk = IDM_CHANGEDISK_1;
   diskinfo[1].hmenu = nullptr;
   diskinfo[1].idchgdisk = IDM_CHANGEDISK_2;
+
   hmenuss[0] = nullptr;
   hmenuss[1] = nullptr;
+
   current_snapshot_ = 0;
   snapshot_changed_ = true;
 
@@ -65,7 +67,7 @@ WinUI::~WinUI() = default;
 //
 bool WinUI::InitWindow(int) {
   WNDCLASS wcl;
-  static const char* szwinname = "M88p2 WinUI";
+  static const char szwinname[] = "M88p2 WinUI";
 
   wcl.hInstance = hinst_;
   wcl.lpszClassName = szwinname;
@@ -98,20 +100,6 @@ bool WinUI::InitWindow(int) {
 
   if (!draw_.Init0(hwnd_))
     return false;
-
-  // Power management
-  REASON_CONTEXT ctx{};
-  ctx.Version = POWER_REQUEST_CONTEXT_VERSION;
-  ctx.Flags = POWER_REQUEST_CONTEXT_SIMPLE_STRING;
-  ctx.Reason.SimpleReasonString = const_cast<LPWSTR>(L"M88 wakelock for fulllscreen");
-  if (!hpower_) {
-    hpower_.reset(PowerCreateRequest(&ctx));
-    if (hpower_.get() == INVALID_HANDLE_VALUE) {
-      auto error = GetLastError();
-      Log("PowerCreateRequest failed: %d\n", error);
-      hpower_.reset();
-    }
-  }
 
   clipmode_ = 0;
   gui_mode_by_mouse_ = false;
@@ -182,12 +170,6 @@ bool WinUI::InitM88(const char* cmdline) {
   // Window位置復元
   ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
   LoadWindowPosition();
-  {
-    RECT rect;
-    GetWindowRect(hwnd_, &rect);
-    point_.x = rect.left;
-    point_.y = rect.top;
-  }
 
   // 画面初期化
   M88ChangeDisplay(hwnd_, 0, 0);
@@ -232,12 +214,6 @@ bool WinUI::InitM88(const char* cmdline) {
   if (!SanityCheck())
     return false;
 
-  //  エミュレーション開始
-  Log("%d\temulation begin\n", timeGetTime());
-  core_.Wait(false);
-  active_ = true;
-  fullscreen_ = false;
-
   //  設定反映
   Log("%d\tapply cmdline\n", timeGetTime());
   SetCurrentDirectory(path);
@@ -248,6 +224,12 @@ bool WinUI::InitM88(const char* cmdline) {
   //  リセット
   Log("%d\treset\n", timeGetTime());
   core_.Reset();
+
+  //  エミュレーション開始
+  Log("%d\temulation begin\n", timeGetTime());
+  core_.Wait(false);
+  active_ = true;
+  fullscreen_ = false;
 
   // あとごちゃごちゃしたもの
   Log("%d\tetc\n", timeGetTime());
@@ -562,9 +544,9 @@ void WinUI::ChangeDisplayType(bool savepos) {
 //  ディスク入れ替え
 //
 void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
-  HANDLE hthread = GetCurrentThread();
-  int prev = GetThreadPriority(hthread);
-  SetThreadPriority(hthread, THREAD_PRIORITY_ABOVE_NORMAL);
+  // HANDLE hthread = GetCurrentThread();
+  // int prev = GetThreadPriority(hthread);
+  // SetThreadPriority(hthread, THREAD_PRIORITY_ABOVE_NORMAL);
 
   SetGUIFlag(true);
 
@@ -628,7 +610,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
     OpenDiskImage(drive, "", false, 0, false);
 
   SetGUIFlag(false);
-  SetThreadPriority(hthread, prev);
+  // SetThreadPriority(hthread, prev);
   snapshot_changed_ = true;
 }
 
@@ -837,8 +819,8 @@ void WinUI::OpenTapeImage(const char* filename) {
 //  ステータスバー表示切り替え
 //
 void WinUI::ShowStatusWindow() {
-  if (fullscreen_)
-    return;
+  assert(!fullscreen_);
+
   if (flags() & pc8801::Config::kShowStatusBar) {
     statusdisplay.Enable((flags() & pc8801::Config::kShowFDCStatus) != 0);
     // Allow window corner rounding.
@@ -846,7 +828,7 @@ void WinUI::ShowStatusWindow() {
     DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
   } else {
     statusdisplay.Disable();
-    // Avoid window corner rounding.
+    // Disable window corner rounding.
     DWORD dwm_attr = DWMWCP_DONOTROUND;
     DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
   }
@@ -901,8 +883,11 @@ void WinUI::SetCursorVisibility(bool flag) {
     return;
 
   if (flag) {
-    if (!(pci.flags & CURSOR_SHOWING))
-      ShowCursor(true);
+    if (!(pci.flags & CURSOR_SHOWING)) {
+      int retries = 10;
+      while (ShowCursor(true) < 0 || --retries >= 0)
+        ;
+    }
   } else {
     if (pci.flags & CURSOR_SHOWING)
       ShowCursor(false);
@@ -1092,36 +1077,8 @@ void WinUI::SaveWindowPosition() {
 }
 
 void WinUI::LoadWindowPosition() {
-  WINDOWPLACEMENT wp;
-  wp.length = sizeof(WINDOWPLACEMENT);
-  ::GetWindowPlacement(hwnd_, &wp);
-
-  LONG winw = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
-  LONG winh = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
-
-  wp.rcNormalPosition.top = config().winposy;
-  wp.rcNormalPosition.bottom = config().winposy + winh;
-  wp.rcNormalPosition.left = config().winposx;
-  wp.rcNormalPosition.right = config().winposx + winw;
-  ::SetWindowPlacement(hwnd_, &wp);
-}
-
-void WinUI::PreventSleep() {
-  if (hpower_) {
-    PowerSetRequest(hpower_.get(), PowerRequestDisplayRequired);
-    PowerSetRequest(hpower_.get(), PowerRequestSystemRequired);
-  } else {
-    SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED);
-  }
-}
-
-void WinUI::AllowSleep() {
-  if (hpower_) {
-    PowerClearRequest(hpower_.get(), PowerRequestDisplayRequired);
-    PowerClearRequest(hpower_.get(), PowerRequestSystemRequired);
-  } else {
-    SetThreadExecutionState(ES_CONTINUOUS);
-  }
+  point_.x = config().winposx;
+  point_.y = config().winposy;
 }
 
 LRESULT WinUI::M88ChangeSampleRate(HWND hwnd, WPARAM wp, LPARAM) {
@@ -1143,32 +1100,30 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
     fullscreen_ = false;
   }
 
-  if (fullscreen_) {
-    PreventSleep();
-  } else {
-    AllowSleep();
-  }
-
   // ウィンドウスタイル関係の変更
   wstyle_ = (DWORD)GetWindowLongPtr(hwnd, GWL_STYLE);
   LONG_PTR exstyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
 
   if (!fullscreen_) {
+    services::PowerManagement::GetInstance()->AllowSleep();
+
     wstyle_ = (wstyle_ & ~WS_POPUP) | (WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX);
     exstyle &= ~WS_EX_TOPMOST;
 
-    //      SetCapture(hwnd);
+    // SetCapture(hwnd);
     if (hmenu_)
       SetMenu(hwnd, hmenu_);
     SetWindowLongPtr(hwnd, GWL_STYLE, wstyle_);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle);
-    ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
+    // ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
     SetWindowPos(hwnd, HWND_NOTOPMOST, point_.x, point_.y, 0, 0, SWP_NOSIZE);
     ShowStatusWindow();
     report_ = true;
     gui_mode_by_mouse_ = false;
     SetCursorVisibility(true);
   } else {
+    services::PowerManagement::GetInstance()->PreventSleep();
+
     if (gui_mode_by_mouse_)
       SetGUIFlag(false);
 
