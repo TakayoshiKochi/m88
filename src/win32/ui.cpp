@@ -828,7 +828,7 @@ void WinUI::ShowStatusWindow() {
     DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
   } else {
     statusdisplay.Disable();
-    // Avoid window corner rounding.
+    // Disable window corner rounding.
     DWORD dwm_attr = DWMWCP_DONOTROUND;
     DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
   }
@@ -1097,32 +1097,30 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
     fullscreen_ = false;
   }
 
-  if (fullscreen_) {
-    services::PowerManagement::GetInstance()->PreventSleep();
-  } else {
-    services::PowerManagement::GetInstance()->AllowSleep();
-  }
-
   // ウィンドウスタイル関係の変更
   wstyle_ = (DWORD)GetWindowLongPtr(hwnd, GWL_STYLE);
   LONG_PTR exstyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
 
   if (!fullscreen_) {
+    services::PowerManagement::GetInstance()->AllowSleep();
+
     wstyle_ = (wstyle_ & ~WS_POPUP) | (WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX);
     exstyle &= ~WS_EX_TOPMOST;
 
-    //      SetCapture(hwnd);
+    // SetCapture(hwnd);
     if (hmenu_)
       SetMenu(hwnd, hmenu_);
     SetWindowLongPtr(hwnd, GWL_STYLE, wstyle_);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle);
-    ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
+    // ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
     SetWindowPos(hwnd, HWND_NOTOPMOST, point_.x, point_.y, 0, 0, SWP_NOSIZE);
     ShowStatusWindow();
     report_ = true;
     gui_mode_by_mouse_ = false;
     SetCursorVisibility(true);
   } else {
+    services::PowerManagement::GetInstance()->PreventSleep();
+
     if (gui_mode_by_mouse_)
       SetGUIFlag(false);
 
