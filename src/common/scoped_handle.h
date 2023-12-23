@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <memory>
+
 template <class T>
 class scoped_handle {
  public:

@@ -236,6 +236,8 @@ add_library(pc88shell ${LIB_TYPE}
         src/services/ioview.cpp
         src/services/memview.h
         src/services/memview.cpp
+        src/services/power_management.h
+        src/services/power_management.cpp
         src/services/rom_loader.cpp
         src/services/rom_loader.h
         src/services/tapemgr.h

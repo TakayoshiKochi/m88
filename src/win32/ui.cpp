@@ -18,6 +18,7 @@
 #include "common/image_codec.h"
 #include "pc88/opnif.h"
 #include "services/diskmgr.h"
+#include "services/power_management.h"
 #include "services/tapemgr.h"
 #include "win32/about.h"
 #include "win32/file.h"
@@ -42,15 +43,16 @@ constexpr int kPC88ScreenHeight = 400;
 WinUI::WinUI(HINSTANCE hinstance) : hinst_(hinstance) {
   point_.x = 0;
   point_.y = 0;
-  //  resizewindow = 0;
   displaychanged_time_ = GetTickCount();
 
   diskinfo[0].hmenu = nullptr;
   diskinfo[0].idchgdisk = IDM_CHANGEDISK_1;
   diskinfo[1].hmenu = nullptr;
   diskinfo[1].idchgdisk = IDM_CHANGEDISK_2;
+
   hmenuss[0] = nullptr;
   hmenuss[1] = nullptr;
+
   current_snapshot_ = 0;
   snapshot_changed_ = true;
 
@@ -98,20 +100,6 @@ bool WinUI::InitWindow(int) {
 
   if (!draw_.Init0(hwnd_))
     return false;
-
-  // Power management
-  REASON_CONTEXT ctx{};
-  ctx.Version = POWER_REQUEST_CONTEXT_VERSION;
-  ctx.Flags = POWER_REQUEST_CONTEXT_SIMPLE_STRING;
-  ctx.Reason.SimpleReasonString = const_cast<LPWSTR>(L"M88 wakelock for fulllscreen");
-  if (!hpower_) {
-    hpower_.reset(PowerCreateRequest(&ctx));
-    if (hpower_.get() == INVALID_HANDLE_VALUE) {
-      auto error = GetLastError();
-      Log("PowerCreateRequest failed: %d\n", error);
-      hpower_.reset();
-    }
-  }
 
   clipmode_ = 0;
   gui_mode_by_mouse_ = false;
@@ -1106,24 +1094,6 @@ void WinUI::LoadWindowPosition() {
   ::SetWindowPlacement(hwnd_, &wp);
 }
 
-void WinUI::PreventSleep() {
-  if (hpower_) {
-    PowerSetRequest(hpower_.get(), PowerRequestDisplayRequired);
-    PowerSetRequest(hpower_.get(), PowerRequestSystemRequired);
-  } else {
-    SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED);
-  }
-}
-
-void WinUI::AllowSleep() {
-  if (hpower_) {
-    PowerClearRequest(hpower_.get(), PowerRequestDisplayRequired);
-    PowerClearRequest(hpower_.get(), PowerRequestSystemRequired);
-  } else {
-    SetThreadExecutionState(ES_CONTINUOUS);
-  }
-}
-
 LRESULT WinUI::M88ChangeSampleRate(HWND hwnd, WPARAM wp, LPARAM) {
   auto new_sample_rate = static_cast<uint32_t>(wp);
   if (config().sound_output_hz != new_sample_rate) {
@@ -1144,9 +1114,9 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
   }
 
   if (fullscreen_) {
-    PreventSleep();
+    services::PowerManagement::GetInstance()->PreventSleep();
   } else {
-    AllowSleep();
+    services::PowerManagement::GetInstance()->AllowSleep();
   }
 
   // ウィンドウスタイル関係の変更

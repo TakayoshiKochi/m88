@@ -97,10 +97,6 @@ class WinUI {
   void SaveWindowPosition();
   void LoadWindowPosition();
 
-  // Power management
-  void PreventSleep();
-  void AllowSleep();
-
   // int AllocControlID();
   // void FreeControlID(int);
 
@@ -148,9 +144,6 @@ class WinUI {
   bool capture_mouse_ = true;
   uint32_t mouse_button_ = 0;
   bool paused_ = false;
-
-  // Power management
-  scoped_handle<HANDLE> hpower_;
 
   WinCore core_;
   WinDraw draw_;
