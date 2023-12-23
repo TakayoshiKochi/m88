@@ -65,7 +65,7 @@ WinUI::~WinUI() = default;
 //
 bool WinUI::InitWindow(int) {
   WNDCLASS wcl;
-  static const char* szwinname = "M88p2 WinUI";
+  static const char szwinname[] = "M88p2 WinUI";
 
   wcl.hInstance = hinst_;
   wcl.lpszClassName = szwinname;
