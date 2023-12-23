@@ -544,9 +544,9 @@ void WinUI::ChangeDisplayType(bool savepos) {
 //  ディスク入れ替え
 //
 void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
-  HANDLE hthread = GetCurrentThread();
-  int prev = GetThreadPriority(hthread);
-  SetThreadPriority(hthread, THREAD_PRIORITY_ABOVE_NORMAL);
+  // HANDLE hthread = GetCurrentThread();
+  // int prev = GetThreadPriority(hthread);
+  // SetThreadPriority(hthread, THREAD_PRIORITY_ABOVE_NORMAL);
 
   SetGUIFlag(true);
 
@@ -610,7 +610,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
     OpenDiskImage(drive, "", false, 0, false);
 
   SetGUIFlag(false);
-  SetThreadPriority(hthread, prev);
+  // SetThreadPriority(hthread, prev);
   snapshot_changed_ = true;
 }
 
