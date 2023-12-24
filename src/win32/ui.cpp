@@ -882,15 +882,17 @@ void WinUI::SetCursorVisibility(bool flag) {
   if (!r)
     return;
 
+  int retries = 10;
   if (flag) {
     if (!(pci.flags & CURSOR_SHOWING)) {
-      int retries = 10;
-      while (ShowCursor(true) < 0 || --retries >= 0)
+      while (ShowCursor(true) < 0 && --retries >= 0)
         ;
     }
   } else {
-    if (pci.flags & CURSOR_SHOWING)
-      ShowCursor(false);
+    if (pci.flags & CURSOR_SHOWING) {
+      while (ShowCursor(false) >= 0 && --retries >= 0)
+        ;
+    }
   }
 }
 
