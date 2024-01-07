@@ -21,7 +21,7 @@
 //      ほか掲示板等で様々なご助言，ご支援をお寄せいただいた皆様に
 // ---------------------------------------------------------------------------
 
-#include "devices/fmgen.h"
+#include "fmgen/fmgen.h"
 
 #include <assert.h>
 #include <math.h>

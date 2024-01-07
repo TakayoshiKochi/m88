@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: psg.cpp,v 1.10 2002/05/15 21:38:01 cisc Exp $
 
-#include "devices/psg.h"
+#include "fmgen/psg.h"
 
 #include <math.h>
 

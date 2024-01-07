@@ -4,9 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: opna.cpp,v 1.70 2004/02/06 13:13:39 cisc Exp $
 
-#include "devices/opna.h"
-
-#include <math.h>
+#include "fmgen/opna.h"
 
 #include <algorithm>
 

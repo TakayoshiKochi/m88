@@ -4,10 +4,9 @@
 // ---------------------------------------------------------------------------
 //  $Id: opm.cpp,v 1.26 2003/08/25 13:53:08 cisc Exp $
 
-#include "devices/opm.h"
+#include "fmgen/opm.h"
 
 #include <assert.h>
-#include <math.h>
 
 #include <algorithm>
 
