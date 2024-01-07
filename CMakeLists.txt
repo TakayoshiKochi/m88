@@ -25,19 +25,9 @@ if (MSVC)
     string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 endif (MSVC)
 
-set(Z80_SHARED_LIBS NO  CACHE BOOL "")
-# set(Z80_WITH_EXECUTE YES CACHE BOOL "")
-set(Z80_WITH_FULL_IM0 YES CACHE BOOL "")
-set(Z80_WITH_Q YES CACHE BOOL "")
-# set(Z80_WITH_IM0_RETX_NOTIFICATIONS YES CACHE BOOL "")
-# set(Z80_WITH_ZILOG_NMOS_LD_A_IR_BUG YES CACHE BOOL "")
-
-#add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/abseil)
-#add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/glog)
-add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/gtest)
-add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/benchmark)
-add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Z80)
-add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Zeta)
+# =====
+# M88
+# =====
 
 add_library(common ${LIB_TYPE}
         src/common/bmp_codec.h
@@ -133,38 +123,6 @@ target_link_libraries(devices_unittests
         PRIVATE gtest gtest_main
         common devices fmgen)
 
-add_library(fmgen ${LIB_TYPE}
-        src/devices/fmgen.h
-        src/devices/fmgen.cpp
-        src/devices/fmtimer.h
-        src/devices/fmtimer.cpp
-        src/devices/opm.h
-        src/devices/opm.cpp
-        src/devices/opn.cpp
-        src/devices/opna.h
-        src/devices/opna.cpp
-        src/devices/opnb.cpp
-        src/devices/psg.h
-        src/devices/psg.cpp)
-
-target_include_directories(fmgen
-        PUBLIC ${CMAKE_SOURCE_DIR}/src
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
-
-add_library(ymfm ${LIB_TYPE}
-        third_party/ymfm/src/ymfm.h
-        third_party/ymfm/src/ymfm_fm.h
-        third_party/ymfm/src/ymfm_fm.ipp
-        third_party/ymfm/src/ymfm_adpcm.h
-        third_party/ymfm/src/ymfm_adpcm.cpp
-        third_party/ymfm/src/ymfm_opn.h
-        third_party/ymfm/src/ymfm_opn.cpp
-        third_party/ymfm/src/ymfm_ssg.h
-        third_party/ymfm/src/ymfm_ssg.cpp)
-
-target_include_directories(ymfm
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/ymfm/src)
-
 add_library(pc88core ${LIB_TYPE}
         src/pc88/base.h
         src/pc88/base.cpp
@@ -248,20 +206,6 @@ target_include_directories(pc88shell
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(pc88shell devices)
-
-add_library(asio ${LIB_TYPE}
-        third_party/asio/common/asio.h
-        third_party/asio/common/asio.cpp
-        third_party/asio/host/asiodrivers.h
-        third_party/asio/host/asiodrivers.cpp
-        third_party/asio/host/pc/asiolist.h
-        third_party/asio/host/pc/asiolist.cpp
-        third_party/asio/host/ginclude.h)
-
-target_include_directories(asio
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/common
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/host
-        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/host/pc)
 
 add_library(win32 ${LIB_TYPE}
         src/win32/about.h
@@ -380,6 +324,66 @@ target_include_directories(romeo
         PUBLIC ${CMAKE_SOURCE_DIR}/src
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
+# Third party libraries
+
+set(Z80_SHARED_LIBS NO  CACHE BOOL "")
+# set(Z80_WITH_EXECUTE YES CACHE BOOL "")
+set(Z80_WITH_FULL_IM0 YES CACHE BOOL "")
+set(Z80_WITH_Q YES CACHE BOOL "")
+# set(Z80_WITH_IM0_RETX_NOTIFICATIONS YES CACHE BOOL "")
+# set(Z80_WITH_ZILOG_NMOS_LD_A_IR_BUG YES CACHE BOOL "")
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/gtest)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/benchmark)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Z80)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Zeta)
+
+add_library(fmgen ${LIB_TYPE}
+        src/devices/fmgen.h
+        src/devices/fmgen.cpp
+        src/devices/fmtimer.h
+        src/devices/fmtimer.cpp
+        src/devices/opm.h
+        src/devices/opm.cpp
+        src/devices/opn.cpp
+        src/devices/opna.h
+        src/devices/opna.cpp
+        src/devices/opnb.cpp
+        src/devices/psg.h
+        src/devices/psg.cpp)
+
+target_include_directories(fmgen
+        PUBLIC ${CMAKE_SOURCE_DIR}/src
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
+
+add_library(ymfm ${LIB_TYPE}
+        third_party/ymfm/src/ymfm.h
+        third_party/ymfm/src/ymfm_fm.h
+        third_party/ymfm/src/ymfm_fm.ipp
+        third_party/ymfm/src/ymfm_adpcm.h
+        third_party/ymfm/src/ymfm_adpcm.cpp
+        third_party/ymfm/src/ymfm_opn.h
+        third_party/ymfm/src/ymfm_opn.cpp
+        third_party/ymfm/src/ymfm_ssg.h
+        third_party/ymfm/src/ymfm_ssg.cpp)
+
+target_include_directories(ymfm
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/ymfm/src)
+
+add_library(asio ${LIB_TYPE}
+        third_party/asio/common/asio.h
+        third_party/asio/common/asio.cpp
+        third_party/asio/host/asiodrivers.h
+        third_party/asio/host/asiodrivers.cpp
+        third_party/asio/host/pc/asiolist.h
+        third_party/asio/host/pc/asiolist.cpp
+        third_party/asio/host/ginclude.h)
+
+target_include_directories(asio
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/common
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/host
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/host/pc)
+
 add_library(zlib ${LIB_TYPE}
         src/zlib/adler32.c
         src/zlib/compress.c
@@ -438,7 +442,13 @@ target_link_libraries(m88
         PRIVATE zlib libpng
         PRIVATE winmm.lib comctl32.lib dwmapi.lib d3d12.lib dxgi.lib)
 
-# modules
+set_target_properties(
+        m88 PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/run")
+
+# =====
+# Modules
+# =====
 
 add_library(cdif SHARED
         modules/cdif/src/aspi.h
@@ -505,6 +515,8 @@ target_include_directories(sample1
 target_link_libraries(sample1
         common devices)
 
+# TODO: add_custom_command for copying sample1.m88
+
 add_library(sample2 ${LIB_TYPE}
         modules/sample2/src/config.h
         modules/sample2/src/config.cpp
@@ -521,8 +533,11 @@ target_include_directories(sample2
 target_link_libraries(sample2
         common devices)
 
-# tools
+# TODO: add_custom_command for copying sample1.m88
 
+# =====
+# Tools
+# =====
 add_executable(writetag
         src/tools/writetag.cpp)
 
