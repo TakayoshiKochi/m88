@@ -339,18 +339,18 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Z80)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Zeta)
 
 add_library(fmgen ${LIB_TYPE}
-        src/devices/fmgen.h
-        src/devices/fmgen.cpp
-        src/devices/fmtimer.h
-        src/devices/fmtimer.cpp
-        src/devices/opm.h
-        src/devices/opm.cpp
-        src/devices/opn.cpp
-        src/devices/opna.h
-        src/devices/opna.cpp
-        src/devices/opnb.cpp
-        src/devices/psg.h
-        src/devices/psg.cpp)
+        third_party/fmgen/fmgen.h
+        third_party/fmgen/fmgen.cpp
+        third_party/fmgen/fmtimer.h
+        third_party/fmgen/fmtimer.cpp
+        third_party/fmgen/opm.h
+        third_party/fmgen/opm.cpp
+        third_party/fmgen/opn.cpp
+        third_party/fmgen/opna.h
+        third_party/fmgen/opna.cpp
+        third_party/fmgen/opnb.cpp
+        third_party/fmgen/psg.h
+        third_party/fmgen/psg.cpp)
 
 target_include_directories(fmgen
         PUBLIC ${CMAKE_SOURCE_DIR}/src
