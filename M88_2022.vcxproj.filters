@@ -234,7 +234,7 @@
     <ClCompile Include="src\pc88\calendar.cpp">
       <Filter>pc88</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\file_.cpp">
+    <ClCompile Include="src\common\file.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="src\win32\monitor\basmon.cpp">

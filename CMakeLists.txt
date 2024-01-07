@@ -54,7 +54,7 @@ add_library(common ${LIB_TYPE}
         src/common/error.h
         src/common/error.cpp
         src/common/file.h
-        src/common/file_.cpp
+        src/common/file.cpp
         src/common/floppy.h
         src/common/floppy.cpp
         src/common/io_bus.h

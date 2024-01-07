@@ -347,7 +347,7 @@
     <ClCompile Include="src\common\diag.cpp" />
     <ClCompile Include="src\common\emulation_loop.cpp" />
     <ClCompile Include="src\common\error.cpp" />
-    <ClCompile Include="src\common\file_.cpp" />
+    <ClCompile Include="src\common\file.cpp" />
     <ClCompile Include="src\common\floppy.cpp" />
     <ClCompile Include="src\common\image_codec.cpp" />
     <ClCompile Include="src\common\io_bus.cpp" />
