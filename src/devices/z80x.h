@@ -108,7 +108,7 @@ class Z80X : public Device, private IOStrategy, public MemStrategy {
   static uint8_t ZIntAck(void* ctx, uint16_t addr);
   static void ZHalt(void* ctx, uint8_t signal);
   static void ZNotify(void* ctx);
-  static uint8_t ZIllegal(void* ctx, uint8_t op);
+  static uint8_t ZIllegal(Z80* ctx, uint8_t op);
 
   Z80 z80_{};
   Z80Reg reg_{};

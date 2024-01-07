@@ -127,8 +127,7 @@ void Z80X::ZNotify(void* ctx) {
 }
 
 // static
-uint8_t Z80X::ZIllegal(void* ctx, uint8_t op) {
-  auto* self = reinterpret_cast<Z80X*>(ctx);
+uint8_t Z80X::ZIllegal(Z80* ctx, uint8_t op) {
   return 0;
 }
 
