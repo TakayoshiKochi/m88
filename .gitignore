@@ -1,9 +1,5 @@
 # Compiled Object files
 out/
-x64/
-x86/
-Debug/
-Release/
 cmake-build-debug/
 cmake-build-release/
 *.lib
@@ -28,6 +24,7 @@ cmake-build-release/
 # Binary files
 *.m88
 *.exe
+*.dll
 *.rom
 *.ROM
 *.d88
