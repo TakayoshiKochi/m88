@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: fmtimer.cpp,v 1.1 2000/09/08 13:45:56 cisc Exp $
 
-#include "devices/fmtimer.h"
+#include "fmgen/fmtimer.h"
 
 #include <algorithm>
 

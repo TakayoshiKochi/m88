@@ -8,8 +8,6 @@
 
 #include "common/device.h"
 #include "common/scheduler.h"
-#include "devices/opna.h"
-#include "devices/psg.h"
 
 #include <string_view>
 

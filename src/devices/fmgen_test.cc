@@ -1,4 +1,4 @@
-#include "devices/fmgen.h"
+#include "fmgen/fmgen.h"
 
 #include "gtest/gtest.h"
 

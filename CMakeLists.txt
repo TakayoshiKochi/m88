@@ -339,18 +339,18 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Z80)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/Zeta)
 
 add_library(fmgen ${LIB_TYPE}
-        src/devices/fmgen.h
-        src/devices/fmgen.cpp
-        src/devices/fmtimer.h
-        src/devices/fmtimer.cpp
-        src/devices/opm.h
-        src/devices/opm.cpp
-        src/devices/opn.cpp
-        src/devices/opna.h
-        src/devices/opna.cpp
-        src/devices/opnb.cpp
-        src/devices/psg.h
-        src/devices/psg.cpp)
+        third_party/fmgen/fmgen.h
+        third_party/fmgen/fmgen.cpp
+        third_party/fmgen/fmtimer.h
+        third_party/fmgen/fmtimer.cpp
+        third_party/fmgen/opm.h
+        third_party/fmgen/opm.cpp
+        third_party/fmgen/opn.cpp
+        third_party/fmgen/opna.h
+        third_party/fmgen/opna.cpp
+        third_party/fmgen/opnb.cpp
+        third_party/fmgen/psg.h
+        third_party/fmgen/psg.cpp)
 
 target_include_directories(fmgen
         PUBLIC ${CMAKE_SOURCE_DIR}/src
@@ -385,25 +385,25 @@ target_include_directories(asio
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party/asio/host/pc)
 
 add_library(zlib ${LIB_TYPE}
-        src/zlib/adler32.c
-        src/zlib/compress.c
-        src/zlib/crc32.c
-        src/zlib/crc32.h
-        src/zlib/deflate.c
-        src/zlib/deflate.h
-        src/zlib/inffast.c
-        src/zlib/inffixed.h
-        src/zlib/inflate.c
-        src/zlib/inflate.h
-        src/zlib/inftrees.c
-        src/zlib/inftrees.h
-        src/zlib/trees.c
-        src/zlib/trees.h
-        src/zlib/uncompr.c
-        src/zlib/zconf.h
-        src/zlib/zlib.h
-        src/zlib/zutil.c
-        src/zlib/zutil.h)
+        third_party/zlib/adler32.c
+        third_party/zlib/compress.c
+        third_party/zlib/crc32.c
+        third_party/zlib/crc32.h
+        third_party/zlib/deflate.c
+        third_party/zlib/deflate.h
+        third_party/zlib/inffast.c
+        third_party/zlib/inffixed.h
+        third_party/zlib/inflate.c
+        third_party/zlib/inflate.h
+        third_party/zlib/inftrees.c
+        third_party/zlib/inftrees.h
+        third_party/zlib/trees.c
+        third_party/zlib/trees.h
+        third_party/zlib/uncompr.c
+        third_party/zlib/zconf.h
+        third_party/zlib/zlib.h
+        third_party/zlib/zutil.c
+        third_party/zlib/zutil.h)
 
 add_library(libpng ${LIB_TYPE}
         third_party/libpng/png.c
@@ -429,7 +429,7 @@ add_library(libpng ${LIB_TYPE}
         third_party/libpng/pngwutil.c)
 
 target_include_directories(libpng
-        PUBLIC ${CMAKE_SOURCE_DIR}/src/zlib)
+        PUBLIC ${CMAKE_SOURCE_DIR}/third_party/zlib)
 
 add_executable(m88 WIN32
         src/win32/main.cpp

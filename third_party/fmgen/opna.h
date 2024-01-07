@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "devices/fmgen.h"
-#include "devices/fmtimer.h"
-#include "devices/psg.h"
+#include "fmgen/fmgen.h"
+#include "fmgen/fmtimer.h"
+#include "fmgen/psg.h"
 
 // ---------------------------------------------------------------------------
 //  class OPN/OPNA

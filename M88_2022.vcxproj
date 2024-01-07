@@ -111,7 +111,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;ISOLATION_AWARE_ENABLED;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;Z80_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -177,7 +177,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN64;WIN32;NDEBUG;_WINDOWS;ISOLATION_AWARE_ENABLED;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;Z80_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -239,7 +239,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;Z80_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -295,7 +295,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN64;WIN32;_DEBUG;_WINDOWS;STRICT;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;Z80_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -358,16 +358,6 @@
     <ClCompile Include="src\common\sampling_rate_converter.cpp" />
     <ClCompile Include="src\common\scheduler.cpp" />
     <ClCompile Include="src\common\status.cpp" />
-    <ClCompile Include="src\devices\fmgen.cpp" />
-    <ClCompile Include="src\devices\fmtimer.cpp" />
-    <ClCompile Include="src\devices\opm.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="src\devices\opn.cpp" />
-    <ClCompile Include="src\devices\opna.cpp" />
-    <ClCompile Include="src\devices\opnb.cpp" />
-    <ClCompile Include="src\devices\psg.cpp" />
     <ClCompile Include="src\devices\z80.cpp" />
     <ClCompile Include="src\devices\z80c.cpp" />
     <ClCompile Include="src\devices\z80diag.cpp" />
@@ -490,10 +480,10 @@
     <ClCompile Include="src\win32\sound\soundds2.cpp" />
     <ClCompile Include="src\win32\sound\soundwo.cpp" />
     <ClCompile Include="src\win32\sound\sound_asio.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="src\win32\sound\winsound.cpp" />
     <ClCompile Include="src\win32\status_win.cpp" />
@@ -541,164 +531,31 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
-    <ClCompile Include="src\zlib\adler32.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\zlib\compress.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\zlib\crc32.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\zlib\deflate.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\zlib\inffast.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\zlib\inflate.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\zlib\inftrees.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\zlib\trees.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\zlib\uncompr.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\zlib\zutil.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="third_party\asio\common\asio.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="third_party\asio\host\asiodrivers.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="third_party\asio\host\pc\asiolist.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\src\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="third_party\fmgen\fmgen.cpp" />
+    <ClCompile Include="third_party\fmgen\fmtimer.cpp" />
+    <ClCompile Include="third_party\fmgen\opm.cpp" />
+    <ClCompile Include="third_party\fmgen\opn.cpp" />
+    <ClCompile Include="third_party\fmgen\opna.cpp" />
+    <ClCompile Include="third_party\fmgen\opnb.cpp" />
+    <ClCompile Include="third_party\fmgen\psg.cpp" />
     <ClCompile Include="third_party\libpng\png.c" />
     <ClCompile Include="third_party\libpng\pngerror.c" />
     <ClCompile Include="third_party\libpng\pngget.c" />
@@ -727,6 +584,16 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(RelativeDir)</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="third_party\zlib\adler32.c" />
+    <ClCompile Include="third_party\zlib\compress.c" />
+    <ClCompile Include="third_party\zlib\crc32.c" />
+    <ClCompile Include="third_party\zlib\deflate.c" />
+    <ClCompile Include="third_party\zlib\inffast.c" />
+    <ClCompile Include="third_party\zlib\inflate.c" />
+    <ClCompile Include="third_party\zlib\inftrees.c" />
+    <ClCompile Include="third_party\zlib\trees.c" />
+    <ClCompile Include="third_party\zlib\uncompr.c" />
+    <ClCompile Include="third_party\zlib\zutil.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\bmp_codec.h" />
@@ -752,11 +619,6 @@
     <ClInclude Include="src\common\sound_source.h" />
     <ClInclude Include="src\common\status.h" />
     <ClInclude Include="src\common\time_constants.h" />
-    <ClInclude Include="src\devices\fmgen.h" />
-    <ClInclude Include="src\devices\fmtimer.h" />
-    <ClInclude Include="src\devices\opm.h" />
-    <ClInclude Include="src\devices\opna.h" />
-    <ClInclude Include="src\devices\psg.h" />
     <ClInclude Include="src\devices\z80.h" />
     <ClInclude Include="src\devices\z80c.h" />
     <ClInclude Include="src\devices\z80diag.h" />
@@ -839,18 +701,15 @@
     <ClInclude Include="src\win32\winjoy.h" />
     <ClInclude Include="src\win32\winkeyif.h" />
     <ClInclude Include="src\win32\winmouse.h" />
-    <ClInclude Include="src\zlib\deflate.h" />
-    <ClInclude Include="src\zlib\inffast.h" />
-    <ClInclude Include="src\zlib\inffixed.h" />
-    <ClInclude Include="src\zlib\inftrees.h" />
-    <ClInclude Include="src\zlib\trees.h" />
-    <ClInclude Include="src\zlib\zconf.h" />
-    <ClInclude Include="src\zlib\zlib.h" />
-    <ClInclude Include="src\zlib\zutil.h" />
     <ClInclude Include="third_party\asio\common\asio.h" />
     <ClInclude Include="third_party\asio\host\asiodrivers.h" />
     <ClInclude Include="third_party\asio\host\ginclude.h" />
     <ClInclude Include="third_party\asio\host\pc\asiolist.h" />
+    <ClInclude Include="third_party\fmgen\fmgen.h" />
+    <ClInclude Include="third_party\fmgen\fmtimer.h" />
+    <ClInclude Include="third_party\fmgen\opm.h" />
+    <ClInclude Include="third_party\fmgen\opna.h" />
+    <ClInclude Include="third_party\fmgen\psg.h" />
     <ClInclude Include="third_party\libpng\png.h" />
     <ClInclude Include="third_party\libpng\pngconf.h" />
     <ClInclude Include="third_party\libpng\pngdebug.h" />
@@ -865,6 +724,17 @@
     <ClInclude Include="third_party\ymfm\src\ymfm_opn.h" />
     <ClInclude Include="third_party\ymfm\src\ymfm_ssg.h" />
     <ClInclude Include="third_party\Z80\API\Z80.h" />
+    <ClInclude Include="third_party\zlib\crc32.h" />
+    <ClInclude Include="third_party\zlib\deflate.h" />
+    <ClInclude Include="third_party\zlib\gzguts.h" />
+    <ClInclude Include="third_party\zlib\inffast.h" />
+    <ClInclude Include="third_party\zlib\inffixed.h" />
+    <ClInclude Include="third_party\zlib\inflate.h" />
+    <ClInclude Include="third_party\zlib\inftrees.h" />
+    <ClInclude Include="third_party\zlib\trees.h" />
+    <ClInclude Include="third_party\zlib\zconf.h" />
+    <ClInclude Include="third_party\zlib\zlib.h" />
+    <ClInclude Include="third_party\zlib\zutil.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\win32\M88.rc">

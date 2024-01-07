@@ -7,7 +7,7 @@
 #pragma once
 
 #include "common/device.h"
-#include "devices/opna.h"
+#include "fmgen/opna.h"
 #include "pc88/ymfm_interface.h"
 
 class IOBus;
