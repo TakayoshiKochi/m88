@@ -54,7 +54,7 @@ class DiskIO : public Device {
   uint8_t* ptr_ = nullptr;
   int len_ = 0;
 
-  FileIOWin file_;
+  FileIODummy file_;
   int size_ = 0;
   int length_ = 0;
 
