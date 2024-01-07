@@ -301,7 +301,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\common\diag.cpp" />
-    <ClCompile Include="..\..\src\win32\file.cpp" />
+    <ClCompile Include="..\..\src\common\file.cpp" />
     <ClCompile Include="src\diskio.cpp" />
     <ClCompile Include="src\guid.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -317,7 +317,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\common\diag.h" />
-    <ClInclude Include="..\..\src\win32\file.h" />
+    <ClInclude Include="..\..\src\common\file.h" />
     <ClInclude Include="src\diskio.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
