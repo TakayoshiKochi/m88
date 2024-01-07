@@ -1,4 +1,4 @@
-#include "devices/opna.h"
+#include "fmgen/opna.h"
 
 #include "gtest/gtest.h"
 

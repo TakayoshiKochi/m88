@@ -1,4 +1,4 @@
-#include "devices/psg.h"
+#include "fmgen/psg.h"
 
 #include "gtest/gtest.h"
 

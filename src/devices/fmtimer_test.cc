@@ -1,4 +1,4 @@
-#include "devices/fmtimer.h"
+#include "fmgen/fmtimer.h"
 
 #include "gtest/gtest.h"
 
