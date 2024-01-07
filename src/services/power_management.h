@@ -26,7 +26,7 @@ class PowerManagement {
   void PreventSleep() const;
   void AllowSleep() const;
 
-private:
+ private:
   PowerManagement() = default;
   static void Init();
   void InitInstance();

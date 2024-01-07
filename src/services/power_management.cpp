@@ -48,4 +48,4 @@ void PowerManagement::AllowSleep() const {
   }
 }
 
-} // namespace services
+}  // namespace services
