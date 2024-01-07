@@ -5,13 +5,13 @@ VisualStudioVersion = 17.6.33801.468
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "M88_2022", "M88_2022.vcxproj", "{9792F586-937B-4B5B-B01E-DF451C23B5C4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "diskdrv", "modules\diskdrv\diskdrv_2022.vcxproj", "{68224585-4A7E-4D23-941F-B6714E1A1FA2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "diskdrv", "modules\diskdrv\diskdrv.vcxproj", "{68224585-4A7E-4D23-941F-B6714E1A1FA2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cdif", "modules\cdif\cdif_2022.vcxproj", "{BFE8B45C-16F5-47C0-9470-83AD735CA5F1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cdif", "modules\cdif\cdif.vcxproj", "{BFE8B45C-16F5-47C0-9470-83AD735CA5F1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample1", "modules\sample1\sample1_2022.vcxproj", "{DE27706F-F9D3-4D9B-96C0-B862C4AC5B8B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample1", "modules\sample1\sample1.vcxproj", "{DE27706F-F9D3-4D9B-96C0-B862C4AC5B8B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample2", "modules\sample2\sample2_2022.vcxproj", "{8FB5BCCF-069B-4669-95DE-F0DDE3226350}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample2", "modules\sample2\sample2.vcxproj", "{8FB5BCCF-069B-4669-95DE-F0DDE3226350}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "modules", "modules", "{1C7B7D64-89E8-4630-9E84-F685C75B4E47}"
 EndProject
