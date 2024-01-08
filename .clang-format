@@ -13,21 +13,19 @@ ForEachMacros: ['list_for_every_entry','list_for_every_entry_safe']
 # IncludeBlocks: Preserve
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '^"headers\.h"'
-    Priority:        1
   - Regex:           '^<windows\.h>'
-    Priority:        2
+    Priority:        1
   - Regex:           '^"common/diag\.h"'
     Priority:        1000
   # C Header: <foo.h>, <net/foo.h>, etc
   - Regex:           '^(<((lib/|arpa/|net/|netinet/|sys/)[a-zA-Z0-9_/\.-]+\.h|[a-zA-Z0-9_-]+\.h)>)'
-    Priority:        3
+    Priority:        2
   # Cpp Header: <foo>
   - Regex:           '^(<[a-zA-Z0-9_-]+>)'
-    Priority:        4
+    Priority:        3
   # Libraries: <foo/bar.h>
   - Regex:           '^(<[a-zA-Z0-9_/-]+\.h>)'
-    Priority:        5
+    Priority:        4
   # Local headers: "foo/bar.h"
   - Regex:           '^("[.a-zA-Z0-9_/-]+\.h")'
     Priority:        5
