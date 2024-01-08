@@ -15,8 +15,12 @@ if (MSVC)
     add_compile_definitions(STRICT)
     add_compile_definitions(WIN32_LEAN_AND_MEAN)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+    add_compile_definitions(_HAS_EXCEPTIONS=0)
     add_compile_options(/utf-8)
     #add_compile_options(/source-charset:utf-8)
+
+    string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REGEX REPLACE "/EHsc" "/EHs-c-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
     # https://gitlab.kitware.com/cmake/community/wikis/FAQ#how-can-i-build-my-msvc-application-with-a-static-runtime
     string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_DEBUG          ${CMAKE_CXX_FLAGS_DEBUG})
