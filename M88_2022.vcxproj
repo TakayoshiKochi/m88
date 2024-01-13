@@ -416,12 +416,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
-    <ClCompile Include="src\win32\file.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-    </ClCompile>
     <ClCompile Include="src\win32\filetest.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -668,8 +662,8 @@
     <ClInclude Include="src\win32\about.h" />
     <ClInclude Include="src\win32\cfgpage.h" />
     <ClInclude Include="src\win32\extdev.h" />
-    <ClInclude Include="src\win32\file.h" />
     <ClInclude Include="src\win32\filetest.h" />
+    <ClInclude Include="src\win32\file_finder.h" />
     <ClInclude Include="src\win32\messages.h" />
     <ClInclude Include="src\win32\module.h" />
     <ClInclude Include="src\win32\monitor\basmon.h" />
