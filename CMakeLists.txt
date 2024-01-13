@@ -218,8 +218,7 @@ add_library(win32 ${LIB_TYPE}
         src/win32/cfgpage.cpp
         src/win32/extdev.h
         src/win32/extdev.cpp
-        src/win32/file.h
-        src/win32/file.cpp
+        src/win32/file_finder.h
         src/win32/filetest.h
         src/win32/filetest.cpp
         src/win32/guid.cpp
@@ -489,9 +488,7 @@ add_library(diskdrv SHARED
         modules/diskdrv/src/diskio.h
         modules/diskdrv/src/diskio.cpp
         modules/diskdrv/src/guid.cpp
-        modules/diskdrv/src/moduleif.cpp
-        src/win32/file.h
-        src/win32/file.cpp)
+        modules/diskdrv/src/moduleif.cpp)
 
 target_include_directories(diskdrv
         PRIVATE ${CMAKE_SOURCE_DIR}/src

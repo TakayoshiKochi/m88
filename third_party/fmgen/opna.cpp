@@ -904,7 +904,7 @@ bool OPNA::LoadRhythmSample(const char* path) {
     rhythm_[i].pos = ~0;
 
   for (i = 0; i < 6; i++) {
-    FileIODummy file;
+    FileIO file;
     uint32_t fsize;
     const int kMaxPathSize = 1024;
     char buf[kMaxPathSize] = "";
@@ -914,13 +914,13 @@ bool OPNA::LoadRhythmSample(const char* path) {
     strncat(buf, rhythmname[i], kMaxPathSize);
     strncat(buf, ".WAV", kMaxPathSize);
 
-    if (!file.Open(buf, FileIO::readonly)) {
+    if (!file.Open(buf, FileIO::kReadOnly)) {
       if (i != 5)
         break;
       if (path)
         strncpy(buf, path, kMaxPathSize);
       strncpy(buf, "2608_RYM.WAV", kMaxPathSize);
-      if (!file.Open(buf, FileIO::readonly))
+      if (!file.Open(buf, FileIO::kReadOnly))
         break;
     }
 
@@ -935,13 +935,13 @@ bool OPNA::LoadRhythmSample(const char* path) {
       uint16_t size;
     } whdr;
 
-    file.Seek(0x10, FileIO::begin);
+    file.Seek(0x10, FileIO::kBegin);
     file.Read(&whdr, sizeof(whdr));
 
     uint8_t subchunkname[4];
     fsize = 4 + whdr.chunksize - sizeof(whdr);
     do {
-      file.Seek(fsize, FileIO::current);
+      file.Seek(fsize, FileIO::kCurrent);
       file.Read(&subchunkname, 4);
       file.Read(&fsize, 4);
     } while (memcmp("data", subchunkname, 4));

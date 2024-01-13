@@ -12,7 +12,7 @@
 #include "common/png_codec.h"
 
 // static
-ImageCodec* ImageCodec::GetCodec(const std::string& type) {
+ImageCodec* ImageCodec::GetCodec(const std::string_view type) {
   if (type == "bmp") {
     return new BMPCodec();
   }
@@ -22,22 +22,22 @@ ImageCodec* ImageCodec::GetCodec(const std::string& type) {
   return nullptr;
 }
 
-// static
-std::string ImageCodec::GenerateFileName(const std::string& extension) {
+std::string ImageCodec::GenerateFileName() const {
   char filename[MAX_PATH];
 
-  SYSTEMTIME time;
+  SYSTEMTIME time{};
   GetLocalTime(&time);
+  // "YYYYMMDD_HHMMSS.mmm.ext"
   wsprintf(filename, "%.4d%.2d%.2d_%.2d%.2d%.2d.%.3d.%s", time.wYear, time.wMonth, time.wDay,
-           time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, extension.c_str());
-  return std::string(filename);
+           time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, GetExtension());
+  return filename;
 }
 
-void ImageCodec::Save(const std::string& filename) {
+void ImageCodec::Save(const std::string_view filename) const {
   if (!buf_)
     return;
-  FileIODummy file;
-  if (file.Open(filename.c_str(), FileIO::create)) {
+  FileIO file;
+  if (file.Open(filename, FileIO::kCreate)) {
     file.Write(buf_.get(), encoded_size_);
     file.Close();
   }

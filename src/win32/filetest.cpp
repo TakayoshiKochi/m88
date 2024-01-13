@@ -6,9 +6,13 @@
 
 #include "win32/filetest.h"
 
-#include "win32/file.h"
+#include <windows.h>
+
+#include <libloaderapi.h>
+
 #include "common/crc32.h"
 #include "common/error.h"
+#include "common/file.h"
 
 #include <memory>
 
@@ -25,18 +29,18 @@ bool SanityCheck(uint32_t* pcrc) {
   GetModuleFileName(nullptr, buf, MAX_PATH);
   Error::SetError(Error::InsaneModule);
 
-  FileIOWin fio;
-  if (!fio.Open(buf, FileIO::readonly))
+  FileIO fio;
+  if (!fio.Open(buf, FileIO::kReadOnly))
     return false;
 
-  fio.Seek(0, FileIO::end);
+  fio.Seek(0, FileIO::kEnd);
   uint32_t len = fio.Tellp();
 
   auto mod = std::make_unique<uint8_t[]>(len);
   if (!mod)
     return false;
 
-  fio.Seek(0, FileIO::begin);
+  fio.Seek(0, FileIO::kBegin);
   fio.Read(mod.get(), len);
 
   const int tagpos = 0x7c;

@@ -9,9 +9,7 @@
 #include <windows.h>
 
 #include "common/device.h"
-#include "win32/file.h"
-
-#include <string>
+#include "common/file.h"
 
 namespace pc8801 {
 class DiskIO : public Device {
@@ -54,7 +52,7 @@ class DiskIO : public Device {
   uint8_t* ptr_ = nullptr;
   int len_ = 0;
 
-  FileIODummy file_;
+  FileIO file_;
   int size_ = 0;
   int length_ = 0;
 

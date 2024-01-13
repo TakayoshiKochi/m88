@@ -137,10 +137,10 @@ void DiskIO::CmdReadFile() {
     case kIdlePhase:
       write_buffer_ = false;
       Log("ReadFile(%s) - ", filename);
-      if (file_.Open(filename_, FileIO::readonly)) {
-        file_.Seek(0, FileIO::end);
+      if (file_.Open(filename_, FileIO::kReadOnly)) {
+        file_.Seek(0, FileIO::kEnd);
         size_ = std::min(0xffff, file_.Tellp());
-        file_.Seek(0, FileIO::begin);
+        file_.Seek(0, FileIO::kBegin);
         buf_[0] = size_ & 0xff;
         buf_[1] = (size_ >> 8) & 0xff;
         Log("%d bytes  ", size_);
@@ -177,7 +177,7 @@ void DiskIO::CmdWriteFile() {
     case kIdlePhase:
       write_buffer_ = true;
       Log("WriteFile(%s) - ", filename);
-      if (file_.Open(filename_, FileIO::create))
+      if (file_.Open(filename_, FileIO::kCreate))
         ArgPhase(2);
       else {
         Log("failed");

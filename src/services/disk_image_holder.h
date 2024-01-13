@@ -67,7 +67,7 @@ class DiskImageHolder {
   void Close();
   bool IsValidHeader(d88::ImageHeader&);
 
-  FileIODummy fio_;
+  FileIO file_;
   int ndisks_ = 0;
   int ref_ = 0;
   bool readonly_ = false;

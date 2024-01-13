@@ -8,9 +8,9 @@
 
 #include <algorithm>
 
+#include "common/file.h"
 #include "if/ifguid.h"
 #include "pc88/pc88.h"
-#include "win32/file.h"
 #include "win32/resource.h"
 
 // #define LOGNAME "memmon"
@@ -341,8 +341,9 @@ bool MemoryMonitor::SaveImage() {
     return false;
 
   // 書き込み
-  FileIOWin fio(filename, FileIO::create);
-  if (!fio.GetFlags() & FileIO::open)
+  FileIO fio;
+  fio.Open(filename, FileIO::kCreate);
+  if (!fio.GetFlags() & FileIO::kOpen)
     return false;
 
   uint8_t* img = new uint8_t[0x10000];

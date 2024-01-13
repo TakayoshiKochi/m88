@@ -15,13 +15,14 @@
 #include <algorithm>
 
 #include "common/error.h"
+#include "common/file.h"
 #include "common/image_codec.h"
 #include "pc88/opnif.h"
 #include "services/diskmgr.h"
 #include "services/power_management.h"
 #include "services/tapemgr.h"
 #include "win32/about.h"
-#include "win32/file.h"
+#include "win32/file_finder.h"
 #include "win32/filetest.h"
 #include "win32/messages.h"
 #include "win32/status_win.h"
@@ -581,9 +582,9 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
     // 指定されたファイルは存在するか？
     bool createnew = false;
     if (!disk_manager_->IsImageOpen(filename)) {
-      FileIOWin file;
-      if (!file.Open(filename, FileIO::readonly)) {
-        if (file.GetError() == FileIO::file_not_found) {
+      FileIO file;
+      if (!file.Open(filename, FileIO::kReadOnly)) {
+        if (file.GetError() == FileIO::kFileNotFound) {
           // ファイルが存在しない
           createnew = true;
           if (!new_disk_.Show(hinst_, hwnd))
@@ -1028,12 +1029,11 @@ void WinUI::CaptureScreen() {
 
   draw_.CaptureScreen(buf.get());
 
-  const std::string type("png");
   std::unique_ptr<ImageCodec> codec;
-  codec.reset(ImageCodec::GetCodec(type));
+  codec.reset(ImageCodec::GetCodec("png"));
   if (codec) {
     codec->Encode(buf.get(), draw_.GetPalette());
-    codec->Save(ImageCodec::GenerateFileName(type));
+    codec->Save(codec->GenerateFileName());
   }
   statusdisplay.Show(80, 1500, "画面イメージを保存しました");
 

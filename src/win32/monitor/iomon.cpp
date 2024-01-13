@@ -9,8 +9,6 @@
 #include <algorithm>
 
 #include "if/ifguid.h"
-#include "pc88/pc88.h"
-#include "win32/file.h"
 #include "win32/resource.h"
 
 using namespace pc8801;

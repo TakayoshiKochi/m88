@@ -18,6 +18,10 @@ class PNGCodec : public ImageCodec {
   void Encode(uint8_t* src, const Draw::Palette* palette) override;
 
  private:
+  // Implements ImageCodec
+  static constexpr char extension_[] = "png";
+  [[nodiscard]] const char* GetExtension() const override { return extension_; }
+
   void Append(uint8_t* data, size_t size);
   static void WriteCallback(png_structp p, png_bytep b, size_t s);
 };

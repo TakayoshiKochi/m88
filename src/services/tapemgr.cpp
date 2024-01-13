@@ -42,8 +42,8 @@ bool TapeManager::Init(Scheduler* s, IOBus* b, int pi) {
 bool TapeManager::Open(const std::string_view file) {
   Close();
 
-  FileIODummy fio;
-  if (!fio.Open(file, FileIO::readonly))
+  FileIO fio;
+  if (!fio.Open(file, FileIO::kReadOnly))
     return false;
 
   // ヘッダ確認

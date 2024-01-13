@@ -7,6 +7,7 @@
 #include "win32/wincore.h"
 
 #include "common/device.h"
+#include "common/file.h"
 #include "if/ifguid.h"
 #include "if/ifpc88.h"
 #include "pc88/beep.h"
@@ -16,12 +17,11 @@
 #include "pc88/pd8257.h"
 #include "services/diskmgr.h"
 #include "win32/extdev.h"
-#include "win32/file.h"
+#include "win32/file_finder.h"
 #include "win32/messages.h"
 #include "win32/module.h"
 #include "win32/status_win.h"
 #include "win32/ui.h"
-#include "win32/version.h"
 #include "win32/winkeyif.h"
 #include "zlib/zlib.h"
 
@@ -201,8 +201,8 @@ bool WinCore::SaveSnapshot(const std::string_view filename) {
     for (uint32_t i = 0; i < 2; i++)
       ssh.disk[i] = (int8_t)pc88_.GetDiskManager()->GetCurrentDisk(i);
 
-    FileIOWin file;
-    if (file.Open(filename, FileIO::create)) {
+    FileIO file;
+    if (file.Open(filename, FileIO::kCreate)) {
       file.Write(&ssh, sizeof(ssh));
       if (esize < size)
         file.Write(buf.get() + size, esize);
@@ -219,8 +219,8 @@ bool WinCore::SaveSnapshot(const std::string_view filename) {
 bool WinCore::LoadSnapshot(const std::string_view filename, const std::string_view diskname) {
   LockObj lock(this);
 
-  FileIOWin file;
-  if (!file.Open(filename, FileIO::readonly))
+  FileIO file;
+  if (!file.Open(filename, FileIO::kReadOnly))
     return false;
 
   SnapshotHeader ssh;
