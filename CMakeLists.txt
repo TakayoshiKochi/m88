@@ -463,14 +463,15 @@ target_link_libraries(sample1
 
 # TODO: add_custom_command for copying sample1.m88
 
-add_library(sample2 ${LIB_TYPE}
+add_library(sample2 SHARED
         modules/sample2/src/config.h
         modules/sample2/src/config.cpp
         modules/sample2/src/guid.cpp
         modules/sample2/src/mem.h
         modules/sample2/src/mem.cpp
         modules/sample2/src/moduleif.cpp
-        modules/sample2/src/resource.h)
+        modules/sample2/src/resource.h
+        modules/sample2/src/sample2.rc)
 
 target_include_directories(sample2
         PRIVATE ${CMAKE_SOURCE_DIR}/src
@@ -479,7 +480,11 @@ target_include_directories(sample2
 target_link_libraries(sample2
         common devices)
 
-# TODO: add_custom_command for copying sample1.m88
+add_custom_command(TARGET sample2 POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:sample2>
+        sample2.m88
+        COMMENT "Copying 'sample2.dll' library to 'sample2.m88'")
 
 # =====
 # Tools
