@@ -67,6 +67,8 @@ void GVRAMReverse::MWrite(void* p, uint32_t a, uint32_t d) {
 //  GVRAM が選択されていれば，GVRAM 領域を乗っ取る
 
 void GVRAMReverse::Update() {
+  // TODO: figure out what's going wrong
+  return;
   bool g = false;
   if (p32_ & 0x40) {
     p5x_ = 3;
