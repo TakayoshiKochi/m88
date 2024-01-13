@@ -83,24 +83,6 @@ target_include_directories(common
 # TODO: remove this dependency
 target_link_libraries(common Z80)
 
-add_executable(common_unittests
-        src/common/crc32_test.cc
-        src/common/device_test.cc
-        src/common/floppy_test.cc
-        src/common/io_bus_test.cc
-        src/common/scheduler_test.cc)
-
-target_link_libraries(common_unittests
-        PRIVATE gtest gtest_main
-        common)
-
-add_executable(common_benchmarks
-        src/common/crc32_benchmark.cc)
-
-target_link_libraries(common_benchmarks
-        PRIVATE benchmark::benchmark benchmark::benchmark_main
-        common)
-
 add_library(devices ${LIB_TYPE}
         src/devices/z80.h
         src/devices/z80.cpp
@@ -115,17 +97,6 @@ target_include_directories(devices
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(devices Z80)
-
-add_executable(devices_unittests
-        src/devices/fmgen_test.cc
-        src/devices/fmtimer_test.cc
-        src/devices/opna_test.cc
-        src/devices/psg_test.cc
-        src/devices/z80c_test.cc)
-
-target_link_libraries(devices_unittests
-        PRIVATE gtest gtest_main
-        common devices fmgen)
 
 add_library(pc88core ${LIB_TYPE}
         src/pc88/base.h
@@ -174,18 +145,6 @@ target_include_directories(pc88core
         PUBLIC ${CMAKE_SOURCE_DIR}/third_party)
 
 target_link_libraries(pc88core Z80 ymfm)
-
-add_executable(pc88core_unittests
-        src/pc88/base_test.cc
-        src/pc88/beep_test.cc
-        src/pc88/calendar_test.cc
-        src/pc88/config_test.cc
-        src/pc88/crtc_test.cc
-        src/pc88/pc88_test.cc)
-
-target_link_libraries(pc88core_unittests
-        PRIVATE gtest gtest_main
-        common devices fmgen pc88core pc88shell win32mon)
 
 add_library(pc88shell ${LIB_TYPE}
         src/services/88config.h
@@ -266,13 +225,6 @@ target_include_directories(win32
 
 target_link_libraries(win32 devices asio)
 
-add_executable(win32_unittests
-        src/pc88/pc88_test.cc)
-
-target_link_libraries(win32_unittests
-        PRIVATE gtest gtest_main
-        common devices fmgen pc88core pc88shell win32 win32mon)
-
 add_library(win32mon ${LIB_TYPE}
         src/win32/monitor/basmon.h
         src/win32/monitor/basmon.cpp
@@ -300,13 +252,6 @@ target_include_directories(win32mon
 target_link_libraries(win32mon
         PUBLIC devices
         PRIVATE comctl32)
-
-add_executable(win32mon_unittests
-        src/pc88/pc88_test.cc)
-
-target_link_libraries(win32mon_unittests
-        PUBLIC gtest gtest_main
-        common devices fmgen pc88core pc88shell win32 win32mon)
 
 add_library(romeo ${LIB_TYPE}
         src/piccolo/piioctl.h
@@ -554,3 +499,62 @@ add_custom_command(TARGET writetag POST_BUILD
         $<TARGET_FILE:writetag>
         ${CMAKE_SOURCE_DIR}/bin
         COMMENT "Copying 'writetag.exe' binary to 'bin'")
+
+# =====
+# Tests
+# =====
+
+add_executable(common_unittests
+        src/common/crc32_test.cc
+        src/common/device_test.cc
+        src/common/floppy_test.cc
+        src/common/io_bus_test.cc
+        src/common/scheduler_test.cc)
+
+target_link_libraries(common_unittests
+        PRIVATE gtest gtest_main
+        common)
+
+add_executable(common_benchmarks
+        src/common/crc32_benchmark.cc)
+
+target_link_libraries(common_benchmarks
+        PRIVATE benchmark::benchmark benchmark::benchmark_main
+        common)
+
+add_executable(devices_unittests
+        src/devices/fmgen_test.cc
+        src/devices/fmtimer_test.cc
+        src/devices/opna_test.cc
+        src/devices/psg_test.cc
+        src/devices/z80c_test.cc)
+
+target_link_libraries(devices_unittests
+        PRIVATE gtest gtest_main
+        common devices fmgen)
+
+add_executable(pc88core_unittests
+        src/pc88/base_test.cc
+        src/pc88/beep_test.cc
+        src/pc88/calendar_test.cc
+        src/pc88/config_test.cc
+        src/pc88/crtc_test.cc
+        src/pc88/pc88_test.cc)
+
+target_link_libraries(pc88core_unittests
+        PRIVATE gtest gtest_main
+        common devices fmgen pc88core pc88shell win32mon)
+
+add_executable(win32_unittests
+        src/pc88/pc88_test.cc)
+
+target_link_libraries(win32_unittests
+        PRIVATE gtest gtest_main
+        common devices fmgen pc88core pc88shell win32 win32mon)
+
+add_executable(win32mon_unittests
+        src/pc88/pc88_test.cc)
+
+target_link_libraries(win32mon_unittests
+        PUBLIC gtest gtest_main
+        common devices fmgen pc88core pc88shell win32 win32mon)
