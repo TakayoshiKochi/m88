@@ -448,7 +448,7 @@ add_custom_command(TARGET diskdrv POST_BUILD
         diskdrv.m88
         COMMENT "Copying 'diskdrv.dll' library to 'diskdrv.m88'")
 
-add_library(sample1 ${LIB_TYPE}
+add_library(sample1 SHARED
         modules/sample1/src/guid.cpp
         modules/sample1/src/moduleif.cpp
         modules/sample1/src/sine.h
@@ -461,7 +461,11 @@ target_include_directories(sample1
 target_link_libraries(sample1
         common devices)
 
-# TODO: add_custom_command for copying sample1.m88
+add_custom_command(TARGET sample1 POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:sample1>
+        sample1.m88
+        COMMENT "Copying 'sample1.dll' library to 'sample1.m88'")
 
 add_library(sample2 SHARED
         modules/sample2/src/config.h
