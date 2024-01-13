@@ -9,7 +9,7 @@
   <ItemGroup>
     <ClInclude Include="src\config.h" />
     <ClInclude Include="src\mem.h" />
-    <ClInclude Include="src\resource.h.h" />
+    <ClInclude Include="src\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\sample2.rc" />

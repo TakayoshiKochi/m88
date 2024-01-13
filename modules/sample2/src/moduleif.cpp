@@ -34,35 +34,33 @@ enum SpecialPort {
 class GRModule : public IModule {
  public:
   GRModule();
-  ~GRModule() {}
+  ~GRModule() = default;
 
   bool Init(ISystem* system);
-  void IFCALL Release();
-  void* IFCALL QueryIF(REFIID) { return 0; }
+  void IFCALL Release() override;
+  void* IFCALL QueryIF(REFIID) override { return nullptr; }
 
  private:
-  GVRAMReverse mem;
-  ConfigMP cfg;
+  GVRAMReverse mem_;
+  ConfigMP cfg_;
 
-  ISystem* sys;
-  IIOBus* bus;
-  IConfigPropBase* pb;
+  ISystem* sys_ = nullptr;
+  IIOBus* bus_ = nullptr;
+  IConfigPropBase* pb_ = nullptr;
 };
 
-GRModule::GRModule() : bus(0), pb(0) {
-  cfg.Init(hinst);
+GRModule::GRModule() {
+  cfg_.Init(hinst);
 }
 
-bool GRModule::Init(ISystem* _sys) {
-  IMemoryManager* mm;
+bool GRModule::Init(ISystem* system) {
+  sys_ = system;
 
-  sys = _sys;
+  bus_ = (IIOBus*)sys_->QueryIF(M88IID_IOBus1);
+  auto* mm = static_cast<IMemoryManager*>(sys_->QueryIF(M88IID_MemoryManager1));
+  pb_ = static_cast<IConfigPropBase*>(sys_->QueryIF(M88IID_ConfigPropBase));
 
-  bus = (IIOBus*)sys->QueryIF(M88IID_IOBus1);
-  mm = (IMemoryManager*)sys->QueryIF(M88IID_MemoryManager1);
-  pb = (IConfigPropBase*)sys->QueryIF(M88IID_ConfigPropBase);
-
-  if (!bus || !mm || !pb)
+  if (!bus_ || !mm || !pb_)
     return false;
 
   const static IIOBus::Connector c_mp[] = {{0x32, IIOBus::portout, GVRAMReverse::out32},
@@ -72,18 +70,18 @@ bool GRModule::Init(ISystem* _sys) {
                                            {0x5e, IIOBus::portout, GVRAMReverse::out5x},
                                            {0x5f, IIOBus::portout, GVRAMReverse::out5x},
                                            {0, 0, 0}};
-  if (!mem.Init(mm) || !bus->Connect(&mem, c_mp))
+  if (!mem_.Init(mm) || !bus_->Connect(&mem_, c_mp))
     return false;
 
-  pb->Add(&cfg);
+  pb_->Add(&cfg_);
   return true;
 }
 
 void GRModule::Release() {
-  if (bus)
-    bus->Disconnect(&mem);
-  if (pb)
-    pb->Remove(&cfg);
+  if (bus_)
+    bus_->Disconnect(&mem_);
+  if (pb_)
+    pb_->Remove(&cfg_);
 
   delete this;
 }
@@ -92,29 +90,24 @@ void GRModule::Release() {
 
 //  Module を作成
 extern "C" EXTDEVAPI IModule* __cdecl M88CreateModule(ISystem* system) {
-  GRModule* module = new GRModule;
-
-  if (module) {
+  if (auto* module = new GRModule) {
     if (module->Init(system))
       return module;
     delete module;
   }
-  return 0;
+  return nullptr;
 }
 
 BOOL APIENTRY DllMain(HANDLE hmod, DWORD rfc, LPVOID) {
   switch (rfc) {
     case DLL_PROCESS_ATTACH:
-      hinst = (HINSTANCE)hmod;
+      hinst = static_cast<HINSTANCE>(hmod);
       break;
 
     case DLL_THREAD_ATTACH:
-      break;
-
     case DLL_THREAD_DETACH:
-      break;
-
     case DLL_PROCESS_DETACH:
+    default:
       break;
   }
   return true;

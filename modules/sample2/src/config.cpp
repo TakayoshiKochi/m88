@@ -3,32 +3,26 @@
 #include "config.h"
 #include "resource.h"
 
-// ---------------------------------------------------------------------------
-
-ConfigMP::ConfigMP() {
-  // gate.SetDestination(PageGate, this);
-}
-
-bool ConfigMP::Init(HINSTANCE _hinst) {
-  hinst = _hinst;
+bool ConfigMP::Init(HINSTANCE hinst) {
+  hinst_ = hinst;
   return true;
 }
 
-bool ConfigMP::Setup(IConfigPropBase* _base, PROPSHEETPAGE* psp) {
-  base = _base;
+bool ConfigMP::Setup(IConfigPropBase* base, PROPSHEETPAGE* psp) {
+  base_ = base;
 
   memset(psp, 0, sizeof(PROPSHEETPAGE));
   psp->dwSize = sizeof(PROPSHEETPAGE);
   psp->dwFlags = 0;
-  psp->hInstance = hinst;
+  psp->hInstance = hinst_;
   psp->pszTemplate = MAKEINTRESOURCE(IDD_CONFIG);
-  psp->pszIcon = 0;
-  // psp->pfnDlgProc = (DLGPROC) (void*) gate;
-  psp->lParam = 0;
+  psp->pszIcon = nullptr;
+  psp->pfnDlgProc = static_cast<DLGPROC>((void*)PageGate);
+  psp->lParam = reinterpret_cast<LPARAM>(this);
   return true;
 }
 
-BOOL ConfigMP::PageProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
+INT_PTR ConfigMP::PageProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
   switch (msg) {
     case WM_INITDIALOG:
       return TRUE;
@@ -36,11 +30,11 @@ BOOL ConfigMP::PageProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
     case WM_NOTIFY:
       switch (((NMHDR*)lp)->code) {
         case PSN_SETACTIVE:
-          base->PageSelected(this);
+          base_->PageSelected(this);
           break;
 
         case PSN_APPLY:
-          base->Apply();
+          base_->Apply();
           return PSNRET_NOERROR;
       }
       return TRUE;
@@ -48,6 +42,23 @@ BOOL ConfigMP::PageProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
   return FALSE;
 }
 
-BOOL CALLBACK ConfigMP::PageGate(ConfigMP* config, HWND hwnd, UINT m, WPARAM w, LPARAM l) {
-  return config->PageProc(hwnd, m, w, l);
+// static
+INT_PTR CALLBACK ConfigMP::PageGate(HWND hwnd, UINT m, WPARAM w, LPARAM l) {
+  ConfigMP* config = nullptr;
+
+  if (m == WM_INITDIALOG) {
+    PROPSHEETPAGE* pPage = (PROPSHEETPAGE*)l;
+    config = reinterpret_cast<ConfigMP*>(pPage->lParam);
+    if (config) {
+      ::SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)config);
+    }
+  } else {
+    config = (ConfigMP*)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
+  }
+
+  if (config) {
+    return config->PageProc(hwnd, m, w, l);
+  } else {
+    return FALSE;
+  }
 }
