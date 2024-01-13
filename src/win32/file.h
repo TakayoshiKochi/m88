@@ -10,72 +10,41 @@
 
 #include <windows.h>
 
-#include <stdint.h>
 #include <stdlib.h>
-#include <string>
-
-#include "common/file.h"
-
-class FileIOWin : public FileIO {
- public:
-  FileIOWin();
-  explicit FileIOWin(const std::string_view filename, uint32_t flg);
-  ~FileIOWin() override;
-
-  FileIOWin(const FileIOWin&) = delete;
-  const FileIOWin& operator=(const FileIOWin&) = delete;
-
-  bool Open(const std::string_view filename, uint32_t flg) override;
-  bool CreateNew(const std::string_view filename) override;
-  bool Reopen(uint32_t flg) override;
-  void Close() override;
-
-  int32_t Read(void* dest, int32_t len) override;
-  int32_t Write(const void* src, int32_t len) override;
-  bool Seek(int32_t fpos, SeekMethod method) override;
-  int32_t Tellp() override;
-  bool SetEndOfFile() override;
-
- private:
-  HANDLE hfile_;
-  std::string path_;
-};
-
-// ---------------------------------------------------------------------------
 
 class FileFinder {
  public:
-  FileFinder() : hff(INVALID_HANDLE_VALUE), searcher(0) {}
+  FileFinder() : hff_(INVALID_HANDLE_VALUE), searcher_(nullptr) {}
 
   ~FileFinder() {
-    free(searcher);
-    if (hff != INVALID_HANDLE_VALUE)
-      FindClose(hff);
+    free(searcher_);
+    if (hff_ != INVALID_HANDLE_VALUE)
+      FindClose(hff_);
   }
 
   bool FindFile(char* szSearch) {
-    hff = INVALID_HANDLE_VALUE;
-    free(searcher);
-    searcher = _strdup(szSearch);
-    return searcher != 0;
+    hff_ = INVALID_HANDLE_VALUE;
+    free(searcher_);
+    searcher_ = _strdup(szSearch);
+    return searcher_ != 0;
   }
 
   bool FindNext() {
-    if (!searcher)
+    if (!searcher_)
       return false;
-    if (hff == INVALID_HANDLE_VALUE) {
-      hff = FindFirstFile(searcher, &wfd);
-      return hff != INVALID_HANDLE_VALUE;
+    if (hff_ == INVALID_HANDLE_VALUE) {
+      hff_ = FindFirstFile(searcher_, &wfd_);
+      return hff_ != INVALID_HANDLE_VALUE;
     } else
-      return FindNextFile(hff, &wfd) != 0;
+      return FindNextFile(hff_, &wfd_) != 0;
   }
 
-  const char* GetFileName() { return wfd.cFileName; }
-  DWORD GetFileAttr() { return wfd.dwFileAttributes; }
-  const char* GetAltName() { return wfd.cAlternateFileName; }
+  const char* GetFileName() { return wfd_.cFileName; }
+  DWORD GetFileAttr() { return wfd_.dwFileAttributes; }
+  const char* GetAltName() { return wfd_.cAlternateFileName; }
 
  private:
-  char* searcher;
-  HANDLE hff;
-  WIN32_FIND_DATA wfd;
+  char* searcher_;
+  HANDLE hff_;
+  WIN32_FIND_DATA wfd_;
 };
