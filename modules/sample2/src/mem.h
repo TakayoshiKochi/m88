@@ -1,7 +1,6 @@
 //  $Id: mem.h,v 1.1 1999/10/10 01:43:28 cisc Exp $
 
-#ifndef incl_mem_h
-#define incl_mem_h
+#pragma once
 
 #include "common/device.h"
 #include "if/ifcommon.h"
@@ -12,12 +11,11 @@ class GVRAMReverse : public Device {
  public:
   enum { out32 = 0, out35, out5x };
 
- public:
   GVRAMReverse();
   ~GVRAMReverse() override;
 
   bool Init(IMemoryManager* mm);
-  // void CleanUp();
+  void CleanUp();
 
   // IDevice Method
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
@@ -33,15 +31,16 @@ class GVRAMReverse : public Device {
  private:
   void Update();
 
-  IMemoryManager* mm;
-  int mid;
+  IMemoryManager* mm_ = nullptr;
+  int mid_ = -1;
 
-  uint32_t p32, p35, p5x;
-  bool gvram;
+  uint32_t p32_ = 0;
+  uint32_t p35_ = 0;
+  uint32_t p5x_ = 3;
+
+  bool gvram_ = false;
 
   static const Descriptor descriptor;
-  //  static const InFuncPtr  indef[];
+  // static const InFuncPtr  indef[];
   static const OutFuncPtr outdef[];
 };
-
-#endif  // incl_mem_h
