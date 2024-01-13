@@ -1,7 +1,6 @@
-// ---------------------------------------------------------------------------
-// M88 - PC8801 Series Emulator
-// Copyright (C) by cisc 1998, 2003.
-// ---------------------------------------------------------------------------
+// Copyright (C) 2024 Takayoshi Kochi
+// See LICENSE.md for more information.
+
 
 struct Output
 {

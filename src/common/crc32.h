@@ -1,3 +1,6 @@
+// Copyright (C) 2024 Takayoshi Kochi
+// See LICENSE.md for more information.
+
 #pragma once
 
 #include <mutex>
