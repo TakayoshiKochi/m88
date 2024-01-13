@@ -21,10 +21,11 @@ RomLoader::RomLoader() {
 
 // static
 bool RomLoader::LoadFile(const std::string_view filename, uint8_t* ptr, size_t size) {
-  FileIODummy file(filename.data(), FileIO::readonly);
-  if (!(file.GetFlags() & FileIO::open))
+  FileIO file;
+  file.Open(filename.data(), FileIO::kReadOnly);
+  if (!(file.GetFlags() & FileIO::kOpen))
     return false;
-  file.Seek(0, FileIO::begin);
+  file.Seek(0, FileIO::kBegin);
   memset(ptr, 0xff, size);
   // TODO: check file size
   if (file.Read(ptr, static_cast<int32_t>(size)) == 0) {
@@ -36,16 +37,19 @@ bool RomLoader::LoadFile(const std::string_view filename, uint8_t* ptr, size_t s
 }
 
 bool RomLoader::LoadRom(const std::string_view filename, pc8801::RomType type, size_t size) {
-  FileIODummy file(filename.data(), FileIO::readonly);
-  if (!(file.GetFlags() & FileIO::open))
+  FileIO file;
+  file.Open(filename.data(), FileIO::kReadOnly);
+  if (!(file.GetFlags() & FileIO::kOpen))
     return false;
 
   auto& rom = roms_[type];
   rom = std::make_unique<RomView>(size);
   if (LoadFile(filename, rom->Get(), size)) {
+    file.Close();
     return true;
   }
   rom.reset();
+  file.Close();
   return false;
 }
 

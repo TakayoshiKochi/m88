@@ -36,8 +36,8 @@ std::string ImageCodec::GenerateFileName() const {
 void ImageCodec::Save(const std::string_view filename) const {
   if (!buf_)
     return;
-  FileIODummy file;
-  if (file.Open(filename, FileIO::create)) {
+  FileIO file;
+  if (file.Open(filename, FileIO::kCreate)) {
     file.Write(buf_.get(), encoded_size_);
     file.Close();
   }

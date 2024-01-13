@@ -122,7 +122,7 @@ bool DiskManager::Mount(uint32_t dr,
   drive_[dr].sizechanged = false;
 
   if (fio) {
-    fio->Seek(0, FileIO::begin);
+    fio->Seek(0, FileIO::kBegin);
     if (!ReadDiskImage(fio, &drive_[dr])) {
       h->Disconnect();
       drive_[dr].holder = 0;
@@ -244,7 +244,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
       cy *= 2;
     disk.Seek((cy * 2) + (t & 1));
     if (ih.trackptr[t]) {
-      fio->Seek(ih.trackptr[t], FileIO::begin);
+      fio->Seek(ih.trackptr[t], FileIO::kBegin);
       int sot = 0;
       int i = 0;
       d88::SectorHeader sh;
@@ -287,7 +287,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
 //  ディスクイメージ (READER 形式) を読み込む
 //
 bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive) {
-  fio->Seek(16, FileIO::begin);
+  fio->Seek(16, FileIO::kBegin);
 
   bool readonly = drive->holder->IsReadOnly();
 
@@ -392,7 +392,7 @@ bool DiskManager::WriteDiskImage(FileIO* fio, Drive* drv) {
 
   ih.disksize = disksize;
 
-  if (!fio->Seek(0, FileIO::begin))
+  if (!fio->Seek(0, FileIO::kBegin))
     return false;
   if (fio->Write(&ih, sizeof(d88::ImageHeader)) != sizeof(d88::ImageHeader))
     return false;
@@ -488,7 +488,7 @@ void DiskManager::UpdateDrive(Drive* drv) {
 
           if (tracksize <= drv->tracksize[t]) {
             drv->modified[t] = false;
-            fio->Seek(drv->trackpos[t], FileIO::begin);
+            fio->Seek(drv->trackpos[t], FileIO::kBegin);
             WriteTrackImage(fio, drv, t);
           } else {
             drv->sizechanged = true;
