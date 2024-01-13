@@ -158,7 +158,7 @@
       <OutputFile>$(IntDir)/M88.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>writetag release\m88.exe</Command>
+      <Command>.\bin\writetag $(OutDir)$(TargetName).exe</Command>
     </PostBuildEvent>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
@@ -225,7 +225,7 @@
       <OutputFile>$(IntDir)/M88.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>writetag release\m88.exe</Command>
+      <Command>.\bin\writetag $(OutDir)$(TargetName).exe</Command>
     </PostBuildEvent>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
