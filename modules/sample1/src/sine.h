@@ -1,18 +1,16 @@
 //  $Id: sine.h,v 1.1 1999/10/10 01:41:59 cisc Exp $
 
-#ifndef incl_sine_h
-#define incl_sine_h
+#pragma once
 
 #include "common/device.h"
 #include "if/ifcommon.h"
 
 // ---------------------------------------------------------------------------
 
-class Sine : public Device, public ISoundSource {
+class Sine final : public Device, public ISoundSource {
  public:
   enum IDFunc { setvolume = 0, setpitch };
 
- public:
   Sine();
   ~Sine() override;
 
@@ -32,13 +30,13 @@ class Sine : public Device, public ISoundSource {
   void IOCALL SetPitch(uint32_t, uint32_t data);
 
  private:
-  ISoundControl* sc;
+  ISoundControl* sc_ = nullptr;
 
-  int volume;
-  int rate;
-  int pitch;
-  int pos;
-  int step;
+  int volume_ = 0;
+  int rate_ = 0;
+  int pitch_ = 0;
+  int pos_ = 0;
+  int step_ = 0;
 
   static const int table[];
 
@@ -46,5 +44,3 @@ class Sine : public Device, public ISoundSource {
   static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];
 };
-
-#endif  // incl_sine_h

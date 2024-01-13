@@ -31,44 +31,44 @@ enum SpecialPort {
 class SineModule : public IModule {
  public:
   SineModule();
-  ~SineModule() {}
+  ~SineModule() = default;
 
   bool Init(ISystem* system);
   void IFCALL Release();
-  void* IFCALL QueryIF(REFIID) { return 0; }
+  void* IFCALL QueryIF(REFIID) { return nullptr; }
 
  private:
   Sine sine;
 
-  ISystem* sys;
-  IIOBus* bus;
+  ISystem* sys_ = nullptr;
+  IIOBus* bus_ = nullptr;
 };
 
 SineModule::SineModule() {}
 
-bool SineModule::Init(ISystem* _sys) {
+bool SineModule::Init(ISystem* system) {
   ISoundControl* sc;
 
-  sys = _sys;
+  sys_ = system;
 
-  bus = (IIOBus*)sys->QueryIF(M88IID_IOBus1);
-  sc = (ISoundControl*)sys->QueryIF(M88IID_SoundControl);
+  bus_ = (IIOBus*)sys_->QueryIF(M88IID_IOBus1);
+  sc = (ISoundControl*)sys_->QueryIF(M88IID_SoundControl);
 
-  if (!bus || !sc)
+  if (!bus_ || !sc)
     return false;
 
   const static IIOBus::Connector c_sine[] = {
       {0xd8, IIOBus::portout, Sine::setvolume}, {0xd9, IIOBus::portout, Sine::setpitch}, {0, 0, 0}};
-  if (!sine.Init() || !bus->Connect(&sine, c_sine))
+  if (!sine.Init() || !bus_->Connect(&sine, c_sine))
     return false;
   sine.Connect(sc);
   return true;
 }
 
 void SineModule::Release() {
-  sine.Connect(0);
-  if (bus) {
-    bus->Disconnect(&sine);
+  sine.Connect(nullptr);
+  if (bus_) {
+    bus_->Disconnect(&sine);
   }
   delete this;
 }
@@ -77,28 +77,21 @@ void SineModule::Release() {
 
 //  Module を作成
 extern "C" EXTDEVAPI IModule* __cdecl M88CreateModule(ISystem* system) {
-  SineModule* module = new SineModule;
-
-  if (module) {
+  if (auto* module = new SineModule) {
     if (module->Init(system))
       return module;
     delete module;
   }
-  return 0;
+  return nullptr;
 }
 
 BOOL APIENTRY DllMain(HANDLE hmod, DWORD rfc, LPVOID) {
   switch (rfc) {
     case DLL_PROCESS_ATTACH:
-      break;
-
     case DLL_THREAD_ATTACH:
-      break;
-
     case DLL_THREAD_DETACH:
-      break;
-
     case DLL_PROCESS_DETACH:
+    default:
       break;
   }
   return true;

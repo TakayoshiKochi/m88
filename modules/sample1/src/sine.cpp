@@ -2,48 +2,48 @@
 
 #include "sine.h"
 
-Sine::Sine() : Device(0), volume(0), rate(0), pitch(0), pos(0), sc(0) {}
+Sine::Sine() : Device(0) {}
 
-Sine::~Sine() {}
+Sine::~Sine() = default;
 
 bool Sine::Init() {
-  volume = 64;
-  rate = 0;
-  pitch = 64;
-  pos = 0;
+  volume_ = 64;
+  rate_ = 0;
+  pitch_ = 64;
+  pos_ = 0;
   return true;
 }
 
 bool Sine::Connect(ISoundControl* _sc) {
-  if (sc)
-    sc->Disconnect(this);
-  sc = _sc;
-  if (sc)
-    sc->Connect(this);
+  if (sc_)
+    sc_->Disconnect(this);
+  sc_ = _sc;
+  if (sc_)
+    sc_->Connect(this);
   return true;
 }
 
 bool Sine::SetRate(uint32_t r) {
-  rate = r;
-  step = 4000 * 128 * pitch / rate;
+  rate_ = r;
+  step_ = 4000 * 128 * pitch_ / rate_;
   return true;
 }
 
 void Sine::SetPitch(uint32_t, uint32_t data) {
-  sc->Update(this);
-  pitch = data;
-  step = 4000 * 128 * pitch / rate;
+  sc_->Update(this);
+  pitch_ = data;
+  step_ = 4000 * 128 * pitch_ / rate_;
 }
 
 void Sine::SetVolume(uint32_t, uint32_t data) {
-  sc->Update(this);
-  volume = data;
+  sc_->Update(this);
+  volume_ = data;
 }
 
 void Sine::Mix(int32_t* dest, int length) {
   for (; length > 0; length--) {
-    int a = (table[(pos >> 8) & 127] * volume) >> 8;
-    pos += step;
+    int a = (table[(pos_ >> 8) & 127] * volume_) >> 8;
+    pos_ += step_;
     dest[0] += a;  // バッファには既に他の音源の合成結果が
     dest[1] += a;  // 含まれているので「加算」すること！
     dest += 2;
@@ -68,11 +68,9 @@ const int Sine::table[] = {
 //
 const Device::Descriptor Sine::descriptor = {indef, outdef};
 
-const Device::OutFuncPtr Sine::outdef[] = {
-    static_cast<Device::OutFuncPtr>(&SetVolume),
-    static_cast<Device::OutFuncPtr>(&SetPitch),
-};
+const Device::OutFuncPtr Sine::outdef[] = {static_cast<OutFuncPtr>(&Sine::SetVolume),
+                                           static_cast<OutFuncPtr>(&Sine::SetPitch)};
 
 const Device::InFuncPtr Sine::indef[] = {
-    0,
+    nullptr,
 };
