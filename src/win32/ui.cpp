@@ -1028,12 +1028,11 @@ void WinUI::CaptureScreen() {
 
   draw_.CaptureScreen(buf.get());
 
-  const std::string type("png");
   std::unique_ptr<ImageCodec> codec;
-  codec.reset(ImageCodec::GetCodec(type));
+  codec.reset(ImageCodec::GetCodec("png"));
   if (codec) {
     codec->Encode(buf.get(), draw_.GetPalette());
-    codec->Save(ImageCodec::GenerateFileName(type));
+    codec->Save(codec->GenerateFileName());
   }
   statusdisplay.Show(80, 1500, "画面イメージを保存しました");
 

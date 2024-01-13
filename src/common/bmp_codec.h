@@ -14,4 +14,9 @@ class BMPCodec : public ImageCodec {
 
   // Implements ImageCodec
   void Encode(uint8_t* src, const Draw::Palette* palette) override;
+
+ private:
+  // Implements ImageCodec
+  static constexpr char extension_[] = "bmp";
+  [[nodiscard]] const char* GetExtension() const override { return extension_; }
 };
