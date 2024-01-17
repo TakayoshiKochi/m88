@@ -35,7 +35,7 @@ INT_PTR M88About::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp) {
 
   switch (msg) {
     case WM_INITDIALOG:
-      wsprintf(buf, "M88 for Win32 (rel " APP_VER_STRING
+      wsprintf(buf, "M88k for Win32 (based on M88 rel " APP_VER_STRING
                     ")\n"
                     "PC-8801 series emulator.\n"
                     "Copyright (C) 1998, 2003 cisc\n");
@@ -92,11 +92,15 @@ const char M88About::abouttext[] = "build date:" __DATE__
                                    "\r\n"
                                    "要望・バグ報告などは以下のページにどうぞ\r\n"
                                    "\r\n"
-                                   "https://github.com/rururutan/m88\r\n"
+                                   "https://github.com/TakayoshiKochi/m88\r\n"
                                    "\r\n"
                                    "オリジナル M88 のページ\r\n"
                                    "\r\n"
                                    "http://www.retropc.net/cisc/m88/\r\n"
+                                   "\r\n"
+                                   "M88 私家版のページ\r\n"
+                                   "\r\n"
+                                   "https://github.com/rururutan/m88/\r\n"
                                    "\r\n"
                                    "FM 音源ユニットの作成にあたっては，\r\n"
                                    "佐藤達之氏作の fm.c を参考にさせていただきました．\r\n"

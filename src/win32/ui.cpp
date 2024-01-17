@@ -90,7 +90,7 @@ bool WinUI::InitWindow(int) {
   wstyle_ = WS_CAPTION | WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX;
 
   hwnd_ = CreateWindowEx(WS_EX_ACCEPTFILES,  // | WS_EX_LAYERED,
-                         szwinname, "M88", wstyle_,
+                         szwinname, "M88k", wstyle_,
                          CW_USEDEFAULT,      // x
                          CW_USEDEFAULT,      // y
                          kPC88ScreenWidth,   // w
@@ -343,7 +343,7 @@ LRESULT CALLBACK WinUI::WinProcGate(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM 
 void WinUI::ReportError() {
   const char* errtext = Error::GetErrorText();
   if (errtext) {
-    ::MessageBox(hwnd_, errtext, "M88", MB_ICONERROR | MB_OK);
+    ::MessageBox(hwnd_, errtext, "M88k", MB_ICONERROR | MB_OK);
   }
 }
 
@@ -353,7 +353,7 @@ void WinUI::ReportError() {
 void WinUI::Reset() {
   if (flags() & pc8801::Config::kAskBeforeReset) {
     SetGUIFlag(true);
-    int res = MessageBox(hwnd_, "リセットしますか？", "M88",
+    int res = MessageBox(hwnd_, "リセットしますか？", "M88k",
                          MB_ICONQUESTION | MB_OKCANCEL | MB_DEFBUTTON2);
     SetGUIFlag(false);
     if (res != IDOK)
@@ -557,7 +557,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
   SetGUIFlag(true);
 
   if (!disk_manager_->Unmount(drive)) {
-    MessageBox(hwnd, "DiskManger::Unmount failed\nディスクの取り外しに失敗しました.", "M88",
+    MessageBox(hwnd, "DiskManger::Unmount failed\nディスクの取り外しに失敗しました.", "M88k",
                MB_ICONERROR | MB_OK);
   }
 
@@ -1139,7 +1139,7 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
     // ReleaseCapture();
     SetWindowLongPtr(hwnd, GWL_STYLE, wstyle_);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle);
-    SetWindowText(hwnd, "M88");
+    SetWindowText(hwnd, "M88k");
 
     RECT rect = draw_.GetFullScreenRect();
     int width = rect.right - rect.left;
@@ -1871,7 +1871,7 @@ LRESULT WinUI::WmClose(HWND hwnd, WPARAM, LPARAM) {
   // 確認
   if (flags() & pc8801::Config::kAskBeforeReset) {
     SetGUIFlag(true);
-    int res = MessageBox(hwnd, "M88 を終了します", "M88",
+    int res = MessageBox(hwnd, "M88k を終了します", "M88k",
                          MB_ICONEXCLAMATION | MB_OKCANCEL | MB_DEFBUTTON2);
     SetGUIFlag(false);
     if (res != IDOK)
@@ -1927,10 +1927,10 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM) {
       if (active_) {
         char buf[64];
         int64_t freq100 = icount / 10000;
-        wsprintf(buf, "M88 - %d fps.  %d.%.2d MHz", fcount, int(freq100 / 100), int(freq100 % 100));
+        wsprintf(buf, "M88k - %d fps.  %d.%.2d MHz", fcount, int(freq100 / 100), int(freq100 % 100));
         SetWindowText(hwnd, buf);
       } else
-        SetWindowText(hwnd, "M88");
+        SetWindowText(hwnd, "M88k");
     }
 
     if (reset_window_size_delay_ > 0) {
