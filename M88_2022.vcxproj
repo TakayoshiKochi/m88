@@ -369,7 +369,7 @@
     <ClCompile Include="src\common\real_time_keeper.cpp" />
     <ClCompile Include="src\common\sampling_rate_converter.cpp" />
     <ClCompile Include="src\common\scheduler.cpp" />
-    <ClCompile Include="src\common\status.cpp" />
+    <ClCompile Include="src\common\status_bar.cpp" />
     <ClCompile Include="src\devices\z80.cpp" />
     <ClCompile Include="src\devices\z80c.cpp" />
     <ClCompile Include="src\devices\z80diag.cpp" />
@@ -492,7 +492,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src;.\third_party\zlib;.\third_party\;.\third_party\gtest\googletest\include;.\third_party\Z80\API;.\third_party\Zeta\API;.\third_party\asio\common;.\third_party\asio\host;.\third_party\asio\host\pc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="src\win32\sound\winsound.cpp" />
-    <ClCompile Include="src\win32\status_win.cpp" />
+    <ClCompile Include="src\win32\status_bar_win.cpp" />
     <ClCompile Include="src\win32\ui.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -623,7 +623,7 @@
     <ClInclude Include="src\common\scoped_comptr.h" />
     <ClInclude Include="src\common\scoped_handle.h" />
     <ClInclude Include="src\common\sound_source.h" />
-    <ClInclude Include="src\common\status.h" />
+    <ClInclude Include="src\common\status_bar.h" />
     <ClInclude Include="src\common\time_constants.h" />
     <ClInclude Include="src\devices\z80.h" />
     <ClInclude Include="src\devices\z80c.h" />
@@ -698,7 +698,7 @@
     <ClInclude Include="src\win32\sound\soundwo.h" />
     <ClInclude Include="src\win32\sound\sound_asio.h" />
     <ClInclude Include="src\win32\sound\winsound.h" />
-    <ClInclude Include="src\win32\status_win.h" />
+    <ClInclude Include="src\win32\status_bar_win.h" />
     <ClInclude Include="src\win32\ui.h" />
     <ClInclude Include="src\win32\version.h" />
     <ClInclude Include="src\win32\wincfg.h" />

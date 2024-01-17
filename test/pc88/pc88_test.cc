@@ -1,16 +1,16 @@
 #include "pc88/pc88.h"
 
-#include "common/status.h"
+#include "common/status_bar.h"
 #include "gtest/gtest.h"
 #include "win32/romeo/piccolo.h"
 
-class DummyStatusDisplay : public StatusDisplay {
+class DummyStatusDisplay : public StatusBar {
  public:
   void UpdateDisplay() override {}
   void Update() override {}
 };
 
-StatusDisplay* g_status_display = new DummyStatusDisplay();
+StatusBar* g_status_bar = new DummyStatusDisplay();
 
 // static
 std::once_flag Piccolo::once_;

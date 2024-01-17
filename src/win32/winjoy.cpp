@@ -10,7 +10,7 @@
 
 #include <mmsystem.h>
 
-#include "win32/status_win.h"
+#include "win32/status_bar_win.h"
 
 // ---------------------------------------------------------------------------
 //  構築/消滅

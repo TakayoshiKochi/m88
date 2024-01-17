@@ -10,7 +10,7 @@
 
 #include "common/io_bus.h"
 #include "common/file.h"
-#include "common/status.h"
+#include "common/status_bar.h"
 
 // #define LOGNAME "tape"
 #include "common/diag.h"
@@ -119,7 +119,7 @@ bool TapeManager::Motor(bool s) {
   if (motor_ == s)
     return true;
   if (s) {
-    g_status_display->Show(10, 2000, "Motor on: %d %d", timer_remain_, timer_count_);
+    g_status_bar->Show(10, 2000, "Motor on: %d %d", timer_remain_, timer_count_);
     time_ = scheduler_->GetTime();
     if (timer_remain_)
       event_ = scheduler_->AddEventNS((timer_count_ * 125 / 6) * kNanoSecsPerTick, this,
@@ -130,7 +130,7 @@ bool TapeManager::Motor(bool s) {
       int td = (scheduler_->GetTime() - time_) * 6 / 125;
       timer_remain_ = std::max(10U, timer_remain_ - td);
       scheduler_->DelEvent(event_), event_ = 0;
-      g_status_display->Show(10, 2000, "Motor off: %d %d", timer_remain_, timer_count_);
+      g_status_bar->Show(10, 2000, "Motor off: %d %d", timer_remain_, timer_count_);
     }
     motor_ = false;
   }
@@ -160,7 +160,7 @@ void TapeManager::Proceed(bool timer) {
       case T_END:
         mode_ = T_BLANK;
         pos_ = nullptr;
-        g_status_display->Show(50, 0, "end of tape", tick_);
+        g_status_bar->Show(50, 0, "end of tape", tick_);
         timer_count_ = 0;
         return;
 
@@ -211,7 +211,7 @@ void TapeManager::Proceed(bool timer) {
 //
 void TapeManager::Timer(uint32_t) {
   tick_ += timer_count_;
-  g_status_display->Show(50, 0, "tape: %d", tick_);
+  g_status_bar->Show(50, 0, "tape: %d", tick_);
 
   if (mode_ == T_DATA) {
     Send(*data_++);
@@ -335,7 +335,7 @@ bool TapeManager::SaveStatus(uint8_t* s) {
   status->motor = motor_;
   status->pos = GetPos();
   status->offset = offset_;
-  g_status_display->Show(0, 1000, "tapesave: %d", status->pos);
+  g_status_bar->Show(0, 1000, "tapesave: %d", status->pos);
   return true;
 }
 
@@ -345,7 +345,7 @@ bool TapeManager::LoadStatus(const uint8_t* s) {
     return false;
   motor_ = status->motor;
   Seek(status->pos, status->offset);
-  g_status_display->Show(0, 1000, "tapesave: %d", GetPos());
+  g_status_bar->Show(0, 1000, "tapesave: %d", GetPos());
   return true;
 }
 

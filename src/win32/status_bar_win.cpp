@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: status.cpp,v 1.8 2002/04/07 05:40:10 cisc Exp $
 
-#include "win32/status_win.h"
+#include "win32/status_bar_win.h"
 
 #include <assert.h>
 
@@ -14,25 +14,25 @@
 // #define LOGNAME "status"
 #include "common/diag.h"
 
-StatusDisplayWin statusdisplay;
-StatusDisplay* g_status_display = &statusdisplay;
+StatusBarWin statusdisplay;
+StatusBar* g_status_bar = &statusdisplay;
 
-StatusDisplayWin::StatusDisplayWin() = default;
+StatusBarWin::StatusBarWin() = default;
 
-StatusDisplayWin::~StatusDisplayWin() {
+StatusBarWin::~StatusBarWin() {
   CleanUp();
 }
 
-bool StatusDisplayWin::Init(HWND parent) {
+bool StatusBarWin::Init(HWND parent) {
   parent_hwnd_ = parent;
   return true;
 }
 
-bool StatusDisplayWin::Enable(bool show_fdc_status) {
-  if (!chwnd_) {
-    chwnd_ = CreateStatusWindow(WS_CHILD | WS_VISIBLE, nullptr, parent_hwnd_, 1);
+bool StatusBarWin::Enable(bool show_fdc_status) {
+  if (!child_hwnd_) {
+    child_hwnd_ = CreateStatusWindow(WS_CHILD | WS_VISIBLE, nullptr, parent_hwnd_, 1);
 
-    if (!chwnd_)
+    if (!child_hwnd_)
       return false;
   }
   show_fdc_status_ = show_fdc_status;
@@ -40,33 +40,43 @@ bool StatusDisplayWin::Enable(bool show_fdc_status) {
   return true;
 }
 
-void StatusDisplayWin::ResetSize() {
-  if (chwnd_ == nullptr)
+void StatusBarWin::ResetSize() {
+  if (child_hwnd_ == nullptr)
     return;
-  SendMessage(chwnd_, SB_GETBORDERS, 0, (LPARAM)&border_);
-  RECT rect{};
-  GetWindowRect(parent_hwnd_, &rect);
 
-  int widths[2] = {(rect.right - rect.left - border_.vertical) - (96 + border_.split), -1};
-  SendMessage(chwnd_, SB_SETPARTS, 2, (LPARAM)widths);
+  dpi_ = GetDpiForWindow(child_hwnd_);
+
+  struct Border {
+    int horizontal;
+    int vertical;
+    int split;
+  };
+  Border border{};
+  SendMessage(child_hwnd_, SB_GETBORDERS, 0, (LPARAM)&border);
+  RECT child_rect{};
+  GetWindowRect(child_hwnd_, &child_rect);
+  int led_width = dpi_;
+
+  int widths[2] = {
+      (child_rect.right - child_rect.left - border.vertical) - (led_width + border.split), -1};
+  SendMessage(child_hwnd_, SB_SETPARTS, 2, (LPARAM)widths);
+  height_ = child_rect.bottom - child_rect.top;
+
   InvalidateRect(parent_hwnd_, nullptr, false);
-
-  GetWindowRect(chwnd_, &rect);
-  height_ = rect.bottom - rect.top;
-
-  PostMessage(chwnd_, SB_SETTEXT, SBT_OWNERDRAW | 1, 0);
+  PostMessage(child_hwnd_, SB_SETTEXT, SBT_OWNERDRAW | 1, 0);
 }
 
-bool StatusDisplayWin::Disable() {
-  if (chwnd_) {
-    DestroyWindow(chwnd_);
-    chwnd_ = nullptr;
-    height_ = 0;
-  }
+bool StatusBarWin::Disable() {
+  if (!child_hwnd_)
+    return false;
+
+  DestroyWindow(child_hwnd_);
+  child_hwnd_ = nullptr;
+  height_ = 0;
   return true;
 }
 
-void StatusDisplayWin::CleanUp() {
+void StatusBarWin::CleanUp() {
   Disable();
   if (timer_id_) {
     KillTimer(parent_hwnd_, timer_id_);
@@ -74,43 +84,57 @@ void StatusDisplayWin::CleanUp() {
   }
 }
 
-// ---------------------------------------------------------------------------
-//  DrawItem
-//
-void StatusDisplayWin::DrawItem(DRAWITEMSTRUCT* dis) {
+void StatusBarWin::DrawItem(DRAWITEMSTRUCT* dis) {
   switch (dis->itemID) {
     case 0: {
+      // Text area
       SetBkColor(dis->hDC, GetSysColor(COLOR_3DFACE));
       SetTextColor(dis->hDC, GetSysColor(COLOR_MENUTEXT));
       char* text = reinterpret_cast<char*>(dis->itemData);
       TextOut(dis->hDC, dis->rcItem.left, dis->rcItem.top, text, strlen(text));
       break;
     }
+
     case 1: {
+      // LEDs
       const DWORD color[] = {
-          RGB(64, 0, 0),  RGB(255, 0, 0), RGB(0, 64, 0),
-          RGB(0, 255, 0), RGB(0, 32, 64), RGB(0, 128, 255),
+          // clang-format off
+          RGB(64, 0, 0), RGB(255, 0, 0),    // 2D FD LED (Red)
+          RGB(0, 64, 0), RGB(0, 255, 0),    // 2HD FD LED (Green)
+          RGB(0, 32, 64), RGB(0, 128, 255), // FDC data (Blue)
+          // clang-format on
       };
 
-      HBRUSH hbrush1, hbrush2, hbrush3, hbrushold;
-      hbrush1 = CreateSolidBrush(color[litcurrent_[1] & 3]);
-      hbrush2 = CreateSolidBrush(color[litcurrent_[0] & 3]);
-      hbrush3 = CreateSolidBrush(color[4 | (litcurrent_[2] & 1)]);
-      hbrushold = (HBRUSH)SelectObject(dis->hDC, hbrush1);
-      Rectangle(dis->hDC, dis->rcItem.left + 6, height_ / 2 - 4, dis->rcItem.left + 24,
-                height_ / 2 + 5);
-      SelectObject(dis->hDC, hbrush2);
-      Rectangle(dis->hDC, dis->rcItem.left + 32, height_ / 2 - 4, dis->rcItem.left + 50,
-                height_ / 2 + 5);
-      if (show_fdc_status_) {
-        SelectObject(dis->hDC, hbrush3);
-        Rectangle(dis->hDC, dis->rcItem.left + 58, height_ / 2 - 4, dis->rcItem.left + 68,
-                  height_ / 2 + 5);
-      }
-      SelectObject(dis->hDC, hbrushold);
+      double ratio = dpi_ / 96.0;
+
+      int margin = 8 * ratio;
+      int led_width = 20 * ratio;
+      int space = 6 * ratio;
+      int led_top = (height_ / 2) - (4 * ratio);
+      int led_bottom = (height_ / 2) + (5 * ratio);
+
+      // Drive 2
+      int left = dis->rcItem.left + margin;
+      HBRUSH hbrush1 = CreateSolidBrush(color[litcurrent_[1] & 3]);
+      HBRUSH hbrushold = (HBRUSH)SelectObject(dis->hDC, hbrush1);
+      Rectangle(dis->hDC, left, led_top, left + led_width, led_bottom);
       DeleteObject(hbrush1);
+      left += led_width + space;
+      // Drive 1
+      HBRUSH hbrush2 = CreateSolidBrush(color[litcurrent_[0] & 3]);
+      SelectObject(dis->hDC, hbrush2);
+      Rectangle(dis->hDC, left, led_top, left + led_width, led_bottom);
       DeleteObject(hbrush2);
-      DeleteObject(hbrush3);
+      left += led_width + space;
+      // FDC data
+      if (show_fdc_status_) {
+        HBRUSH hbrush3 = CreateSolidBrush(color[4 | (litcurrent_[2] & 1)]);
+        SelectObject(dis->hDC, hbrush3);
+        Rectangle(dis->hDC, left, led_top, left + led_width, led_bottom);
+        DeleteObject(hbrush3);
+      }
+
+      SelectObject(dis->hDC, hbrushold);
       break;
     }
   }
@@ -119,9 +143,9 @@ void StatusDisplayWin::DrawItem(DRAWITEMSTRUCT* dis) {
 // ---------------------------------------------------------------------------
 //  更新
 //
-void StatusDisplayWin::Update() {
+void StatusBarWin::Update() {
   update_message_ = false;
-  if (chwnd_) {
+  if (child_hwnd_) {
     std::lock_guard<std::mutex> lock(mtx_);
 
     // find highest priority (0 == highest)
@@ -154,7 +178,7 @@ void StatusDisplayWin::Update() {
         }
         memcpy(buf_, charbuf, 128);
       }
-      PostMessage(chwnd_, SB_SETTEXT, SBT_OWNERDRAW | 0, (LPARAM)buf_);
+      PostMessage(child_hwnd_, SB_SETTEXT, SBT_OWNERDRAW | 0, (LPARAM)buf_);
 
       if (entry->clear) {
         int duration = (int)(entry->end_time - c);
@@ -172,7 +196,7 @@ void StatusDisplayWin::Update() {
       Clean();
     } else {
       Log("clear\n");
-      PostMessage(chwnd_, SB_SETTEXT, 0, (LPARAM) " ");
+      PostMessage(child_hwnd_, SB_SETTEXT, 0, (LPARAM) " ");
       current_priority_ = 10000;
       if (timer_id_) {
         KillTimer(parent_hwnd_, timer_id_);
@@ -182,7 +206,7 @@ void StatusDisplayWin::Update() {
   }
 }
 
-void StatusDisplayWin::UpdateDisplay() {
+void StatusBarWin::UpdateDisplay() {
   bool update = false;
   for (int d = 0; d < 3; d++) {
     if ((litstat_[d] ^ litcurrent_[d]) & 3) {
@@ -192,9 +216,9 @@ void StatusDisplayWin::UpdateDisplay() {
     if (litstat_[d] & 8)
       litstat_[d] >>= 4;
   }
-  if (chwnd_) {
+  if (child_hwnd_) {
     if (update)
-      PostMessage(chwnd_, SB_SETTEXT, SBT_OWNERDRAW | 1, 0);
+      PostMessage(child_hwnd_, SB_SETTEXT, SBT_OWNERDRAW | 1, 0);
     if (update_message_)
       Update();
   }

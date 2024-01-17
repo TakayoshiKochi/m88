@@ -20,7 +20,7 @@
 #include "win32/file_finder.h"
 #include "win32/messages.h"
 #include "win32/module.h"
-#include "win32/status_win.h"
+#include "win32/status_bar_win.h"
 #include "win32/ui.h"
 #include "win32/winkeyif.h"
 #include "zlib/zlib.h"

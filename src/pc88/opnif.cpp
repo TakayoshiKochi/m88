@@ -8,7 +8,7 @@
 
 #include "common/io_bus.h"
 #include "common/scheduler.h"
-#include "common/status.h"
+#include "common/status_bar.h"
 #include "pc88/config.h"
 #include "win32/romeo/piccolo.h"
 
@@ -57,23 +57,23 @@ void OPNIF::InitHardware() {
   Log(" success.\n");
   switch (piccolo_->IsDriverBased()) {
     case 1:
-      g_status_display->Show(100, 10000, "ROMEO/GIMIC: YMF288 available");
+      g_status_bar->Show(100, 10000, "ROMEO/GIMIC: YMF288 available");
       opn_.SetChannelMask(0xfdff);
       ym_.SetChannelMask(0xfdff);
       break;
     case 2:
-      g_status_display->Show(100, 10000, "GIMIC: YM2608 available");
+      g_status_bar->Show(100, 10000, "GIMIC: YM2608 available");
       opn_.SetChannelMask(0xffff);
       ym_.SetChannelMask(0xffff);
       break;
     case 3:
-      g_status_display->Show(100, 10000, "SCCI: YM2608 available");
+      g_status_bar->Show(100, 10000, "SCCI: YM2608 available");
       opn_.SetChannelMask(0xffff);
       ym_.SetChannelMask(0xffff);
       break;
     case 0:
     default:
-      g_status_display->Show(100, 10000, "ROMEO_JULIET: YMF288 available");
+      g_status_bar->Show(100, 10000, "ROMEO_JULIET: YMF288 available");
       opn_.SetChannelMask(0xfdff);
       ym_.SetChannelMask(0xfdff);
       break;

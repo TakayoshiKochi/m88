@@ -309,10 +309,10 @@
     <ClCompile Include="src\services\disk_image_holder.cpp">
       <Filter>services</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\status_win.cpp">
+    <ClCompile Include="src\win32\status_bar_win.cpp">
       <Filter>win32</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\status.cpp">
+    <ClCompile Include="src\common\status_bar.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="src\devices\z80.cpp">
@@ -608,7 +608,7 @@
     <ClInclude Include="src\common\file.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\status.h">
+    <ClInclude Include="src\common\status_bar.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\scoped_comptr.h">
@@ -719,7 +719,7 @@
     <ClInclude Include="src\services\disk_image_holder.h">
       <Filter>services</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\status_win.h">
+    <ClInclude Include="src\win32\status_bar_win.h">
       <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="third_party\Z80\API\Z80.h">

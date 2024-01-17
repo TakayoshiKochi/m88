@@ -8,7 +8,7 @@
 
 #include <windows.h>
 
-#include "common/status.h"
+#include "common/status_bar.h"
 
 #include <stdint.h>
 
@@ -16,10 +16,10 @@
 #include <mutex>
 #include <vector>
 
-class StatusDisplayWin : public StatusDisplay {
+class StatusBarWin : public StatusBar {
  public:
-  StatusDisplayWin();
-  ~StatusDisplayWin() override;
+  StatusBarWin();
+  ~StatusBarWin() override;
 
   bool Init(HWND parent);
   void CleanUp();
@@ -37,21 +37,15 @@ class StatusDisplayWin : public StatusDisplay {
   void ResetSize();
 
   [[nodiscard]] UINT_PTR GetTimerID() const { return timer_id_; }
-  [[nodiscard]] HWND GetHWnd() const { return chwnd_; }
+  [[nodiscard]] HWND GetHWnd() const { return child_hwnd_; }
 
  private:
-  struct Border {
-    int horizontal;
-    int vertical;
-    int split;
-  };
-
-  HWND chwnd_ = nullptr;
   HWND parent_hwnd_ = nullptr;
+  HWND child_hwnd_ = nullptr;
   UINT_PTR timer_id_ = 0;
 
-  Border border_{};
   int height_ = 0;
+  int dpi_ = 96;
   bool show_fdc_status_ = false;
 
   int litcurrent_[3]{};
@@ -59,4 +53,4 @@ class StatusDisplayWin : public StatusDisplay {
   char buf_[128]{};
 };
 
-extern StatusDisplayWin statusdisplay;
+extern StatusBarWin statusdisplay;

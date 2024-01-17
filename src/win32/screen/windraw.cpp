@@ -16,7 +16,7 @@
 #include "common/error.h"
 #include "win32/monitor/loadmon.h"
 #include "win32/screen/drawd3d12.h"
-#include "win32/status_win.h"
+#include "win32/status_bar_win.h"
 #include "win32/winexapi.h"
 
 // #define LOGNAME "windraw"
