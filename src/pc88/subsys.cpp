@@ -8,7 +8,7 @@
 
 #include "common/device.h"
 #include "common/memory_manager.h"
-#include "common/status.h"
+#include "common/status_bar.h"
 #include "services/rom_loader.h"
 
 // #define LOGNAME "subsys"
@@ -157,7 +157,7 @@ uint32_t SubSystem::M_Read1(uint32_t) {
 }
 
 uint32_t SubSystem::M_Read2(uint32_t) {
-  g_status_display->WaitSubSys();
+  g_status_bar->WaitSubSys();
   idle_count_ = 0;
   return pio_main_.Read2();
 }
@@ -216,7 +216,7 @@ bool SubSystem::IsBusy() {
     idle_count_ = 200;
     return false;
   }
-  g_status_display->WaitSubSys();
+  g_status_bar->WaitSubSys();
   return true;
 }
 

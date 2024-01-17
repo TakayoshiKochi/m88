@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "common/status.h"
+#include "common/status_bar.h"
 
 namespace services {
 // ---------------------------------------------------------------------------
@@ -83,7 +83,7 @@ bool DiskManager::Mount(uint32_t dr,
         for (uint32_t d = 0; d < kMaxDrives; d++) {
           if ((d != dr) && (drive_[d].holder == h) && (drive_[d].index == index)) {
             index = -1;  // no disk
-            g_status_display->Show(90, 3000, "このディスクは使用中です");
+            g_status_bar->Show(90, 3000, "このディスクは使用中です");
             break;
           }
         }
@@ -164,7 +164,7 @@ bool DiskManager::Unmount(uint32_t dr) {
     drv.holder = nullptr;
   }
   if (!ret)
-    g_status_display->Show(50, 3000, "ディスクの更新に失敗しました");
+    g_status_bar->Show(50, 3000, "ディスクの更新に失敗しました");
   return ret;
 }
 
@@ -197,14 +197,14 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
       break;
 
     default:
-      g_status_display->Show(90, 3000, "サポートしていないメディアです");
+      g_status_bar->Show(90, 3000, "サポートしていないメディアです");
       return false;
   }
   bool readonly = drive->holder->IsReadOnly() || ih.readonly;
 
   FloppyDisk& disk = drive->disk;
   if (!disk.Init(type, readonly)) {
-    g_status_display->Show(70, 3000, "作業用領域を割り当てることができませんでした");
+    g_status_bar->Show(70, 3000, "作業用領域を割り当てることができませんでした");
     return false;
   }
 
@@ -216,7 +216,7 @@ bool DiskManager::ReadDiskImage(FileIO* fio, Drive* drive) {
   if (t < 164)
     memset(&ih.trackptr[t], 0, (164 - t) * 4);
   if (t < (uint32_t)std::min(160U, disk.GetNumTracks()))
-    g_status_display->Show(80, 3000, "ヘッダーに無効なデータが含まれています");
+    g_status_bar->Show(80, 3000, "ヘッダーに無効なデータが含まれています");
 
   // trackptr のごみそうじ
   uint32_t trackstart = sizeof(d88::ImageHeader);
@@ -293,7 +293,7 @@ bool DiskManager::ReadDiskImageRaw(FileIO* fio, Drive* drive) {
 
   FloppyDisk& disk = drive->disk;
   if (!disk.Init(FloppyDisk::kMD2D, readonly)) {
-    g_status_display->Show(70, 3000, "作業用領域を割り当てることができませんでした");
+    g_status_bar->Show(70, 3000, "作業用領域を割り当てることができませんでした");
     return false;
   }
 

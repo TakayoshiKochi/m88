@@ -11,7 +11,7 @@
 
 #include "common/file.h"
 #include "common/floppy.h"
-#include "common/status.h"
+#include "common/status_bar.h"
 
 namespace d88 {
 struct ImageHeader {

@@ -13,7 +13,7 @@
 #include <algorithm>
 
 #include "common/io_bus.h"
-#include "common/status.h"
+#include "common/status_bar.h"
 #include "pc88/config.h"
 #include "services/diskmgr.h"
 
@@ -88,7 +88,7 @@ void FDC::DriveControl(uint32_t, uint32_t x) {
     if (hdprev != drive_[d].hd) {
       int bit = 4 << d;
       fd_stat_ = (fd_stat_ & ~bit) | (drive_[d].hd ? bit : 0);
-      g_status_display->FDAccess(d, drive_[d].hd != 0, false);
+      g_status_bar->FDAccess(d, drive_[d].hd != 0, false);
     }
     Log("<2%c%c>", drive_[d].hd ? 'H' : 'D', drive_[d].dd ? ' ' : 'D');
   }
@@ -116,7 +116,7 @@ void FDC::Reset(uint32_t, uint32_t) {
   scheduler_->DelEvent(this);
   DriveControl(0, 0);
   for (int d = 0; d < 2; d++)
-    g_status_display->FDAccess(d, drive_[d].hd != 0, false);
+    g_status_bar->FDAccess(d, drive_[d].hd != 0, false);
   fd_stat_ &= ~3;
   if (pfd_stat_)
     bus_->Out(pfd_stat_, fd_stat_);
@@ -267,7 +267,7 @@ void FDC::ShiftToIdlePhase() {
   phase_ = idlephase;
   status_ = S_RQM;
   accept_tc_ = false;
-  g_status_display->FDAccess(lit_drive_, drive_[lit_drive_].hd != 0, false);
+  g_status_bar->FDAccess(lit_drive_, drive_[lit_drive_].hd != 0, false);
 
   fd_stat_ &= ~(1 << lit_drive_);
   if (pfd_stat_ >= 0)
@@ -288,7 +288,7 @@ void FDC::ShiftToCommandPhase(int nbytes) {
   count_ = nbytes;
   lit_drive_ = hdu_ & 1;
   Log("FD %d On\n", lit_drive_);
-  g_status_display->FDAccess(lit_drive_, drive_[lit_drive_].hd != 0, true);
+  g_status_bar->FDAccess(lit_drive_, drive_[lit_drive_].hd != 0, true);
 
   fd_stat_ |= 1 << lit_drive_;
   if (pfd_stat_ >= 0)
@@ -557,7 +557,7 @@ void FDC::CmdScanEqual() {
 void FDC::ReadData(bool deleted, bool scan) {
   Log("\tRead %.2x %.2x %.2x %.2x\n", idr_.c, idr_.h, idr_.r, idr_.n);
   if (show_status_)
-    g_status_display->Show(85, 0, "%s (%d) %.2x %.2x %.2x %.2x", scan ? "Scan" : "Read", hdu_ & 3,
+    g_status_bar->Show(85, 0, "%s (%d) %.2x %.2x %.2x %.2x", scan ? "Scan" : "Read", hdu_ & 3,
                            idr_.c, idr_.h, idr_.r, idr_.n);
 
   std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
@@ -876,7 +876,7 @@ void FDC::CmdWriteData() {
 void FDC::WriteData(bool deleted) {
   Log("\twrite %.2x %.2x %.2x %.2x\n", idr_.c, idr_.h, idr_.r, idr_.n);
   if (show_status_)
-    g_status_display->Show(85, 0, "Write (%d) %.2x %.2x %.2x %.2x", hdu_ & 3, idr_.c, idr_.h,
+    g_status_bar->Show(85, 0, "Write (%d) %.2x %.2x %.2x %.2x", hdu_ & 3, idr_.c, idr_.h,
                            idr_.r, idr_.n);
 
   std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
@@ -935,7 +935,7 @@ void FDC::ReadID() {
     uint32_t flags = ((hdu_ >> 2) & 1) | (command_ & 0x40) | (drive_[dr].hd & 0x80);
     result_ = diskmgr_->GetFDU(dr)->ReadID(flags, &idr_);
     if (show_status_)
-      g_status_display->Show(85, 0, "ReadID (%d:%.2x) %.2x %.2x %.2x %.2x", dr, flags, idr_.c,
+      g_status_bar->Show(85, 0, "ReadID (%d:%.2x) %.2x %.2x %.2x %.2x", dr, flags, idr_.c,
                              idr_.h, idr_.r, idr_.n);
   }
   ShiftToResultPhase7();
@@ -1013,7 +1013,7 @@ void FDC::WriteID() {
   uint32_t flags = ((hdu_ >> 2) & 1) | (command_ & 0x40) | (drive_[dr].hd & 0x80);
   result_ = diskmgr_->GetFDU(dr)->WriteID(flags, &wid_);
   if (show_status_)
-    g_status_display->Show(85, 0, "WriteID dr:%d tr:%d sec:%.2d N:%.2x", dr,
+    g_status_bar->Show(85, 0, "WriteID dr:%d tr:%d sec:%.2d N:%.2x", dr,
                            (drive_[dr].cyrinder >> drive_[dr].dd) * 2 + ((hdu_ >> 2) & 1), wid_.sc,
                            wid_.n);
 
@@ -1108,7 +1108,7 @@ void FDC::ReadDiagnostic() {
     uint32_t flags = ((hdu_ >> 2) & 1) | (command_ & 0x40) | (drive_[dr].hd & 0x80);
     uint32_t size;
     int tr = (drive_[dr].cyrinder >> drive_[dr].dd) * 2 + ((hdu_ >> 2) & 1);
-    g_status_display->Show(84, show_status_ ? 1000 : 2000, "ReadDiagnostic (Dr%d Tr%d)", dr, tr);
+    g_status_bar->Show(84, show_status_ ? 1000 : 2000, "ReadDiagnostic (Dr%d Tr%d)", dr, tr);
 
     result_ = diskmgr_->GetFDU(dr)->MakeDiagData(flags, buffer_.get(), &size);
     if (result_) {
@@ -1242,7 +1242,7 @@ bool FDC::LoadStatus(const uint8_t* s) {
                              static_cast<TimeFunc>(&FDC::SeekEvent), d, false);
       fd_stat_ |= 0x10;
     }
-    g_status_display->FDAccess(d, drive_[d].hd != 0, false);
+    g_status_bar->FDAccess(d, drive_[d].hd != 0, false);
 
     fd_stat_ |= drive_[d].hd ? 4 << d : 0;
   }

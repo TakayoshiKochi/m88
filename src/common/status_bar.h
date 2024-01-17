@@ -11,10 +11,10 @@
 #include <string>
 #include <vector>
 
-class StatusDisplay {
+class StatusBar {
  public:
-  StatusDisplay() = default;
-  virtual ~StatusDisplay() = default;
+  StatusBar() = default;
+  virtual ~StatusBar() = default;
 
   void FDAccess(uint32_t dr, bool hd, bool active);
   virtual void UpdateDisplay() = 0;
@@ -24,7 +24,7 @@ class StatusDisplay {
   void Show(int priority, int duration, const char* msg, ...);
 
  protected:
-  friend class StatusDisplay;
+  friend class StatusBar;
   struct Entry {
     int priority;
     uint64_t end_time;
@@ -45,4 +45,4 @@ class StatusDisplay {
   bool update_message_ = false;
 };
 
-extern StatusDisplay* g_status_display;
+extern StatusBar* g_status_bar;

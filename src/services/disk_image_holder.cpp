@@ -29,12 +29,12 @@ bool DiskImageHolder::Open(const std::string_view filename, bool ro, bool create
   if (readonly_ || !file_.Open(filename, 0)) {
     if (file_.Open(filename, FileIO::kReadOnly)) {
       if (!readonly_)
-        g_status_display->Show(100, 3000, "読取専用ファイルです");
+        g_status_bar->Show(100, 3000, "読取専用ファイルです");
       readonly_ = true;
     } else {
       // 新しいディスクイメージ？
       if (!create || !file_.Open(filename, FileIO::kCreate)) {
-        g_status_display->Show(80, 3000, "ディスクイメージを開けません");
+        g_status_bar->Show(80, 3000, "ディスクイメージを開けません");
         return false;
       }
     }
@@ -103,7 +103,7 @@ bool DiskImageHolder::ReadHeaders() {
 
     if (memcmp(ih.title, "M88 RawDiskImage", 16)) {
       if (!IsValidHeader(ih)) {
-        g_status_display->Show(90, 3000, "イメージに無効なデータが含まれています");
+        g_status_bar->Show(90, 3000, "イメージに無効なデータが含まれています");
         break;
       }
 
@@ -113,7 +113,7 @@ bool DiskImageHolder::ReadHeaders() {
       file_.Seek(disk.pos + disk.size, FileIO::kBegin);
     } else {
       if (ndisks_ != 0) {
-        g_status_display->Show(80, 3000, "READER 系ディスクイメージは連結できません");
+        g_status_bar->Show(80, 3000, "READER 系ディスクイメージは連結できません");
         return false;
       }
 

@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "common/status.h"
+#include "common/status_bar.h"
 
 #include "pc88/base.h"
 #include "pc88/beep.h"
@@ -145,9 +145,9 @@ int64_t SchedulerImpl::GetNS() {
 //  VSync
 //
 void PC88::VSync() {
-  g_status_display->UpdateDisplay();
+  g_status_bar->UpdateDisplay();
   if (cfg_flags_ & Config::kWatchRegister)
-    g_status_display->Show(10, 0, "%.4X(%.2X)/%.4X", main_cpu_.GetPC(), main_cpu_.GetReg().ireg,
+    g_status_bar->Show(10, 0, "%.4X(%.2X)/%.4X", main_cpu_.GetPC(), main_cpu_.GetReg().ireg,
                            sub_cpu_.GetPC());
 }
 

@@ -71,8 +71,8 @@ add_library(common ${LIB_TYPE}
         src/common/scoped_comptr.h
         src/common/scoped_handle.h
         src/common/sound_source.h
-        src/common/status.h
-        src/common/status.cpp
+        src/common/status_bar.h
+        src/common/status_bar.cpp
         src/common/threadable.h
         src/common/time_constants.h)
 
@@ -202,8 +202,8 @@ add_library(win32 ${LIB_TYPE}
         src/win32/sound/soundwo.cpp
         src/win32/sound/winsound.h
         src/win32/sound/winsound.cpp
-        src/win32/status_win.h
-        src/win32/status_win.cpp
+        src/win32/status_bar_win.h
+        src/win32/status_bar_win.cpp
         src/win32/ui.h
         src/win32/ui.cpp
         src/win32/wincfg.h

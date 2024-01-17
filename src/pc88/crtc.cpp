@@ -13,7 +13,7 @@
 #include "common/draw.h"
 #include "common/error.h"
 #include "common/scheduler.h"
-#include "common/status.h"
+#include "common/status_bar.h"
 #include "pc88/config.h"
 #include "pc88/pc88.h"
 #include "pc88/pd8257.h"
