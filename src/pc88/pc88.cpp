@@ -148,7 +148,7 @@ void PC88::VSync() {
   g_status_bar->UpdateDisplay();
   if (cfg_flags_ & Config::kWatchRegister)
     g_status_bar->Show(10, 0, "%.4X(%.2X)/%.4X", main_cpu_.GetPC(), main_cpu_.GetReg().ireg,
-                           sub_cpu_.GetPC());
+                       sub_cpu_.GetPC());
 }
 
 // ---------------------------------------------------------------------------

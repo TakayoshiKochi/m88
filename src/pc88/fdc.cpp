@@ -558,7 +558,7 @@ void FDC::ReadData(bool deleted, bool scan) {
   Log("\tRead %.2x %.2x %.2x %.2x\n", idr_.c, idr_.h, idr_.r, idr_.n);
   if (show_status_)
     g_status_bar->Show(85, 0, "%s (%d) %.2x %.2x %.2x %.2x", scan ? "Scan" : "Read", hdu_ & 3,
-                           idr_.c, idr_.h, idr_.r, idr_.n);
+                       idr_.c, idr_.h, idr_.r, idr_.n);
 
   std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
   result_ = CheckCondition(false);
@@ -876,8 +876,8 @@ void FDC::CmdWriteData() {
 void FDC::WriteData(bool deleted) {
   Log("\twrite %.2x %.2x %.2x %.2x\n", idr_.c, idr_.h, idr_.r, idr_.n);
   if (show_status_)
-    g_status_bar->Show(85, 0, "Write (%d) %.2x %.2x %.2x %.2x", hdu_ & 3, idr_.c, idr_.h,
-                           idr_.r, idr_.n);
+    g_status_bar->Show(85, 0, "Write (%d) %.2x %.2x %.2x %.2x", hdu_ & 3, idr_.c, idr_.h, idr_.r,
+                       idr_.n);
 
   std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
   result_ = CheckCondition(true);
@@ -935,8 +935,8 @@ void FDC::ReadID() {
     uint32_t flags = ((hdu_ >> 2) & 1) | (command_ & 0x40) | (drive_[dr].hd & 0x80);
     result_ = diskmgr_->GetFDU(dr)->ReadID(flags, &idr_);
     if (show_status_)
-      g_status_bar->Show(85, 0, "ReadID (%d:%.2x) %.2x %.2x %.2x %.2x", dr, flags, idr_.c,
-                             idr_.h, idr_.r, idr_.n);
+      g_status_bar->Show(85, 0, "ReadID (%d:%.2x) %.2x %.2x %.2x %.2x", dr, flags, idr_.c, idr_.h,
+                         idr_.r, idr_.n);
   }
   ShiftToResultPhase7();
 }
@@ -1014,8 +1014,8 @@ void FDC::WriteID() {
   result_ = diskmgr_->GetFDU(dr)->WriteID(flags, &wid_);
   if (show_status_)
     g_status_bar->Show(85, 0, "WriteID dr:%d tr:%d sec:%.2d N:%.2x", dr,
-                           (drive_[dr].cyrinder >> drive_[dr].dd) * 2 + ((hdu_ >> 2) & 1), wid_.sc,
-                           wid_.n);
+                       (drive_[dr].cyrinder >> drive_[dr].dd) * 2 + ((hdu_ >> 2) & 1), wid_.sc,
+                       wid_.n);
 
   idr_.n = wid_.n;
   ShiftToResultPhase7();
