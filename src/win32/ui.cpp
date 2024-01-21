@@ -843,8 +843,6 @@ void WinUI::ShowStatusWindow() {
 void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
   assert(!fullscreen_);
 
-  statusdisplay.ResetSize();
-
   dpi_ = GetDpiForWindow(hwnd_);
   double ratio = dpi_ / 96.0;
   width = static_cast<uint32_t>(width * ratio);
@@ -862,6 +860,7 @@ void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
                SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
   PostMessage(hwnd_, WM_SIZE, SIZE_RESTORED, MAKELONG(width, height));
   draw_.Resize(width, height);
+  statusdisplay.ResetSize();
 }
 
 // ---------------------------------------------------------------------------
@@ -1117,7 +1116,7 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
       SetMenu(hwnd, hmenu_);
     SetWindowLongPtr(hwnd, GWL_STYLE, wstyle_);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle);
-    // ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
+    ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
     SetWindowPos(hwnd, HWND_NOTOPMOST, point_.x, point_.y, 0, 0, SWP_NOSIZE);
     ShowStatusWindow();
     report_ = true;
