@@ -66,7 +66,7 @@ class WinCore : public ISystem, public ILockCore {
 
     int8_t disk[2];
     int datasize;
-    pc8801::BasicMode basicmode;
+    pc8801::BasicMode basic_mode;
     int16_t legacy_clock;
     uint16_t erambanks;
     uint16_t cpumode;

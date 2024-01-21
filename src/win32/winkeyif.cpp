@@ -52,7 +52,7 @@ bool WinKeyIF::Init(HWND hwndmsg) {
 //
 void WinKeyIF::Reset(uint32_t, uint32_t) {
   SyncLockState();
-  pc80mode_ = (static_cast<uint32_t>(basicmode_) & 2) != 0;
+  pc80mode_ = (static_cast<uint32_t>(basic_mode_) & 2) != 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -60,7 +60,7 @@ void WinKeyIF::Reset(uint32_t, uint32_t) {
 //
 void WinKeyIF::ApplyConfig(const pc8801::Config* config) {
   use_arrow_ = 0 != (config->flags & pc8801::Config::kUseArrowFor10);
-  basicmode_ = config->basicmode;
+  basic_mode_ = config->basic_mode();
 
   switch (config->keytype) {
     case pc8801::KeyboardType::kAT101:

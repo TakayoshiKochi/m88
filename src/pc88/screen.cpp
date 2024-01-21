@@ -1440,7 +1440,7 @@ void Screen::ApplyConfig(const Config* config) {
   if (full_line_ != flp)
     mode_changed_ = true;
   palette_changed_ = true;
-  newmode_ = config->basicmode;
+  newmode_ = config->basic_mode();
   gmask_ = (config->flag2 / Config::kMask0) & 7;
 }
 

@@ -34,7 +34,7 @@ bool Base::Init(PC88* pc88) {
 //  スイッチ更新
 //
 void Base::SetSwitch(const Config* cfg) {
-  basic_mode_ = cfg->basicmode;
+  basic_mode_ = cfg->basic_mode();
   clock_ = cfg->legacy_clock;
   dipsw_ = cfg->dipsw;
   //  flags_ = cfg->flags;

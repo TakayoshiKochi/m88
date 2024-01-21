@@ -191,7 +191,7 @@ bool WinCore::SaveSnapshot(const std::string_view filename) {
     ssh.major = ssmajor;
     ssh.minor = ssminor;
     ssh.datasize = size;
-    ssh.basicmode = config_->basicmode;
+    ssh.basic_mode = config_->basic_mode();
     ssh.legacy_clock = int16_t(config_->legacy_clock);
     ssh.erambanks = uint16_t(config_->erambanks);
     ssh.cpumode = int16_t(config_->cpumode);
@@ -243,7 +243,7 @@ bool WinCore::LoadSnapshot(const std::string_view filename, const std::string_vi
 
   newconfig.flags = (config_->flags & ~fl1a) | (ssh.flags & fl1a);
   newconfig.flag2 = (config_->flag2 & ~fl2a) | (ssh.flag2 & fl2a);
-  newconfig.basicmode = ssh.basicmode;
+  newconfig.set_basic_mode(ssh.basic_mode);
   newconfig.legacy_clock = ssh.legacy_clock;
   newconfig.erambanks = ssh.erambanks;
   newconfig.cpumode = ssh.cpumode;

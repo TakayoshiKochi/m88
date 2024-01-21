@@ -90,7 +90,7 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
   // SaveEntry(inifile, "Speed", cfg->speed);
   // Obsolete - always refresh.
   // SaveEntry(inifile, "RefreshTiming", cfg->refreshtiming);
-  SaveEntry(inifile, "BASICMode", cfg->basicmode);
+  SaveEntry(inifile, "BASICMode", cfg->basic_mode());
   SaveEntry(inifile, "Sound", cfg->sound_output_hz);
   SaveEntry(inifile, "Switches", cfg->dipsw);
   SaveEntry(inifile, "SoundBuffer", cfg->sound_buffer_ms);
@@ -156,9 +156,9 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
         bm == pc8801::BasicMode::kN88V1H || bm == pc8801::BasicMode::kN88V2 ||
         bm == pc8801::BasicMode::kN802 || bm == pc8801::BasicMode::kN80V2 ||
         bm == pc8801::BasicMode::kN88V2CD)
-      cfg->basicmode = bm;
+      cfg->set_basic_mode(bm);
     else
-      cfg->basicmode = pc8801::BasicMode::kN88V2;
+      cfg->set_basic_mode(pc8801::BasicMode::kN88V2);
   }
 
   if (LoadConfigEntry(inifile, "SoundDriverType", &n, 0)) {

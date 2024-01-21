@@ -456,7 +456,7 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
       switch (cmdline[-1]) {
         // BASIC モードを設定  -bモード番号
         case 'b':
-          config().basicmode = pc8801::BasicMode(strtoul(cmdline, &endptr, 16));
+          config().set_basic_mode(pc8801::BasicMode(strtoul(cmdline, &endptr, 16)));
           cmdline = endptr;
           break;
 
@@ -1243,37 +1243,37 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_N88V1:
-      config().basicmode = pc8801::BasicMode::kN88V1;
+      config().set_basic_mode(pc8801::BasicMode::kN88V1);
       Reset();
       break;
 
     case IDM_N88V1H:
-      config().basicmode = pc8801::BasicMode::kN88V1H;
+      config().set_basic_mode(pc8801::BasicMode::kN88V1H);
       Reset();
       break;
 
     case IDM_N88V2:
-      config().basicmode = pc8801::BasicMode::kN88V2;
+      config().set_basic_mode(pc8801::BasicMode::kN88V2);
       Reset();
       break;
 
     case IDM_N88V2CD:
-      config().basicmode = pc8801::BasicMode::kN88V2CD;
+      config().set_basic_mode(pc8801::BasicMode::kN88V2CD);
       Reset();
       break;
 
     case IDM_NMODE:
-      config().basicmode = pc8801::BasicMode::kN80;
+      config().set_basic_mode(pc8801::BasicMode::kN80);
       Reset();
       break;
 
     case IDM_N80MODE:
-      config().basicmode = pc8801::BasicMode::kN802;
+      config().set_basic_mode(pc8801::BasicMode::kN802);
       Reset();
       break;
 
     case IDM_N80V2MODE:
-      config().basicmode = pc8801::BasicMode::kN80V2;
+      config().set_basic_mode(pc8801::BasicMode::kN80V2);
       Reset();
       break;
 
@@ -1700,23 +1700,23 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   CheckMenuItem(hmenu_, IDM_4MHZ, (config().legacy_clock == 40) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_8MHZ, (config().legacy_clock == 80) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V1,
-                (config().basicmode == pc8801::BasicMode::kN88V1) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN88V1) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V1H,
-                (config().basicmode == pc8801::BasicMode::kN88V1H) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN88V1H) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V2,
-                (config().basicmode == pc8801::BasicMode::kN88V2) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN88V2) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_NMODE,
-                (config().basicmode == pc8801::BasicMode::kN80) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN80) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N80MODE,
-                (config().basicmode == pc8801::BasicMode::kN802) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN802) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_N80MODE, core_.GetPC88()->IsN80Supported() ? MF_ENABLED : MF_GRAYED);
   CheckMenuItem(hmenu_, IDM_N80V2MODE,
-                (config().basicmode == pc8801::BasicMode::kN80V2) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN80V2) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_N80V2MODE,
                  core_.GetPC88()->IsN80V2Supported() ? MF_ENABLED : MF_GRAYED);
 
   CheckMenuItem(hmenu_, IDM_N88V2CD,
-                (config().basicmode == pc8801::BasicMode::kN88V2CD) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN88V2CD) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_N88V2CD, core_.GetPC88()->IsCDSupported() ? MF_ENABLED : MF_GRAYED);
 
   CheckMenuItem(hmenu_, IDM_CPU_BURST,

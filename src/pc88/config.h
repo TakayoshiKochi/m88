@@ -41,7 +41,7 @@ enum RomType : uint8_t {
   kRomMax
 };
 
-enum BasicMode : uint32_t {
+enum BasicMode : uint8_t {
   // bit0 H/L
   // bit1 N/N80 (bit5=0)
   // bit4 V1/V2
@@ -55,6 +55,43 @@ enum BasicMode : uint32_t {
   kN88V2 = 0x31,
   kN88V2CD = 0x71,
 };
+
+// typed bitmask flags pattern - see
+// https://walbourn.github.io/modern-c++-bitmask-types/
+template <typename T>
+constexpr inline T operator~(T a) {
+  return static_cast<T>(~static_cast<std::underlying_type<T>::type>(a));
+}
+template <typename T>
+constexpr inline T operator|(T a, T b) {
+  return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) |
+                        static_cast<std::underlying_type<T>::type>(b));
+}
+template <typename T>
+constexpr inline T operator&(T a, T b) {
+  return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) &
+                        static_cast<std::underlying_type<T>::type>(b));
+}
+template <typename T>
+constexpr inline T operator^(T a, T b) {
+  return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) ^
+                        static_cast<std::underlying_type<T>::type>(b));
+}
+template <typename T>
+constexpr inline T& operator|=(T& a, T b) {
+  return reinterpret_cast<T&>(reinterpret_cast<std::underlying_type<T>::type&>(a) |=
+                              static_cast<std::underlying_type<T>::type>(b));
+}
+template <typename T>
+constexpr inline T& operator&=(T& a, T b) {
+  return reinterpret_cast<T&>(reinterpret_cast<std::underlying_type<T>::type&>(a) &=
+                              static_cast<std::underlying_type<T>::type>(b));
+}
+template <typename T>
+constexpr inline T& operator^=(T& a, T b) {
+  return reinterpret_cast<T&>(reinterpret_cast<std::underlying_type<T>::type&>(a) ^=
+                              static_cast<std::underlying_type<T>::type>(b));
+}
 
 // Note: kPC98 is not supported anymore.
 enum KeyboardType : uint32_t { kAT106 = 0, kPC98_obsolete = 1, kAT101 = 2 };
@@ -139,6 +176,9 @@ class Config {
     kUsePiccolo = 1 << 14,
   };
 
+  void set_basic_mode(BasicMode bm) { basic_mode_ = bm; }
+  [[nodiscard]] BasicMode basic_mode() const { return basic_mode_; }
+
   uint32_t flags;
   uint32_t flag2;
   int legacy_clock;
@@ -175,14 +215,15 @@ class Config {
   int winposx;
   int winposy;
 
-  BasicMode basicmode;
-
   SoundDriverType sound_driver_type;
   std::string preferred_asio_driver;
 
   // 15kHz モードの判定を行う．
   // (条件: option 又は N80/SR モード時)
-  bool IsFV15k() const { return (static_cast<uint32_t>(basicmode) & 2) || (flags & kFv15k); }
+  bool IsFV15k() const { return (basic_mode_ & 2) || (flags & kFv15k); }
+
+ private:
+  BasicMode basic_mode_;
 };
 
 }  // namespace pc8801

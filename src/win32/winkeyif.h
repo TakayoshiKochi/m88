@@ -96,7 +96,7 @@ class WinKeyIF : public Device {
 
   HWND hwnd_ = nullptr;
   HANDLE hevent_ = nullptr;
-  pc8801::BasicMode basicmode_ = pc8801::BasicMode::kN88V2;
+  pc8801::BasicMode basic_mode_ = pc8801::BasicMode::kN88V2;
 
   bool grph_locked_ = false;
   bool kana_locked_ = false;
