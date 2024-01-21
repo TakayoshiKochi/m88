@@ -115,25 +115,25 @@ LPCSTR ConfigCPU::GetTemplate() {
 bool ConfigCPU::Clicked(HWND hdlg, HWND hwctl, UINT id) {
   switch (id) {
     case IDC_CPU_NOWAIT:
-      config_.flags ^= pc8801::Config::kFullSpeed;
-      if (config_.flags & pc8801::Config::kFullSpeed)
-        config_.flags &= ~pc8801::Config::kCPUBurst;
+      config_.toggle_flags(pc8801::Config::kFullSpeed);
+      if (config_.flags() & pc8801::Config::kFullSpeed)
+        config_.clear_flags(pc8801::Config::kCPUBurst);
       Update(hdlg);
       return true;
 
     case IDC_CPU_BURST:
-      config_.flags ^= pc8801::Config::kCPUBurst;
-      if (config_.flags & pc8801::Config::kCPUBurst)
-        config_.flags &= ~pc8801::Config::kFullSpeed;
+      config_.toggle_flags(pc8801::Config::kCPUBurst);
+      if (config_.flags() & pc8801::Config::kCPUBurst)
+        config_.clear_flags(pc8801::Config::kFullSpeed);
       Update(hdlg);
       return true;
 
     case IDC_CPU_CLOCKMODE:
-      config_.flags ^= pc8801::Config::kCPUClockMode;
+      config_.toggle_flags(pc8801::Config::kCPUClockMode);
       return true;
 
     case IDC_CPU_NOSUBCPUCONTROL:
-      config_.flags ^= pc8801::Config::kSubCPUControl;
+      config_.toggle_flags(pc8801::Config::kSubCPUControl);
       return true;
 
     case IDC_CPU_MS11:
@@ -149,11 +149,11 @@ bool ConfigCPU::Clicked(HWND hdlg, HWND hwctl, UINT id) {
       return true;
 
     case IDC_CPU_ENABLEWAIT:
-      config_.flags ^= pc8801::Config::kEnableWait;
+      config_.toggle_flags(pc8801::Config::kEnableWait);
       return true;
 
     case IDC_CPU_FDDNOWAIT:
-      config_.flag2 ^= pc8801::Config::kFDDNoWait;
+      config_.toggle_flag2(pc8801::Config::kFDDNoWait);
       return true;
   }
   return false;
@@ -169,8 +169,8 @@ void ConfigCPU::InitDialog(HWND hdlg) {
 }
 
 void ConfigCPU::SetActive(HWND hdlg) {
-  SetFocus(GetDlgItem(
-      hdlg, config_.flags & pc8801::Config::kFullSpeed ? IDC_CPU_NOSUBCPUCONTROL : IDC_CPU_CLOCK));
+  SetFocus(GetDlgItem(hdlg, config_.flags() & pc8801::Config::kFullSpeed ? IDC_CPU_NOSUBCPUCONTROL
+                                                                         : IDC_CPU_CLOCK));
   SendDlgItemMessage(hdlg, IDC_CPU_CLOCK_SPIN, UDM_SETRANGE, 0, MAKELONG(100, 1));
   SendDlgItemMessage(hdlg, IDC_CPU_CLOCK, EM_SETLIMITTEXT, 3, 0);
   SendDlgItemMessage(hdlg, IDC_CPU_SPEED, TBM_SETRANGE, TRUE, MAKELONG(1, 100));
@@ -202,23 +202,24 @@ BOOL ConfigCPU::Command(HWND hdlg, HWND, UINT nc, UINT id) {
 
 void ConfigCPU::Update(HWND hdlg) {
   SetDlgItemInt(hdlg, IDC_CPU_CLOCK, config_.legacy_clock / 10, false);
-  CheckDlgButton(hdlg, IDC_CPU_NOWAIT, BSTATE(config_.flags & pc8801::Config::kFullSpeed));
+  CheckDlgButton(hdlg, IDC_CPU_NOWAIT, BSTATE(config_.flags() & pc8801::Config::kFullSpeed));
 
-  EnableWindow(GetDlgItem(hdlg, IDC_CPU_CLOCK), !(config_.flags & pc8801::Config::kFullSpeed));
+  EnableWindow(GetDlgItem(hdlg, IDC_CPU_CLOCK), !(config_.flags() & pc8801::Config::kFullSpeed));
 
-  EnableWindow(GetDlgItem(hdlg, IDC_CPU_SPEED), !(config_.flags & pc8801::Config::kCPUBurst));
-  EnableWindow(GetDlgItem(hdlg, IDC_CPU_SPEED_TEXT), !(config_.flags & pc8801::Config::kCPUBurst));
+  EnableWindow(GetDlgItem(hdlg, IDC_CPU_SPEED), !(config_.flags() & pc8801::Config::kCPUBurst));
+  EnableWindow(GetDlgItem(hdlg, IDC_CPU_SPEED_TEXT),
+               !(config_.flags() & pc8801::Config::kCPUBurst));
 
   CheckDlgButton(hdlg, IDC_CPU_NOSUBCPUCONTROL,
-                 BSTATE(!(config_.flags & pc8801::Config::kSubCPUControl)));
-  CheckDlgButton(hdlg, IDC_CPU_CLOCKMODE, BSTATE(config_.flags & pc8801::Config::kCPUClockMode));
-  CheckDlgButton(hdlg, IDC_CPU_BURST, BSTATE(config_.flags & pc8801::Config::kCPUBurst));
-  CheckDlgButton(hdlg, IDC_CPU_FDDNOWAIT, BSTATE(!(config_.flag2 & pc8801::Config::kFDDNoWait)));
+                 BSTATE(!(config_.flags() & pc8801::Config::kSubCPUControl)));
+  CheckDlgButton(hdlg, IDC_CPU_CLOCKMODE, BSTATE(config_.flags() & pc8801::Config::kCPUClockMode));
+  CheckDlgButton(hdlg, IDC_CPU_BURST, BSTATE(config_.flags() & pc8801::Config::kCPUBurst));
+  CheckDlgButton(hdlg, IDC_CPU_FDDNOWAIT, BSTATE(!(config_.flag2() & pc8801::Config::kFDDNoWait)));
   UpdateSlider(hdlg);
 
   static const int item[4] = {IDC_CPU_MS11, IDC_CPU_MS21, IDC_CPU_MSAUTO, IDC_CPU_MSAUTO};
   CheckDlgButton(hdlg, item[config_.cpumode & 3], BSTATE(true));
-  CheckDlgButton(hdlg, IDC_CPU_ENABLEWAIT, BSTATE(config_.flags & pc8801::Config::kEnableWait));
+  CheckDlgButton(hdlg, IDC_CPU_ENABLEWAIT, BSTATE(config_.flags() & pc8801::Config::kEnableWait));
 
   SetDlgItemInt(hdlg, IDC_ERAM, config_.erambanks, false);
 }
@@ -240,19 +241,19 @@ LPCSTR ConfigScreen::GetTemplate() {
 bool ConfigScreen::Clicked(HWND hdlg, HWND, UINT id) {
   switch (id) {
     case IDC_SCREEN_ENABLEPCG:
-      config_.flags ^= pc8801::Config::kEnablePCG;
+      config_.toggle_flags(pc8801::Config::kEnablePCG);
       return true;
 
     case IDC_SCREEN_FV15K:
-      config_.flags ^= pc8801::Config::kFv15k;
+      config_.toggle_flags(pc8801::Config::kFv15k);
       return true;
 
     case IDC_SCREEN_DIGITALPAL:
-      config_.flags ^= pc8801::Config::kDigitalPalette;
+      config_.toggle_flags(pc8801::Config::kDigitalPalette);
       return true;
 
     case IDC_SCREEN_FULLLINE:
-      config_.flags ^= pc8801::Config::kFullline;
+      config_.toggle_flags(pc8801::Config::kFullline);
       return true;
   }
   return false;
@@ -260,11 +261,11 @@ bool ConfigScreen::Clicked(HWND hdlg, HWND, UINT id) {
 
 void ConfigScreen::Update(HWND hdlg) {
   // misc. option
-  CheckDlgButton(hdlg, IDC_SCREEN_ENABLEPCG, BSTATE(config_.flags & pc8801::Config::kEnablePCG));
-  CheckDlgButton(hdlg, IDC_SCREEN_FV15K, BSTATE(config_.flags & pc8801::Config::kFv15k));
+  CheckDlgButton(hdlg, IDC_SCREEN_ENABLEPCG, BSTATE(config_.flags() & pc8801::Config::kEnablePCG));
+  CheckDlgButton(hdlg, IDC_SCREEN_FV15K, BSTATE(config_.flags() & pc8801::Config::kFv15k));
   CheckDlgButton(hdlg, IDC_SCREEN_DIGITALPAL,
-                 BSTATE(config_.flags & pc8801::Config::kDigitalPalette));
-  CheckDlgButton(hdlg, IDC_SCREEN_FULLLINE, BSTATE(config_.flags & pc8801::Config::kFullline));
+                 BSTATE(config_.flags() & pc8801::Config::kDigitalPalette));
+  CheckDlgButton(hdlg, IDC_SCREEN_FULLLINE, BSTATE(config_.flags() & pc8801::Config::kFullline));
 }
 
 // ---------------------------------------------------------------------------
@@ -277,46 +278,48 @@ LPCSTR ConfigSound::GetTemplate() {
 bool ConfigSound::Clicked(HWND hdlg, HWND hwctl, UINT id) {
   switch (id) {
     case IDC_SOUND44_OPN:
-      config_.flags &= ~pc8801::Config::kEnableOPNA;
-      config_.flag2 &= ~pc8801::Config::kDisableOPN44;
+      config_.clear_flags(pc8801::Config::kEnableOPNA);
+      config_.clear_flag2(pc8801::Config::kDisableOPN44);
       return true;
 
     case IDC_SOUND44_OPNA:
-      config_.flags |= pc8801::Config::kEnableOPNA;
-      config_.flag2 &= ~pc8801::Config::kDisableOPN44;
+      config_.set_flags(pc8801::Config::kEnableOPNA);
+      config_.clear_flag2(pc8801::Config::kDisableOPN44);
       return true;
 
     case IDC_SOUND44_NONE:
-      config_.flags &= ~pc8801::Config::kEnableOPNA;
-      config_.flag2 |= pc8801::Config::kDisableOPN44;
+      config_.clear_flags(pc8801::Config::kEnableOPNA);
+      config_.set_flag2(pc8801::Config::kDisableOPN44);
       return true;
 
     case IDC_SOUNDA8_OPN:
-      config_.flags = (config_.flags & ~pc8801::Config::kOPNAonA8) | pc8801::Config::kOPNonA8;
+      config_.clear_flags(pc8801::Config::kOPNAonA8);
+      config_.set_flags(pc8801::Config::kOPNonA8);
       return true;
 
     case IDC_SOUNDA8_OPNA:
-      config_.flags = (config_.flags & ~pc8801::Config::kOPNonA8) | pc8801::Config::kOPNAonA8;
+      config_.clear_flags(pc8801::Config::kOPNonA8);
+      config_.set_flags(pc8801::Config::kOPNAonA8);
       return true;
 
     case IDC_SOUNDA8_NONE:
-      config_.flags = config_.flags & ~(pc8801::Config::kOPNAonA8 | pc8801::Config::kOPNonA8);
+      config_.clear_flags(pc8801::Config::kOPNAonA8 | pc8801::Config::kOPNonA8);
       return true;
 
     case IDC_SOUND_CMDSING:
-      config_.flags ^= pc8801::Config::kDisableSing;
+      config_.toggle_flags(pc8801::Config::kDisableSing);
       return true;
 
     case IDC_SOUND_MIXALWAYS:
-      config_.flags ^= pc8801::Config::kMixSoundAlways;
+      config_.toggle_flags(pc8801::Config::kMixSoundAlways);
       return true;
 
     case IDC_SOUND_PRECISEMIX:
-      config_.flags ^= pc8801::Config::kPreciseMixing;
+      config_.toggle_flags(pc8801::Config::kPreciseMixing);
       return true;
 
     case IDC_SOUND_WAVEOUT:
-      config_.flag2 ^= pc8801::Config::kUseWaveOutDrv;
+      config_.toggle_flag2(pc8801::Config::kUseWaveOutDrv);
       return true;
 
     case IDC_SOUND_NOSOUND:
@@ -360,19 +363,19 @@ bool ConfigSound::Clicked(HWND hdlg, HWND hwctl, UINT id) {
       return true;
 
     case IDC_SOUND_FMFREQ:
-      config_.flag2 ^= pc8801::Config::kUseFMClock;
+      config_.toggle_flag2(pc8801::Config::kUseFMClock);
       return true;
 
     case IDC_SOUND_USENOTIFY:
-      config_.flag2 ^= pc8801::Config::kUseDSNotify;
+      config_.toggle_flag2(pc8801::Config::kUseDSNotify);
       return true;
 
     case IDC_SOUND_LPF:
-      config_.flag2 ^= pc8801::Config::kEnableLPF;
+      config_.toggle_flag2(pc8801::Config::kEnableLPF);
       EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFFC),
-                   !!(config_.flag2 & pc8801::Config::kEnableLPF));
+                   !!(config_.flag2() & pc8801::Config::kEnableLPF));
       EnableWindow(GetDlgItem(hdlg, IDC_SOUND_LPFORDER),
-                   !!(config_.flag2 & pc8801::Config::kEnableLPF));
+                   !!(config_.flag2() & pc8801::Config::kEnableLPF));
       return true;
   }
   return false;
@@ -382,15 +385,15 @@ void ConfigSound::InitDialog(HWND hdlg) {
   config_.sound_buffer_ms = org_config_.sound_buffer_ms;
   CheckDlgButton(
       hdlg,
-      config_.flag2 & pc8801::Config::kDisableOPN44
+      config_.flag2() & pc8801::Config::kDisableOPN44
           ? IDC_SOUND44_NONE
-          : (config_.flags & pc8801::Config::kEnableOPNA ? IDC_SOUND44_OPNA : IDC_SOUND44_OPN),
+          : (config_.flags() & pc8801::Config::kEnableOPNA ? IDC_SOUND44_OPNA : IDC_SOUND44_OPN),
       BSTATE(true));
   CheckDlgButton(
       hdlg,
-      config_.flags & pc8801::Config::kOPNAonA8
+      config_.flags() & pc8801::Config::kOPNAonA8
           ? IDC_SOUNDA8_OPNA
-          : (config_.flags & pc8801::Config::kOPNonA8 ? IDC_SOUNDA8_OPN : IDC_SOUNDA8_NONE),
+          : (config_.flags() & pc8801::Config::kOPNonA8 ? IDC_SOUNDA8_OPN : IDC_SOUNDA8_NONE),
       BSTATE(true));
 
   // The order has to match "enum SoundDriverType" in config.h.
@@ -450,15 +453,16 @@ void ConfigSound::Update(HWND hdlg) {
   CheckDlgButton(hdlg, IDC_SOUND_176K, BSTATE(config_.sound_output_hz == 176400));
   CheckDlgButton(hdlg, IDC_SOUND_192K, BSTATE(config_.sound_output_hz == 192000));
 
-  CheckDlgButton(hdlg, IDC_SOUND_CMDSING, BSTATE(!(config_.flags & pc8801::Config::kDisableSing)));
+  CheckDlgButton(hdlg, IDC_SOUND_CMDSING,
+                 BSTATE(!(config_.flags() & pc8801::Config::kDisableSing)));
   CheckDlgButton(hdlg, IDC_SOUND_MIXALWAYS,
-                 BSTATE(config_.flags & pc8801::Config::kMixSoundAlways));
+                 BSTATE(config_.flags() & pc8801::Config::kMixSoundAlways));
   CheckDlgButton(hdlg, IDC_SOUND_PRECISEMIX,
-                 BSTATE(config_.flags & pc8801::Config::kPreciseMixing));
-  CheckDlgButton(hdlg, IDC_SOUND_WAVEOUT, BSTATE(config_.flag2 & pc8801::Config::kUseWaveOutDrv));
-  CheckDlgButton(hdlg, IDC_SOUND_FMFREQ, BSTATE(config_.flag2 & pc8801::Config::kUseFMClock));
-  CheckDlgButton(hdlg, IDC_SOUND_LPF, BSTATE(config_.flag2 & pc8801::Config::kEnableLPF));
-  CheckDlgButton(hdlg, IDC_SOUND_USENOTIFY, BSTATE(config_.flag2 & pc8801::Config::kUseDSNotify));
+                 BSTATE(config_.flags() & pc8801::Config::kPreciseMixing));
+  CheckDlgButton(hdlg, IDC_SOUND_WAVEOUT, BSTATE(config_.flag2() & pc8801::Config::kUseWaveOutDrv));
+  CheckDlgButton(hdlg, IDC_SOUND_FMFREQ, BSTATE(config_.flag2() & pc8801::Config::kUseFMClock));
+  CheckDlgButton(hdlg, IDC_SOUND_LPF, BSTATE(config_.flag2() & pc8801::Config::kEnableLPF));
+  CheckDlgButton(hdlg, IDC_SOUND_USENOTIFY, BSTATE(config_.flag2() & pc8801::Config::kUseDSNotify));
 
   SetDlgItemInt(hdlg, IDC_SOUND_BUFFER, config_.sound_buffer_ms, false);
 
@@ -583,48 +587,48 @@ LPCSTR ConfigFunction::GetTemplate() {
 bool ConfigFunction::Clicked(HWND hdlg, HWND hwctl, UINT id) {
   switch (id) {
     case IDC_FUNCTION_SAVEDIR:
-      config_.flags ^= pc8801::Config::kSaveDirectory;
+      config_.toggle_flags(pc8801::Config::kSaveDirectory);
       return true;
 
     case IDC_FUNCTION_ASKBEFORERESET:
-      config_.flags ^= pc8801::Config::kAskBeforeReset;
+      config_.toggle_flags(pc8801::Config::kAskBeforeReset);
       return true;
 
     case IDC_FUNCTION_SUPPRESSMENU:
-      config_.flags ^= pc8801::Config::kSuppressMenu;
-      if (config_.flags & pc8801::Config::kSuppressMenu)
-        config_.flags &= ~pc8801::Config::kEnableMouse;
+      config_.toggle_flags(pc8801::Config::kSuppressMenu);
+      if (config_.flags() & pc8801::Config::kSuppressMenu)
+        config_.clear_flags(pc8801::Config::kEnableMouse);
       Update(hdlg);
       return true;
 
     case IDC_FUNCTION_USEARROWFOR10:
-      config_.flags ^= pc8801::Config::kUseArrowFor10;
+      config_.toggle_flags(pc8801::Config::kUseArrowFor10);
       return true;
 
     case IDC_FUNCTION_SWAPPADBUTTONS:
-      config_.flags ^= pc8801::Config::kSwappedButtons;
+      config_.toggle_flags(pc8801::Config::kSwappedButtons);
       return true;
 
     case IDC_FUNCTION_ENABLEPAD:
-      config_.flags ^= pc8801::Config::kEnablePad;
-      if (config_.flags & pc8801::Config::kEnablePad)
-        config_.flags &= ~pc8801::Config::kEnableMouse;
+      config_.toggle_flags(pc8801::Config::kEnablePad);
+      if (config_.flags() & pc8801::Config::kEnablePad)
+        config_.clear_flags(pc8801::Config::kEnableMouse);
       Update(hdlg);
       return true;
 
     case IDC_FUNCTION_ENABLEMOUSE:
-      config_.flags ^= pc8801::Config::kEnableMouse;
-      if (config_.flags & pc8801::Config::kEnableMouse)
-        config_.flags &= ~(pc8801::Config::kEnablePad | pc8801::Config::kSuppressMenu);
+      config_.toggle_flags(pc8801::Config::kEnableMouse);
+      if (config_.flags() & pc8801::Config::kEnableMouse)
+        config_.clear_flags(pc8801::Config::kEnablePad | pc8801::Config::kSuppressMenu);
       Update(hdlg);
       return true;
 
     case IDC_FUNCTION_RESETF12:
-      config_.flags ^= pc8801::Config::kDisableF12Reset;
+      config_.toggle_flags(pc8801::Config::kDisableF12Reset);
       return true;
 
     case IDC_FUNCTION_MOUSEJOY:
-      config_.flags ^= pc8801::Config::kMouseJoyMode;
+      config_.toggle_flags(pc8801::Config::kMouseJoyMode);
       return true;
   }
   return false;
@@ -644,27 +648,27 @@ void ConfigFunction::SetActive(HWND hdlg) {
 
 void ConfigFunction::Update(HWND hdlg) {
   CheckDlgButton(hdlg, IDC_FUNCTION_SAVEDIR,
-                 BSTATE(config_.flags & pc8801::Config::kSaveDirectory));
+                 BSTATE(config_.flags() & pc8801::Config::kSaveDirectory));
   CheckDlgButton(hdlg, IDC_FUNCTION_ASKBEFORERESET,
-                 BSTATE(config_.flags & pc8801::Config::kAskBeforeReset));
+                 BSTATE(config_.flags() & pc8801::Config::kAskBeforeReset));
   CheckDlgButton(hdlg, IDC_FUNCTION_SUPPRESSMENU,
-                 BSTATE(config_.flags & pc8801::Config::kSuppressMenu));
+                 BSTATE(config_.flags() & pc8801::Config::kSuppressMenu));
   CheckDlgButton(hdlg, IDC_FUNCTION_USEARROWFOR10,
-                 BSTATE(config_.flags & pc8801::Config::kUseArrowFor10));
+                 BSTATE(config_.flags() & pc8801::Config::kUseArrowFor10));
   CheckDlgButton(hdlg, IDC_FUNCTION_ENABLEPAD,
-                 BSTATE(config_.flags & pc8801::Config::kEnablePad) != 0);
+                 BSTATE(config_.flags() & pc8801::Config::kEnablePad) != 0);
   EnableWindow(GetDlgItem(hdlg, IDC_FUNCTION_SWAPPADBUTTONS),
-               (config_.flags & pc8801::Config::kEnablePad));
+               (config_.flags() & pc8801::Config::kEnablePad));
   CheckDlgButton(hdlg, IDC_FUNCTION_SWAPPADBUTTONS,
-                 BSTATE(config_.flags & pc8801::Config::kSwappedButtons));
+                 BSTATE(config_.flags() & pc8801::Config::kSwappedButtons));
   CheckDlgButton(hdlg, IDC_FUNCTION_RESETF12,
-                 BSTATE(!(config_.flags & pc8801::Config::kDisableF12Reset)));
+                 BSTATE(!(config_.flags() & pc8801::Config::kDisableF12Reset)));
   CheckDlgButton(hdlg, IDC_FUNCTION_ENABLEMOUSE,
-                 BSTATE(config_.flags & pc8801::Config::kEnableMouse));
+                 BSTATE(config_.flags() & pc8801::Config::kEnableMouse));
   CheckDlgButton(hdlg, IDC_FUNCTION_MOUSEJOY,
-                 BSTATE(config_.flags & pc8801::Config::kMouseJoyMode));
+                 BSTATE(config_.flags() & pc8801::Config::kMouseJoyMode));
   EnableWindow(GetDlgItem(hdlg, IDC_FUNCTION_MOUSEJOY),
-               (config_.flags & pc8801::Config::kEnableMouse) != 0);
+               (config_.flags() & pc8801::Config::kEnableMouse) != 0);
 }
 
 void ConfigFunction::UpdateSlider(HWND hdlg) {
@@ -724,7 +728,7 @@ bool ConfigEnv::Clicked(HWND hdlg, HWND hwctl, UINT id) {
       return true;
 
     case IDC_ENV_PLACESBAR:
-      config_.flag2 ^= pc8801::Config::kShowPlaceBar;
+      config_.toggle_flag2(pc8801::Config::kShowPlaceBar);
       return true;
   }
   return false;
@@ -733,7 +737,7 @@ bool ConfigEnv::Clicked(HWND hdlg, HWND hwctl, UINT id) {
 void ConfigEnv::Update(HWND hdlg) {
   static const int item[3] = {IDC_ENV_KEY106, 0, IDC_ENV_KEY101};
   CheckDlgButton(hdlg, item[static_cast<uint32_t>(config_.keytype) & 3], BSTATE(true));
-  CheckDlgButton(hdlg, IDC_ENV_PLACESBAR, BSTATE(config_.flag2 & pc8801::Config::kShowPlaceBar));
+  CheckDlgButton(hdlg, IDC_ENV_PLACESBAR, BSTATE(config_.flag2() & pc8801::Config::kShowPlaceBar));
   EnableWindow(GetDlgItem(hdlg, IDC_ENV_PLACESBAR), TRUE);
 }
 
@@ -747,7 +751,7 @@ LPCSTR ConfigROMEO::GetTemplate() {
 bool ConfigROMEO::Clicked(HWND hdlg, HWND hwctl, UINT id) {
   switch (id) {
     case IDC_USE_SCCI:
-      config_.flag2 ^= pc8801::Config::kUsePiccolo;
+      config_.toggle_flag2(pc8801::Config::kUsePiccolo);
       return true;
   }
   return true;
@@ -774,7 +778,7 @@ void ConfigROMEO::Apply(HWND hdlg) {
 }
 
 void ConfigROMEO::Update(HWND hdlg) {
-  CheckDlgButton(hdlg, IDC_USE_SCCI, BSTATE(config_.flag2 & pc8801::Config::kUsePiccolo));
+  CheckDlgButton(hdlg, IDC_USE_SCCI, BSTATE(config_.flag2() & pc8801::Config::kUsePiccolo));
 }
 
 void ConfigROMEO::UpdateSlider(HWND hdlg) {

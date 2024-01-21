@@ -59,7 +59,7 @@ void WinKeyIF::Reset(uint32_t, uint32_t) {
 //  設定反映
 //
 void WinKeyIF::ApplyConfig(const pc8801::Config* config) {
-  use_arrow_ = 0 != (config->flags & pc8801::Config::kUseArrowFor10);
+  use_arrow_ = 0 != (config->flags() & pc8801::Config::kUseArrowFor10);
   basic_mode_ = config->basic_mode();
 
   switch (config->keytype) {

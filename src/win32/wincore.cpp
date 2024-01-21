@@ -114,9 +114,9 @@ void WinCore::ApplyConfig2(const pc8801::Config* config) {
   } else if (c == 80) {
     cpu_clock = 7987200;
   }
-  if (config->flags & pc8801::Config::kFullSpeed)
+  if (config->flags() & pc8801::Config::kFullSpeed)
     c = 0;
-  if (config->flags & pc8801::Config::kCPUBurst)
+  if (config->flags() & pc8801::Config::kCPUBurst)
     c = -c;
   seq_.SetLegacyClock(c);
   seq_.SetCPUClock(cpu_clock);
@@ -196,8 +196,9 @@ bool WinCore::SaveSnapshot(const std::string_view filename) {
     ssh.erambanks = uint16_t(config_->erambanks);
     ssh.cpumode = int16_t(config_->cpumode);
     ssh.mainsubratio = int16_t(config_->mainsubratio);
-    ssh.flags = config_->flags | (esize < size ? 0x80000000 : 0);
-    ssh.flag2 = config_->flag2;
+    ssh.flags =
+        config_->flags() | static_cast<pc8801::Config::Flags>(esize < size ? 0x80000000 : 0);
+    ssh.flag2 = config_->flag2();
     for (uint32_t i = 0; i < 2; i++)
       ssh.disk[i] = (int8_t)pc88_.GetDiskManager()->GetCurrentDisk(i);
 
@@ -232,17 +233,17 @@ bool WinCore::LoadSnapshot(const std::string_view filename, const std::string_vi
     return false;
 
   // applyconfig
-  const uint32_t fl1a =
+  const pc8801::Config::Flags fl1a =
       pc8801::Config::kSubCPUControl | pc8801::Config::kFullSpeed | pc8801::Config::kEnableOPNA |
       pc8801::Config::kEnablePCG | pc8801::Config::kFv15k | pc8801::Config::kCPUBurst |
       pc8801::Config::kCPUClockMode | pc8801::Config::kDigitalPalette | pc8801::Config::kOPNonA8 |
       pc8801::Config::kOPNAonA8 | pc8801::Config::kEnableWait;
-  const uint32_t fl2a = pc8801::Config::kDisableOPN44;
+  const pc8801::Config::Flag2 fl2a = pc8801::Config::kDisableOPN44;
 
   pc8801::Config newconfig = *config_;
 
-  newconfig.flags = (config_->flags & ~fl1a) | (ssh.flags & fl1a);
-  newconfig.flag2 = (config_->flag2 & ~fl2a) | (ssh.flag2 & fl2a);
+  newconfig.set_flags_value((config_->flags() & ~fl1a) | (ssh.flags & fl1a));
+  newconfig.set_flag2_value((config_->flag2() & ~fl2a) | (ssh.flag2 & fl2a));
   newconfig.set_basic_mode(ssh.basic_mode);
   newconfig.legacy_clock = ssh.legacy_clock;
   newconfig.erambanks = ssh.erambanks;

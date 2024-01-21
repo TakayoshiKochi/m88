@@ -101,7 +101,7 @@ class Config {
   // Config(Config& other) = delete;
   // const Config& operator=(const Config& rhs) = delete;
 
-  enum CPUType {
+  enum CPUType : uint8_t {
     kMainSub11 = 0,
     kMainSub21,
     kMainSubAuto,
@@ -178,9 +178,17 @@ class Config {
 
   void set_basic_mode(BasicMode bm) { basic_mode_ = bm; }
   [[nodiscard]] BasicMode basic_mode() const { return basic_mode_; }
+  [[nodiscard]] Flags flags() const { return flags_; }
+  void set_flags_value(Flags f) { flags_ = f; }
+  void toggle_flags(Flags f) { flags_ ^= f; }
+  void clear_flags(Flags f) { flags_ &= ~f; }
+  void set_flags(Flags f) { flags_ |= f; }
+  [[nodiscard]] Flag2 flag2() const { return flag2_; }
+  void set_flag2_value(Flag2 f) { flag2_ = f; }
+  void toggle_flag2(Flag2 f) { flag2_ ^= f; }
+  void clear_flag2(Flag2 f) { flag2_ &= ~f; }
+  void set_flag2(Flag2 f) { flag2_ |= f; }
 
-  uint32_t flags;
-  uint32_t flag2;
   int legacy_clock;
   // 1000 = 100%, 10% ～ 1000% (100-10000)
   int speed;
@@ -220,10 +228,12 @@ class Config {
 
   // 15kHz モードの判定を行う．
   // (条件: option 又は N80/SR モード時)
-  bool IsFV15k() const { return (basic_mode_ & 2) || (flags & kFv15k); }
+  bool IsFV15k() const { return (basic_mode_ & 2) || (flags_ & kFv15k); }
 
  private:
   BasicMode basic_mode_;
+  Flags flags_;
+  Flag2 flag2_;
 };
 
 }  // namespace pc8801

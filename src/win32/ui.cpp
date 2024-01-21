@@ -379,8 +379,9 @@ void WinUI::ApplyConfig() {
   config().mainsubratio =
       (config().legacy_clock >= 60 || (flags() & pc8801::Config::kFullSpeed)) ? 2 : 1;
   if (config().dipsw != 1) {
-    config().flags &= ~pc8801::Config::kSpecialPalette;
-    config().flag2 &= ~(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
+    config().clear_flags(pc8801::Config::kSpecialPalette);
+    config().clear_flag2(
+        (pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2));
   }
 
   keyif_.ApplyConfig(&config());
@@ -479,7 +480,9 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
             activate = strtoul(endptr + 1, &endptr, 16);
           }
           cmdline = endptr;
-          config().flags = (flags() & ~activate) | (newflags & activate);
+          config().set_flags_value(flags() & static_cast<pc8801::Config::Flags>(~activate) |
+                                   (static_cast<pc8801::Config::Flags>(newflags) &
+                                    static_cast<pc8801::Config::Flags>(activate)));
           break;
 
         // flag2 の値を設定  -g値,有効ビット
@@ -490,7 +493,9 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
             activate = strtoul(endptr + 1, &endptr, 16);
           }
           cmdline = endptr;
-          config().flag2 = (flags2() & ~activate) | (newflags & activate);
+          config().set_flag2_value((flags2() & static_cast<pc8801::Config::Flag2>(~activate)) |
+                                   (static_cast<pc8801::Config::Flag2>(newflags) &
+                                    static_cast<pc8801::Config::Flag2>(activate)));
           break;
       }
 
@@ -1226,9 +1231,9 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_CPU_BURST:
-      config().flags ^= pc8801::Config::kCPUBurst;
+      config().toggle_flags(pc8801::Config::kCPUBurst);
       if (flags() & pc8801::Config::kCPUBurst)
-        config().flags &= ~pc8801::Config::kFullSpeed;
+        config().clear_flags(pc8801::Config::kFullSpeed);
       ApplyConfig();
       break;
 
@@ -1325,38 +1330,38 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_KEY_CURSOR:
-      keyif_.CursorForTen() ? config().flags &= ~pc8801::Config::kUseArrowFor10
-                            : config().flags |= pc8801::Config::kUseArrowFor10;
+      keyif_.CursorForTen() ? config().clear_flags(pc8801::Config::kUseArrowFor10)
+                            : config().set_flags(pc8801::Config::kUseArrowFor10);
       keyif_.UseCursorForTen(!keyif_.CursorForTen());
       break;
 
     case IDM_DEBUG_TEXT:
-      config().flags ^= pc8801::Config::kSpecialPalette;
+      config().toggle_flags(pc8801::Config::kSpecialPalette);
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM0:
-      config().flag2 ^= pc8801::Config::kMask0;
+      config().toggle_flag2(pc8801::Config::kMask0);
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM1:
-      config().flag2 ^= pc8801::Config::kMask1;
+      config().toggle_flag2(pc8801::Config::kMask1);
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM2:
-      config().flag2 ^= pc8801::Config::kMask2;
+      config().toggle_flag2(pc8801::Config::kMask2);
       ApplyConfig();
       break;
 
     case IDM_STATUSBAR:
-      config().flags ^= pc8801::Config::kShowStatusBar;
+      config().toggle_flags(pc8801::Config::kShowStatusBar);
       ShowStatusWindow();
       break;
 
     case IDM_FDC_STATUS:
-      config().flags ^= pc8801::Config::kShowFDCStatus;
+      config().toggle_flags(pc8801::Config::kShowFDCStatus);
       ApplyConfig();
       break;
 
@@ -1385,7 +1390,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_WATCHREGISTER:
-      config().flags &= ~pc8801::Config::kWatchRegister;
+      config().clear_flags(pc8801::Config::kWatchRegister);
       reg_mon_.Show(hinst_, hwnd, !reg_mon_.IsOpen());
       break;
 

@@ -571,28 +571,28 @@ bool PC88::ConnectDevices2() {
 //  設定反映
 //
 void PC88::ApplyConfig(const Config* cfg) {
-  cfg_flags_ = cfg->flags;
-  cfg_flags2_ = cfg->flag2;
+  cfg_flags_ = cfg->flags();
+  cfg_flags2_ = cfg->flag2();
 
   base_->SetSwitch(cfg);
   screen_->ApplyConfig(cfg);
   mem_main_->ApplyConfig(cfg);
   crtc_->ApplyConfig(cfg);
   fdc_->ApplyConfig(cfg);
-  beep_->EnableSING(!(cfg->flags & Config::kDisableSing));
-  opn1_->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
+  beep_->EnableSING(!(cfg->flags() & Config::kDisableSing));
+  opn1_->SetFMMixMode(!!(cfg->flag2() & Config::kUseFMClock));
   opn1_->ApplyConfig(cfg);
-  opn2_->SetFMMixMode(!!(cfg->flag2 & Config::kUseFMClock));
+  opn2_->SetFMMixMode(!!(cfg->flag2() & Config::kUseFMClock));
   opn2_->ApplyConfig(cfg);
 
   cpu_mode_ = (cfg->cpumode == Config::kMainSubAuto) ? (cfg->mainsubratio > 1 ? ms21 : ms11)
                                                      : (cfg->cpumode & 1);
-  if ((cfg->flags & Config::kSubCPUControl) != 0)
+  if ((cfg->flags() & Config::kSubCPUControl) != 0)
     cpu_mode_ |= stopwhenidle;
 
-  if (cfg->flags & pc8801::Config::kEnablePad) {
-    joy_pad_->SetButtonMode(cfg->flags & Config::kSwappedButtons ? JoyPad::SWAPPED
-                                                                 : JoyPad::NORMAL);
+  if (cfg->flags() & pc8801::Config::kEnablePad) {
+    joy_pad_->SetButtonMode(cfg->flags() & Config::kSwappedButtons ? JoyPad::SWAPPED
+                                                                   : JoyPad::NORMAL);
   } else {
     joy_pad_->SetButtonMode(JoyPad::DISABLED);
   }

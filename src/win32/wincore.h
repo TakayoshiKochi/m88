@@ -71,8 +71,8 @@ class WinCore : public ISystem, public ILockCore {
     uint16_t erambanks;
     uint16_t cpumode;
     uint16_t mainsubratio;
-    uint32_t flags;
-    uint32_t flag2;
+    pc8801::Config::Flags flags;
+    pc8801::Config::Flag2 flag2;
   };
 
   // Lock between UI thread and emulation thread.

@@ -84,8 +84,8 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
   GetCurrentDirectory(MAX_PATH, buf);
   SaveEntry(inifile, "Directory", buf);
 
-  SaveEntry(inifile, "Flags", cfg->flags);
-  SaveEntry(inifile, "Flag2", cfg->flag2);
+  SaveEntry(inifile, "Flags", cfg->flags());
+  SaveEntry(inifile, "Flag2", cfg->flag2());
   SaveEntry(inifile, "CPUClock", cfg->legacy_clock);
   // SaveEntry(inifile, "Speed", cfg->speed);
   // Obsolete - always refresh.
@@ -121,7 +121,7 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
 
   SaveEntry(inifile, "SoundDriverType", static_cast<int>(cfg->sound_driver_type));
   SaveEntry(inifile, "PreferredASIODriver", cfg->preferred_asio_driver.c_str());
-  SaveEntry(inifile, "UsePiccolo", cfg->flag2 & pc8801::Config::kUsePiccolo);
+  SaveEntry(inifile, "UsePiccolo", cfg->flag2() & pc8801::Config::kUsePiccolo);
 }
 
 #define LOADVOLUMEENTRY(key, def, vol)        \
@@ -131,12 +131,16 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
 void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
   uint32_t u =
       pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory | pc8801::Config::kEnableWait;
-  LoadConfigEntryU(inifile, "Flags", &cfg->flags, u);
-  cfg->flags &= ~pc8801::Config::kSpecialPalette;
+  uint32_t flags = 0;
+  LoadConfigEntryU(inifile, "Flags", &flags, u);
+  cfg->set_flags_value(static_cast<pc8801::Config::Flags>(flags));
+  cfg->clear_flags(pc8801::Config::kSpecialPalette);
 
   u = 0;
-  LoadConfigEntryU(inifile, "Flag2", &cfg->flag2, u);
-  cfg->flag2 &= ~(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
+  flags = 0;
+  LoadConfigEntryU(inifile, "Flag2", &flags, u);
+  cfg->set_flag2_value(static_cast<pc8801::Config::Flag2>(flags));
+  cfg->clear_flag2(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
 
   int n = 0;
   if (LoadConfigEntry(inifile, "CPUClock", &n, 40))
@@ -225,10 +229,10 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
   LoadConfigEntry(inifile, "WinPosY", &cfg->winposy, 64);
   LoadConfigEntry(inifile, "WinPosX", &cfg->winposx, 64);
 
-  cfg->flag2 &= ~pc8801::Config::kUsePiccolo;
+  cfg->clear_flag2(pc8801::Config::kUsePiccolo);
   if (LoadConfigEntry(inifile, "UsePiccolo", &n, 0)) {
     if (n)
-      cfg->flag2 |= pc8801::Config::kUsePiccolo;
+      cfg->set_flag2(pc8801::Config::kUsePiccolo);
   }
 }
 }  // namespace
@@ -249,7 +253,7 @@ void ConfigService::Save() {
 }
 
 void ConfigService::LoadConfigDirectory(const char* entry, bool readalways) {
-  if (readalways || (config_.flags & pc8801::Config::kSaveDirectory)) {
+  if (readalways || (config_.flags() & pc8801::Config::kSaveDirectory)) {
     char path[MAX_PATH];
     if (GetPrivateProfileString(AppName, entry, ";", path, MAX_PATH, m88ini)) {
       if (path[0] != ';')

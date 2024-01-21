@@ -124,7 +124,7 @@ int Sound::Get(Sample32* dest, int nsamples) {
 //  設定更新
 //
 void Sound::ApplyConfig(const Config* config) {
-  mix_threshold_ = (config->flags & Config::kPreciseMixing) ? 72 : 2000;
+  mix_threshold_ = (config->flags() & Config::kPreciseMixing) ? 72 : 2000;
 }
 
 // ---------------------------------------------------------------------------
