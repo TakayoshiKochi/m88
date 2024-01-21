@@ -11,12 +11,26 @@
 
 namespace services {
 // static
-RomLoader RomLoader::instance_;
+std::once_flag RomLoader::once_;
+RomLoader* RomLoader::instance_;
 
-RomLoader::RomLoader() {
-  LoadPC88();
-  LoadKanji();
-  LoadOptionalRoms();
+const char RomLoader::kCompositeRomName[] = "PC88.ROM";
+const char RomLoader::kSubSystemRomName[] = "DISK.ROM";
+const char RomLoader::kFontRomName[] = "FONT.ROM";
+const char RomLoader::kFont80SRRomName[] = "FONT80SR.ROM";
+const char RomLoader::kKanji1RomName[] = "KANJI1.ROM";
+const char RomLoader::kKanji2RomName[] = "KANJI2.ROM";
+const char RomLoader::kJisyoRomName[] = "JISYO.ROM";
+const char RomLoader::kCDBIOSRomName[] = "CDBIOS.ROM";
+const char RomLoader::kN80RomName[] = "N80_2.ROM";
+const char RomLoader::kN80SRRomName[] = "N80_3.ROM";
+const char RomLoader::kYMFM_ADPCM_RomName[] = "ym2608_adpcm_rom.bin";
+
+void RomLoader::Init() {
+  instance_ = new RomLoader();
+  instance_->LoadPC88();
+  instance_->LoadKanji();
+  instance_->LoadOptionalRoms();
 }
 
 // static
@@ -55,7 +69,7 @@ bool RomLoader::LoadRom(const std::string_view filename, pc8801::RomType type, s
 
 void RomLoader::LoadPC88() {
   auto n88rom = std::make_unique<uint8_t[]>(0x1c000);
-  LoadFile("PC88.ROM", n88rom.get(), 0x1c000);
+  LoadFile(kCompositeRomName, n88rom.get(), 0x1c000);
 
   roms_[pc8801::RomType::kN88Rom] = std::make_unique<RomView>(0x8000);
   memcpy(roms_[pc8801::RomType::kN88Rom]->Get(), n88rom.get(), 0x8000);
@@ -76,7 +90,7 @@ void RomLoader::LoadPC88() {
   roms_[pc8801::RomType::kN88ERom3] = std::make_unique<RomView>(0x2000);
   memcpy(roms_[pc8801::RomType::kN88ERom3]->Get(), n88rom.get() + 0x12000, 0x2000);
 
-  LoadRom("DISK.ROM", pc8801::RomType::kSubSystemRom, 0x2000);
+  LoadRom(kSubSystemRomName, pc8801::RomType::kSubSystemRom, 0x2000);
   if (!IsAvailable(pc8801::RomType::kSubSystemRom)) {
     roms_[pc8801::RomType::kSubSystemRom] = std::make_unique<RomView>(0x2000);
     memcpy(roms_[pc8801::RomType::kSubSystemRom]->Get(), n88rom.get() + 0x14000, 0x2000);
@@ -84,23 +98,23 @@ void RomLoader::LoadPC88() {
 }
 
 void RomLoader::LoadKanji() {
-  LoadRom("KANJI1.ROM", pc8801::RomType::kKanji1Rom, 0x20000);
-  LoadRom("KANJI2.ROM", pc8801::RomType::kKanji2Rom, 0x20000);
+  LoadRom(kKanji1RomName, pc8801::RomType::kKanji1Rom, 0x20000);
+  LoadRom(kKanji2RomName, pc8801::RomType::kKanji2Rom, 0x20000);
 
-  LoadRom("FONT.ROM", pc8801::RomType::kFontRom, 0x800);
+  LoadRom(kFontRomName, pc8801::RomType::kFontRom, 0x800);
   if (!IsAvailable(pc8801::RomType::kFontRom)) {
     roms_[pc8801::RomType::kFontRom] =
         std::make_unique<RomView>(roms_[pc8801::RomType::kKanji1Rom]->Get() + 0x1000, 0x800);
   }
-  LoadRom("FONT80SR.ROM", pc8801::RomType::kFont80SRRom, 0x2000);
+  LoadRom(kFont80SRRomName, pc8801::RomType::kFont80SRRom, 0x2000);
 }
 
 void RomLoader::LoadOptionalRoms() {
-  LoadRom("JISYO.ROM", pc8801::RomType::kJisyoRom, 0x80000);
-  LoadRom("CDBIOS.ROM", pc8801::RomType::kCDBiosRom, 0x10000);
-  LoadRom("N80_2.ROM", pc8801::RomType::kN80Rom, 0x8000);
-  LoadRom("N80_3.ROM", pc8801::RomType::kN80SRRom, 0xa000);
-  LoadRom("ym2608_adpcm_rom.bin", pc8801::RomType::kYM2608BRythmRom, 0x2000);
+  LoadRom(kJisyoRomName, pc8801::RomType::kJisyoRom, 0x80000);
+  LoadRom(kCDBIOSRomName, pc8801::RomType::kCDBiosRom, 0x10000);
+  LoadRom(kN80RomName, pc8801::RomType::kN80Rom, 0x8000);
+  LoadRom(kN80SRRomName, pc8801::RomType::kN80SRRom, 0xa000);
+  LoadRom(kYMFM_ADPCM_RomName, pc8801::RomType::kYM2608BRythmRom, 0x2000);
 
   char name[] = "E0.ROM";
   erom_mask_ = ~1;
