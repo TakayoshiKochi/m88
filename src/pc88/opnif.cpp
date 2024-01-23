@@ -170,12 +170,12 @@ void OPNIF::SetVolume(const Config* config) {
   // OPNA
   opn_.SetVolumeADPCM(ConvertVolume(config->voladpcm));
   opn_.SetVolumeRhythmTotal(ConvertVolume(config->volrhythm));
-  opn_.SetVolumeRhythm(0, ConvertVolume(config->volbd));
-  opn_.SetVolumeRhythm(1, ConvertVolume(config->volsd));
-  opn_.SetVolumeRhythm(2, ConvertVolume(config->voltop));
-  opn_.SetVolumeRhythm(3, ConvertVolume(config->volhh));
-  opn_.SetVolumeRhythm(4, ConvertVolume(config->voltom));
-  opn_.SetVolumeRhythm(5, ConvertVolume(config->volrim));
+  opn_.SetVolumeRhythm(0, ConvertVolume(config->vol_bd_));
+  opn_.SetVolumeRhythm(1, ConvertVolume(config->vol_sd_));
+  opn_.SetVolumeRhythm(2, ConvertVolume(config->vol_top_));
+  opn_.SetVolumeRhythm(3, ConvertVolume(config->vol_hh_));
+  opn_.SetVolumeRhythm(4, ConvertVolume(config->vol_tom_));
+  opn_.SetVolumeRhythm(5, ConvertVolume(config->vol_rim_));
 
   if (chip_) {
     delay_ = config->romeolatency * 1000;

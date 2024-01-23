@@ -59,36 +59,36 @@ enum BasicMode : uint8_t {
 // typed bitmask flags pattern - see
 // https://walbourn.github.io/modern-c++-bitmask-types/
 template <typename T>
-constexpr inline T operator~(T a) {
+constexpr T operator~(T a) {
   return static_cast<T>(~static_cast<std::underlying_type<T>::type>(a));
 }
 template <typename T>
-constexpr inline T operator|(T a, T b) {
+constexpr T operator|(T a, T b) {
   return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) |
                         static_cast<std::underlying_type<T>::type>(b));
 }
 template <typename T>
-constexpr inline T operator&(T a, T b) {
+constexpr T operator&(T a, T b) {
   return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) &
                         static_cast<std::underlying_type<T>::type>(b));
 }
 template <typename T>
-constexpr inline T operator^(T a, T b) {
+constexpr T operator^(T a, T b) {
   return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) ^
                         static_cast<std::underlying_type<T>::type>(b));
 }
 template <typename T>
-constexpr inline T& operator|=(T& a, T b) {
+constexpr T& operator|=(T& a, T b) {
   return reinterpret_cast<T&>(reinterpret_cast<std::underlying_type<T>::type&>(a) |=
                               static_cast<std::underlying_type<T>::type>(b));
 }
 template <typename T>
-constexpr inline T& operator&=(T& a, T b) {
+constexpr T& operator&=(T& a, T b) {
   return reinterpret_cast<T&>(reinterpret_cast<std::underlying_type<T>::type&>(a) &=
                               static_cast<std::underlying_type<T>::type>(b));
 }
 template <typename T>
-constexpr inline T& operator^=(T& a, T b) {
+constexpr T& operator^=(T& a, T b) {
   return reinterpret_cast<T&>(reinterpret_cast<std::underlying_type<T>::type&>(a) ^=
                               static_cast<std::underlying_type<T>::type>(b));
 }
@@ -115,6 +115,37 @@ class Config {
     kAsio,
     kNumSoundDriverTypes,
   };
+
+  enum DipSwitch : uint32_t {
+    // 0: Terminal 1: BASIC
+    kBootToBasic = 1 << 0,
+    // 0: 80 cols 1: 40 cols
+    kScreenWidth40 = 1 << 1,
+    // 0: 25 lines 1: 20 lines
+    kScreenHeight20 = 1 << 2,
+    // 0: S parameter enable 1: disable
+    kSParameterDisable = 1 << 3,
+    // 0: handle DEL 1: ignore DEL
+    kIgnoreDEL = 1 << 4,
+    // 0: Parity check enable 1: disable
+    kParityCheckDisable = 1 << 5,
+    // 0: Parity even 1: Parity odd
+    kParityOdd = 1 << 6,
+    // 0: 8 data bits 1: 7 bits
+    kDataBits7 = 1 << 7,
+    // 0: 2 stop bit 1: 1 bits
+    kStopBits1 = 1 << 8,
+    // 0: X parameter enable 1: disable
+    kXParameterDisable = 1 << 9,
+    // 0: half-duplex 1: full-duplex
+    kFullDuplex = 1 << 10,
+    // 0: Boot from FD 1: Disabled
+    kBootFromFDDisabled = 1 << 11,
+  };
+
+  static constexpr DipSwitch kDefaultDipSwitch =
+      DipSwitch::kBootToBasic | DipSwitch::kScreenHeight20 | DipSwitch::kParityCheckDisable |
+      DipSwitch::kStopBits1 | DipSwitch::kXParameterDisable | DipSwitch::kFullDuplex;
 
   enum Flags : uint32_t {
     kSubCPUControl = 1 << 0,    // Sub CPU の駆動を制御する
@@ -176,13 +207,20 @@ class Config {
     kUsePiccolo = 1 << 14,
   };
 
-  void set_basic_mode(BasicMode bm) { basic_mode_ = bm; }
   [[nodiscard]] BasicMode basic_mode() const { return basic_mode_; }
+  void set_basic_mode(BasicMode bm) { basic_mode_ = bm; }
+
+  [[nodiscard]] DipSwitch dip_sw() const { return dip_sw_; }
+  void set_dip_sw(DipSwitch ds) { dip_sw_ = ds; }
+
+  // Flags
   [[nodiscard]] Flags flags() const { return flags_; }
   void set_flags_value(Flags f) { flags_ = f; }
   void toggle_flags(Flags f) { flags_ ^= f; }
   void clear_flags(Flags f) { flags_ &= ~f; }
   void set_flags(Flags f) { flags_ |= f; }
+
+  // Flag2
   [[nodiscard]] Flag2 flag2() const { return flag2_; }
   void set_flag2_value(Flag2 f) { flag2_ = f; }
   void toggle_flag2(Flag2 f) { flag2_ ^= f; }
@@ -202,14 +240,14 @@ class Config {
   int voladpcm;
   int volrhythm;
 
-  int volbd;
-  int volsd;
-  int voltop;
-  int volhh;
-  int voltom;
-  int volrim;
+  // fmgen
+  int vol_bd_;
+  int vol_sd_;
+  int vol_top_;
+  int vol_hh_;
+  int vol_tom_;
+  int vol_rim_;
 
-  int dipsw;
   // size of sound buffer in milliseconds.
   uint32_t sound_buffer_ms;
   uint32_t mousesensibility;
@@ -231,7 +269,8 @@ class Config {
   bool IsFV15k() const { return (basic_mode_ & 2) || (flags_ & kFv15k); }
 
  private:
-  BasicMode basic_mode_;
+  DipSwitch dip_sw_ = kDefaultDipSwitch;
+  BasicMode basic_mode_ = BasicMode::kN88V1;
   Flags flags_;
   Flag2 flag2_;
 };

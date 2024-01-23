@@ -42,7 +42,7 @@ class Base : public Device {
  private:
   PC88* pc_ = nullptr;
 
-  int dipsw_ = 0;
+  Config::DipSwitch dip_sw_ = static_cast<Config::DipSwitch>(0);
   // int flags_;
   int clock_ = 0;
   BasicMode basic_mode_ = BasicMode::kN88V1;

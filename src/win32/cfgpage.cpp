@@ -511,12 +511,12 @@ void ConfigVolume::InitDialog(HWND hdlg) {
   InitVolumeSlider(hdlg, IDC_SOUND_VOLSSG, org_config_.volssg);
   InitVolumeSlider(hdlg, IDC_SOUND_VOLADPCM, org_config_.voladpcm);
   InitVolumeSlider(hdlg, IDC_SOUND_VOLRHYTHM, org_config_.volrhythm);
-  InitVolumeSlider(hdlg, IDC_SOUND_VOLBD, org_config_.volbd);
-  InitVolumeSlider(hdlg, IDC_SOUND_VOLSD, org_config_.volsd);
-  InitVolumeSlider(hdlg, IDC_SOUND_VOLTOP, org_config_.voltop);
-  InitVolumeSlider(hdlg, IDC_SOUND_VOLHH, org_config_.volhh);
-  InitVolumeSlider(hdlg, IDC_SOUND_VOLTOM, org_config_.voltom);
-  InitVolumeSlider(hdlg, IDC_SOUND_VOLRIM, org_config_.volrim);
+  InitVolumeSlider(hdlg, IDC_SOUND_VOLBD, org_config_.vol_bd_);
+  InitVolumeSlider(hdlg, IDC_SOUND_VOLSD, org_config_.vol_sd_);
+  InitVolumeSlider(hdlg, IDC_SOUND_VOLTOP, org_config_.vol_top_);
+  InitVolumeSlider(hdlg, IDC_SOUND_VOLHH, org_config_.vol_hh_);
+  InitVolumeSlider(hdlg, IDC_SOUND_VOLTOM, org_config_.vol_tom_);
+  InitVolumeSlider(hdlg, IDC_SOUND_VOLRIM, org_config_.vol_rim_);
 }
 
 void ConfigVolume::SetActive(HWND hdlg) {
@@ -538,12 +538,12 @@ void ConfigVolume::Apply(HWND hdlg) {
   config_.volssg = SendDlgItemMessage(hdlg, IDC_SOUND_VOLSSG, TBM_GETPOS, 0, 0);
   config_.voladpcm = SendDlgItemMessage(hdlg, IDC_SOUND_VOLADPCM, TBM_GETPOS, 0, 0);
   config_.volrhythm = SendDlgItemMessage(hdlg, IDC_SOUND_VOLRHYTHM, TBM_GETPOS, 0, 0);
-  config_.volbd = SendDlgItemMessage(hdlg, IDC_SOUND_VOLBD, TBM_GETPOS, 0, 0);
-  config_.volsd = SendDlgItemMessage(hdlg, IDC_SOUND_VOLSD, TBM_GETPOS, 0, 0);
-  config_.voltop = SendDlgItemMessage(hdlg, IDC_SOUND_VOLTOP, TBM_GETPOS, 0, 0);
-  config_.volhh = SendDlgItemMessage(hdlg, IDC_SOUND_VOLHH, TBM_GETPOS, 0, 0);
-  config_.voltom = SendDlgItemMessage(hdlg, IDC_SOUND_VOLTOM, TBM_GETPOS, 0, 0);
-  config_.volrim = SendDlgItemMessage(hdlg, IDC_SOUND_VOLRIM, TBM_GETPOS, 0, 0);
+  config_.vol_bd_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLBD, TBM_GETPOS, 0, 0);
+  config_.vol_sd_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLSD, TBM_GETPOS, 0, 0);
+  config_.vol_top_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLTOP, TBM_GETPOS, 0, 0);
+  config_.vol_hh_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLHH, TBM_GETPOS, 0, 0);
+  config_.vol_tom_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLTOM, TBM_GETPOS, 0, 0);
+  config_.vol_rim_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLRIM, TBM_GETPOS, 0, 0);
 }
 
 void ConfigVolume::UpdateSlider(HWND hdlg) {
@@ -551,22 +551,22 @@ void ConfigVolume::UpdateSlider(HWND hdlg) {
   config_.volssg = SendDlgItemMessage(hdlg, IDC_SOUND_VOLSSG, TBM_GETPOS, 0, 0);
   config_.voladpcm = SendDlgItemMessage(hdlg, IDC_SOUND_VOLADPCM, TBM_GETPOS, 0, 0);
   config_.volrhythm = SendDlgItemMessage(hdlg, IDC_SOUND_VOLRHYTHM, TBM_GETPOS, 0, 0);
-  config_.volbd = SendDlgItemMessage(hdlg, IDC_SOUND_VOLBD, TBM_GETPOS, 0, 0);
-  config_.volsd = SendDlgItemMessage(hdlg, IDC_SOUND_VOLSD, TBM_GETPOS, 0, 0);
-  config_.voltop = SendDlgItemMessage(hdlg, IDC_SOUND_VOLTOP, TBM_GETPOS, 0, 0);
-  config_.volhh = SendDlgItemMessage(hdlg, IDC_SOUND_VOLHH, TBM_GETPOS, 0, 0);
-  config_.voltom = SendDlgItemMessage(hdlg, IDC_SOUND_VOLTOM, TBM_GETPOS, 0, 0);
-  config_.volrim = SendDlgItemMessage(hdlg, IDC_SOUND_VOLRIM, TBM_GETPOS, 0, 0);
+  config_.vol_bd_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLBD, TBM_GETPOS, 0, 0);
+  config_.vol_sd_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLSD, TBM_GETPOS, 0, 0);
+  config_.vol_top_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLTOP, TBM_GETPOS, 0, 0);
+  config_.vol_hh_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLHH, TBM_GETPOS, 0, 0);
+  config_.vol_tom_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLTOM, TBM_GETPOS, 0, 0);
+  config_.vol_rim_ = SendDlgItemMessage(hdlg, IDC_SOUND_VOLRIM, TBM_GETPOS, 0, 0);
   SetVolumeText(hdlg, IDC_SOUND_VOLTXTFM, config_.volfm);
   SetVolumeText(hdlg, IDC_SOUND_VOLTXTSSG, config_.volssg);
   SetVolumeText(hdlg, IDC_SOUND_VOLTXTADPCM, config_.voladpcm);
   SetVolumeText(hdlg, IDC_SOUND_VOLTXTRHYTHM, config_.volrhythm);
-  SetVolumeText(hdlg, IDC_SOUND_VOLTXTBD, config_.volbd);
-  SetVolumeText(hdlg, IDC_SOUND_VOLTXTSD, config_.volsd);
-  SetVolumeText(hdlg, IDC_SOUND_VOLTXTTOP, config_.voltop);
-  SetVolumeText(hdlg, IDC_SOUND_VOLTXTHH, config_.volhh);
-  SetVolumeText(hdlg, IDC_SOUND_VOLTXTTOM, config_.voltom);
-  SetVolumeText(hdlg, IDC_SOUND_VOLTXTRIM, config_.volrim);
+  SetVolumeText(hdlg, IDC_SOUND_VOLTXTBD, config_.vol_bd_);
+  SetVolumeText(hdlg, IDC_SOUND_VOLTXTSD, config_.vol_sd_);
+  SetVolumeText(hdlg, IDC_SOUND_VOLTXTTOP, config_.vol_top_);
+  SetVolumeText(hdlg, IDC_SOUND_VOLTXTHH, config_.vol_hh_);
+  SetVolumeText(hdlg, IDC_SOUND_VOLTXTTOM, config_.vol_tom_);
+  SetVolumeText(hdlg, IDC_SOUND_VOLTXTRIM, config_.vol_rim_);
   base_->_ChangeVolume(true);
 }
 
@@ -688,15 +688,15 @@ bool ConfigSwitch::Clicked(HWND hdlg, HWND hwctl, UINT id) {
     int s = (id - IDC_DIPSW_1H) & 1;
 
     if (!s)  // ON
-      config_.dipsw &= ~(1 << n);
+      config_.set_dip_sw(config_.dip_sw() & static_cast<pc8801::Config::DipSwitch>(~(1U << n)));
     else
-      config_.dipsw |= 1 << n;
+      config_.set_dip_sw(config_.dip_sw() | static_cast<pc8801::Config::DipSwitch>(1U << n));
     return true;
   }
 
   switch (id) {
     case IDC_DIPSW_DEFAULT:
-      config_.dipsw = 1829;
+      config_.set_dip_sw(static_cast<pc8801::Config::DipSwitch>(1829));
       Update(hdlg);
       return true;
   }
@@ -705,8 +705,8 @@ bool ConfigSwitch::Clicked(HWND hdlg, HWND hwctl, UINT id) {
 
 void ConfigSwitch::Update(HWND hdlg) {
   for (int i = 0; i < 12; i++) {
-    CheckDlgButton(hdlg, IDC_DIPSW_1L + i * 2, BSTATE(0 != (config_.dipsw & (1 << i))));
-    CheckDlgButton(hdlg, IDC_DIPSW_1H + i * 2, BSTATE(0 == (config_.dipsw & (1 << i))));
+    CheckDlgButton(hdlg, IDC_DIPSW_1L + i * 2, BSTATE(0 != (config_.dip_sw() & (1 << i))));
+    CheckDlgButton(hdlg, IDC_DIPSW_1H + i * 2, BSTATE(0 == (config_.dip_sw() & (1 << i))));
   }
 }
 

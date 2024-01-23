@@ -378,10 +378,10 @@ void WinUI::Pause() {
 void WinUI::ApplyConfig() {
   config().mainsubratio =
       (config().legacy_clock >= 60 || (flags() & pc8801::Config::kFullSpeed)) ? 2 : 1;
-  if (config().dipsw != 1) {
+  // TODO: Figure out why dip_sw is compared against 1.  See also other places in this file.
+  if (config().dip_sw() != 1) {
     config().clear_flags(pc8801::Config::kSpecialPalette);
-    config().clear_flag2(
-        (pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2));
+    config().clear_flag2(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
   }
 
   keyif_.ApplyConfig(&config());
@@ -397,7 +397,7 @@ void WinUI::ApplyConfig() {
   SetMenuItemInfo(GetMenu(hwnd_), IDM_RESET, false, &mii);
   ShowStatusWindow();
 
-  if (config().dipsw == 1) {
+  if (config().dip_sw() == 1) {
     if (!hmenudbg_) {
       hmenudbg_ = LoadMenu(hinst_, MAKEINTRESOURCE(IDR_MENU_DEBUG));
 
@@ -1734,7 +1734,7 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   CheckMenuItem(hmenu_, IDM_KEY_CURSOR, keyif_.CursorForTen() ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu_, IDM_WATCHREGISTER,
-                (config().dipsw != 1 && reg_mon_.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
+                (config().dip_sw() != 1 && reg_mon_.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_STATUSBAR,
                 (flags() & pc8801::Config::kShowStatusBar) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_STATUSBAR, fullscreen_ ? MF_GRAYED : MF_ENABLED);

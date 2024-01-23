@@ -92,7 +92,7 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
   // SaveEntry(inifile, "RefreshTiming", cfg->refreshtiming);
   SaveEntry(inifile, "BASICMode", cfg->basic_mode());
   SaveEntry(inifile, "Sound", cfg->sound_output_hz);
-  SaveEntry(inifile, "Switches", cfg->dipsw);
+  SaveEntry(inifile, "Switches", cfg->dip_sw());
   SaveEntry(inifile, "SoundBuffer", cfg->sound_buffer_ms);
   SaveEntry(inifile, "MouseSensibility", cfg->mousesensibility);
   SaveEntry(inifile, "CPUMode", cfg->cpumode);
@@ -109,12 +109,12 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
   SaveEntry(inifile, "VolumeSSG", cfg->volssg + VOLUME_BIAS);
   SaveEntry(inifile, "VolumeADPCM", cfg->voladpcm + VOLUME_BIAS);
   SaveEntry(inifile, "VolumeRhythm", cfg->volrhythm + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeBD", cfg->volbd + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeSD", cfg->volsd + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeTOP", cfg->voltop + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeHH", cfg->volhh + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeTOM", cfg->voltom + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeRIM", cfg->volrim + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeBD", cfg->vol_bd_ + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeSD", cfg->vol_sd_ + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeTOP", cfg->vol_top_ + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeHH", cfg->vol_hh_ + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeTOM", cfg->vol_tom_ + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeRIM", cfg->vol_rim_ + VOLUME_BIAS);
 
   SaveEntry(inifile, "WinPosY", cfg->winposy);
   SaveEntry(inifile, "WinPosX", cfg->winposx);
@@ -195,7 +195,7 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
     cfg->keytype = pc8801::KeyboardType::kAT106;
 
   if (LoadConfigEntry(inifile, "Switches", &n, 1829))
-    cfg->dipsw = n;
+    cfg->set_dip_sw(static_cast<pc8801::Config::DipSwitch>(n));
 
   if (LoadConfigEntry(inifile, "SoundBuffer", &n, 50))
     cfg->sound_buffer_ms = Limit(n, 1000, 20);
@@ -219,12 +219,12 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
   LOADVOLUMEENTRY("VolumeSSG", 97, cfg->volssg);
   LOADVOLUMEENTRY("VolumeADPCM", VOLUME_BIAS, cfg->voladpcm);
   LOADVOLUMEENTRY("VolumeRhythm", VOLUME_BIAS, cfg->volrhythm);
-  LOADVOLUMEENTRY("VolumeBD", VOLUME_BIAS, cfg->volbd);
-  LOADVOLUMEENTRY("VolumeSD", VOLUME_BIAS, cfg->volsd);
-  LOADVOLUMEENTRY("VolumeTOP", VOLUME_BIAS, cfg->voltop);
-  LOADVOLUMEENTRY("VolumeHH", VOLUME_BIAS, cfg->volhh);
-  LOADVOLUMEENTRY("VolumeTOM", VOLUME_BIAS, cfg->voltom);
-  LOADVOLUMEENTRY("VolumeRIM", VOLUME_BIAS, cfg->volrim);
+  LOADVOLUMEENTRY("VolumeBD", VOLUME_BIAS, cfg->vol_bd_);
+  LOADVOLUMEENTRY("VolumeSD", VOLUME_BIAS, cfg->vol_sd_);
+  LOADVOLUMEENTRY("VolumeTOP", VOLUME_BIAS, cfg->vol_top_);
+  LOADVOLUMEENTRY("VolumeHH", VOLUME_BIAS, cfg->vol_hh_);
+  LOADVOLUMEENTRY("VolumeTOM", VOLUME_BIAS, cfg->vol_tom_);
+  LOADVOLUMEENTRY("VolumeRIM", VOLUME_BIAS, cfg->vol_rim_);
 
   LoadConfigEntry(inifile, "WinPosY", &cfg->winposy, 64);
   LoadConfigEntry(inifile, "WinPosX", &cfg->winposx, 64);
