@@ -7,9 +7,11 @@
 
 #include "pc88/config.h"
 
+#include <assert.h>
 #include <stdint.h>
 
 #include <memory>
+#include <mutex>
 #include <string>
 
 namespace services {
@@ -51,7 +53,11 @@ class RomLoader {
  public:
   ~RomLoader() = default;
 
-  static RomLoader* GetInstance() { return &instance_; }
+  static RomLoader* GetInstance() {
+    std::call_once(once_, Init);
+    assert(instance_);
+    return instance_;
+  }
 
   [[nodiscard]] bool IsAvailable(const pc8801::RomType type) const {
     return bool(roms_[static_cast<int>(type)]);
@@ -60,9 +66,21 @@ class RomLoader {
 
   static bool LoadFile(std::string_view filename, uint8_t* ptr, size_t size);
 
+  static const char kCompositeRomName[];
+  static const char kSubSystemRomName[];
+  static const char kFontRomName[];
+  static const char kFont80SRRomName[];
+  static const char kKanji1RomName[];
+  static const char kKanji2RomName[];
+  static const char kJisyoRomName[];
+  static const char kCDBIOSRomName[];
+  static const char kN80RomName[];
+  static const char kN80SRRomName[];
+  static const char kYMFM_ADPCM_RomName[];
+
  private:
-  RomLoader();
-  static RomLoader instance_;
+  RomLoader() = default;
+  static void Init();
 
   bool LoadRom(std::string_view filename, pc8801::RomType type, size_t size);
 
@@ -72,5 +90,8 @@ class RomLoader {
 
   std::unique_ptr<RomView> roms_[pc8801::RomType::kRomMax];
   uint32_t erom_mask_ = 0xfffffffe;
+
+  static RomLoader* instance_;
+  static std::once_flag once_;
 };
 }  // namespace services
