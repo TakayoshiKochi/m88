@@ -102,8 +102,8 @@ class WinUI {
 
   pc8801::Config& config() { return cfg_->config(); }
   pc8801::Config& config() const { return cfg_->config(); }
-  uint32_t flags() const { return config().flags; }
-  uint32_t flags2() const { return config().flag2; }
+  pc8801::Config::Flags flags() const { return config().flags(); }
+  pc8801::Config::Flag2 flags2() const { return config().flag2(); }
 
   // ウインドウ関係
   HWND hwnd_ = nullptr;

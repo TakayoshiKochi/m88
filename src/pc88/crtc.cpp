@@ -1029,8 +1029,8 @@ void CRTC::SetKanaMode(uint32_t, uint32_t data) {
 }
 
 void CRTC::ApplyConfig(const Config* cfg) {
-  kana_enable_ = cfg->basicmode == BasicMode::kN80V2;
-  EnablePCG((cfg->flags & Config::kEnablePCG) != 0);
+  kana_enable_ = cfg->basic_mode() == BasicMode::kN80V2;
+  EnablePCG((cfg->flags() & Config::kEnablePCG) != 0);
 }
 
 // ---------------------------------------------------------------------------

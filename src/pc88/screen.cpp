@@ -1433,15 +1433,15 @@ void Screen::ClearScreen(uint8_t* image, int bpl) const {
 //
 void Screen::ApplyConfig(const Config* config) {
   fv15k_ = config->IsFV15k();
-  pex_ = palextable[(config->flags & Config::kDigitalPalette) ? 1 : 0];
-  text_tp_ = (config->flags & Config::kSpecialPalette) != 0;
+  pex_ = palextable[(config->flags() & Config::kDigitalPalette) ? 1 : 0];
+  text_tp_ = (config->flags() & Config::kSpecialPalette) != 0;
   bool flp = full_line_;
-  full_line_ = (config->flags & Config::kFullline) != 0;
+  full_line_ = (config->flags() & Config::kFullline) != 0;
   if (full_line_ != flp)
     mode_changed_ = true;
   palette_changed_ = true;
-  newmode_ = config->basicmode;
-  gmask_ = (config->flag2 / Config::kMask0) & 7;
+  newmode_ = config->basic_mode();
+  gmask_ = (config->flag2() / Config::kMask0) & 7;
 }
 
 // ---------------------------------------------------------------------------

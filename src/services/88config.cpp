@@ -84,15 +84,15 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
   GetCurrentDirectory(MAX_PATH, buf);
   SaveEntry(inifile, "Directory", buf);
 
-  SaveEntry(inifile, "Flags", cfg->flags);
-  SaveEntry(inifile, "Flag2", cfg->flag2);
+  SaveEntry(inifile, "Flags", cfg->flags());
+  SaveEntry(inifile, "Flag2", cfg->flag2());
   SaveEntry(inifile, "CPUClock", cfg->legacy_clock);
   // SaveEntry(inifile, "Speed", cfg->speed);
   // Obsolete - always refresh.
   // SaveEntry(inifile, "RefreshTiming", cfg->refreshtiming);
-  SaveEntry(inifile, "BASICMode", cfg->basicmode);
+  SaveEntry(inifile, "BASICMode", cfg->basic_mode());
   SaveEntry(inifile, "Sound", cfg->sound_output_hz);
-  SaveEntry(inifile, "Switches", cfg->dipsw);
+  SaveEntry(inifile, "Switches", cfg->dip_sw());
   SaveEntry(inifile, "SoundBuffer", cfg->sound_buffer_ms);
   SaveEntry(inifile, "MouseSensibility", cfg->mousesensibility);
   SaveEntry(inifile, "CPUMode", cfg->cpumode);
@@ -109,19 +109,19 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
   SaveEntry(inifile, "VolumeSSG", cfg->volssg + VOLUME_BIAS);
   SaveEntry(inifile, "VolumeADPCM", cfg->voladpcm + VOLUME_BIAS);
   SaveEntry(inifile, "VolumeRhythm", cfg->volrhythm + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeBD", cfg->volbd + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeSD", cfg->volsd + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeTOP", cfg->voltop + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeHH", cfg->volhh + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeTOM", cfg->voltom + VOLUME_BIAS);
-  SaveEntry(inifile, "VolumeRIM", cfg->volrim + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeBD", cfg->vol_bd_ + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeSD", cfg->vol_sd_ + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeTOP", cfg->vol_top_ + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeHH", cfg->vol_hh_ + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeTOM", cfg->vol_tom_ + VOLUME_BIAS);
+  SaveEntry(inifile, "VolumeRIM", cfg->vol_rim_ + VOLUME_BIAS);
 
   SaveEntry(inifile, "WinPosY", cfg->winposy);
   SaveEntry(inifile, "WinPosX", cfg->winposx);
 
   SaveEntry(inifile, "SoundDriverType", static_cast<int>(cfg->sound_driver_type));
   SaveEntry(inifile, "PreferredASIODriver", cfg->preferred_asio_driver.c_str());
-  SaveEntry(inifile, "UsePiccolo", cfg->flag2 & pc8801::Config::kUsePiccolo);
+  SaveEntry(inifile, "UsePiccolo", cfg->flag2() & pc8801::Config::kUsePiccolo);
 }
 
 #define LOADVOLUMEENTRY(key, def, vol)        \
@@ -131,12 +131,16 @@ void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
 void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
   uint32_t u =
       pc8801::Config::kSubCPUControl | pc8801::Config::kSaveDirectory | pc8801::Config::kEnableWait;
-  LoadConfigEntryU(inifile, "Flags", &cfg->flags, u);
-  cfg->flags &= ~pc8801::Config::kSpecialPalette;
+  uint32_t flags = 0;
+  LoadConfigEntryU(inifile, "Flags", &flags, u);
+  cfg->set_flags_value(static_cast<pc8801::Config::Flags>(flags));
+  cfg->clear_flags(pc8801::Config::kSpecialPalette);
 
   u = 0;
-  LoadConfigEntryU(inifile, "Flag2", &cfg->flag2, u);
-  cfg->flag2 &= ~(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
+  flags = 0;
+  LoadConfigEntryU(inifile, "Flag2", &flags, u);
+  cfg->set_flag2_value(static_cast<pc8801::Config::Flag2>(flags));
+  cfg->clear_flag2(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
 
   int n = 0;
   if (LoadConfigEntry(inifile, "CPUClock", &n, 40))
@@ -156,9 +160,9 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
         bm == pc8801::BasicMode::kN88V1H || bm == pc8801::BasicMode::kN88V2 ||
         bm == pc8801::BasicMode::kN802 || bm == pc8801::BasicMode::kN80V2 ||
         bm == pc8801::BasicMode::kN88V2CD)
-      cfg->basicmode = bm;
+      cfg->set_basic_mode(bm);
     else
-      cfg->basicmode = pc8801::BasicMode::kN88V2;
+      cfg->set_basic_mode(pc8801::BasicMode::kN88V2);
   }
 
   if (LoadConfigEntry(inifile, "SoundDriverType", &n, 0)) {
@@ -191,7 +195,7 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
     cfg->keytype = pc8801::KeyboardType::kAT106;
 
   if (LoadConfigEntry(inifile, "Switches", &n, 1829))
-    cfg->dipsw = n;
+    cfg->set_dip_sw(static_cast<pc8801::Config::DipSwitch>(n));
 
   if (LoadConfigEntry(inifile, "SoundBuffer", &n, 50))
     cfg->sound_buffer_ms = Limit(n, 1000, 20);
@@ -215,20 +219,20 @@ void LoadConfig(pc8801::Config* cfg, const std::string_view inifile) {
   LOADVOLUMEENTRY("VolumeSSG", 97, cfg->volssg);
   LOADVOLUMEENTRY("VolumeADPCM", VOLUME_BIAS, cfg->voladpcm);
   LOADVOLUMEENTRY("VolumeRhythm", VOLUME_BIAS, cfg->volrhythm);
-  LOADVOLUMEENTRY("VolumeBD", VOLUME_BIAS, cfg->volbd);
-  LOADVOLUMEENTRY("VolumeSD", VOLUME_BIAS, cfg->volsd);
-  LOADVOLUMEENTRY("VolumeTOP", VOLUME_BIAS, cfg->voltop);
-  LOADVOLUMEENTRY("VolumeHH", VOLUME_BIAS, cfg->volhh);
-  LOADVOLUMEENTRY("VolumeTOM", VOLUME_BIAS, cfg->voltom);
-  LOADVOLUMEENTRY("VolumeRIM", VOLUME_BIAS, cfg->volrim);
+  LOADVOLUMEENTRY("VolumeBD", VOLUME_BIAS, cfg->vol_bd_);
+  LOADVOLUMEENTRY("VolumeSD", VOLUME_BIAS, cfg->vol_sd_);
+  LOADVOLUMEENTRY("VolumeTOP", VOLUME_BIAS, cfg->vol_top_);
+  LOADVOLUMEENTRY("VolumeHH", VOLUME_BIAS, cfg->vol_hh_);
+  LOADVOLUMEENTRY("VolumeTOM", VOLUME_BIAS, cfg->vol_tom_);
+  LOADVOLUMEENTRY("VolumeRIM", VOLUME_BIAS, cfg->vol_rim_);
 
   LoadConfigEntry(inifile, "WinPosY", &cfg->winposy, 64);
   LoadConfigEntry(inifile, "WinPosX", &cfg->winposx, 64);
 
-  cfg->flag2 &= ~pc8801::Config::kUsePiccolo;
+  cfg->clear_flag2(pc8801::Config::kUsePiccolo);
   if (LoadConfigEntry(inifile, "UsePiccolo", &n, 0)) {
     if (n)
-      cfg->flag2 |= pc8801::Config::kUsePiccolo;
+      cfg->set_flag2(pc8801::Config::kUsePiccolo);
   }
 }
 }  // namespace
@@ -249,7 +253,7 @@ void ConfigService::Save() {
 }
 
 void ConfigService::LoadConfigDirectory(const char* entry, bool readalways) {
-  if (readalways || (config_.flags & pc8801::Config::kSaveDirectory)) {
+  if (readalways || (config_.flags() & pc8801::Config::kSaveDirectory)) {
     char path[MAX_PATH];
     if (GetPrivateProfileString(AppName, entry, ";", path, MAX_PATH, m88ini)) {
       if (path[0] != ';')

@@ -1003,7 +1003,7 @@ void Memory::Out40(uint32_t, uint32_t data) {
 //  設定反映
 //
 void Memory::ApplyConfig(const Config* cfg) {
-  enablewait = (cfg->flags & Config::kEnableWait) != 0;
+  enablewait = (cfg->flags() & Config::kEnableWait) != 0;
   neweram = cfg->erambanks;
   if (enablewait)
     SetWait();

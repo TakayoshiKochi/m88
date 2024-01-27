@@ -156,7 +156,7 @@ void WinSound::ApplyConfig(const pc8801::Config* config) {
   preferred_asio_driver_ = config->preferred_asio_driver;
   ChangeRate(config->sound_output_hz, config->sound_buffer_ms, config->sound_driver_type);
   if (driver_) {
-    driver_->MixAlways(0 != (config->flags & pc8801::Config::kMixSoundAlways));
+    driver_->MixAlways(0 != (config->flags() & pc8801::Config::kMixSoundAlways));
     if (!config->preferred_asio_driver.empty())
       driver_->SetDriverName(config->preferred_asio_driver);
   }

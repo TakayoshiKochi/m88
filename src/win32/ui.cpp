@@ -378,9 +378,10 @@ void WinUI::Pause() {
 void WinUI::ApplyConfig() {
   config().mainsubratio =
       (config().legacy_clock >= 60 || (flags() & pc8801::Config::kFullSpeed)) ? 2 : 1;
-  if (config().dipsw != 1) {
-    config().flags &= ~pc8801::Config::kSpecialPalette;
-    config().flag2 &= ~(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
+  // TODO: Figure out why dip_sw is compared against 1.  See also other places in this file.
+  if (config().dip_sw() != 1) {
+    config().clear_flags(pc8801::Config::kSpecialPalette);
+    config().clear_flag2(pc8801::Config::kMask0 | pc8801::Config::kMask1 | pc8801::Config::kMask2);
   }
 
   keyif_.ApplyConfig(&config());
@@ -396,7 +397,7 @@ void WinUI::ApplyConfig() {
   SetMenuItemInfo(GetMenu(hwnd_), IDM_RESET, false, &mii);
   ShowStatusWindow();
 
-  if (config().dipsw == 1) {
+  if (config().dip_sw() == 1) {
     if (!hmenudbg_) {
       hmenudbg_ = LoadMenu(hinst_, MAKEINTRESOURCE(IDR_MENU_DEBUG));
 
@@ -456,7 +457,7 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
       switch (cmdline[-1]) {
         // BASIC モードを設定  -bモード番号
         case 'b':
-          config().basicmode = pc8801::BasicMode(strtoul(cmdline, &endptr, 16));
+          config().set_basic_mode(pc8801::BasicMode(strtoul(cmdline, &endptr, 16)));
           cmdline = endptr;
           break;
 
@@ -479,7 +480,9 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
             activate = strtoul(endptr + 1, &endptr, 16);
           }
           cmdline = endptr;
-          config().flags = (flags() & ~activate) | (newflags & activate);
+          config().set_flags_value(flags() & static_cast<pc8801::Config::Flags>(~activate) |
+                                   (static_cast<pc8801::Config::Flags>(newflags) &
+                                    static_cast<pc8801::Config::Flags>(activate)));
           break;
 
         // flag2 の値を設定  -g値,有効ビット
@@ -490,7 +493,9 @@ void WinUI::ApplyCommandLine(const char* cmdline) {
             activate = strtoul(endptr + 1, &endptr, 16);
           }
           cmdline = endptr;
-          config().flag2 = (flags2() & ~activate) | (newflags & activate);
+          config().set_flag2_value((flags2() & static_cast<pc8801::Config::Flag2>(~activate)) |
+                                   (static_cast<pc8801::Config::Flag2>(newflags) &
+                                    static_cast<pc8801::Config::Flag2>(activate)));
           break;
       }
 
@@ -1226,9 +1231,9 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_CPU_BURST:
-      config().flags ^= pc8801::Config::kCPUBurst;
+      config().toggle_flags(pc8801::Config::kCPUBurst);
       if (flags() & pc8801::Config::kCPUBurst)
-        config().flags &= ~pc8801::Config::kFullSpeed;
+        config().clear_flags(pc8801::Config::kFullSpeed);
       ApplyConfig();
       break;
 
@@ -1243,37 +1248,37 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_N88V1:
-      config().basicmode = pc8801::BasicMode::kN88V1;
+      config().set_basic_mode(pc8801::BasicMode::kN88V1);
       Reset();
       break;
 
     case IDM_N88V1H:
-      config().basicmode = pc8801::BasicMode::kN88V1H;
+      config().set_basic_mode(pc8801::BasicMode::kN88V1H);
       Reset();
       break;
 
     case IDM_N88V2:
-      config().basicmode = pc8801::BasicMode::kN88V2;
+      config().set_basic_mode(pc8801::BasicMode::kN88V2);
       Reset();
       break;
 
     case IDM_N88V2CD:
-      config().basicmode = pc8801::BasicMode::kN88V2CD;
+      config().set_basic_mode(pc8801::BasicMode::kN88V2CD);
       Reset();
       break;
 
     case IDM_NMODE:
-      config().basicmode = pc8801::BasicMode::kN80;
+      config().set_basic_mode(pc8801::BasicMode::kN80);
       Reset();
       break;
 
     case IDM_N80MODE:
-      config().basicmode = pc8801::BasicMode::kN802;
+      config().set_basic_mode(pc8801::BasicMode::kN802);
       Reset();
       break;
 
     case IDM_N80V2MODE:
-      config().basicmode = pc8801::BasicMode::kN80V2;
+      config().set_basic_mode(pc8801::BasicMode::kN80V2);
       Reset();
       break;
 
@@ -1325,38 +1330,38 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_KEY_CURSOR:
-      keyif_.CursorForTen() ? config().flags &= ~pc8801::Config::kUseArrowFor10
-                            : config().flags |= pc8801::Config::kUseArrowFor10;
+      keyif_.CursorForTen() ? config().clear_flags(pc8801::Config::kUseArrowFor10)
+                            : config().set_flags(pc8801::Config::kUseArrowFor10);
       keyif_.UseCursorForTen(!keyif_.CursorForTen());
       break;
 
     case IDM_DEBUG_TEXT:
-      config().flags ^= pc8801::Config::kSpecialPalette;
+      config().toggle_flags(pc8801::Config::kSpecialPalette);
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM0:
-      config().flag2 ^= pc8801::Config::kMask0;
+      config().toggle_flag2(pc8801::Config::kMask0);
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM1:
-      config().flag2 ^= pc8801::Config::kMask1;
+      config().toggle_flag2(pc8801::Config::kMask1);
       ApplyConfig();
       break;
 
     case IDM_DEBUG_GVRAM2:
-      config().flag2 ^= pc8801::Config::kMask2;
+      config().toggle_flag2(pc8801::Config::kMask2);
       ApplyConfig();
       break;
 
     case IDM_STATUSBAR:
-      config().flags ^= pc8801::Config::kShowStatusBar;
+      config().toggle_flags(pc8801::Config::kShowStatusBar);
       ShowStatusWindow();
       break;
 
     case IDM_FDC_STATUS:
-      config().flags ^= pc8801::Config::kShowFDCStatus;
+      config().toggle_flags(pc8801::Config::kShowFDCStatus);
       ApplyConfig();
       break;
 
@@ -1385,7 +1390,7 @@ LRESULT WinUI::WmCommand(HWND hwnd, WPARAM wparam, LPARAM) {
       break;
 
     case IDM_WATCHREGISTER:
-      config().flags &= ~pc8801::Config::kWatchRegister;
+      config().clear_flags(pc8801::Config::kWatchRegister);
       reg_mon_.Show(hinst_, hwnd, !reg_mon_.IsOpen());
       break;
 
@@ -1700,23 +1705,23 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   CheckMenuItem(hmenu_, IDM_4MHZ, (config().legacy_clock == 40) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_8MHZ, (config().legacy_clock == 80) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V1,
-                (config().basicmode == pc8801::BasicMode::kN88V1) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN88V1) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V1H,
-                (config().basicmode == pc8801::BasicMode::kN88V1H) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN88V1H) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N88V2,
-                (config().basicmode == pc8801::BasicMode::kN88V2) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN88V2) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_NMODE,
-                (config().basicmode == pc8801::BasicMode::kN80) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN80) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_N80MODE,
-                (config().basicmode == pc8801::BasicMode::kN802) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN802) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_N80MODE, core_.GetPC88()->IsN80Supported() ? MF_ENABLED : MF_GRAYED);
   CheckMenuItem(hmenu_, IDM_N80V2MODE,
-                (config().basicmode == pc8801::BasicMode::kN80V2) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN80V2) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_N80V2MODE,
                  core_.GetPC88()->IsN80V2Supported() ? MF_ENABLED : MF_GRAYED);
 
   CheckMenuItem(hmenu_, IDM_N88V2CD,
-                (config().basicmode == pc8801::BasicMode::kN88V2CD) ? MF_CHECKED : MF_UNCHECKED);
+                (config().basic_mode() == pc8801::BasicMode::kN88V2CD) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_N88V2CD, core_.GetPC88()->IsCDSupported() ? MF_ENABLED : MF_GRAYED);
 
   CheckMenuItem(hmenu_, IDM_CPU_BURST,
@@ -1729,7 +1734,7 @@ LRESULT WinUI::WmInitMenu(HWND, WPARAM wp, LPARAM) {
   CheckMenuItem(hmenu_, IDM_KEY_CURSOR, keyif_.CursorForTen() ? MF_CHECKED : MF_UNCHECKED);
 
   CheckMenuItem(hmenu_, IDM_WATCHREGISTER,
-                (config().dipsw != 1 && reg_mon_.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
+                (config().dip_sw() != 1 && reg_mon_.IsOpen()) ? MF_CHECKED : MF_UNCHECKED);
   CheckMenuItem(hmenu_, IDM_STATUSBAR,
                 (flags() & pc8801::Config::kShowStatusBar) ? MF_CHECKED : MF_UNCHECKED);
   EnableMenuItem(hmenu_, IDM_STATUSBAR, fullscreen_ ? MF_GRAYED : MF_ENABLED);

@@ -34,9 +34,9 @@ bool Base::Init(PC88* pc88) {
 //  スイッチ更新
 //
 void Base::SetSwitch(const Config* cfg) {
-  basic_mode_ = cfg->basicmode;
+  basic_mode_ = cfg->basic_mode();
   clock_ = cfg->legacy_clock;
-  dipsw_ = cfg->dipsw;
+  dip_sw_ = cfg->dip_sw();
   //  flags_ = cfg->flags;
   fv15k_ = cfg->IsFV15k();
 }
@@ -45,16 +45,16 @@ void Base::SetSwitch(const Config* cfg) {
 //  りせっと
 //
 void Base::Reset(uint32_t, uint32_t) {
-  port40_ = 0xc0 + (fv15k_ ? 2 : 0) + ((dipsw_ & (1 << 11)) || !autoboot_ ? 8 : 0);
+  port40_ = 0xc0 + (fv15k_ ? 2 : 0) + (dip_sw_ & Config::kBootFromFDDisabled || !autoboot_ ? 8 : 0);
   sw6e_ = (sw6e_ & 0x7f) | ((!clock_ || abs(clock_) >= 60) ? 0 : 0x80);
   auto basic_mode = static_cast<uint32_t>(basic_mode_);
-  sw31_ = ((dipsw_ >> 5) & 0x3f) | (basic_mode & 1 ? 0x40 : 0) | (basic_mode & 0x10 ? 0 : 0x80);
+  sw31_ = ((dip_sw_ >> 5) & 0x3f) | (basic_mode & 1 ? 0x40 : 0) | (basic_mode & 0x10 ? 0 : 0x80);
 
   if (basic_mode & 2) {
     //  N80モードのときもDipSWを返すようにする(Xanadu対策)
     sw30_ = ~((basic_mode & 0x10) >> 3);
   } else {
-    sw30_ = 0xc0 | ((dipsw_ << 1) & 0x3e) | (basic_mode & 0x22 ? 1 : 0);
+    sw30_ = 0xc0 | ((dip_sw_ << 1) & 0x3e) | (basic_mode & 0x22 ? 1 : 0);
   }
 
   const char* mode;
