@@ -9,6 +9,7 @@
 #pragma once
 
 #include "common/device.h"
+#include "common/enum_bitmask.h"
 
 class IOBus;
 class Scheduler;
@@ -18,12 +19,12 @@ namespace pc8801 {
 class SIO : public Device {
  public:
   enum {
-    reset = 0,
-    setcontrol,
-    setdata,
-    acceptdata,
-    getstatus = 0,
-    getdata,
+    kReset = 0,
+    kSetControl,
+    kSetData,
+    kAcceptData,
+    kGetStatus = 0,
+    kGetData,
   };
 
  public:
@@ -46,26 +47,9 @@ class SIO : public Device {
   bool IFCALL LoadStatus(const uint8_t* s) override;
 
  private:
-  enum class Mode { kClear = 0, kAsync, kSync1, kSync2, kSync };
-  enum class Parity { kNone = 'N', kOdd = 'O', kEven = 'E' };
-
-  IOBus* bus_;
-  uint32_t prxrdy;
-  uint32_t prequest;
-
-  uint32_t baseclock;
-  uint32_t clock;
-  uint32_t datalen;
-  uint32_t stop;
-  uint32_t status;
-  uint32_t data;
-  Mode mode;
-  Parity parity;
-  bool rxen;
-  bool txen;
-
- private:
-  enum {
+  enum class Mode : uint8_t { kClear = 0, kAsync, kSync1, kSync2, kSync };
+  enum class Parity : uint8_t { kNone = 'N', kOdd = 'O', kEven = 'E' };
+  enum PortStatus : uint32_t {
     TXRDY = 0x01,
     RXRDY = 0x02,
     TXE = 0x04,
@@ -73,10 +57,9 @@ class SIO : public Device {
     OE = 0x10,
     FE = 0x20,
     SYNDET = 0x40,
-    DSR = 0x80,
-
-    ssrev = 1,
+    DSR = 0x80
   };
+  static constexpr uint8_t ssrev = 1;
   struct Status {
     uint8_t rev;
     bool rxen;
@@ -92,7 +75,21 @@ class SIO : public Device {
     Parity parity;
   };
 
- private:
+  IOBus* bus_ = nullptr;
+  uint32_t prxrdy_ = 0;
+  uint32_t prequest_ = 0;
+
+  uint32_t base_clock_ = 0;
+  uint32_t clock_ = 0;
+  uint32_t data_len_ = 0;
+  uint32_t stop_ = 0;
+  PortStatus status_ = static_cast<PortStatus>(0);
+  uint32_t data_ = 0;
+  Mode mode_ = Mode::kClear;
+  Parity parity_ = Parity::kNone;
+  bool rx_enable_ = false;
+  bool tx_enable_ = false;
+
   static const Descriptor descriptor;
   static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];

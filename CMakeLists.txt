@@ -45,6 +45,7 @@ add_library(common ${LIB_TYPE}
         src/common/draw.h
         src/common/emulation_loop.h
         src/common/emulation_loop.cpp
+        src/common/enum_bitmask.h
         src/common/error.h
         src/common/error.cpp
         src/common/file.h
