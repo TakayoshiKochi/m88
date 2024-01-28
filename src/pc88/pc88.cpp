@@ -428,12 +428,12 @@ bool PC88::ConnectDevices() {
   if (!subsys_ || !main_iobus_.Connect(subsys_.get(), c_subsys))
     return false;
 
-  static const IOBus::Connector c_sio[] = {{kPReset, IOBus::portout, SIO::reset},
-                                           {0x20, IOBus::portout, SIO::setdata},
-                                           {0x21, IOBus::portout, SIO::setcontrol},
-                                           {kPSIOin, IOBus::portout, SIO::acceptdata},
-                                           {0x20, IOBus::portin, SIO::getdata},
-                                           {0x21, IOBus::portin, SIO::getstatus},
+  static const IOBus::Connector c_sio[] = {{kPReset, IOBus::portout, SIO::kReset},
+                                           {0x20, IOBus::portout, SIO::kSetData},
+                                           {0x21, IOBus::portout, SIO::kSetControl},
+                                           {kPSIOin, IOBus::portout, SIO::kAcceptData},
+                                           {0x20, IOBus::portin, SIO::kGetData},
+                                           {0x21, IOBus::portin, SIO::kGetStatus},
                                            {0, 0, 0}};
   sio_tape_ = std::make_unique<pc8801::SIO>(DEV_ID('S', 'I', 'O', ' '));
   if (!sio_tape_ || !main_iobus_.Connect(sio_tape_.get(), c_sio))
@@ -501,12 +501,12 @@ bool PC88::ConnectDevices() {
   if (!main_iobus_.Connect(beep_.get(), c_beep))
     return false;
 
-  static const IOBus::Connector c_siom[] = {{kPReset, IOBus::portout, SIO::reset},
-                                            {0xc2, IOBus::portout, SIO::setdata},
-                                            {0xc3, IOBus::portout, SIO::setcontrol},
-                                            {0, IOBus::portout, SIO::acceptdata},
-                                            {0xc2, IOBus::portin, SIO::getdata},
-                                            {0xc3, IOBus::portin, SIO::getstatus},
+  static const IOBus::Connector c_siom[] = {{kPReset, IOBus::portout, SIO::kReset},
+                                            {0xc2, IOBus::portout, SIO::kSetData},
+                                            {0xc3, IOBus::portout, SIO::kSetControl},
+                                            {0, IOBus::portout, SIO::kAcceptData},
+                                            {0xc2, IOBus::portin, SIO::kGetData},
+                                            {0xc3, IOBus::portin, SIO::kGetStatus},
                                             {0, 0, 0}};
   sio_midi_ = std::make_unique<pc8801::SIO>(DEV_ID('S', 'I', 'O', 'M'));
   if (!sio_midi_ || !main_iobus_.Connect(sio_midi_.get(), c_siom))

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "common/enum_bitmask.h"
+
 #include <stdint.h>
 #include <string>
 
@@ -55,43 +57,6 @@ enum BasicMode : uint8_t {
   kN88V2 = 0x31,
   kN88V2CD = 0x71,
 };
-
-// typed bitmask flags pattern - see
-// https://walbourn.github.io/modern-c++-bitmask-types/
-template <typename T>
-constexpr T operator~(T a) {
-  return static_cast<T>(~static_cast<std::underlying_type<T>::type>(a));
-}
-template <typename T>
-constexpr T operator|(T a, T b) {
-  return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) |
-                        static_cast<std::underlying_type<T>::type>(b));
-}
-template <typename T>
-constexpr T operator&(T a, T b) {
-  return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) &
-                        static_cast<std::underlying_type<T>::type>(b));
-}
-template <typename T>
-constexpr T operator^(T a, T b) {
-  return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) ^
-                        static_cast<std::underlying_type<T>::type>(b));
-}
-template <typename T>
-constexpr T& operator|=(T& a, T b) {
-  return reinterpret_cast<T&>(reinterpret_cast<std::underlying_type<T>::type&>(a) |=
-                              static_cast<std::underlying_type<T>::type>(b));
-}
-template <typename T>
-constexpr T& operator&=(T& a, T b) {
-  return reinterpret_cast<T&>(reinterpret_cast<std::underlying_type<T>::type&>(a) &=
-                              static_cast<std::underlying_type<T>::type>(b));
-}
-template <typename T>
-constexpr T& operator^=(T& a, T b) {
-  return reinterpret_cast<T&>(reinterpret_cast<std::underlying_type<T>::type&>(a) ^=
-                              static_cast<std::underlying_type<T>::type>(b));
-}
 
 // Note: kPC98 is not supported anymore.
 enum KeyboardType : uint32_t { kAT106 = 0, kPC98_obsolete = 1, kAT101 = 2 };
