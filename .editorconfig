@@ -5,6 +5,7 @@ end_of_line = lf
 
 [*.{sln,vcxproj,vcxproj.filters}]
 insert_final_newline = true
+end_of_line = crlf
 
 [CMakeLists.txt]
 insert_final_newline = true
