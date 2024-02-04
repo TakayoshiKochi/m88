@@ -68,8 +68,8 @@ bool TapeManager::Open(const std::string_view file) {
     tags_.emplace_back(Tag());
     tags_.back().id = hdr.id;
     tags_.back().length = hdr.length;
-    tags_.back().data = new uint8_t[hdr.length];  // std::make_unique<uint8_t[]>(hdr.length);
-    fio.Read(tags_.back().data, hdr.length);
+    tags_.back().data = std::make_unique<uint8_t[]>(hdr.length);
+    fio.Read(tags_.back().data.get(), hdr.length);
   } while (tags_.back().id);
 
   return Rewind();
@@ -96,7 +96,7 @@ bool TapeManager::Rewind(bool timer) {
     // バージョン確認
     // 最初のタグはバージョンタグになるはず？
     if (tags_[pos_].id != T_VERSION || tags_[pos_].length < 2 ||
-        *(uint16_t*)(tags_[pos_].data) != T88VER)
+        *(uint16_t*)(tags_[pos_].data.get()) != T88VER)
       return false;
 
     ++pos_;
@@ -159,7 +159,7 @@ void TapeManager::Proceed(const bool timer) {
       case T_BLANK:
       case T_SPACE:
       case T_MARK: {
-        const auto* t = reinterpret_cast<BlankTag*>(tags_[pos_].data);
+        const auto* t = reinterpret_cast<BlankTag*>(tags_[pos_].data.get());
         mode_ = static_cast<Mode>(tags_[pos_].id);
 
         if (t->pos + t->tick - tick_ <= 0)
@@ -175,7 +175,7 @@ void TapeManager::Proceed(const bool timer) {
       }
 
       case T_DATA: {
-        auto* t = reinterpret_cast<DataTag*>(tags_[pos_].data);
+        auto* t = reinterpret_cast<DataTag*>(tags_[pos_].data.get());
         mode_ = T_DATA;
 
         data_ = t->data;

@@ -9,6 +9,7 @@
 #include "common/device.h"
 #include "common/scheduler.h"
 
+#include <memory>
 #include <string_view>
 #include <vector>
 
@@ -74,7 +75,7 @@ class TapeManager : public Device {
   struct Tag {
     uint16_t id;
     uint16_t length;
-    uint8_t* data;
+    std::unique_ptr<uint8_t[]> data;
   };
 
   struct BlankTag {
