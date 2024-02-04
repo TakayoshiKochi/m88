@@ -27,6 +27,10 @@ class FileIO {
 
   enum Error { kSuccess = 0, kFileNotFound, kSharingViolation, kUnknown = -1 };
 
+  // https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation
+  // On Windows, MAX_PATH is 260 characters.
+  static constexpr uint32_t kMaxPathLen = 256;
+
   FileIO() = default;
   ~FileIO() { Close(); }
 

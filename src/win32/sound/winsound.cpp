@@ -8,6 +8,7 @@
 
 #include <algorithm>
 
+#include "common/file.h"
 #include "pc88/config.h"
 #include "win32/monitor/soundmon.h"
 #include "win32/sound/sound_asio.h"
@@ -192,7 +193,7 @@ bool SoundDumpPipe::DumpStart(char* filename) {
   if (hmmio_)
     return false;
 
-  TCHAR path[MAX_PATH];
+  TCHAR path[FileIO::kMaxPathLen];
   LPTSTR filepart;
   GetFullPathName(filename, sizeof(path), path, &filepart);
   dumpfile_ = path;

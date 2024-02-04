@@ -25,8 +25,8 @@ bool SanityCheck(uint32_t* pcrc) {
   uint32_t crctag = 0;
 
 #ifdef _WIN32
-  char buf[MAX_PATH];
-  GetModuleFileName(nullptr, buf, MAX_PATH);
+  char buf[FileIO::kMaxPathLen];
+  GetModuleFileName(nullptr, buf, FileIO::kMaxPathLen);
   Error::SetError(Error::InsaneModule);
 
   FileIO fio;

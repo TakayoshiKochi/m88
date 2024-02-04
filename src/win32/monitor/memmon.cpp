@@ -324,7 +324,7 @@ bool MemoryMonitor::SaveImage() {
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.FlagsEx = OFN_EX_NOPLACESBAR;
 
-  char filename[MAX_PATH];
+  char filename[FileIO::kMaxPathLen];
   filename[0] = 0;
 
   ofn.hwndOwner = GetHWnd();
@@ -332,7 +332,7 @@ bool MemoryMonitor::SaveImage() {
       "binary image (*.bin)\0*.bin\0"
       "All Files (*.*)\0*.*\0";
   ofn.lpstrFile = filename;
-  ofn.nMaxFile = MAX_PATH;
+  ofn.nMaxFile = FileIO::kMaxPathLen;
   ofn.Flags = OFN_CREATEPROMPT;
   ofn.lpstrDefExt = "bin";
   ofn.lpstrTitle = "Save Image";

@@ -11,6 +11,8 @@
 #include <windows.h>
 #include <commctrl.h>
 
+#include "common/file.h"
+
 // #define LOGNAME "status"
 #include "common/diag.h"
 
@@ -167,13 +169,13 @@ void StatusBarWin::Update() {
 
       // TODO: Remove this UTF-8 to Shift_JIS conversion
       {
-        wchar_t msgutf16[MAX_PATH];
-        char charbuf[MAX_PATH];
+        wchar_t msgutf16[FileIO::kMaxPathLen];
+        char charbuf[FileIO::kMaxPathLen];
         int len_utf16 =
             MultiByteToWideChar(CP_UTF8, 0, entry->msg.data(), entry->msg.size() + 1, nullptr, 0);
         if (len_utf16 <= sizeof(msgutf16) / sizeof(msgutf16[0])) {
           MultiByteToWideChar(CP_UTF8, 0, entry->msg.data(), entry->msg.size() + 1, msgutf16,
-                              MAX_PATH);
+                              FileIO::kMaxPathLen);
           ::WideCharToMultiByte(932, 0, msgutf16, len_utf16, charbuf, 128, nullptr, nullptr);
         }
         memcpy(buf_, charbuf, 128);
