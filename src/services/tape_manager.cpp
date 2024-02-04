@@ -113,7 +113,7 @@ bool TapeManager::Motor(bool on) {
     time_ = scheduler_->GetTimeNS();
     if (timer_remain_)
       event_ = scheduler_->AddEventNS(timer_count_ * kNanoSecsPerSioTick, this,
-                                      static_cast<TimeFunc>(&TapeManager::Timer), 0, false);
+                                      static_cast<TimeFunc>(&TapeManager::Timer), 1, false);
     motor_ = true;
   } else {
     if (timer_count_) {
