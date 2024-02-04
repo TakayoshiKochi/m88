@@ -10,6 +10,7 @@
 #include "common/scheduler.h"
 
 #include <string_view>
+#include <vector>
 
 class IOBus;
 
@@ -31,13 +32,13 @@ class TapeManager : public Device {
   bool Close();
   bool Rewind(bool timer = true);
 
-  bool IsOpen() { return tags_ != nullptr; }
+  [[nodiscard]] bool IsOpen() const { return !tags_.empty(); }
 
   bool Motor(bool on);
-  bool Carrier();
+  [[nodiscard]] bool Carrier() const;
 
   bool Seek(uint32_t pos, uint32_t offset);
-  uint32_t GetPos();
+  [[nodiscard]] uint32_t GetPos() const;
 
   // uint32_t ReadByte();
   void IOCALL RequestData(uint32_t = 0, uint32_t = 0);
@@ -56,7 +57,7 @@ class TapeManager : public Device {
     T88VER = 0x100,
     ssrev = 1,
   };
-  enum Mode {
+  enum Mode : uint16_t {
     T_END = 0,
     T_VERSION = 1,
     T_BLANK = 0x100,
@@ -64,21 +65,23 @@ class TapeManager : public Device {
     T_SPACE = 0x102,
     T_MARK = 0x103,
   };
+
   struct TagHdr {
     uint16_t id;
     uint16_t length;
   };
+
   struct Tag {
-    Tag* next;
-    Tag* prev;
     uint16_t id;
     uint16_t length;
-    uint8_t data[1];
+    uint8_t* data;
   };
+
   struct BlankTag {
     uint32_t pos;
     uint32_t tick;
   };
+
   struct DataTag {
     uint32_t pos;
     uint32_t tick;
@@ -86,6 +89,7 @@ class TapeManager : public Device {
     uint16_t type;
     uint8_t data[1];
   };
+
   struct Status {
     uint8_t rev;
     bool motor;
@@ -95,17 +99,20 @@ class TapeManager : public Device {
 
   void Proceed(bool timer = true);
   void IOCALL Timer(uint32_t = 0);
-  void Send(uint32_t);
-  void SetTimer(int t);
+  void Send(uint32_t byte);
+  void SetTimer(int count);
 
   Scheduler* scheduler_ = nullptr;
   SchedulerEvent* event_ = nullptr;
-  Tag* tags_ = nullptr;
-  Tag* pos_ = nullptr;
+
+  std::vector<Tag> tags_;
+  int pos_ = 0;
+
   int offset_ = 0;
+  // tick_ : count of 4800Hz
   uint32_t tick_ = 0;
   Mode mode_ = T_BLANK;
-  uint32_t time_ = 0;  // motor on: タイマー開始時間
+  uint64_t time_ = 0;  // motor on: タイマー開始時間
   uint32_t timer_count_ = 0;
   uint32_t timer_remain_ = 0;  // タイマー残り
   bool motor_ = false;
@@ -117,7 +124,6 @@ class TapeManager : public Device {
   int data_size_ = 0;
   int data_type_ = 0;
 
- private:
   static const Descriptor descriptor;
   static const InFuncPtr indef[];
   static const OutFuncPtr outdef[];

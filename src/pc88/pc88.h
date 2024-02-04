@@ -156,14 +156,14 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
     kPint6,
     // FDD interrupt (~FDINT2)
     kPint7,
-    kPReset,   // reset
-    kPIRQ,     // IRQ (for CPU)
-    kPIAck,    // interrupt acknowledgement
-    kVrtc,     // vertical retrace
-    kPOPNio1,  // OPN の入出力ポート 1
-    kPOPNio2,  // OPN の入出力ポート 2 (連番)
-    kPSIOin,   // SIO 関係
-    kPSIOReq,
+    kPReset,     // reset
+    kPIRQ,       // IRQ (for CPU)
+    kPIAck,      // interrupt acknowledgement
+    kVrtc,       // vertical retrace
+    kPOPNio1,    // OPN の入出力ポート 1
+    kPOPNio2,    // OPN の入出力ポート 2 (連番)
+    kPSIOin,     // SIO 関係
+    kPSIOReq,    // Tape data in
     kPTimeSync,  // time sync between cpu and opn
     kPortEnd
   };
