@@ -152,18 +152,18 @@ add_library(pc88shell ${LIB_TYPE}
         src/services/88config.cpp
         src/services/disk_image_holder.h
         src/services/disk_image_holder.cpp
-        src/services/diskmgr.h
-        src/services/diskmgr.cpp
+        src/services/disk_manager.h
+        src/services/disk_manager.cpp
         src/services/ioview.h
         src/services/ioview.cpp
         src/services/memview.h
         src/services/memview.cpp
         src/services/power_management.h
         src/services/power_management.cpp
-        src/services/rom_loader.cpp
         src/services/rom_loader.h
-        src/services/tapemgr.h
-        src/services/tapemgr.cpp)
+        src/services/rom_loader.cpp
+        src/services/tape_manager.h
+        src/services/tape_manager.cpp)
 
 target_include_directories(pc88shell
         PUBLIC ${CMAKE_SOURCE_DIR}/src

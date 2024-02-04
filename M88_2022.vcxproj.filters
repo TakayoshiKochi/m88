@@ -291,7 +291,7 @@
     <ClCompile Include="src\common\png_codec.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="src\services\diskmgr.cpp">
+    <ClCompile Include="src\services\disk_manager.cpp">
       <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="src\services\ioview.cpp">
@@ -300,7 +300,7 @@
     <ClCompile Include="src\services\memview.cpp">
       <Filter>services</Filter>
     </ClCompile>
-    <ClCompile Include="src\services\tapemgr.cpp">
+    <ClCompile Include="src\services\tape_manager.cpp">
       <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="src\common\floppy.cpp">
@@ -701,7 +701,7 @@
     <ClInclude Include="src\common\png_codec.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\services\diskmgr.h">
+    <ClInclude Include="src\services\disk_manager.h">
       <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="src\services\ioview.h">
@@ -710,7 +710,7 @@
     <ClInclude Include="src\services\memview.h">
       <Filter>services</Filter>
     </ClInclude>
-    <ClInclude Include="src\services\tapemgr.h">
+    <ClInclude Include="src\services\tape_manager.h">
       <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="src\common\floppy.h">

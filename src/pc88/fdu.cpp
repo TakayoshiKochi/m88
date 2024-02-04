@@ -9,12 +9,12 @@
 #include <algorithm>
 
 #include "pc88/fdc.h"
-#include "services/diskmgr.h"
+#include "services/disk_manager.h"
 
 namespace pc8801 {
 FDU::FDU() {
   disk_ = nullptr;
-  cyrinder = 0;
+  cylinder_ = 0;
 }
 
 FDU::~FDU() {
@@ -22,9 +22,9 @@ FDU::~FDU() {
     Unmount();
 }
 
-bool FDU::Init(services::DiskManager* dm, int dr) {
-  diskmgr_ = dm;
-  drive = dr;
+bool FDU::Init(services::DiskManager* dm, int drive) {
+  disk_manager_ = dm;
+  drive_ = drive;
   return true;
 }
 
@@ -52,9 +52,9 @@ bool FDU::Unmount() {
 //  ヘッドの指定
 //
 inline void FDU::SetHead(uint32_t hd) {
-  head = hd & 1;
-  track = (cyrinder << 1) + (hd & 1);
-  disk_->Seek(track);
+  head_ = hd & 1;
+  track_ = (cylinder_ << 1) + (hd & 1);
+  disk_->Seek(track_);
 }
 
 // ---------------------------------------------------------------------------
@@ -85,10 +85,10 @@ uint32_t FDU::ReadID(uint32_t flags, IDR* id) {
 //  FDU::Seek
 //  指定されたシリンダー番号へシークする
 //
-//  cyrinder シーク先
+//  cylinder シーク先
 //
-uint32_t FDU::Seek(uint32_t cy) {
-  cyrinder = cy;
+uint32_t FDU::Seek(uint32_t cylinder) {
+  cylinder_ = cylinder;
   return 0;
 }
 
@@ -172,7 +172,7 @@ uint32_t FDU::WriteSector(uint32_t flags, IDR id, const uint8_t* data, bool dele
       memcpy(sector_->image.get(), data, writesize);
       sector_->flags = (flags & 0xc0) | (deleted ? FloppyDisk::kDeleted : 0);
       sector_->size = writesize;
-      diskmgr_->Modified(drive, track);
+      disk_manager_->Modified(drive_, track_);
       return 0;
     }
   }
@@ -191,7 +191,7 @@ uint32_t FDU::WriteSector(uint32_t flags, IDR id, const uint8_t* data, bool dele
 //  デバイス・スタータスを得る
 //
 uint32_t FDU::SenseDeviceStatus() {
-  uint32_t result = 0x20 | (cyrinder ? 0 : 0x10) | (head ? 4 : 0);
+  uint32_t result = 0x20 | (cylinder_ ? 0 : 0x10) | (head_ ? 4 : 0);
   if (disk_)
     result |= disk_->IsReadOnly() ? 0x48 : 8;
   return result;
@@ -224,7 +224,7 @@ uint32_t FDU::WriteID(uint32_t flags, WIDDESC* wid) {
 
   if (wid->sc) {
     if (!disk_->FormatTrack(wid->sc, sos)) {
-      diskmgr_->Modified(drive, track);
+      disk_manager_->Modified(drive_, track_);
       return FDC::ST0_AT | FDC::ST0_EC;
     }
 
@@ -239,7 +239,7 @@ uint32_t FDU::WriteID(uint32_t flags, WIDDESC* wid) {
     disk_->FormatTrack(0, 0);
   }
   disk_->IndexHole();
-  diskmgr_->Modified(drive, track);
+  disk_manager_->Modified(drive_, track_);
   return 0;
 }
 
@@ -274,7 +274,7 @@ uint32_t FDU::MakeDiagData(uint32_t flags, uint8_t* data, uint32_t* size) {
     return FDC::ST0_AT | FDC::ST1_MA;
   SetHead(flags);
 
-  FloppyDisk::Sector* sec = disk_->GetFirstSector(track);
+  FloppyDisk::Sector* sec = disk_->GetFirstSector(track_);
   if (!sec)
     return FDC::ST0_AT | FDC::ST1_ND;
   if (sec->flags & FloppyDisk::kMAM)

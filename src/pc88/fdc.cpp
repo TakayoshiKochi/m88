@@ -15,7 +15,7 @@
 #include "common/io_bus.h"
 #include "common/status_bar.h"
 #include "pc88/config.h"
-#include "services/diskmgr.h"
+#include "services/disk_manager.h"
 
 // #define LOGNAME "fdc"
 #include "common/diag.h"
@@ -23,7 +23,7 @@
 namespace pc8801 {
 FDC::FDC(const ID& id) : Device(id) {
   for (int i = 0; i < num_drives; i++) {
-    drive_[i].cyrinder = 0;
+    drive_[i].cylinder = 0;
     drive_[i].result = 0;
     drive_[i].hd = 0;
     drive_[i].dd = 1;
@@ -33,7 +33,7 @@ FDC::FDC(const ID& id) : Device(id) {
 FDC::~FDC() = default;
 
 bool FDC::Init(services::DiskManager* dm, Scheduler* s, IOBus* b, int ip, int sp) {
-  diskmgr_ = dm;
+  disk_manager_ = dm;
   scheduler_ = s;
   bus_ = b;
 
@@ -560,7 +560,7 @@ void FDC::ReadData(bool deleted, bool scan) {
     g_status_bar->Show(85, 0, "%s (%d) %.2x %.2x %.2x %.2x", scan ? "Scan" : "Read", hdu_ & 3,
                        idr_.c, idr_.h, idr_.r, idr_.n);
 
-  std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
+  std::lock_guard<std::mutex> lock(disk_manager_->GetMutex());
   result_ = CheckCondition(false);
   if (result_ & ST1_MA) {
     // ディスクが無い場合，100ms 後に再挑戦
@@ -576,7 +576,7 @@ void FDC::ReadData(bool deleted, bool scan) {
   uint32_t dr = hdu_ & 3;
   uint32_t flags = ((hdu_ >> 2) & 1) | (command_ & 0x40) | (drive_[dr].hd & 0x80);
 
-  result_ = diskmgr_->GetFDU(dr)->ReadSector(flags, idr_, buffer_.get());
+  result_ = disk_manager_->GetFDU(dr)->ReadSector(flags, idr_, buffer_.get());
 
   if (deleted)
     result_ ^= ST2_CM;
@@ -651,7 +651,7 @@ void FDC::Seek(uint32_t dr, uint32_t cy) {
   dr &= 3;
 
   cy <<= drive_[dr].dd;
-  int seekcount = abs((int)cy - (int)drive_[dr].cyrinder);
+  int seekcount = abs((int)cy - (int)drive_[dr].cylinder);
   if (GetDeviceStatus(dr) & 0x80) {
     // FAULT
     Log("\tSeek on unconnected drive (%d)\n", dr);
@@ -659,8 +659,8 @@ void FDC::Seek(uint32_t dr, uint32_t cy) {
     Intr(true);
     int_requested_ = true;
   } else {
-    Log("Seek: %d -> %d (%d)\n", drive_[dr].cyrinder, cy, seekcount);
-    drive_[dr].cyrinder = cy;
+    Log("Seek: %d -> %d (%d)\n", drive_[dr].cylinder, cy, seekcount);
+    drive_[dr].cylinder = cy;
     seek_time_ = seekcount && disk_wait_ ? (400 * abs(seekcount) + 500) : 10;
     scheduler_->AddEventNS(seek_time_ * kNanoSecsPerTick, this,
                            static_cast<TimeFunc>(&FDC::SeekEvent), dr, false);
@@ -676,7 +676,7 @@ void FDC::Seek(uint32_t dr, uint32_t cy) {
 
 void FDC::SeekEvent(uint32_t dr) {
   Log("\tSeek (%d) ", dr);
-  std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
+  std::lock_guard<std::mutex> lock(disk_manager_->GetMutex());
 
   if (seek_time_ > 1000) {
     fd_stat_ &= ~0x10;
@@ -685,10 +685,10 @@ void FDC::SeekEvent(uint32_t dr) {
   }
 
   seek_time_ = 0;
-  if (dr > num_drives || !diskmgr_->GetFDU(dr)->Seek(drive_[dr].cyrinder)) {
+  if (dr > num_drives || !disk_manager_->GetFDU(dr)->Seek(drive_[dr].cylinder)) {
     drive_[dr].result = (dr & 3) | ST0_SE;
     Log("success.\n");
-    //      g_status_display->Show(1000, 0, "0:%.2d 1:%.2d", drive[0].cyrinder, drive[1].cyrinder);
+    //      g_status_display->Show(1000, 0, "0:%.2d 1:%.2d", drive[0].cylinder, drive[1].cyrinder);
   } else {
     drive_[dr].result = (dr & 3) | ST0_SE | ST0_NR | ST0_AT;
     Log("failed.\n");
@@ -741,7 +741,7 @@ void FDC::CmdSenceIntStatus() {
     for (i = 0; i < 4; i++) {
       if (drive_[i].result) {
         buffer_[0] = uint8_t(drive_[i].result);
-        buffer_[1] = uint8_t(drive_[i].cyrinder >> drive_[i].dd);
+        buffer_[1] = uint8_t(drive_[i].cylinder >> drive_[i].dd);
         drive_[i].result = 0;
         ShiftToResultPhase(2);
         break;
@@ -781,10 +781,10 @@ void FDC::CmdSenceDeviceStatus() {
 }
 
 uint32_t FDC::GetDeviceStatus(uint32_t dr) {
-  std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
+  std::lock_guard<std::mutex> lock(disk_manager_->GetMutex());
   hdu_ = (hdu_ & ~3) | (dr & 3);
   if (dr < num_drives)
-    return diskmgr_->GetFDU(dr)->SenseDeviceStatus() | dr;
+    return disk_manager_->GetFDU(dr)->SenseDeviceStatus() | dr;
   else
     return 0x80 | dr;
 }
@@ -807,7 +807,7 @@ void FDC::CmdWriteData() {
     case executephase:
       // FindID
       {
-        std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
+        std::lock_guard<std::mutex> lock(disk_manager_->GetMutex());
         result_ = CheckCondition(true);
         if (result_ & ST1_MA) {
           Log("Disk not mounted: Retry\n");
@@ -816,7 +816,7 @@ void FDC::CmdWriteData() {
         }
         if (!result_) {
           uint32_t dr = hdu_ & 3;
-          result_ = diskmgr_->GetFDU(dr)->FindID(
+          result_ = disk_manager_->GetFDU(dr)->FindID(
               ((hdu_ >> 2) & 1) | (command_ & 0x40) | (drive_[dr].hd & 0x80), idr_);
         }
         if (result_) {
@@ -879,7 +879,7 @@ void FDC::WriteData(bool deleted) {
     g_status_bar->Show(85, 0, "Write (%d) %.2x %.2x %.2x %.2x", hdu_ & 3, idr_.c, idr_.h, idr_.r,
                        idr_.n);
 
-  std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
+  std::lock_guard<std::mutex> lock(disk_manager_->GetMutex());
   result_ = CheckCondition(true);
   if (result_) {
     ShiftToResultPhase7();
@@ -888,7 +888,7 @@ void FDC::WriteData(bool deleted) {
 
   uint32_t dr = hdu_ & 3;
   uint32_t flags = ((hdu_ >> 2) & 1) | (command_ & 0x40) | (drive_[dr].hd & 0x80);
-  result_ = diskmgr_->GetFDU(dr)->WriteSector(flags, idr_, buffer_.get(), deleted);
+  result_ = disk_manager_->GetFDU(dr)->WriteSector(flags, idr_, buffer_.get(), deleted);
 }
 
 // ---------------------------------------------------------------------------
@@ -928,12 +928,12 @@ void FDC::CmdReadID() {
 //  ReadID Execution
 //
 void FDC::ReadID() {
-  std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
+  std::lock_guard<std::mutex> lock(disk_manager_->GetMutex());
   result_ = CheckCondition(false);
   if (!result_) {
     uint32_t dr = hdu_ & 3;
     uint32_t flags = ((hdu_ >> 2) & 1) | (command_ & 0x40) | (drive_[dr].hd & 0x80);
-    result_ = diskmgr_->GetFDU(dr)->ReadID(flags, &idr_);
+    result_ = disk_manager_->GetFDU(dr)->ReadID(flags, &idr_);
     if (show_status_)
       g_status_bar->Show(85, 0, "ReadID (%d:%.2x) %.2x %.2x %.2x %.2x", dr, flags, idr_.c, idr_.h,
                          idr_.r, idr_.n);
@@ -1001,7 +1001,7 @@ void FDC::WriteID() {
   }
 #endif
 
-  std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
+  std::lock_guard<std::mutex> lock(disk_manager_->GetMutex());
 
   result_ = CheckCondition(true);
   if (result_) {
@@ -1011,10 +1011,10 @@ void FDC::WriteID() {
 
   uint32_t dr = hdu_ & 3;
   uint32_t flags = ((hdu_ >> 2) & 1) | (command_ & 0x40) | (drive_[dr].hd & 0x80);
-  result_ = diskmgr_->GetFDU(dr)->WriteID(flags, &wid_);
+  result_ = disk_manager_->GetFDU(dr)->WriteID(flags, &wid_);
   if (show_status_)
     g_status_bar->Show(85, 0, "WriteID dr:%d tr:%d sec:%.2d N:%.2x", dr,
-                       (drive_[dr].cyrinder >> drive_[dr].dd) * 2 + ((hdu_ >> 2) & 1), wid_.sc,
+                       (drive_[dr].cylinder >> drive_[dr].dd) * 2 + ((hdu_ >> 2) & 1), wid_.sc,
                        wid_.n);
 
   idr_.n = wid_.n;
@@ -1090,7 +1090,7 @@ void FDC::CmdReadDiagnostic() {
 void FDC::ReadDiagnostic() {
   Log("\tReadDiag ");
   if (!read_diag_ptr_) {
-    std::lock_guard<std::mutex> lock(diskmgr_->GetMutex());
+    std::lock_guard<std::mutex> lock(disk_manager_->GetMutex());
     result_ = CheckCondition(false);
     if (result_) {
       ShiftToResultPhase7();
@@ -1107,10 +1107,10 @@ void FDC::ReadDiagnostic() {
     uint32_t dr = hdu_ & 3;
     uint32_t flags = ((hdu_ >> 2) & 1) | (command_ & 0x40) | (drive_[dr].hd & 0x80);
     uint32_t size;
-    int tr = (drive_[dr].cyrinder >> drive_[dr].dd) * 2 + ((hdu_ >> 2) & 1);
+    int tr = (drive_[dr].cylinder >> drive_[dr].dd) * 2 + ((hdu_ >> 2) & 1);
     g_status_bar->Show(84, show_status_ ? 1000 : 2000, "ReadDiagnostic (Dr%d Tr%d)", dr, tr);
 
-    result_ = diskmgr_->GetFDU(dr)->MakeDiagData(flags, buffer_.get(), &size);
+    result_ = disk_manager_->GetFDU(dr)->MakeDiagData(flags, buffer_.get(), &size);
     if (result_) {
       ShiftToResultPhase7();
       return;
@@ -1118,7 +1118,7 @@ void FDC::ReadDiagnostic() {
     read_diag_lim_ = buffer_.get() + size;
     Log("[0x%.4x]", size);
   }
-  result_ = diskmgr_->GetFDU(hdu_ & 3)->ReadDiag(buffer_.get(), &read_diag_ptr_, idr_);
+  result_ = disk_manager_->GetFDU(hdu_ & 3)->ReadDiag(buffer_.get(), &read_diag_ptr_, idr_);
   Log(" (ptr=0x%.4x re=%d)\n", read_diag_ptr_ - buffer_.get(), result_);
 }
 
@@ -1131,7 +1131,7 @@ uint32_t FDC::CheckCondition(bool write) {
   if (dr >= num_drives) {
     return ST0_AT | ST0_NR;
   }
-  if (!diskmgr_->GetFDU(dr)->IsMounted()) {
+  if (!disk_manager_->GetFDU(dr)->IsMounted()) {
     return ST0_AT | ST1_MA;
   }
   return 0;
@@ -1236,7 +1236,7 @@ bool FDC::LoadStatus(const uint8_t* s) {
   fd_stat_ = 0;
   for (int d = 0; d < num_drives; d++) {
     drive_[d] = st->dr[d];
-    diskmgr_->GetFDU(d)->Seek(drive_[d].cyrinder);
+    disk_manager_->GetFDU(d)->Seek(drive_[d].cylinder);
     if (seek_state_ & (1 << d)) {
       scheduler_->AddEventNS((disk_wait_ ? 100 : 10) * kNanoSecsPerTick, this,
                              static_cast<TimeFunc>(&FDC::SeekEvent), d, false);

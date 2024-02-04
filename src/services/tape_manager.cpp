@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: tapemgr.cpp,v 1.3 2000/08/06 09:58:51 cisc Exp $
 
-#include "services/tapemgr.h"
+#include "services/tape_manager.h"
 
 #include <algorithm>
 

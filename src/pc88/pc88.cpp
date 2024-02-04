@@ -30,8 +30,8 @@
 #include "pc88/screen.h"
 #include "pc88/sio.h"
 #include "pc88/subsys.h"
-#include "services/diskmgr.h"
-#include "services/tapemgr.h"
+#include "services/disk_manager.h"
+#include "services/tape_manager.h"
 #include "win32/monitor/loadmon.h"
 
 // #define LOGNAME "pc88"

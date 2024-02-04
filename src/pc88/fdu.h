@@ -40,7 +40,7 @@ class FDU {
   FDU();
   ~FDU();
 
-  bool Init(services::DiskManager* diskmgr, int dr);
+  bool Init(services::DiskManager* dm, int drive);
 
   bool Mount(FloppyDisk* disk);
   bool Unmount();
@@ -48,7 +48,7 @@ class FDU {
   bool IsMounted() const { return disk_ != nullptr; }
   uint32_t ReadSector(uint32_t flags, IDR id, uint8_t* data);
   uint32_t WriteSector(uint32_t flags, IDR id, const uint8_t* data, bool deleted);
-  uint32_t Seek(uint32_t cyrinder);
+  uint32_t Seek(uint32_t cylinder);
   uint32_t SenseDeviceStatus();
   uint32_t ReadID(uint32_t flags, IDR* id);
   uint32_t WriteID(uint32_t flags, WIDDESC* wid);
@@ -66,11 +66,11 @@ class FDU {
 
   FloppyDisk* disk_ = nullptr;
   FloppyDisk::Sector* sector_ = nullptr;
-  services::DiskManager* diskmgr_ = nullptr;
-  int cyrinder = 0;
-  int head = 0;
-  int drive = 0;
-  int track = 0;
+  services::DiskManager* disk_manager_ = nullptr;
+  int cylinder_ = 0;
+  int head_ = 0;
+  int drive_ = 0;
+  int track_ = 0;
 };
 
 }  // namespace pc8801
