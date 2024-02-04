@@ -7,7 +7,6 @@
 #include "services/tape_manager.h"
 
 #include <algorithm>
-#include <memory>
 
 #include "common/io_bus.h"
 #include "common/file.h"
@@ -65,9 +64,7 @@ bool TapeManager::Open(const std::string_view file) {
       return false;
     }
 
-    tags_.emplace_back(Tag());
-    tags_.back().id = hdr.id;
-    tags_.back().length = hdr.length;
+    tags_.emplace_back(Tag(hdr.id, hdr.length));
     tags_.back().data = std::make_unique<uint8_t[]>(hdr.length);
     fio.Read(tags_.back().data.get(), hdr.length);
   } while (tags_.back().id);

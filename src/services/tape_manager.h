@@ -73,6 +73,7 @@ class TapeManager : public Device {
   };
 
   struct Tag {
+    Tag(uint16_t id, uint16_t length) : id(id), length(length) {}
     uint16_t id;
     uint16_t length;
     std::unique_ptr<uint8_t[]> data;
