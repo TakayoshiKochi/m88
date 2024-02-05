@@ -176,8 +176,8 @@ bool WinUI::InitM88(const char* cmdline) {
   M88ChangeDisplay(hwnd_, 0, 0);
 
   //  現在の path 保存
-  char path[MAX_PATH];
-  GetCurrentDirectory(MAX_PATH, path);
+  char path[FileIO::kMaxPathLen];
+  GetCurrentDirectory(FileIO::kMaxPathLen, path);
 
   //  デバイスの初期化
   cfg_->LoadConfigDirectory("BIOSPath", true);
@@ -566,7 +566,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.FlagsEx = flags2() & pc8801::Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
 
-  char filename[MAX_PATH];
+  char filename[FileIO::kMaxPathLen];
   filename[0] = 0;
 
   ofn.hwndOwner = hwnd;
@@ -574,7 +574,7 @@ void WinUI::ChangeDiskImage(HWND hwnd, int drive) {
       "8801 disk image (*.d88)\0*.d88\0"
       "All Files (*.*)\0*.*\0";
   ofn.lpstrFile = filename;
-  ofn.nMaxFile = MAX_PATH;
+  ofn.nMaxFile = FileIO::kMaxPathLen;
   ofn.Flags = OFN_CREATEPROMPT | OFN_SHAREAWARE;
   ofn.lpstrDefExt = "d88";
   ofn.lpstrTitle = "Open disk image";
@@ -702,7 +702,7 @@ bool WinUI::SelectDisk(uint32_t drive, int id, bool menuonly) {
 //  マルチディスクイメージ用メニューの作成
 //
 bool WinUI::CreateDiskMenu(uint32_t drive) {
-  char buf[MAX_PATH + 16];
+  char buf[FileIO::kMaxPathLen + 16];
 
   DiskInfo& dinfo = diskinfo[drive];
   HMENU hmenuprev = dinfo.hmenu;
@@ -778,7 +778,7 @@ void WinUI::ChangeTapeImage() {
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.FlagsEx = flags2() & pc8801::Config::kShowPlaceBar ? 0 : OFN_EX_NOPLACESBAR;
 
-  char filename[MAX_PATH];
+  char filename[FileIO::kMaxPathLen];
   filename[0] = 0;
 
   ofn.hwndOwner = hwnd_;
@@ -786,7 +786,7 @@ void WinUI::ChangeTapeImage() {
       "T88 tape image (*.t88)\0*.t88\0"
       "All Files (*.*)\0*.*\0";
   ofn.lpstrFile = filename;
-  ofn.nMaxFile = MAX_PATH;
+  ofn.nMaxFile = FileIO::kMaxPathLen;
   ofn.Flags = OFN_CREATEPROMPT | OFN_SHAREAWARE;
   ofn.lpstrDefExt = "t88";
   ofn.lpstrTitle = "Open tape image";
@@ -804,7 +804,7 @@ void WinUI::ChangeTapeImage() {
 }
 
 void WinUI::OpenTapeImage(const char* filename) {
-  char buf[MAX_PATH + 32];
+  char buf[FileIO::kMaxPathLen + 32];
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(mii));
   mii.cbSize = sizeof(MENUITEMINFO);
@@ -905,7 +905,7 @@ void WinUI::SetCursorVisibility(bool flag) {
 //  スナップショットの書込み
 //
 void WinUI::SaveSnapshot(int n) {
-  char name[MAX_PATH];
+  char name[FileIO::kMaxPathLen];
   GetSnapshotName(name, n);
   if (core_.SaveSnapshot(name))
     statusdisplay.Show(80, 3000, "%s に保存しました", name);
@@ -919,7 +919,7 @@ void WinUI::SaveSnapshot(int n) {
 //  スナップショットの読み込み
 //
 void WinUI::LoadSnapshot(int n) {
-  char name[MAX_PATH];
+  char name[FileIO::kMaxPathLen];
   GetSnapshotName(name, n);
   bool r;
   if (!diskinfo[0].filename_.empty() && disk_manager_->GetNumDisks(0) >= 2) {
@@ -988,7 +988,7 @@ bool WinUI::MakeSnapshotMenu() {
     // スナップショットを検索
     int entries = 0;
     FileFinder ff;
-    char buf[MAX_PATH];
+    char buf[FileIO::kMaxPathLen];
 
     GetSnapshotName(buf, -1);
     size_t p = strlen(buf) - 5;
@@ -1512,7 +1512,7 @@ LRESULT WinUI::WmDropFiles(HWND, WPARAM wparam, LPARAM) {
   }
 
   // ファイルネームを取得
-  char path[MAX_PATH];
+  char path[FileIO::kMaxPathLen];
   DragQueryFile(hdrop, 0, path, 512);
   DragFinish(hdrop);
 

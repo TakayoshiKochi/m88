@@ -6,6 +6,7 @@
 
 #include "win32/monitor/codemon.h"
 
+#include "common/file.h"
 #include "common/memory_bus.h"
 #include "common/misc.h"
 #include "pc88/pc88.h"
@@ -153,7 +154,7 @@ bool CodeMonitor::DumpImage() {
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.FlagsEx = OFN_EX_NOPLACESBAR;
 
-  char filename[MAX_PATH];
+  char filename[FileIO::kMaxPathLen];
   filename[0] = 0;
 
   ofn.hwndOwner = GetHWnd();
@@ -161,17 +162,16 @@ bool CodeMonitor::DumpImage() {
       "assembly file (*.asm)\0*.asm\0"
       "All Files (*.*)\0*.*\0";
   ofn.lpstrFile = filename;
-  ofn.nMaxFile = MAX_PATH;
+  ofn.nMaxFile = FileIO::kMaxPathLen;
   ofn.Flags = OFN_CREATEPROMPT;
   ofn.lpstrDefExt = "asm";
-  ofn.lpstrTitle = 0;
+  ofn.lpstrTitle = nullptr;
 
   if (!GetSaveFileName(&ofn))
     return false;
 
   // 書き込み
-  FILE* fp = fopen(filename, "w");
-  if (fp) {
+  if (FILE* fp = fopen(filename, "w")) {
     Dump(fp, 0, 0x10000);
     fclose(fp);
     return true;

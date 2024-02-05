@@ -344,10 +344,10 @@ void* WinCore::QueryIF(REFIID id) {
 
 bool WinCore::ConnectExternalDevices() {
   FileFinder ff;
-  extern char m88dir[MAX_PATH];
-  char buf[MAX_PATH];
-  strncpy_s(buf, MAX_PATH, m88dir, _TRUNCATE);
-  strncat_s(buf, MAX_PATH, "*.m88", _TRUNCATE);
+  extern char m88dir[FileIO::kMaxPathLen];
+  char buf[FileIO::kMaxPathLen];
+  strncpy_s(buf, FileIO::kMaxPathLen, m88dir, _TRUNCATE);
+  strncat_s(buf, FileIO::kMaxPathLen, "*.m88", _TRUNCATE);
 
   if (ff.FindFile(buf)) {
     while (ff.FindNext()) {

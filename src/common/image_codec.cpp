@@ -23,7 +23,7 @@ ImageCodec* ImageCodec::GetCodec(const std::string_view type) {
 }
 
 std::string ImageCodec::GenerateFileName() const {
-  char filename[MAX_PATH];
+  char filename[FileIO::kMaxPathLen];
 
   SYSTEMTIME time{};
   GetLocalTime(&time);

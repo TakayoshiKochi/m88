@@ -6,6 +6,7 @@
 
 #include "services/88config.h"
 
+#include "common/file.h"
 #include "common/misc.h"
 
 static const char* AppName = "M88p2 for Windows";
@@ -13,16 +14,16 @@ static const char* AppName = "M88p2 for Windows";
 namespace services {
 
 namespace {
-char m88ini[MAX_PATH];
+char m88ini[FileIO::kMaxPathLen];
 
 void InitPathInfo() {
-  char buf[MAX_PATH];
+  char buf[FileIO::kMaxPathLen];
   char drive[_MAX_DRIVE];
   char dir[_MAX_DIR];
   char fname[_MAX_FNAME];
   char ext[_MAX_EXT];
 
-  GetModuleFileName(nullptr, buf, MAX_PATH);
+  GetModuleFileName(nullptr, buf, FileIO::kMaxPathLen);
   _splitpath(buf, drive, dir, fname, ext);
   sprintf(m88ini, "%s%s%s.ini", drive, dir, fname);
 }
@@ -65,7 +66,7 @@ std::string LoadConfigString(const std::string_view inifile, const char* entry) 
 }
 
 bool SaveEntry(const std::string_view inifile, const char* entry, int value) {
-  char buf[MAX_PATH];
+  char buf[FileIO::kMaxPathLen];
   wsprintf(buf, "%d", value);
   WritePrivateProfileString(AppName, entry, buf, inifile.data());
   return true;
@@ -80,8 +81,8 @@ bool SaveEntry(const std::string_view inifile, const char* entry, const char* va
 constexpr int VOLUME_BIAS = 100;
 
 void SaveConfig(const pc8801::Config* cfg, const std::string_view inifile) {
-  char buf[MAX_PATH];
-  GetCurrentDirectory(MAX_PATH, buf);
+  char buf[FileIO::kMaxPathLen];
+  GetCurrentDirectory(FileIO::kMaxPathLen, buf);
   SaveEntry(inifile, "Directory", buf);
 
   SaveEntry(inifile, "Flags", cfg->flags());
@@ -254,8 +255,8 @@ void ConfigService::Save() {
 
 void ConfigService::LoadConfigDirectory(const char* entry, bool readalways) {
   if (readalways || (config_.flags() & pc8801::Config::kSaveDirectory)) {
-    char path[MAX_PATH];
-    if (GetPrivateProfileString(AppName, entry, ";", path, MAX_PATH, m88ini)) {
+    char path[FileIO::kMaxPathLen];
+    if (GetPrivateProfileString(AppName, entry, ";", path, FileIO::kMaxPathLen, m88ini)) {
       if (path[0] != ';')
         SetCurrentDirectory(path);
     }

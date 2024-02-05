@@ -8,6 +8,7 @@
 #include <commctrl.h>
 #include <memory>
 
+#include "common/file.h"
 #include "win32/ui.h"
 
 // Use modern visual style in common controls
@@ -28,19 +29,19 @@
 
 // ---------------------------------------------------------------------------
 
-char m88dir[MAX_PATH];
+char m88dir[FileIO::kMaxPathLen];
 
 // ---------------------------------------------------------------------------
 //  InitPathInfo
 //
 static void InitPathInfo() {
-  char buf[MAX_PATH];
+  char buf[FileIO::kMaxPathLen];
   char drive[_MAX_DRIVE];
   char dir[_MAX_DIR];
   char fname[_MAX_FNAME];
   char ext[_MAX_EXT];
 
-  GetModuleFileName(0, buf, MAX_PATH);
+  GetModuleFileName(0, buf, FileIO::kMaxPathLen);
   _splitpath(buf, drive, dir, fname, ext);
   sprintf(m88dir, "%s%s", drive, dir);
 }
