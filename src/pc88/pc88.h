@@ -30,6 +30,7 @@ namespace pc8801 {
 class Base;
 class Beep;
 class CDIF;
+class CMT;
 class CRTC;
 class Calendar;
 class Config;
@@ -164,6 +165,7 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
     kPOPNio2,    // OPN の入出力ポート 2 (連番)
     kPSIOin,     // SIO 関係
     kPSIOReq,    // Tape data in
+    kTapeOpen,   // Tape open
     kPTimeSync,  // time sync between cpu and opn
     kPortEnd
   };
@@ -206,6 +208,7 @@ class PC88 : public ICPUTime, public EmulationLoopDelegate {
   std::unique_ptr<pc8801::INTC> int_controller_;
   std::unique_ptr<pc8801::CRTC> crtc_;
   std::unique_ptr<pc8801::Base> base_;
+  std::unique_ptr<pc8801::CMT> cmt_;
   std::unique_ptr<pc8801::FDC> fdc_;
   std::unique_ptr<pc8801::SubSystem> subsys_;
   std::unique_ptr<pc8801::SIO> sio_tape_;

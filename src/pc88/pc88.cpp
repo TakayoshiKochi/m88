@@ -18,6 +18,7 @@
 #include "pc88/base.h"
 #include "pc88/beep.h"
 #include "pc88/calendar.h"
+#include "pc88/cmt.h"
 #include "pc88/config.h"
 #include "pc88/crtc.h"
 #include "pc88/fdc.h"
@@ -70,8 +71,7 @@ bool PC88::Init(Draw* draw,
   if (!draw_->Init(640, 400, 8))
     return false;
 
-  if (!tape_manager_->Init(&scheduler_, nullptr, 0))
-    return false;
+  tape_manager_->Init(&main_iobus_, kTapeOpen);
 
   MemoryPage* read = nullptr;
   MemoryPage* write = nullptr;
@@ -294,7 +294,6 @@ bool PC88::ConnectDevices() {
     return false;
   if (!base_->Init(this))
     return false;
-  devlist_.Add(tape_manager_);
 
   static const IOBus::Connector c_dmac[] = {
       {kPReset, IOBus::portout, PD8257::kReset}, {0x60, IOBus::portout, PD8257::kSetAddr},
@@ -441,14 +440,15 @@ bool PC88::ConnectDevices() {
   if (!sio_tape_->Init(&main_iobus_, kPint0, kPSIOReq))
     return false;
 
-  static const IOBus::Connector c_tape[] = {
-      {kPSIOReq, IOBus::portout, services::TapeManager::requestdata},
-      {0x30, IOBus::portout, services::TapeManager::out30},
-      {0x40, IOBus::portin, services::TapeManager::in40},
-      {0, 0, 0}};
-  if (!main_iobus_.Connect(tape_manager_, c_tape))
+  static const IOBus::Connector c_tape[] = {{kPSIOReq, IOBus::portout, CMT::kRequestData},
+                                            {kTapeOpen, IOBus::portout, CMT::kTapeOpen},
+                                            {0x30, IOBus::portout, CMT::kOut30},
+                                            {0x40, IOBus::portin, CMT::kIn40},
+                                            {0, 0, 0}};
+  cmt_ = std::make_unique<CMT>();
+  if (!cmt_ || !main_iobus_.Connect(cmt_.get(), c_tape))
     return false;
-  if (!tape_manager_->Init(&scheduler_, &main_iobus_, kPSIOin))
+  if (!cmt_->Init(&scheduler_, &main_iobus_, tape_manager_, kPSIOin))
     return false;
 
   static const IOBus::Connector c_opn1[] = {

@@ -74,6 +74,7 @@ add_library(common ${LIB_TYPE}
         src/common/sound_source.h
         src/common/status_bar.h
         src/common/status_bar.cpp
+        src/common/tape.h
         src/common/threadable.h
         src/common/time_constants.h)
 
@@ -106,6 +107,8 @@ add_library(pc88core ${LIB_TYPE}
         src/pc88/beep.cpp
         src/pc88/calendar.h
         src/pc88/calendar.cpp
+        src/pc88/cmt.h
+        src/pc88/cmt.cpp
         src/pc88/crtc.h
         src/pc88/crtc.cpp
         src/pc88/fdc.h

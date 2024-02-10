@@ -377,6 +377,7 @@
     <ClCompile Include="src\pc88\base.cpp" />
     <ClCompile Include="src\pc88\beep.cpp" />
     <ClCompile Include="src\pc88\calendar.cpp" />
+    <ClCompile Include="src\pc88\cmt.cpp" />
     <ClCompile Include="src\pc88\crtc.cpp" />
     <ClCompile Include="src\pc88\fdc.cpp" />
     <ClCompile Include="src\pc88\fdu.cpp" />
@@ -624,6 +625,7 @@
     <ClInclude Include="src\common\scoped_handle.h" />
     <ClInclude Include="src\common\sound_source.h" />
     <ClInclude Include="src\common\status_bar.h" />
+    <ClInclude Include="src\common\tape.h" />
     <ClInclude Include="src\common\time_constants.h" />
     <ClInclude Include="src\devices\z80.h" />
     <ClInclude Include="src\devices\z80c.h" />
@@ -636,6 +638,7 @@
     <ClInclude Include="src\pc88\base.h" />
     <ClInclude Include="src\pc88\beep.h" />
     <ClInclude Include="src\pc88\calendar.h" />
+    <ClInclude Include="src\pc88\cmt.h" />
     <ClInclude Include="src\pc88\config.h" />
     <ClInclude Include="src\pc88\crtc.h" />
     <ClInclude Include="src\pc88\fdc.h" />

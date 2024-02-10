@@ -423,6 +423,9 @@
     <ClCompile Include="third_party\fmgen\psg.cpp">
       <Filter>fmgen</Filter>
     </ClCompile>
+    <ClCompile Include="src\pc88\cmt.cpp">
+      <Filter>pc88</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\device.h">
@@ -844,6 +847,12 @@
     </ClInclude>
     <ClInclude Include="src\win32\file_finder.h">
       <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\tape.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pc88\cmt.h">
+      <Filter>pc88</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
