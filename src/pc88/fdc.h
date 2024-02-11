@@ -121,7 +121,7 @@ class FDC : public Device {
   };
 
   struct Drive {
-    uint32_t cyrinder;
+    uint32_t cylinder;
     uint32_t result;
     uint8_t hd;
     uint8_t dd;
@@ -191,7 +191,7 @@ class FDC : public Device {
 
   uint32_t GetDeviceStatus(uint32_t dr);
 
-  services::DiskManager* diskmgr_ = nullptr;
+  services::DiskManager* disk_manager_ = nullptr;
   IOBus* bus_ = nullptr;
   int pintr_ = 0;
   Scheduler* scheduler_ = nullptr;

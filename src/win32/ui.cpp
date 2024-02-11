@@ -18,9 +18,9 @@
 #include "common/file.h"
 #include "common/image_codec.h"
 #include "pc88/opnif.h"
-#include "services/diskmgr.h"
+#include "services/disk_manager.h"
 #include "services/power_management.h"
-#include "services/tapemgr.h"
+#include "services/tape_manager.h"
 #include "win32/about.h"
 #include "win32/file_finder.h"
 #include "win32/filetest.h"
@@ -1927,7 +1927,8 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM) {
       if (active_) {
         char buf[64];
         int64_t freq100 = icount / 10000;
-        wsprintf(buf, "M88k - %d fps.  %d.%.2d MHz", fcount, int(freq100 / 100), int(freq100 % 100));
+        wsprintf(buf, "M88k - %d fps.  %d.%.2d MHz", fcount, int(freq100 / 100),
+                 int(freq100 % 100));
         SetWindowText(hwnd, buf);
       } else
         SetWindowText(hwnd, "M88k");

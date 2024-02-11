@@ -377,6 +377,7 @@
     <ClCompile Include="src\pc88\base.cpp" />
     <ClCompile Include="src\pc88\beep.cpp" />
     <ClCompile Include="src\pc88\calendar.cpp" />
+    <ClCompile Include="src\pc88\cmt.cpp" />
     <ClCompile Include="src\pc88\crtc.cpp" />
     <ClCompile Include="src\pc88\fdc.cpp" />
     <ClCompile Include="src\pc88\fdu.cpp" />
@@ -395,13 +396,13 @@
     <ClCompile Include="src\pc88\subsys.cpp" />
     <ClCompile Include="src\pc88\ymfm_interface.cpp" />
     <ClCompile Include="src\services\88config.cpp" />
-    <ClCompile Include="src\services\diskmgr.cpp" />
+    <ClCompile Include="src\services\disk_manager.cpp" />
     <ClCompile Include="src\services\disk_image_holder.cpp" />
     <ClCompile Include="src\services\ioview.cpp" />
     <ClCompile Include="src\services\memview.cpp" />
     <ClCompile Include="src\services\power_management.cpp" />
     <ClCompile Include="src\services\rom_loader.cpp" />
-    <ClCompile Include="src\services\tapemgr.cpp" />
+    <ClCompile Include="src\services\tape_manager.cpp" />
     <ClCompile Include="src\win32\about.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
@@ -624,6 +625,7 @@
     <ClInclude Include="src\common\scoped_handle.h" />
     <ClInclude Include="src\common\sound_source.h" />
     <ClInclude Include="src\common\status_bar.h" />
+    <ClInclude Include="src\common\tape.h" />
     <ClInclude Include="src\common\time_constants.h" />
     <ClInclude Include="src\devices\z80.h" />
     <ClInclude Include="src\devices\z80c.h" />
@@ -636,6 +638,7 @@
     <ClInclude Include="src\pc88\base.h" />
     <ClInclude Include="src\pc88\beep.h" />
     <ClInclude Include="src\pc88\calendar.h" />
+    <ClInclude Include="src\pc88\cmt.h" />
     <ClInclude Include="src\pc88\config.h" />
     <ClInclude Include="src\pc88\crtc.h" />
     <ClInclude Include="src\pc88\fdc.h" />
@@ -656,13 +659,13 @@
     <ClInclude Include="src\pc88\subsys.h" />
     <ClInclude Include="src\pc88\ymfm_interface.h" />
     <ClInclude Include="src\services\88config.h" />
-    <ClInclude Include="src\services\diskmgr.h" />
+    <ClInclude Include="src\services\disk_manager.h" />
     <ClInclude Include="src\services\disk_image_holder.h" />
     <ClInclude Include="src\services\ioview.h" />
     <ClInclude Include="src\services\memview.h" />
     <ClInclude Include="src\services\power_management.h" />
     <ClInclude Include="src\services\rom_loader.h" />
-    <ClInclude Include="src\services\tapemgr.h" />
+    <ClInclude Include="src\services\tape_manager.h" />
     <ClInclude Include="src\win32\about.h" />
     <ClInclude Include="src\win32\cfgpage.h" />
     <ClInclude Include="src\win32\extdev.h" />

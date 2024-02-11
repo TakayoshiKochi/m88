@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  $Id: diskmgr.cpp,v 1.13 1999/11/26 10:13:46 cisc Exp $
 
-#include "services/diskmgr.h"
+#include "services/disk_manager.h"
 
 #include <algorithm>
 #include <memory>

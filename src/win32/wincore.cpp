@@ -15,7 +15,7 @@
 #include "pc88/joypad.h"
 #include "pc88/opnif.h"
 #include "pc88/pd8257.h"
-#include "services/diskmgr.h"
+#include "services/disk_manager.h"
 #include "win32/extdev.h"
 #include "win32/file_finder.h"
 #include "win32/messages.h"
