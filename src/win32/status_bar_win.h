@@ -26,15 +26,16 @@ class StatusBarWin : public StatusBar {
 
   bool Enable(bool show_fdc_status = false);
   bool Disable();
-  [[nodiscard]] int GetHeight() const { return height_; }
+  [[nodiscard]] uint32_t GetHeight() const { return height_; }
   void DrawItem(DRAWITEMSTRUCT* dis);
 
   // Implements StatusDisplay
   void UpdateDisplay();
   void Update();
 
-  // TODO: clean up the code paths.
+  // Updates |height_| and |dpi_|.
   void ResetSize();
+  void ResizeWindow(uint32_t width);
 
   [[nodiscard]] UINT_PTR GetTimerID() const { return timer_id_; }
   [[nodiscard]] HWND GetHWnd() const { return child_hwnd_; }
@@ -44,8 +45,8 @@ class StatusBarWin : public StatusBar {
   HWND child_hwnd_ = nullptr;
   UINT_PTR timer_id_ = 0;
 
-  int height_ = 0;
-  int dpi_ = 96;
+  uint32_t height_ = 0;
+  uint32_t dpi_ = 96;
   bool show_fdc_status_ = false;
 
   int litcurrent_[3]{};

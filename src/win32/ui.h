@@ -82,7 +82,7 @@ class WinUI {
   void OpenTapeImage(const char* filename);
 
   void ShowStatusWindow();
-  void ResizeWindow(uint32_t width, uint32_t height);
+  void ResizeWindow();
   void SetGUIFlag(bool);
   void SetCursorVisibility(bool visible);
 
@@ -113,7 +113,7 @@ class WinUI {
   HMENU hmenudbg_ = nullptr;
 
   // 状態表示用
-  UINT_PTR timerid_ = 0;
+  UINT_PTR timer_id_ = 0;
   bool report_ = true;
   std::atomic<bool> active_;
 
@@ -124,7 +124,7 @@ class WinUI {
   // When WM_DISPLAYCHANGE/DPICHANGED is received, the window size is adjusted.
   // This is a counter for delay in seconds.
   uint32_t reset_window_size_delay_ = 0;
-  int dpi_ = 96;
+  uint32_t dpi_ = 96;
   DWORD wstyle_ = 0;
   // fullscreen 時にウィンドウ位置が保存される
   POINT point_{};

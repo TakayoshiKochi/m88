@@ -33,39 +33,12 @@ bool StatusBarWin::Init(HWND parent) {
 bool StatusBarWin::Enable(bool show_fdc_status) {
   if (!child_hwnd_) {
     child_hwnd_ = CreateStatusWindow(WS_CHILD | WS_VISIBLE, nullptr, parent_hwnd_, 1);
-
     if (!child_hwnd_)
       return false;
   }
   show_fdc_status_ = show_fdc_status;
   ResetSize();
   return true;
-}
-
-void StatusBarWin::ResetSize() {
-  if (child_hwnd_ == nullptr)
-    return;
-
-  dpi_ = GetDpiForWindow(child_hwnd_);
-
-  struct Border {
-    int horizontal;
-    int vertical;
-    int split;
-  };
-  Border border{};
-  SendMessage(child_hwnd_, SB_GETBORDERS, 0, (LPARAM)&border);
-  RECT child_rect{};
-  GetWindowRect(child_hwnd_, &child_rect);
-  int led_width = dpi_;
-
-  int widths[2] = {
-      (child_rect.right - child_rect.left - border.vertical) - (led_width + border.split), -1};
-  SendMessage(child_hwnd_, SB_SETPARTS, 2, (LPARAM)widths);
-  height_ = child_rect.bottom - child_rect.top;
-
-  InvalidateRect(parent_hwnd_, nullptr, false);
-  PostMessage(child_hwnd_, SB_SETTEXT, SBT_OWNERDRAW | 1, 0);
 }
 
 bool StatusBarWin::Disable() {
@@ -76,6 +49,33 @@ bool StatusBarWin::Disable() {
   child_hwnd_ = nullptr;
   height_ = 0;
   return true;
+}
+
+void StatusBarWin::ResetSize() {
+  if (child_hwnd_ == nullptr)
+    return;
+  RECT child_rect{};
+  GetWindowRect(child_hwnd_, &child_rect);
+  height_ = child_rect.bottom - child_rect.top;
+  dpi_ = GetDpiForWindow(child_hwnd_);
+}
+
+void StatusBarWin::ResizeWindow(uint32_t width) {
+  if (child_hwnd_ == nullptr)
+    return;
+
+  struct Border {
+    int horizontal;
+    int vertical;
+    int split;
+  } border{};
+  SendMessage(child_hwnd_, SB_GETBORDERS, 0, (LPARAM)&border);
+
+  uint32_t led_width = dpi_;
+  int widths[2] = { static_cast<int>((width - border.vertical) - (led_width + border.split)), -1};
+  SendMessage(child_hwnd_, SB_SETPARTS, 2, (LPARAM)widths);
+  InvalidateRect(parent_hwnd_, nullptr, false);
+  PostMessage(child_hwnd_, SB_SETTEXT, SBT_OWNERDRAW | 1, 0);
 }
 
 void StatusBarWin::CleanUp() {

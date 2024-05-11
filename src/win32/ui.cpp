@@ -117,7 +117,7 @@ int WinUI::Main(const char* cmdline) {
 
   hmenudbg_ = nullptr;
   if (InitM88(cmdline)) {
-    timerid_ = ::SetTimer(hwnd_, 1, 1000, nullptr);
+    timer_id_ = ::SetTimer(hwnd_, 1, 1000, nullptr);
     ::SetTimer(hwnd_, 2, 100, nullptr);
 
     ShowWindow(hwnd_, SW_SHOWDEFAULT);
@@ -169,7 +169,7 @@ bool WinUI::InitM88(const char* cmdline) {
   statusdisplay.Init(hwnd_);
 
   // Window位置復元
-  ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
+  ResizeWindow();
   LoadWindowPosition();
 
   // 画面初期化
@@ -838,34 +838,31 @@ void WinUI::ShowStatusWindow() {
     DWORD dwm_attr = DWMWCP_DONOTROUND;
     DwmSetWindowAttribute(hwnd_, DWMWA_WINDOW_CORNER_PREFERENCE, &dwm_attr, sizeof(DWORD));
   }
-  ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
+  ResizeWindow();
 }
 
 // ---------------------------------------------------------------------------
 //  WinUI::ResizeWindow
 //  ウィンドウの大きさを変える
 //
-void WinUI::ResizeWindow(uint32_t width, uint32_t height) {
+void WinUI::ResizeWindow() {
   assert(!fullscreen_);
-
   dpi_ = GetDpiForWindow(hwnd_);
   double ratio = dpi_ / 96.0;
-  width = static_cast<uint32_t>(width * ratio);
-  height = static_cast<uint32_t>(height * ratio);
-
-  RECT rect;
+  uint32_t draw_width = static_cast<uint32_t>(kPC88ScreenWidth * ratio);
+  uint32_t draw_height = static_cast<uint32_t>(kPC88ScreenHeight * ratio);
+  statusdisplay.ResetSize();
+  RECT rect{};
   rect.left = 0;
-  rect.right = width;
+  rect.right = draw_width;
   rect.top = 0;
-  rect.bottom = height + statusdisplay.GetHeight();
+  rect.bottom = draw_height + statusdisplay.GetHeight();
 
-  // AdjustWindowRectEx(&rect, wstyle_, TRUE, 0);
   AdjustWindowRectExForDpi(&rect, wstyle_, TRUE, 0, dpi_);
   SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
                SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
-  PostMessage(hwnd_, WM_SIZE, SIZE_RESTORED, MAKELONG(width, height));
-  draw_.Resize(width, height);
-  statusdisplay.ResetSize();
+  statusdisplay.ResizeWindow(draw_width);
+  draw_.Resize(draw_width, draw_height);
 }
 
 // ---------------------------------------------------------------------------
@@ -1121,7 +1118,7 @@ LRESULT WinUI::M88ChangeDisplay(HWND hwnd, WPARAM, LPARAM) {
       SetMenu(hwnd, hmenu_);
     SetWindowLongPtr(hwnd, GWL_STYLE, wstyle_);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle);
-    ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
+    ResizeWindow();
     SetWindowPos(hwnd, HWND_NOTOPMOST, point_.x, point_.y, 0, 0, SWP_NOSIZE);
     ShowStatusWindow();
     report_ = true;
@@ -1486,12 +1483,19 @@ LRESULT WinUI::WmExitMenuLoop(HWND, WPARAM wp, LPARAM) {
 //  WM_DISPLAYCHANGE ハンドラ
 //
 LRESULT WinUI::WmDisplayChange(HWND, WPARAM, LPARAM) {
+  // TODO: When WM_DPICHANGED event is posted, this event isn't posted?
   reset_window_size_delay_ = fullscreen_ ? 0 : 1;
   return 0;
 }
 
-LRESULT WinUI::WmDpiChanged(HWND, WPARAM, LPARAM) {
-  reset_window_size_delay_ = fullscreen_ ? 0 : 1;
+LRESULT WinUI::WmDpiChanged(HWND, WPARAM wp, LPARAM lp) {
+  dpi_ = LOWORD(wp);
+  // |lp| contains recommended window size and position.
+  RECT rect = *reinterpret_cast<RECT*>(lp);
+  SetWindowPos(hwnd_, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+               SWP_NOZORDER | SWP_NOACTIVATE);
+  // Adjust window size further.
+  ResizeWindow();
   return 0;
 }
 
@@ -1619,8 +1623,7 @@ LRESULT WinUI::WmExitSizeMove(HWND, WPARAM, LPARAM) {
 //  WM_SIZE
 //
 LRESULT WinUI::WmSize(HWND hwnd, WPARAM wp, LPARAM lp) {
-  HWND hwndstatus = statusdisplay.GetHWnd();
-  if (hwndstatus)
+  if (HWND hwndstatus = statusdisplay.GetHWnd())
     PostMessage(hwndstatus, WM_SIZE, wp, lp);
   active_ = wp != SIZE_MINIMIZED;
   draw_.Activate(active_);
@@ -1830,14 +1833,14 @@ LRESULT WinUI::WmPaint(HWND hwnd, WPARAM wp, LPARAM lp) {
 //
 LRESULT WinUI::WmCreate(HWND hwnd, WPARAM, LPARAM) {
   // CREATESTRUCT* cs = (CREATESTRUCT*)wparam;
-  RECT rect;
+  RECT rect{};
   rect.left = 0;
   rect.top = 0;
   rect.right = kPC88ScreenWidth;
   rect.bottom = kPC88ScreenHeight;
 
-  // AdjustWindowRectEx(&rect, wstyle_, TRUE, 0);
-  dpi_ = GetDpiForWindow(hwnd_);
+  hwnd_ = hwnd;
+  dpi_ = GetDpiForWindow(hwnd);
   AdjustWindowRectExForDpi(&rect, wstyle_, TRUE, 0, dpi_);
   SetWindowPos(hwnd, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
                SWP_NOMOVE | SWP_NOZORDER);
@@ -1879,8 +1882,8 @@ LRESULT WinUI::WmClose(HWND hwnd, WPARAM, LPARAM) {
   }
 
   // タイマー破棄
-  KillTimer(hwnd, timerid_);
-  timerid_ = 0;
+  KillTimer(hwnd, timer_id_);
+  timer_id_ = 0;
 
   // 拡張メニューを破壊する
   MENUITEMINFO mii;
@@ -1916,8 +1919,8 @@ LRESULT WinUI::WmClose(HWND hwnd, WPARAM, LPARAM) {
 //  WM_TIMER ハンドラ
 //
 LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM) {
-  Log("WmTimer:%d(%d)\n", wparam, timerid_);
-  if (wparam == timerid_) {
+  Log("WmTimer:%d(%d)\n", wparam, timer_id_);
+  if (wparam == timer_id_) {
     // 実効周波数,表示フレーム数を取得
     int fcount = draw_.GetDrawCount();
     int64_t icount = core_.GetExecClocks();
@@ -1934,10 +1937,8 @@ LRESULT WinUI::WmTimer(HWND hwnd, WPARAM wparam, LPARAM) {
         SetWindowText(hwnd, "M88k");
     }
 
-    if (reset_window_size_delay_ > 0) {
-      --reset_window_size_delay_;
-      if (reset_window_size_delay_ == 0)
-        ResizeWindow(kPC88ScreenWidth, kPC88ScreenHeight);
+    if (reset_window_size_delay_ > 0 && --reset_window_size_delay_ == 0) {
+      ResizeWindow();
     }
     return 0;
   }
