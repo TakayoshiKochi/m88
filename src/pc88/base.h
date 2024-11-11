@@ -27,7 +27,7 @@ class Base : public Device {
   [[nodiscard]] const Descriptor* IFCALL GetDesc() const override { return &descriptor; }
 
   void SetSwitch(const Config* cfg);
-  BasicMode GetBasicMode() { return basic_mode_; }
+  BasicMode GetBasicMode() const { return basic_mode_; }
   void IOCALL Reset(uint32_t = 0, uint32_t = 0);
   void SetFDBoot(bool autoboot) { autoboot_ = autoboot; }
 
