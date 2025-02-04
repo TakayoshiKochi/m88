@@ -83,7 +83,7 @@ bool DriverDS::Init(SoundSource16* s, HWND hwnd, uint32_t rate, uint32_t ch, uin
   dsbd.dwBufferBytes = buffer_size_;
   dsbd.lpwfxFormat = &wf;
 
-  HRESULT res = lpds_->CreateSoundBuffer(&dsbd, &lpdsb_, NULL);
+  HRESULT res = lpds_->CreateSoundBuffer(&dsbd, &lpdsb_, nullptr);
   if (DS_OK != res)
     return false;
 

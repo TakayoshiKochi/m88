@@ -78,8 +78,8 @@ bool WinDrawGDI::MakeBitmap() {
 
   if (hbitmap)
     DeleteObject(hbitmap);
-  hbitmap =
-      CreateDIBSection(hdc, (BITMAPINFO*)&binfo, DIB_RGB_COLORS, (void**)(&bitmapimage), NULL, 0);
+  hbitmap = CreateDIBSection(hdc, (BITMAPINFO*)&binfo, DIB_RGB_COLORS, (void**)(&bitmapimage),
+                             nullptr, 0);
 
   ReleaseDC(hwnd, hdc);
 

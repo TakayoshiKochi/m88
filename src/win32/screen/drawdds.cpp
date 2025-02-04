@@ -103,7 +103,7 @@ bool WinDrawDDS::CleanUp() {
 bool WinDrawDDS::CreateDD2(GUID* drv) {
   if (FAILED(CoCreateInstance(CLSID_DirectDraw, 0, CLSCTX_ALL, IID_IDirectDraw2, (void**)&ddraw)))
     return false;
-  if (FAILED(ddraw->Initialize(NULL)))  // drv)))
+  if (FAILED(ddraw->Initialize(nullptr)))  // drv)))
     return false;
   return true;
 }
@@ -352,11 +352,11 @@ void WinDrawDDS::FillBlankArea() {
     rect.top = 0;
     rect.right = width;
     rect.bottom = ltc.y;
-    ddsscrn->Blt(&rect, NULL, NULL, DDBLT_COLORFILL, &ddbltfx);
+    ddsscrn->Blt(&rect, nullptr, nullptr, DDBLT_COLORFILL, &ddbltfx);
 
     rect.top = lines - ltc.y;
     rect.bottom = lines;
-    ddsscrn->Blt(&rect, NULL, NULL, DDBLT_COLORFILL, &ddbltfx);
+    ddsscrn->Blt(&rect, nullptr, nullptr, DDBLT_COLORFILL, &ddbltfx);
   }
 }
 
