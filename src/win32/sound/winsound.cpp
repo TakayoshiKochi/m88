@@ -202,7 +202,7 @@ bool SoundDumpPipe::DumpStart(char* filename) {
   memset(&ckdata_, 0, sizeof(MMCKINFO));
 
   // mmioOpen
-  hmmio_ = mmioOpen(filename, NULL, MMIO_CREATE | MMIO_WRITE | MMIO_ALLOCBUF);
+  hmmio_ = mmioOpen(filename, nullptr, MMIO_CREATE | MMIO_WRITE | MMIO_ALLOCBUF);
   if (!hmmio_)
     return false;
 

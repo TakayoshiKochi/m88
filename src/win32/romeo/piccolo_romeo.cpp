@@ -21,7 +21,7 @@ struct PCIDRV {
   PCIMEMRD32 in32;
 };
 
-#define ROMEO_TPTR(member) ((intptr_t) & (((PCIDRV *)NULL)->member))
+#define ROMEO_TPTR(member) ((intptr_t) & (((PCIDRV *)nullptr)->member))
 
 struct DLLPROCESS {
   const char *symbol;

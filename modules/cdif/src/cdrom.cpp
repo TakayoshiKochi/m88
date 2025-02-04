@@ -70,8 +70,8 @@ bool CDROM::Init() {
   // とりあえず一番最初に見つかったドライブを開く
   char devname[8] = {0};
   sprintf_s(devname, sizeof(devname), "\\\\.\\%c:", drive_letters_[0]);
-  hdev_ = ::CreateFile(devname, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-                       0, NULL);
+  hdev_ = ::CreateFile(devname, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, nullptr,
+                       OPEN_EXISTING, 0, nullptr);
 
   if (hdev_ == INVALID_HANDLE_VALUE) {
     return false;
@@ -401,7 +401,7 @@ int CDROM::ExecuteSCSICommand(HANDLE _hdev,
                           &swb,  // 入力
                           length,
                           &swb,  // 出力
-                          length, &result, NULL);
+                          length, &result, nullptr);
 
   if (ret == TRUE) {
     return result;
