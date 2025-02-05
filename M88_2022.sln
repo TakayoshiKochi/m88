@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "M88_2022", "M88_2022.vcxproj", "{9792F586-937B-4B5B-B01E-DF451C23B5C4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "M88", "M88_2022.vcxproj", "{9792F586-937B-4B5B-B01E-DF451C23B5C4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "diskdrv", "modules\diskdrv\diskdrv.vcxproj", "{68224585-4A7E-4D23-941F-B6714E1A1FA2}"
 EndProject
@@ -48,21 +48,13 @@ Global
 		{BFE8B45C-16F5-47C0-9470-83AD735CA5F1}.Release|x64.ActiveCfg = Release|x64
 		{BFE8B45C-16F5-47C0-9470-83AD735CA5F1}.Release|x64.Build.0 = Release|x64
 		{70837B46-CB0B-42CF-99F8-750B922DEC6B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{70837B46-CB0B-42CF-99F8-750B922DEC6B}.Debug|Win32.Build.0 = Debug|Win32
 		{70837B46-CB0B-42CF-99F8-750B922DEC6B}.Debug|x64.ActiveCfg = Debug|x64
-		{70837B46-CB0B-42CF-99F8-750B922DEC6B}.Debug|x64.Build.0 = Debug|x64
 		{70837B46-CB0B-42CF-99F8-750B922DEC6B}.Release|Win32.ActiveCfg = Release|Win32
-		{70837B46-CB0B-42CF-99F8-750B922DEC6B}.Release|Win32.Build.0 = Release|Win32
 		{70837B46-CB0B-42CF-99F8-750B922DEC6B}.Release|x64.ActiveCfg = Release|x64
-		{70837B46-CB0B-42CF-99F8-750B922DEC6B}.Release|x64.Build.0 = Release|x64
 		{EB7A0ACF-F7DD-4248-9AAE-AE2F6EF4CDED}.Debug|Win32.ActiveCfg = Debug|Win32
-		{EB7A0ACF-F7DD-4248-9AAE-AE2F6EF4CDED}.Debug|Win32.Build.0 = Debug|Win32
 		{EB7A0ACF-F7DD-4248-9AAE-AE2F6EF4CDED}.Debug|x64.ActiveCfg = Debug|x64
-		{EB7A0ACF-F7DD-4248-9AAE-AE2F6EF4CDED}.Debug|x64.Build.0 = Debug|x64
 		{EB7A0ACF-F7DD-4248-9AAE-AE2F6EF4CDED}.Release|Win32.ActiveCfg = Release|Win32
-		{EB7A0ACF-F7DD-4248-9AAE-AE2F6EF4CDED}.Release|Win32.Build.0 = Release|Win32
 		{EB7A0ACF-F7DD-4248-9AAE-AE2F6EF4CDED}.Release|x64.ActiveCfg = Release|x64
-		{EB7A0ACF-F7DD-4248-9AAE-AE2F6EF4CDED}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
